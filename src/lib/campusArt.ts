@@ -6,3 +6,9 @@
 export const CAMPUS_ART_WIDTH = 1920;
 export const CAMPUS_ART_HEIGHT = 1080;
 export const CAMPUS_ART_ASPECT = CAMPUS_ART_WIDTH / CAMPUS_ART_HEIGHT;
+
+/**
+ * Enquadramento do `object-fit: cover` no viewport (evita foco no céu/chão e ajuda hotspots).
+ * Ajuste ao trocar o PNG ou ao refinar o crop widescreen.
+ */
+export const CAMPUS_IMAGE_OBJECT_POSITION = "center 41%";

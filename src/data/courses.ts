@@ -3,6 +3,8 @@ export type AreaColor = "canna" | "purple" | "amber" | "cyan" | "rose";
 export type Area = {
   id: string;
   name: string;
+  /** Label no mapa — se omitido, usa `name`. */
+  mapLabel?: string;
   short: string;
   category: string;
   level: "Iniciante" | "Intermediário" | "Avançado" | "Todos os níveis";

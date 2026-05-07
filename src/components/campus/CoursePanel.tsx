@@ -34,6 +34,7 @@ type Props = {
   area: Area | null;
   onClose: () => void;
   /** Abre o painel de aula integrado no mapa (prioridade em relação a sair do campus). */
+  /** Abre o painel de aula: sem índice = retoma última aula guardada (localStorage). */
   onOpenCampusLesson?: (lessonIndex?: number) => void;
 };
 
@@ -197,7 +198,7 @@ export function CoursePanel({
             <footer className="border-t border-white/10 px-6 py-4 flex flex-col gap-3 glass-strong">
               <button
                 type="button"
-                onClick={() => onOpenCampusLesson?.(0)}
+                onClick={() => onOpenCampusLesson?.()}
                 className="w-full px-4 py-3 rounded-xl bg-canna-500 hover:bg-canna-400 text-ink-900 font-bold tracking-wide transition-colors shadow-lg shadow-canna-500/30 text-center"
               >
                 Aulas aqui na sala virtual

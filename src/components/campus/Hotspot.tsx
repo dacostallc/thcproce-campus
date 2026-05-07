@@ -81,7 +81,7 @@ export function Hotspot({
       transition={{ delay: 0.4 + Math.random() * 0.6, duration: 0.6 }}
       whileHover={{ scale: 1.06 }}
       whileTap={{ scale: 0.98 }}
-      aria-label={`${area.name} — ${area.short}`}
+      aria-label={`${area.mapLabel ?? area.name} — ${area.short}`}
     >
       {/* Coluna: nome sempre ou no hover */}
       <div className="flex flex-col items-center gap-1.5 w-[min(200px,max(112px,24vw))]">
@@ -98,7 +98,7 @@ export function Hotspot({
               : "opacity-0 group-hover:opacity-100 transition-opacity duration-200 max-h-[4rem] line-clamp-3"
           )}
         >
-          {area.name}
+          {area.mapLabel ?? area.name}
         </span>
 
         {/* Pin */}

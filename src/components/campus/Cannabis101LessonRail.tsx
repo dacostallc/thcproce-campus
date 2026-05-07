@@ -1,18 +1,20 @@
 "use client";
 
 import type { ReactNode } from "react";
+import Link from "next/link";
 import {
-  CheckCircle2,
-  Circle,
   Clock,
   Crown,
   Flame,
+  MapPin,
   Sparkles,
-  Star,
-  TrendingUp
+  Star
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { levelNumberFromKey } from "@/data/gamificationLevels";
+
+const MOODLE = "https://thcproce.com.br/escola";
 
 type ProgressUi = {
   xp: number;
@@ -27,18 +29,15 @@ type Props = {
   totalLessons: number;
   /** Ex.: "9h" para estimativa de tempo */
   courseHoursLabel: string;
-  titles: string[];
-  clampedLesson: number;
-  doneSet: Set<number>;
-  onSelectLesson: (idx: number) => void;
   progressUi: ProgressUi | null;
+  onBackToCampus: () => void;
+  className?: string;
 };
 
 function formatXp(n: number): string {
   return n.toLocaleString("pt-BR");
 }
 
-/** Estimativa de tempo de estudo a partir das aulas marcadas (rotação ~20 min/aula). */
 function estStudyMinutes(doneCount: number, totalLessons: number, courseHoursHint: string): string {
   const hMatch = courseHoursHint.match(/(\d+)\s*h/i);
   const totalH = hMatch ? Number(hMatch[1]) : 9;
@@ -51,16 +50,15 @@ function estStudyMinutes(doneCount: number, totalLessons: number, courseHoursHin
   return `${hh}h ${mm.toString().padStart(2, "0")}m`;
 }
 
+/** Painel direito: progresso, XP, ações — sem lista de aulas (fica à esquerda) */
 export function Cannabis101LessonRail({
   coursePct,
   doneCount,
   totalLessons,
   courseHoursLabel,
-  titles,
-  clampedLesson,
-  doneSet,
-  onSelectLesson,
-  progressUi
+  progressUi,
+  onBackToCampus,
+  className
 }: Props) {
   const nextMilestone = 5;
   const towardFive = Math.min(doneCount, nextMilestone);
@@ -71,7 +69,31 @@ export function Cannabis101LessonRail({
   const levelN = levelNumberFromKey(progressUi?.levelKey);
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className={cn("flex flex-col gap-3", className)}>
+      <div className="flex flex-col gap-2">
+        <Button
+          type="button"
+          variant="default"
+          size="sm"
+          className="w-full bg-canna-600 font-bold text-ink-900 hover:bg-canna-500"
+          asChild
+        >
+          <Link href={MOODLE} target="_blank" rel="noreferrer">
+            Entrar no Moodle
+          </Link>
+        </Button>
+        <Button
+          type="button"
+          variant="glass"
+          size="sm"
+          className="w-full border-amber-500/35 bg-black/30 font-bold text-amber-100 hover:bg-amber-500/10"
+          onClick={onBackToCampus}
+        >
+          <MapPin className="mr-2 size-4" />
+          Voltar ao campus
+        </Button>
+      </div>
+
       <div className="rounded-2xl border border-amber-500/25 bg-gradient-to-br from-[#0c1812] to-[#050a08] p-4 shadow-lg shadow-black/40">
         <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-[0.2em] text-amber-200/80">
           <span>Progresso do curso</span>
@@ -115,45 +137,9 @@ export function Cannabis101LessonRail({
         />
       </div>
 
-      <div>
-        <p className="mb-2 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-amber-200/70">
-          <TrendingUp className="size-3.5" /> Aulas do curso
-        </p>
-        <ul className="max-h-[min(52vh,28rem)] space-y-1 overflow-y-auto scrollbar-thin pr-1">
-          {titles.map((t, idx) => {
-            const checked = doneSet.has(idx);
-            const active = idx === clampedLesson;
-            return (
-              <li key={idx}>
-                <button
-                  type="button"
-                  onClick={() => onSelectLesson(idx)}
-                  className={cn(
-                    "flex w-full items-start gap-2 rounded-xl border px-3 py-2.5 text-left text-sm transition-all",
-                    active
-                      ? "border-amber-400/50 bg-amber-500/15 text-white shadow-[0_0_20px_rgba(212,175,55,0.12)]"
-                      : "border-white/10 bg-black/20 text-white/80 hover:border-amber-500/25 hover:bg-white/5"
-                  )}
-                >
-                  <span className="mt-0.5 shrink-0 text-amber-300/90">
-                    {checked ? <CheckCircle2 className="size-4" /> : <Circle className="size-4 opacity-50" />}
-                  </span>
-                  <span>
-                    <span className="block text-[9px] font-bold uppercase tracking-wider text-white/40">
-                      {idx + 1}
-                    </span>
-                    <span className="leading-snug">{t}</span>
-                  </span>
-                </button>
-              </li>
-            );
-          })}
-        </ul>
-      </div>
-
       <div className="rounded-2xl border border-amber-500/20 bg-[#081510] p-4">
         <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-amber-200/70">Próxima conquista</p>
-        <p className="mt-2 text-sm font-semibold text-white">Assistir {nextMilestone} aulas</p>
+        <p className="mt-2 text-sm font-semibold text-white">Completar {nextMilestone} aulas</p>
         <div className="mt-3 h-2 overflow-hidden rounded-full bg-black/50">
           <div
             className="h-full rounded-full bg-gradient-to-r from-amber-600 to-canna-500"

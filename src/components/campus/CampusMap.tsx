@@ -20,8 +20,11 @@ import { InternalPreviewBanner } from "./InternalPreviewBanner";
 import { useCampusSkyStore } from "@/stores/campusSkyStore";
 import { useCampusStore } from "@/stores/campusStore";
 import { nearestArea } from "@/lib/campusProximity";
-import { CAMPUS_ART_ASPECT } from "@/lib/campusArt";
+import { CAMPUS_IMAGE_OBJECT_POSITION } from "@/lib/campusArt";
+import { isCampusAreaConstruction } from "@/config/campusAreaRollout";
+import { getLastLessonIndex } from "@/lib/campusLastLesson";
 import { trpc } from "@/lib/trpc/react";
+import { CampusAreaGateModal, type CampusGateKind } from "./CampusAreaGateModal";
 
 const PLACEHOLDER_NIGHT = `
   radial-gradient(ellipse at 20% 30%, rgba(34, 197, 94, 0.20), transparent 45%),
@@ -64,6 +67,10 @@ export function CampusMap({
   const [nightOk, setNightOk] = useState(true);
   const [dayOk, setDayOk] = useState(true);
   const [dismissNearId, setDismissNearId] = useState<string | null>(null);
+  const [gateOpen, setGateOpen] = useState<{
+    kind: CampusGateKind;
+    area: Area;
+  } | null>(null);
 
   const phase = sky;
   const anyMissing = sky === "night" ? !nightOk : !dayOk;
@@ -71,6 +78,30 @@ export function CampusMap({
   const { data: progress } = trpc.campus.areaProgress.useQuery({}, {
     staleTime: 120_000
   });
+
+  const { data: campusAccess } = trpc.campus.myCampusAccess.useQuery(undefined, {
+    enabled: status === "authenticated",
+    staleTime: 60_000
+  });
+
+  const canEnterCourses = useMemo(() => {
+    if (process.env.NEXT_PUBLIC_CAMPUS_PUBLIC_ALL === "true") return true;
+    if (status !== "authenticated") return false;
+    if (!campusAccess) return false;
+    return campusAccess.canOpenCourses;
+  }, [status, campusAccess]);
+
+  const handleSelectArea = (area: Area) => {
+    if (isCampusAreaConstruction(area.id)) {
+      setGateOpen({ kind: "construction", area });
+      return;
+    }
+    if (!canEnterCourses) {
+      setGateOpen({ kind: "enroll", area });
+      return;
+    }
+    setSelected(area);
+  };
 
   const nearResult = useMemo(
     () => nearestArea(player, 10),
@@ -85,16 +116,13 @@ export function CampusMap({
     nearResult &&
     dismissNearId !== nearResult.area.id &&
     selected?.id !== nearResult.area.id
-      ? nearResult.area.name
+      ? nearResult.area.mapLabel ?? nearResult.area.name
       : null;
 
   const myLabel =
     status === "authenticated"
       ? (session?.user?.name ?? session?.user?.email?.split("@")[0] ?? "Aluno")
       : "Visitante";
-
-  /** Largura do palco do mapa: cabe no viewport sem crop lateral quando o PNG tem o mesmo ratio de `campusArt.ts`. */
-  const stageWidth = `min(100vw, calc(100svh * ${CAMPUS_ART_ASPECT}))`;
 
   return (
     <div
@@ -104,18 +132,12 @@ export function CampusMap({
       {internalPreview ? <InternalPreviewBanner /> : null}
 
       <motion.div
-        className="absolute inset-0 flex items-center justify-center bg-ink-900"
+        className="absolute inset-0 bg-ink-900"
         initial={{ scale: 1.05, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 2, ease: [0.16, 1, 0.3, 1] }}
       >
-        <div
-          className="relative isolate max-h-full max-w-full overflow-hidden shadow-2xl ring-1 ring-white/5"
-          style={{
-            aspectRatio: CAMPUS_ART_ASPECT,
-            width: stageWidth
-          }}
-        >
+        <div className="relative isolate h-full w-full overflow-hidden shadow-2xl ring-1 ring-white/5">
           <motion.div
             className="absolute inset-0"
             initial={false}
@@ -128,8 +150,9 @@ export function CampusMap({
                 alt="Campus THCProce ao entardecer / noite"
                 fill
                 priority={sky === "night"}
-                sizes="(max-width: 768px) 100vw, 96vw"
-                className="object-cover object-center"
+                sizes="100vw"
+                className="object-cover"
+                style={{ objectPosition: CAMPUS_IMAGE_OBJECT_POSITION }}
                 onError={() => setNightOk(false)}
               />
             ) : (
@@ -157,8 +180,9 @@ export function CampusMap({
                 alt="Campus THCProce durante o dia"
                 fill
                 priority={sky === "day"}
-                sizes="(max-width: 768px) 100vw, 96vw"
-                className="object-cover object-center"
+                sizes="100vw"
+                className="object-cover"
+                style={{ objectPosition: CAMPUS_IMAGE_OBJECT_POSITION }}
                 onError={() => setDayOk(false)}
               />
             ) : (
@@ -189,7 +213,7 @@ export function CampusMap({
                 key={area.id}
                 area={area}
                 showCourseLabels={showCourseLabels}
-                onSelect={setSelected}
+                onSelect={handleSelectArea}
                 active={selected?.id === area.id}
                 completed={Boolean(progress?.areas[area.id])}
               />
@@ -210,7 +234,7 @@ export function CampusMap({
       <ProximityBanner
         areaName={proximityName}
         onOpen={() => {
-          if (nearResult) setSelected(nearResult.area);
+          if (nearResult) handleSelectArea(nearResult.area);
         }}
         onDismiss={() => {
           if (nearResult) setDismissNearId(nearResult.area.id);
@@ -222,12 +246,23 @@ export function CampusMap({
       <CoursePanel
         area={selected}
         onClose={() => setSelected(null)}
-        onOpenCampusLesson={(lessonIndex = 0) => {
+        onOpenCampusLesson={(lessonIndex) => {
           if (!selected) return;
-          const idx = lessonIndex ?? 0;
+          const idx =
+            typeof lessonIndex === "number"
+              ? lessonIndex
+              : getLastLessonIndex(selected.id, 0);
           setCampusLesson({ area: selected, idx });
           setSelected(null);
         }}
+      />
+
+      <CampusAreaGateModal
+        open={gateOpen != null}
+        kind={gateOpen?.kind ?? null}
+        area={gateOpen?.area ?? null}
+        sky={sky}
+        onClose={() => setGateOpen(null)}
       />
 
       <LessonPanel
@@ -237,7 +272,7 @@ export function CampusMap({
         allAreas={areas}
         onClose={() => setCampusLesson(null)}
         onSelectArea={(a) =>
-          setCampusLesson({ area: a, idx: 0 })
+          setCampusLesson({ area: a, idx: getLastLessonIndex(a.id, 0) })
         }
         onSelectLesson={(idx) =>
           setCampusLesson((c) =>

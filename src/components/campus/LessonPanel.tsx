@@ -22,10 +22,12 @@ import type { Area } from "@/data/courses";
 import { cn } from "@/lib/utils";
 import { CampusLessonVideo } from "./CampusLessonVideo";
 import { LessonRichTabs } from "./LessonRichTabs";
+import { Cannabis101LessonList } from "./Cannabis101LessonList";
 import { Cannabis101LessonRail } from "./Cannabis101LessonRail";
 import { Cannabis101LessonFooter } from "./Cannabis101LessonFooter";
 import { getLessonTitlesForArea } from "@/data/lessonOutline";
 import { getLessonRichContent } from "@/data/lessonRichContent";
+import { setLastLessonIndex } from "@/lib/campusLastLesson";
 import { trpc } from "@/lib/trpc/react";
 import { Button } from "@/components/ui/button";
 import { useCampusSkyStore } from "@/stores/campusSkyStore";
@@ -141,6 +143,11 @@ export function LessonPanel({
   });
 
   const [localTick, setLocalTick] = useState(0);
+  const [mobileDrawer, setMobileDrawer] = useState<null | "lessons" | "progress">(null);
+  useEffect(() => {
+    if (!open) setMobileDrawer(null);
+  }, [open]);
+
   const titles = useMemo(() => (area ? getLessonTitlesForArea(area) : []), [area]);
 
   const serverDone = useMemo(() => {
@@ -158,6 +165,11 @@ export function LessonPanel({
   }, [area, serverDone, localDoneAll, localTick, status]);
 
   const clampedLesson = titles.length ? Math.min(Math.max(0, lessonIndex), titles.length - 1) : 0;
+
+  useEffect(() => {
+    if (!open || !area) return;
+    setLastLessonIndex(area.id, clampedLesson);
+  }, [open, area?.id, clampedLesson]);
 
   const areaIdx = useMemo(() => {
     if (!area) return -1;
@@ -286,6 +298,277 @@ export function LessonPanel({
               </div>
             </header>
 
+            {isCannabis101 ? (
+              <>
+                <div className="flex min-h-0 flex-1 flex-col">
+                  <div className="flex min-h-0 flex-1 flex-col md:flex-row">
+                    <aside className="hidden h-full min-h-0 w-[min(100%,290px)] shrink-0 flex-col border-amber-500/25 bg-[#030806]/98 md:flex md:border-r">
+                      <Cannabis101LessonList
+                        titles={titles}
+                        activeIndex={clampedLesson}
+                        doneSet={doneSet}
+                        onSelectLesson={onSelectLesson}
+                        className="h-full"
+                      />
+                    </aside>
+
+                    <main className="order-first min-h-0 min-w-0 flex-1 space-y-4 overflow-y-auto scrollbar-thin px-3 py-4 sm:px-5 sm:py-5 md:order-none">
+                      <div className="flex flex-wrap items-center gap-2 text-xs text-amber-100/55">
+                        <span className="rounded-md bg-amber-500/15 px-2 py-0.5 font-mono font-bold text-amber-200">
+                          {clampedLesson + 1}/{titles.length || "—"}
+                        </span>
+                        <span className="text-white/25">·</span>
+                        <span className="line-clamp-2 font-semibold text-amber-200/90">{lessonTitle}</span>
+                      </div>
+
+                      <CampusLessonVideo
+                        areaId={area.id}
+                        areaName={area.name}
+                        lessonTitle={lessonTitle}
+                        lessonVisual="compact"
+                      />
+
+                      {richContent ? (
+                        <LessonRichTabs
+                          storageKey={notesStorageKey}
+                          content={richContent}
+                          variant="cannabis101"
+                        />
+                      ) : null}
+
+                      <div className="flex flex-wrap gap-2 pt-1">
+                        <Button
+                          type="button"
+                          size="sm"
+                          disabled={already || markSeen.isPending}
+                          onClick={markCurrent}
+                          className={cn("font-bold", already ? "opacity-70" : "")}
+                        >
+                          {already ? (
+                            <>
+                              <CheckCircle2 size={16} /> Aula registada
+                            </>
+                          ) : (
+                            <>
+                              <Sparkles size={16} /> Marcar como vista (+8 XP)
+                            </>
+                          )}
+                        </Button>
+                        {MUX_DEMO ? (
+                          <Button type="button" variant="glass" size="sm" asChild>
+                            <Link
+                              href={`/aula/${encodeURIComponent(MUX_DEMO)}?course=${encodeURIComponent(area.id)}`}
+                            >
+                              Mux (página)
+                            </Link>
+                          </Button>
+                        ) : null}
+                        {BUNNY_DEMO.lib && BUNNY_DEMO.vid ? (
+                          <Button type="button" variant="glass" size="sm" asChild>
+                            <Link
+                              href={`/aula/${encodeURIComponent(BUNNY_DEMO.vid)}?course=${encodeURIComponent(area.id)}&provider=bunny`}
+                            >
+                              Bunny (página)
+                            </Link>
+                          </Button>
+                        ) : null}
+                      </div>
+
+                      <div className="flex gap-2 border-t border-amber-500/15 pt-3 sm:hidden">
+                        <Button
+                          type="button"
+                          variant="glass"
+                          size="sm"
+                          disabled={!prevArea}
+                          onClick={() => prevArea && onSelectArea(prevArea)}
+                        >
+                          <ChevronLeft size={16} /> Curso ant.
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="glass"
+                          size="sm"
+                          disabled={!nextArea}
+                          onClick={() => nextArea && onSelectArea(nextArea)}
+                        >
+                          Próx. curso <ChevronRight size={16} />
+                        </Button>
+                      </div>
+                    </main>
+
+                    <aside className="hidden h-full min-h-0 w-[300px] shrink-0 flex-col border-amber-500/25 bg-[#030806]/95 md:flex md:border-l">
+                      <div className="min-h-0 flex-1 overflow-y-auto scrollbar-thin p-3">
+                        <Cannabis101LessonRail
+                          coursePct={coursePct}
+                          doneCount={doneSet.size}
+                          totalLessons={titles.length}
+                          courseHoursLabel={area.hours}
+                          progressUi={
+                            status === "authenticated" && progressUi
+                              ? {
+                                  xp: progressUi.xp,
+                                  levelLabel: progressUi.levelLabel,
+                                  levelKey: progressUi.levelKey,
+                                  streak: progressUi.streak
+                                }
+                              : null
+                          }
+                          onBackToCampus={onClose}
+                        />
+                        <div className="mt-5 border-t border-amber-500/15 pt-4">
+                          <div className="px-1 py-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-amber-200/50">
+                            Outras áreas
+                          </div>
+                          <ul className="space-y-0.5">
+                            {allAreas.map((a) => (
+                              <li key={a.id}>
+                                <button
+                                  type="button"
+                                  onClick={() => onSelectArea(a)}
+                                  className={cn(
+                                    "w-full truncate rounded-lg px-3 py-2 text-left text-xs transition-colors",
+                                    a.id === area.id
+                                      ? "bg-amber-500/20 font-semibold text-white"
+                                      : "text-white/65 hover:bg-white/8 hover:text-white"
+                                  )}
+                                >
+                                  {a.name}
+                                </button>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      </div>
+                    </aside>
+                  </div>
+
+                  <div className="flex shrink-0 gap-2 border-t border-amber-500/30 bg-[#050805]/98 p-2 md:hidden">
+                    <Button
+                      type="button"
+                      variant="glass"
+                      className="flex-1 border-amber-500/40 font-bold text-amber-100"
+                      onClick={() => setMobileDrawer("lessons")}
+                    >
+                      Aulas
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="glass"
+                      className="flex-1 border-amber-500/40 font-bold text-amber-100"
+                      onClick={() => setMobileDrawer("progress")}
+                    >
+                      Progresso
+                    </Button>
+                  </div>
+                </div>
+
+                {mobileDrawer === "lessons" ? (
+                  <>
+                    <button
+                      type="button"
+                      className="fixed inset-0 z-[46] bg-black/70 backdrop-blur-sm md:hidden"
+                      aria-label="Fechar menu de aulas"
+                      onClick={() => setMobileDrawer(null)}
+                    />
+                    <div className="fixed inset-y-0 left-0 z-[47] flex w-[min(100vw-2.5rem,360px)] max-w-full flex-col border-r border-amber-500/35 bg-[#040a07] shadow-2xl md:hidden">
+                      <div className="flex items-center justify-between border-b border-amber-500/25 px-3 py-3">
+                        <span className="text-sm font-bold text-white">Programa da aula</span>
+                        <button
+                          type="button"
+                          onClick={() => setMobileDrawer(null)}
+                          className="rounded-lg p-2 text-white/70 hover:bg-white/10"
+                          aria-label="Fechar"
+                        >
+                          <X size={20} />
+                        </button>
+                      </div>
+                      <Cannabis101LessonList
+                        titles={titles}
+                        activeIndex={clampedLesson}
+                        doneSet={doneSet}
+                        onSelectLesson={(i) => {
+                          onSelectLesson(i);
+                          setMobileDrawer(null);
+                        }}
+                        className="min-h-0 flex-1"
+                      />
+                    </div>
+                  </>
+                ) : null}
+
+                {mobileDrawer === "progress" ? (
+                  <>
+                    <button
+                      type="button"
+                      className="fixed inset-0 z-[46] bg-black/70 backdrop-blur-sm md:hidden"
+                      aria-label="Fechar progresso"
+                      onClick={() => setMobileDrawer(null)}
+                    />
+                    <div className="fixed inset-y-0 right-0 z-[47] flex w-[min(100vw-2.5rem,360px)] max-w-full flex-col border-l border-amber-500/35 bg-[#040a07] shadow-2xl md:hidden">
+                      <div className="flex items-center justify-between border-b border-amber-500/25 px-3 py-3">
+                        <span className="text-sm font-bold text-white">Progresso</span>
+                        <button
+                          type="button"
+                          onClick={() => setMobileDrawer(null)}
+                          className="rounded-lg p-2 text-white/70 hover:bg-white/10"
+                          aria-label="Fechar"
+                        >
+                          <X size={20} />
+                        </button>
+                      </div>
+                      <div className="min-h-0 flex-1 overflow-y-auto scrollbar-thin p-3">
+                        <Cannabis101LessonRail
+                          coursePct={coursePct}
+                          doneCount={doneSet.size}
+                          totalLessons={titles.length}
+                          courseHoursLabel={area.hours}
+                          progressUi={
+                            status === "authenticated" && progressUi
+                              ? {
+                                  xp: progressUi.xp,
+                                  levelLabel: progressUi.levelLabel,
+                                  levelKey: progressUi.levelKey,
+                                  streak: progressUi.streak
+                                }
+                              : null
+                          }
+                          onBackToCampus={() => {
+                            setMobileDrawer(null);
+                            onClose();
+                          }}
+                        />
+                        <div className="mt-5 border-t border-amber-500/15 pt-4">
+                          <div className="px-1 py-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-amber-200/50">
+                            Outras áreas
+                          </div>
+                          <ul className="space-y-0.5">
+                            {allAreas.map((a) => (
+                              <li key={a.id}>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    onSelectArea(a);
+                                    setMobileDrawer(null);
+                                  }}
+                                  className={cn(
+                                    "w-full truncate rounded-lg px-3 py-2 text-left text-xs transition-colors",
+                                    a.id === area.id
+                                      ? "bg-amber-500/20 font-semibold text-white"
+                                      : "text-white/65 hover:bg-white/8 hover:text-white"
+                                  )}
+                                >
+                                  {a.name}
+                                </button>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                ) : null}
+              </>
+            ) : (
             <div className="flex min-h-0 flex-1 flex-col md:flex-row">
               <div className="min-h-0 flex-1 overflow-y-auto scrollbar-thin p-4 sm:p-6 space-y-4">
                 <div
@@ -429,66 +712,11 @@ export function LessonPanel({
                 </div>
               </div>
 
-              {isCannabis101 ? (
-                <aside className="flex max-h-[min(52vh,520px)] w-full shrink-0 flex-col border-t border-amber-500/20 bg-[#030806]/90 md:max-h-none md:h-auto md:max-h-[calc(100svh-8rem)] md:w-[380px] md:border-l md:border-t-0">
-                  <div className="shrink-0 border-b border-amber-500/20 px-4 py-3">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-amber-200/80">
-                      Painel do aluno
-                    </p>
-                    <p className="text-sm font-bold text-white">Cannabis 101</p>
-                  </div>
-                  <div className="min-h-0 flex-1 overflow-y-auto scrollbar-thin p-3">
-                    <Cannabis101LessonRail
-                      coursePct={coursePct}
-                      doneCount={doneSet.size}
-                      totalLessons={titles.length}
-                      courseHoursLabel={area.hours}
-                      titles={titles}
-                      clampedLesson={clampedLesson}
-                      doneSet={doneSet}
-                      onSelectLesson={onSelectLesson}
-                      progressUi={
-                        status === "authenticated" && progressUi
-                          ? {
-                              xp: progressUi.xp,
-                              levelLabel: progressUi.levelLabel,
-                              levelKey: progressUi.levelKey,
-                              streak: progressUi.streak
-                            }
-                          : null
-                      }
-                    />
-                    <div className="mt-6 border-t border-amber-500/15 pt-4">
-                      <div className="text-[10px] uppercase tracking-[0.2em] text-amber-200/50 px-1 py-2 font-semibold">
-                        Outras áreas
-                      </div>
-                      <ul className="space-y-0.5">
-                        {allAreas.map((a) => (
-                          <li key={a.id}>
-                            <button
-                              type="button"
-                              onClick={() => onSelectArea(a)}
-                              className={cn(
-                                "w-full truncate rounded-lg px-3 py-2 text-left text-xs transition-colors",
-                                a.id === area.id
-                                  ? "bg-amber-500/20 font-semibold text-white"
-                                  : "text-white/65 hover:bg-white/8 hover:text-white"
-                              )}
-                            >
-                              {a.name}
-                            </button>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                </aside>
-              ) : (
-                <aside className="w-full shrink-0 border-t border-white/10 md:w-80 md:border-l md:border-t-0 flex flex-col max-h-[42vh] md:max-h-none min-h-[180px]">
-                  <div className="px-4 py-3 border-b border-white/10 text-[11px] uppercase tracking-[0.2em] text-canna-300 font-semibold flex items-center gap-2 shrink-0">
+                <aside className="flex max-h-[42vh] w-full shrink-0 flex-col border-t border-white/10 min-h-[180px] md:max-h-none md:h-auto md:max-h-[calc(100svh-8rem)] md:w-80 md:border-l md:border-t-0">
+                  <div className="flex shrink-0 items-center gap-2 border-b border-white/10 px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.2em] text-canna-300">
                     <CourseNavIcon size={14} /> Este curso
                   </div>
-                  <ul className="flex-1 overflow-y-auto scrollbar-thin p-2 space-y-0.5 min-h-0">
+                  <ul className="min-h-0 flex-1 space-y-0.5 overflow-y-auto scrollbar-thin p-2">
                     {titles.map((t, idx) => {
                       const checked = doneSet.has(idx);
                       const active = idx === clampedLesson;
@@ -498,17 +726,17 @@ export function LessonPanel({
                             type="button"
                             onClick={() => onSelectLesson(idx)}
                             className={cn(
-                              "w-full flex items-start gap-2 rounded-xl px-3 py-2.5 text-left text-sm transition-colors",
+                              "flex w-full items-start gap-2 rounded-xl border px-3 py-2.5 text-left text-sm transition-colors",
                               active
-                                ? "bg-canna-500/20 text-white border border-canna-400/40"
-                                : "hover:bg-white/5 text-white/85 border border-transparent"
+                                ? "border-canna-400/40 bg-canna-500/20 text-white"
+                                : "border-transparent text-white/85 hover:bg-white/5"
                             )}
                           >
                             <span className="mt-0.5 shrink-0 text-canna-300">
                               {checked ? <CheckCircle2 size={16} /> : <Circle size={16} />}
                             </span>
                             <span>
-                              <span className="text-[10px] font-bold uppercase tracking-wider text-white/45 block">
+                              <span className="block text-[10px] font-bold uppercase tracking-wider text-white/45">
                                 {idx + 1}
                               </span>
                               {t}
@@ -519,8 +747,8 @@ export function LessonPanel({
                     })}
                   </ul>
 
-                  <div className="p-2 border-t border-white/10 overflow-y-auto scrollbar-thin max-h-48 shrink-0">
-                    <div className="text-[10px] uppercase tracking-[0.2em] text-white/45 px-2 py-2 font-semibold">
+                  <div className="max-h-48 shrink-0 overflow-y-auto border-t border-white/10 p-2 scrollbar-thin">
+                    <div className="px-2 py-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-white/45">
                       Outras áreas
                     </div>
                     <ul className="space-y-0.5">
@@ -530,9 +758,9 @@ export function LessonPanel({
                             type="button"
                             onClick={() => onSelectArea(a)}
                             className={cn(
-                              "w-full text-left truncate rounded-lg px-3 py-2 text-xs transition-colors",
+                              "w-full truncate rounded-lg px-3 py-2 text-left text-xs transition-colors",
                               a.id === area.id
-                                ? "bg-white/15 text-white font-semibold"
+                                ? "bg-white/15 font-semibold text-white"
                                 : "text-white/65 hover:bg-white/8 hover:text-white"
                             )}
                           >
@@ -543,8 +771,8 @@ export function LessonPanel({
                     </ul>
                   </div>
                 </aside>
-              )}
             </div>
+            )}
 
             {isCannabis101 ? (
               <Cannabis101LessonFooter

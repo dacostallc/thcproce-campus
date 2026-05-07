@@ -11,6 +11,7 @@ import { prisma } from "@/server/db";
 import { LEVELS, levelFromXp } from "@/server/gamification";
 import { moodleCourseIdForArea } from "@/lib/moodle/courseMap";
 import { signedBunnyStreamEmbedUrl } from "@/lib/bunny/signedEmbed";
+import { canOpenCampusCourses } from "@/lib/campusAccess";
 
 const mockCourses: MoodleCourse[] = areas.map((a, i) => ({
   id: 100 + i,
@@ -96,6 +97,22 @@ export const campusRouter = router({
       levelLabel: level.label,
       streak: p.streakDays,
       nextLevel: LEVELS.find((x) => x.minXp > p.xpTotal) ?? null
+    };
+  }),
+
+  /** Acesso às salas do mapa (perfil local + flags públicas resolvidas no cliente para anônimos). */
+  myCampusAccess: protectedProcedure.query(async ({ ctx }) => {
+    if (!ctx.session?.user?.email) {
+      throw new TRPCError({ code: "UNAUTHORIZED", message: "Sem e-mail na sessão." });
+    }
+    const p = await prisma.profile.findUnique({
+      where: { email: ctx.session.user.email },
+      select: { accessStatus: true }
+    });
+    const accessStatus = p?.accessStatus ?? "pendente";
+    return {
+      accessStatus,
+      canOpenCourses: canOpenCampusCourses(accessStatus, true)
     };
   }),
 
