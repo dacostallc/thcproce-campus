@@ -23,6 +23,13 @@ type Props = {
   areaId: string;
   areaName: string;
   lessonTitle: string;
+  /** Sala Cannabis 101: cabeçalho visual compacto quando não há vídeo */
+  lessonVisual?: "default" | "compact";
+  /**
+   * Sem stream (Mux/Bunny/Youtube): não renderizar hero/cinemático automático.
+   * Permite colocar Cannabis101LessonHero manualmente (ex.: no fim da coluna).
+   */
+  hideFallback?: boolean;
 };
 
 /**
@@ -32,7 +39,9 @@ export function CampusLessonVideo({
   className = "",
   areaId,
   areaName,
-  lessonTitle
+  lessonTitle,
+  lessonVisual = "default",
+  hideFallback = false
 }: Props) {
   const { status } = useSession();
   const theme = getCourseLessonTheme(areaId);
@@ -136,12 +145,16 @@ export function CampusLessonVideo({
         </div>
       );
     default:
+      if (hideFallback) {
+        return null;
+      }
       return isCannabis101 ? (
         <Cannabis101LessonHero
           theme={theme}
           lessonTitle={lessonTitle}
           areaName={areaName}
           className={className}
+          compact={lessonVisual === "compact"}
         />
       ) : (
         <LessonCinematicFallback

@@ -43,6 +43,10 @@ type Props = {
   lessonTitle: string;
   areaName: string;
   className?: string;
+  /** Sala reorganizada: cabeçalho visual baixo — conteúdo domina o centro */
+  compact?: boolean;
+  /** Compacto no rodapé da coluna: só marca + ações (sem repetir título da aula). */
+  brandingOnly?: boolean;
 };
 
 function MoleculeBg() {
@@ -96,6 +100,70 @@ function HexLogo() {
   );
 }
 
+function TrailerModal({
+  open,
+  onClose,
+  trailerMux,
+  trailerYt
+}: {
+  open: boolean;
+  onClose: () => void;
+  trailerMux: string;
+  trailerYt: string;
+}) {
+  return (
+    <AnimatePresence>
+      {open ? (
+        <motion.div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4 backdrop-blur-sm"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Trailer Cannabis 101"
+          onClick={onClose}
+        >
+          <motion.div
+            className="relative w-full max-w-4xl overflow-hidden rounded-2xl border border-amber-500/30 bg-black shadow-2xl"
+            initial={{ scale: 0.96, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.96, opacity: 0 }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={onClose}
+              className="absolute right-3 top-3 z-10 rounded-full border border-white/20 bg-black/60 p-2 text-white hover:bg-black/80"
+              aria-label="Fechar trailer"
+            >
+              <X size={18} />
+            </button>
+            <div className="aspect-video w-full">
+              {trailerMux ? (
+                <MuxPlayer
+                  playbackId={trailerMux}
+                  streamType="on-demand"
+                  accentColor="#fbbf24"
+                  style={{ width: "100%", height: "100%" }}
+                />
+              ) : trailerYt ? (
+                <iframe
+                  title="Trailer Cannabis 101"
+                  className="size-full border-0"
+                  src={`https://www.youtube-nocookie.com/embed/${trailerYt}?rel=0&modestbranding=1`}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              ) : null}
+            </div>
+          </motion.div>
+        </motion.div>
+      ) : null}
+    </AnimatePresence>
+  );
+}
+
 /**
  * Hero premium Cannabis 101 (referência visual UI gamificada THCProce).
  */
@@ -103,12 +171,87 @@ export function Cannabis101LessonHero({
   theme,
   lessonTitle,
   areaName,
-  className = ""
+  className = "",
+  compact = false,
+  brandingOnly = false
 }: Props) {
   const [trailerOpen, setTrailerOpen] = useState(false);
   const showTrailer = hasCannabis101TrailerConfigured();
   const trailerMux = getCannabis101TrailerMuxPlaybackId();
   const trailerYt = getCannabis101TrailerYoutubeId();
+
+  if (compact) {
+    return (
+      <>
+        <div
+          className={cn(
+            "relative flex w-full flex-col gap-3 overflow-hidden rounded-xl border border-amber-500/30 bg-[#050b08] p-3 shadow-lg sm:flex-row sm:items-center sm:gap-4 sm:p-4",
+            className
+          )}
+        >
+          <div
+            className={cn(
+              "pointer-events-none absolute inset-0 opacity-50 bg-gradient-to-r",
+              theme.heroClass
+            )}
+          />
+          <div className="relative z-[1] flex shrink-0 items-center gap-3">
+            <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-full border-2 border-amber-400/50 shadow-[0_0_20px_rgba(212,175,55,0.2)] sm:h-[72px] sm:w-[72px]">
+              <Image
+                src={CANNABIS101_POSTER_SRC}
+                alt=""
+                fill
+                className="object-cover object-[56%_38%]"
+                sizes="80px"
+              />
+            </div>
+          </div>
+          <div className="relative z-[1] min-w-0 flex-1">
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-amber-200/70">Cannabis 101</p>
+            {brandingOnly ? (
+              <p className="mt-1 text-[11px] leading-snug text-white/50">
+                Fundamentos da cannabis medicinal · {areaName}
+              </p>
+            ) : (
+              <>
+                <p className="mt-0.5 line-clamp-2 text-sm font-bold leading-snug text-white sm:text-base">
+                  {lessonTitle}
+                </p>
+                <p className="mt-1 text-[11px] text-white/45">{areaName}</p>
+              </>
+            )}
+          </div>
+          <div className="relative z-[1] flex shrink-0 flex-wrap items-center gap-2 sm:flex-col sm:items-stretch">
+            {showTrailer ? (
+              <button
+                type="button"
+                onClick={() => setTrailerOpen(true)}
+                className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-canna-600 to-canna-500 px-3 py-2 text-xs font-bold text-white shadow-md hover:from-canna-500 hover:to-canna-400"
+              >
+                <Play size={14} fill="currentColor" />
+                Trailer
+              </button>
+            ) : null}
+            <Link
+              href={MOODLE}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-white/20 bg-black/50 px-3 py-2 text-xs font-bold text-white/90 hover:border-amber-500/35"
+            >
+              Moodle
+              <ExternalLink size={14} />
+            </Link>
+          </div>
+        </div>
+        <TrailerModal
+          open={trailerOpen}
+          onClose={() => setTrailerOpen(false)}
+          trailerMux={trailerMux}
+          trailerYt={trailerYt}
+        />
+      </>
+    );
+  }
 
   return (
     <>
@@ -233,55 +376,12 @@ export function Cannabis101LessonHero({
         </div>
       </div>
 
-      <AnimatePresence>
-        {trailerOpen ? (
-          <motion.div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4 backdrop-blur-sm"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            role="dialog"
-            aria-modal="true"
-            aria-label="Trailer Cannabis 101"
-            onClick={() => setTrailerOpen(false)}
-          >
-            <motion.div
-              className="relative w-full max-w-4xl overflow-hidden rounded-2xl border border-amber-500/30 bg-black shadow-2xl"
-              initial={{ scale: 0.96, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.96, opacity: 0 }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <button
-                type="button"
-                onClick={() => setTrailerOpen(false)}
-                className="absolute right-3 top-3 z-10 rounded-full border border-white/20 bg-black/60 p-2 text-white hover:bg-black/80"
-                aria-label="Fechar trailer"
-              >
-                <X size={18} />
-              </button>
-              <div className="aspect-video w-full">
-                {trailerMux ? (
-                  <MuxPlayer
-                    playbackId={trailerMux}
-                    streamType="on-demand"
-                    accentColor="#fbbf24"
-                    style={{ width: "100%", height: "100%" }}
-                  />
-                ) : trailerYt ? (
-                  <iframe
-                    title="Trailer Cannabis 101"
-                    className="size-full border-0"
-                    src={`https://www.youtube-nocookie.com/embed/${trailerYt}?rel=0&modestbranding=1`}
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  />
-                ) : null}
-              </div>
-            </motion.div>
-          </motion.div>
-        ) : null}
-      </AnimatePresence>
+      <TrailerModal
+        open={trailerOpen}
+        onClose={() => setTrailerOpen(false)}
+        trailerMux={trailerMux}
+        trailerYt={trailerYt}
+      />
     </>
   );
 }

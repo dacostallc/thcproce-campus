@@ -25,9 +25,11 @@ import { LessonRichTabs } from "./LessonRichTabs";
 import { Cannabis101LessonList } from "./Cannabis101LessonList";
 import { Cannabis101LessonRail } from "./Cannabis101LessonRail";
 import { Cannabis101LessonFooter } from "./Cannabis101LessonFooter";
+import { Cannabis101LessonHero } from "./Cannabis101LessonHero";
 import { getLessonTitlesForArea } from "@/data/lessonOutline";
 import { getLessonRichContent } from "@/data/lessonRichContent";
 import { setLastLessonIndex } from "@/lib/campusLastLesson";
+import { getCourseLessonTheme } from "@/data/courseLessonThemes";
 import { trpc } from "@/lib/trpc/react";
 import { Button } from "@/components/ui/button";
 import { useCampusSkyStore } from "@/stores/campusSkyStore";
@@ -312,31 +314,39 @@ export function LessonPanel({
                       />
                     </aside>
 
-                    <main className="order-first min-h-0 min-w-0 flex-1 space-y-4 overflow-y-auto scrollbar-thin px-3 py-4 sm:px-5 sm:py-5 md:order-none">
-                      <div className="flex flex-wrap items-center gap-2 text-xs text-amber-100/55">
-                        <span className="rounded-md bg-amber-500/15 px-2 py-0.5 font-mono font-bold text-amber-200">
-                          {clampedLesson + 1}/{titles.length || "—"}
-                        </span>
-                        <span className="text-white/25">·</span>
-                        <span className="line-clamp-2 font-semibold text-amber-200/90">{lessonTitle}</span>
+                    <main className="order-first min-h-0 min-w-0 flex-1 space-y-5 overflow-y-auto scrollbar-thin px-3 py-4 sm:px-5 sm:py-5 md:order-none">
+                      <div className="relative overflow-hidden rounded-2xl border border-amber-500/25 bg-gradient-to-br from-[#0c1810]/95 via-[#06120d]/98 to-[#030806]/98 p-4 shadow-lg shadow-black/40 sm:p-5">
+                        <div
+                          aria-hidden
+                          className="pointer-events-none absolute -right-16 -top-12 h-40 w-40 rounded-full bg-amber-500/10 blur-3xl"
+                        />
+                        <p className="relative text-[10px] font-bold uppercase tracking-[0.2em] text-amber-200/80">
+                          Aula {clampedLesson + 1} / {titles.length || "—"} · Cannabis 101
+                        </p>
+                        <h1
+                          id="c101-lesson-heading"
+                          className="relative mt-2 text-xl font-bold leading-snug text-white text-shadow-soft sm:text-2xl md:text-3xl"
+                        >
+                          {lessonTitle}
+                        </h1>
+                        <p className="relative mt-2 text-sm text-white/55 line-clamp-2">{area.short}</p>
+                        <div className="relative mt-3 flex flex-wrap items-center gap-2 border-t border-amber-500/15 pt-3">
+                          <div className="flex h-2 min-w-[120px] flex-1 overflow-hidden rounded-full bg-black/50 ring-1 ring-amber-500/15">
+                            <div
+                              className="h-full rounded-full bg-gradient-to-r from-amber-700 via-amber-500 to-canna-500 transition-all duration-500"
+                              style={{ width: `${coursePct}%` }}
+                            />
+                          </div>
+                          <span className="text-[11px] font-bold tabular-nums text-amber-200/90">
+                            {coursePct}%
+                          </span>
+                          <span className="text-[10px] text-white/40">
+                            {doneSet.size}/{titles.length} vistas
+                          </span>
+                        </div>
                       </div>
 
-                      <CampusLessonVideo
-                        areaId={area.id}
-                        areaName={area.name}
-                        lessonTitle={lessonTitle}
-                        lessonVisual="compact"
-                      />
-
-                      {richContent ? (
-                        <LessonRichTabs
-                          storageKey={notesStorageKey}
-                          content={richContent}
-                          variant="cannabis101"
-                        />
-                      ) : null}
-
-                      <div className="flex flex-wrap gap-2 pt-1">
+                      <div className="flex flex-wrap gap-2">
                         <Button
                           type="button"
                           size="sm"
@@ -372,6 +382,35 @@ export function LessonPanel({
                             </Link>
                           </Button>
                         ) : null}
+                      </div>
+
+                      {richContent ? (
+                        <LessonRichTabs
+                          storageKey={notesStorageKey}
+                          content={richContent}
+                          variant="cannabis101"
+                        />
+                      ) : null}
+
+                      <CampusLessonVideo
+                        areaId={area.id}
+                        areaName={area.name}
+                        lessonTitle={lessonTitle}
+                        lessonVisual="compact"
+                        hideFallback
+                      />
+
+                      <div className="border-t border-amber-500/20 pt-4">
+                        <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.2em] text-amber-200/45">
+                          THCProce Science
+                        </p>
+                        <Cannabis101LessonHero
+                          theme={getCourseLessonTheme(area.id)}
+                          lessonTitle={lessonTitle}
+                          areaName={area.name}
+                          compact
+                          brandingOnly
+                        />
                       </div>
 
                       <div className="flex gap-2 border-t border-amber-500/15 pt-3 sm:hidden">
