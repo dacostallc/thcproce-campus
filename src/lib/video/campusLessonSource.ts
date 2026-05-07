@@ -1,6 +1,4 @@
-/** Origem das aulas no campus — Bunny/Mux opcionais; sem env usa YouTube público demo (CC). */
-
-const FALLBACK_CC_DEMO_YOUTUBE = "aqz-KE-bpKQ"; /* Big Buck Bunny */
+/** Origem das aulas — Mux/Bunny opcionais. YouTube só se `NEXT_PUBLIC_DEFAULT_DEMO_YOUTUBE_VIDEO_ID` estiver definido (conteúdo explícito THCProce). Sem vídeo configurado → experiência cinematográfica no painel (sem fallback genérico). */
 
 export type CampusLessonSource =
   | { kind: "mux"; playbackId: string }
@@ -17,11 +15,11 @@ export function getMuxDemoIdPublic(): string {
 }
 
 export function getDefaultYoutubeDemoId(): string {
-  const v =
-    typeof process.env.NEXT_PUBLIC_DEFAULT_DEMO_YOUTUBE_VIDEO_ID === "string"
+  return (
+    (typeof process.env.NEXT_PUBLIC_DEFAULT_DEMO_YOUTUBE_VIDEO_ID === "string"
       ? process.env.NEXT_PUBLIC_DEFAULT_DEMO_YOUTUBE_VIDEO_ID.trim()
-      : "";
-  return v || FALLBACK_CC_DEMO_YOUTUBE;
+      : "") || ""
+  );
 }
 
 export function getBunnyDemoVideoIdPublic(): string {
@@ -42,7 +40,7 @@ export function getPublicBunnyEmbedUrl(videoId: string): string | null {
   return `https://iframe.mediadelivery.net/embed/${lib}/${id}?autoplay=false&preload=true`;
 }
 
-/** Mux público configurado → Bunny iframe público (lib+id env) → YouTube sempre disponível como fallback CC */
+/** Mux → Bunny público → YouTube (só se env) → none (hero THCProce no client). */
 export function pickCampusLessonSourcePublic(options?: {
   /** Se true (p.ex. Bunny com token obrigatório sem sessão iframe assinado), só Mux ou YouTube. */
   omitBunnyIframe?: boolean;

@@ -12,13 +12,18 @@ import {
   Sparkles,
   ExternalLink,
   ChevronDown as CourseNavIcon,
-  NotebookText
+  NotebookText,
+  Trophy,
+  Flame,
+  TrendingUp
 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import type { Area } from "@/data/courses";
 import { cn } from "@/lib/utils";
 import { CampusLessonVideo } from "./CampusLessonVideo";
+import { LessonRichTabs } from "./LessonRichTabs";
 import { getLessonTitlesForArea } from "@/data/lessonOutline";
+import { getLessonRichContent } from "@/data/lessonRichContent";
 import { trpc } from "@/lib/trpc/react";
 import { Button } from "@/components/ui/button";
 import { useCampusSkyStore } from "@/stores/campusSkyStore";
@@ -117,6 +122,15 @@ export function LessonPanel({
     staleTime: 30_000
   });
 
+  const { data: progressUi } = trpc.campus.myProgress.useQuery(undefined, {
+    enabled: open && status === "authenticated",
+    staleTime: 20_000
+  });
+  const { data: badgeData } = trpc.campus.myBadges.useQuery(undefined, {
+    enabled: open && status === "authenticated",
+    staleTime: 60_000
+  });
+
   const markSeen = trpc.campus.lessonMarkSeen.useMutation({
     onSuccess: () => {
       void utils.campus.lessonProgressMine.invalidate();
@@ -168,6 +182,19 @@ export function LessonPanel({
   }, [area, clampedLesson, status, markSeen]);
 
   const already = doneSet.has(clampedLesson);
+
+  const lessonTitle = titles[clampedLesson] ?? "Conteúdo";
+
+  const richContent = useMemo(
+    () => (area ? getLessonRichContent(area, clampedLesson, lessonTitle) : null),
+    [area, clampedLesson, lessonTitle]
+  );
+
+  const coursePct = titles.length
+    ? Math.min(100, Math.round((doneSet.size / titles.length) * 100))
+    : 0;
+
+  const notesStorageKey = `thc_lesson_notes_v2_${area?.id ?? "_"}_${clampedLesson}`;
 
   return (
     <AnimatePresence>
@@ -256,17 +283,58 @@ export function LessonPanel({
                     Aula {clampedLesson + 1} / {titles.length || "—"}
                   </span>
                   <span className="text-white/25">·</span>
-                  <span className="text-canna-200/90 font-medium">
-                    {titles[clampedLesson] ?? "Conteúdo"}
-                  </span>
+                  <span className="text-canna-200/90 font-medium">{lessonTitle}</span>
                 </div>
 
-                <CampusLessonVideo />
+                {status === "authenticated" && progressUi ? (
+                  <div className="rounded-2xl border border-white/10 bg-black/25 p-4 space-y-3">
+                    <div className="flex flex-wrap items-center gap-3 justify-between text-xs">
+                      <span className="inline-flex items-center gap-1.5 text-canna-200 font-semibold">
+                        <TrendingUp size={14} /> {progressUi.levelLabel} · {progressUi.xp} XP
+                      </span>
+                      {badgeData?.badges?.length ? (
+                        <span className="inline-flex items-center gap-1 text-amber-200/90">
+                          <Trophy size={14} />
+                          {badgeData.badges.map((b) => b.label).join(" · ")}
+                        </span>
+                      ) : null}
+                      {typeof badgeData?.streakDays === "number" && badgeData.streakDays > 0 ? (
+                        <span className="inline-flex items-center gap-1 text-orange-200/90">
+                          <Flame size={14} /> Streak {badgeData.streakDays}d
+                        </span>
+                      ) : null}
+                    </div>
+                    <div>
+                      <div className="flex justify-between text-[10px] uppercase tracking-wider text-white/45 mb-1">
+                        <span>Progresso neste curso</span>
+                        <span className="text-canna-300 font-bold">{coursePct}%</span>
+                      </div>
+                      <div className="h-2 rounded-full bg-white/10 overflow-hidden">
+                        <div
+                          className="h-full rounded-full bg-gradient-to-r from-canna-600 to-amber-400 transition-all duration-500"
+                          style={{ width: `${coursePct}%` }}
+                        />
+                      </div>
+                      <p className="mt-1.5 text-[10px] text-white/40">
+                        {doneSet.size} de {titles.length} aulas com vista registada neste curso
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-[11px] text-white/45">
+                    Entre com sua conta para ver nível, XP, conquistas e progresso global.
+                  </p>
+                )}
 
-                <p className="text-[11px] leading-relaxed text-white/50">
-                  Vídeo de <strong className="text-white/70">demonstração</strong> (Mux, Bunny ou
-                  YouTube CC) até haver hospedagem definitiva. Moodle e rotas continuam iguais.
-                </p>
+                <CampusLessonVideo
+                  areaId={area.id}
+                  areaName={area.name}
+                  lessonTitle={lessonTitle}
+                />
+
+                {richContent ? (
+                  <LessonRichTabs storageKey={notesStorageKey} content={richContent} />
+                ) : null}
 
                 <div className="flex flex-wrap gap-2">
                   <Button

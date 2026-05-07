@@ -3,23 +3,34 @@
 import dynamic from "next/dynamic";
 import { Loader2 } from "lucide-react";
 import { useSession } from "next-auth/react";
-import Link from "next/link";
 import { trpc } from "@/lib/trpc/react";
 import {
   pickCampusLessonSourcePublic,
   getBunnyDemoVideoIdPublic
 } from "@/lib/video/campusLessonSource";
+import { getCourseLessonTheme } from "@/data/courseLessonThemes";
+import { LessonCinematicFallback } from "./LessonCinematicFallback";
 
 const MuxPlayer = dynamic(() => import("@mux/mux-player-react"), { ssr: false });
 
-type Props = { className?: string };
+type Props = {
+  className?: string;
+  areaId: string;
+  areaName: string;
+  lessonTitle: string;
+};
 
 /**
- * Vídeo integrado ao campus — nunca falha “seco”: sempre há um fallback público CC (YouTube)
- * se Mux/Bunny não estiverem configurados ou se Bunny assinado não puder gerar iframe.
+ * Vídeo integrado ao campus: Mux / Bunny / YouTube (só com env) → hero cinematográfico THCProce (sem fallback genérico).
  */
-export function CampusLessonVideo({ className = "" }: Props) {
+export function CampusLessonVideo({
+  className = "",
+  areaId,
+  areaName,
+  lessonTitle
+}: Props) {
   const { status } = useSession();
+  const theme = getCourseLessonTheme(areaId);
 
   const bunnyVid = getBunnyDemoVideoIdPublic();
 
@@ -38,7 +49,6 @@ export function CampusLessonVideo({ className = "" }: Props) {
     }
   );
 
-  /** Bunny assinado: só quando logado + URL válida */
   let signedIframe: string | null = null;
   if (signedNeeded && status === "authenticated") {
     if (signed.isLoading) {
@@ -89,7 +99,7 @@ export function CampusLessonVideo({ className = "" }: Props) {
             className
           }
         >
-          <iframe title="Stream" src={base.embedUrl} className="size-full border-0" allowFullScreen />
+          <iframe title="Aula THCProce" src={base.embedUrl} className="size-full border-0" allowFullScreen />
         </div>
       );
     case "youtube":
@@ -101,7 +111,7 @@ export function CampusLessonVideo({ className = "" }: Props) {
           }
         >
           <iframe
-            title="Demonstração THCProce"
+            title="Aula THCProce"
             className="size-full border-0"
             src={`https://www.youtube-nocookie.com/embed/${base.videoId}?rel=0&modestbranding=1`}
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -111,25 +121,12 @@ export function CampusLessonVideo({ className = "" }: Props) {
       );
     default:
       return (
-        <div
-          className={
-            "flex aspect-video flex-col items-center justify-center gap-4 rounded-xl border border-white/15 bg-black/45 p-6 text-center " +
-            className
-          }
-        >
-          <p className="max-w-md text-sm text-white/80">
-            Nenhuma fonte configurada neste momento. Mais tarde podes usar Mux, Bunny ou hospedagem
-            própria.
-          </p>
-          <Link
-            href="https://thcproce.com.br/escola"
-            className="text-sm font-semibold text-canna-300 hover:underline"
-            target="_blank"
-            rel="noreferrer"
-          >
-            Sala Moodle (conteúdo real)
-          </Link>
-        </div>
+        <LessonCinematicFallback
+          theme={theme}
+          lessonTitle={lessonTitle}
+          areaName={areaName}
+          className={className}
+        />
       );
   }
 }
