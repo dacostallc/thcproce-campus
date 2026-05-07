@@ -32,7 +32,7 @@ function EntrarInner() {
       });
       if (res?.error) {
         setError(
-          "E-mail ou senha incorretos. Em dev, use a senha configurada (padrão: demo)."
+          "Não conseguimos autenticar. Use o mesmo e-mail e senha que definiu em /inscrever-se (outro domínio = outra conta). Se esqueceu a senha, volte à inscrição com o mesmo e-mail e defina uma nova senha."
         );
         return;
       }
