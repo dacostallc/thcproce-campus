@@ -19,6 +19,13 @@ npm run dev
 
 Abre em `http://localhost:3030`.
 
+### Mensagens em destaque no mapa / Cine THC (Prof THC · admin)
+
+Só admins (e-mails configurados em `NEXT_PUBLIC_CAMPUS_ADMIN_EMAILS`) podem enviar um **balão dourado (~5 s)** acima do avatar, **acima do overlay do cinema** mas **abaixo do painel do chat**:
+
+- **`Ctrl`** + **`Shift`** + **`B`** — abre o compositor e envia o texto.
+- Ou no **chat do campus**, mensagem que **começa com `!`** (ex.: `!Intervalo às 21h`) → o texto **mantém o `!` no histórico do chat**, mas o **balão mostra apenas o texto sem os `!` iniciais** (ex.: `Intervalo às 21h`).
+
 Rotas:
 
 - `/` — landing page premium com CTA pro campus

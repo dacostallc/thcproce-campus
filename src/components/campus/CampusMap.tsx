@@ -13,9 +13,13 @@ import { LessonPanel } from "./LessonPanel";
 import { HUD } from "./HUD";
 import { CampusPlayer } from "./CampusPlayer";
 import { CampusPeerAvatars } from "./CampusPeerAvatars";
+import { CampusPresenceSync } from "./CampusPresenceSync";
 import { MapWalkLayer } from "./MapWalkLayer";
 import { ProximityBanner } from "./ProximityBanner";
 import { CampusChatDrawer } from "./CampusChatDrawer";
+import { CampusAdminBroadcastLayer } from "./CampusAdminBroadcastLayer";
+import { CampusAdminBroadcastComposer } from "./CampusAdminBroadcastComposer";
+import { useCampusAdminBroadcastHotkeys } from "./useCampusAdminBroadcastHotkeys";
 import { InternalPreviewBanner } from "./InternalPreviewBanner";
 import { useCampusSkyStore } from "@/stores/campusSkyStore";
 import { useCampusStore } from "@/stores/campusStore";
@@ -26,8 +30,10 @@ import { getLastLessonIndex } from "@/lib/campusLastLesson";
 import { trpc } from "@/lib/trpc/react";
 import { CampusAreaGateModal, type CampusGateKind } from "./CampusAreaGateModal";
 import { isCampusAdminEmail } from "@/lib/campusAdmin";
+import { deriveCampusPresenceRole } from "@/config/userRoles";
 import { CineDriveIn } from "@/components/CineDriveIn";
 import { CampusCineHotspot } from "./CampusCineHotspot";
+import { useCampusEmojiReactionHotkeys } from "./useCampusEmojiReactionHotkeys";
 
 const PLACEHOLDER_NIGHT = `
   radial-gradient(ellipse at 20% 30%, rgba(34, 197, 94, 0.20), transparent 45%),
@@ -87,6 +93,11 @@ export function CampusMap({
     staleTime: 60_000
   });
 
+  const { data: myGamification } = trpc.campus.myProgress.useQuery(undefined, {
+    enabled: status === "authenticated",
+    staleTime: 60_000
+  });
+
   const isCampusAdmin = useMemo(
     () => isCampusAdminEmail(session?.user?.email ?? null),
     [session?.user?.email]
@@ -132,10 +143,38 @@ export function CampusMap({
       ? nearResult.area.mapLabel ?? nearResult.area.name
       : null;
 
-  const myLabel =
-    status === "authenticated"
-      ? (session?.user?.name ?? session?.user?.email?.split("@")[0] ?? "Aluno")
-      : "Visitante";
+  const authLabel =
+    session?.user?.name?.trim() ||
+    session?.user?.email?.split("@")[0]?.trim() ||
+    "Aluno THC";
+  const presenceDisplayName =
+    status === "authenticated" ? authLabel.slice(0, 28) : "Aluno THC";
+
+  const presenceLevelLabel =
+    status !== "authenticated"
+      ? "Visitante"
+      : (myGamification?.levelLabel?.trim() ?? "···").slice(0, 28);
+
+  const presenceXpTotal =
+    status === "authenticated" && typeof myGamification?.xp === "number"
+      ? myGamification.xp
+      : 0;
+
+  const presenceCampusRole = useMemo(
+    () =>
+      deriveCampusPresenceRole({
+        email: session?.user?.email,
+        accessStatus: campusAccess?.accessStatus ?? null
+      }),
+    [session?.user?.email, campusAccess?.accessStatus]
+  );
+
+  const membershipSinceIso =
+    status === "authenticated" ? campusAccess?.memberSinceIso ?? null : null;
+
+  useCampusAdminBroadcastHotkeys(isCampusAdmin);
+
+  useCampusEmojiReactionHotkeys();
 
   return (
     <div
@@ -143,6 +182,14 @@ export function CampusMap({
       data-sky={sky}
     >
       {internalPreview ? <InternalPreviewBanner /> : null}
+
+      <CampusPresenceSync
+        displayName={presenceDisplayName}
+        levelLabel={presenceLevelLabel}
+        xpTotal={presenceXpTotal}
+        campusRole={presenceCampusRole}
+        memberSinceIso={membershipSinceIso}
+      />
 
       <motion.div
         className="absolute inset-0 bg-ink-900"
@@ -236,8 +283,13 @@ export function CampusMap({
           <CampusCineHotspot />
 
           <div className="absolute inset-0 z-[12] pointer-events-none">
-            <CampusPlayer />
-            <CampusPeerAvatars myLabel={myLabel} />
+            <CampusPlayer
+              tagDisplayName={presenceDisplayName}
+              tagXpTotal={presenceXpTotal}
+              campusRole={presenceCampusRole}
+              memberSinceIso={membershipSinceIso}
+            />
+            <CampusPeerAvatars />
           </div>
         </div>
       </motion.div>
@@ -257,6 +309,9 @@ export function CampusMap({
       />
 
       <CineDriveIn />
+
+      <CampusAdminBroadcastLayer isCampusAdmin={isCampusAdmin} />
+      <CampusAdminBroadcastComposer isCampusAdmin={isCampusAdmin} />
 
       <HUD />
 

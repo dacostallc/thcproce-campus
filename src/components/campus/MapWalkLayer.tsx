@@ -3,6 +3,7 @@
 import type { PointerEventHandler } from "react";
 import { clampToWalkZone, CAMPUS_WALK_RECTS } from "@/lib/campusWalkable";
 import type { PctPos } from "@/stores/campusStore";
+import { useCampusStore } from "@/stores/campusStore";
 
 type Props = {
   onWalkTo: (pct: PctPos) => void;
@@ -10,11 +11,14 @@ type Props = {
 
 /** Camada transparente: cliques no mapa movem o avatar apenas por calçadas / corredores (ver `campusWalkable`). Fica atrás dos hotspots. */
 export function MapWalkLayer({ onWalkTo }: Props) {
+  const cineOpen = useCampusStore((s) => s.isCineOpen);
+
   const showDebug =
     typeof process.env.NEXT_PUBLIC_CAMPUS_DEBUG_WALK !== "undefined" &&
     process.env.NEXT_PUBLIC_CAMPUS_DEBUG_WALK === "1";
 
   const handlePointerDown: PointerEventHandler<HTMLDivElement> = (e) => {
+    if (cineOpen) return;
     if (e.button !== 0) return;
     const el = e.currentTarget;
     const r = el.getBoundingClientRect();
@@ -28,7 +32,9 @@ export function MapWalkLayer({ onWalkTo }: Props) {
     <>
       <div
         role="presentation"
-        className="absolute inset-0 z-[8] cursor-crosshair touch-none"
+        className={`absolute inset-0 z-[8] touch-none ${
+          cineOpen ? "cursor-default" : "cursor-crosshair"
+        }`}
         onPointerDown={handlePointerDown}
         aria-hidden
       />

@@ -3,16 +3,31 @@
 import { motion } from "framer-motion";
 import { Film } from "lucide-react";
 import { useState } from "react";
+import {
+  collectOccupiedCinemaSeatIndices,
+  estimateCampusWalkMs,
+  getSeatPositionForIndex,
+  pickFreeCinemaSeat,
+  pickStandingSpotForFullHouse
+} from "@/lib/campusCinemaSeats";
+import { scheduleCinemaSitAfterWalk } from "@/lib/campusCinemaSitTimer";
 import { CAMPUS_CINE_POSITION } from "@/config/campusCinema";
+import { useCampusPresenceStore } from "@/stores/campusPresenceStore";
 import { useCampusStore } from "@/stores/campusStore";
 import { cn } from "@/lib/utils";
 
 const CINE_SCREEN_IMG = "/campus/cine-tela.png";
 
-/** Telão pulsante quando há live + zona clicável sobre o prédio do cinema. */
+/** Telão pulsante quando há live + zona clicável — Cine THCProce. */
 export function CampusCineHotspot() {
   const isLiveActive = useCampusStore((s) => s.isLiveActive);
   const setIsCineOpen = useCampusStore((s) => s.setIsCineOpen);
+  const player = useCampusStore((s) => s.player);
+  const setPlayer = useCampusStore((s) => s.setPlayer);
+  const setAvatarPosture = useCampusStore((s) => s.setAvatarPosture);
+  const setCinemaSeatIndex = useCampusStore((s) => s.setCinemaSeatIndex);
+  const setCinemaAuditoriumFull = useCampusStore((s) => s.setCinemaAuditoriumFull);
+  const othersByUid = useCampusPresenceStore((s) => s.othersByUid);
 
   return (
     <div className="pointer-events-none absolute inset-0 z-[14]" data-cine-marker>
@@ -34,13 +49,34 @@ export function CampusCineHotspot() {
         }}
         aria-label={
           isLiveActive
-            ? "Cine THC — live agora — abrir transmissão"
-            : "Cine THC — abrir drive-in"
+            ? "Cine THCProce — live agora — abrir transmissão"
+            : "Cine THCProce — abrir sala"
         }
-        title="Cine THC"
+        title="Cine THCProce"
         onClick={(e) => {
           e.stopPropagation();
           e.preventDefault();
+
+          const occupied = collectOccupiedCinemaSeatIndices(othersByUid);
+          const seat = pickFreeCinemaSeat(occupied);
+
+          setAvatarPosture("stand");
+
+          if (seat !== null) {
+            setCinemaAuditoriumFull(false);
+            const target = getSeatPositionForIndex(seat);
+            setCinemaSeatIndex(seat);
+            const ms = estimateCampusWalkMs(player, target);
+            setPlayer(target);
+            scheduleCinemaSitAfterWalk(ms);
+          } else {
+            setCinemaAuditoriumFull(true);
+            setCinemaSeatIndex(null);
+            const target = pickStandingSpotForFullHouse(player);
+            const ms = estimateCampusWalkMs(player, target);
+            setPlayer(target);
+          }
+
           setIsCineOpen(true);
         }}
       >
@@ -56,7 +92,7 @@ export function CampusCineHotspot() {
           <span className="flex size-full flex-col items-center justify-center rounded-xl px-1">
             <Film className="text-white/50" size={28} aria-hidden />
             <span className="mt-1 text-center text-[8px] font-bold uppercase tracking-wider text-white/70">
-              Cine THC
+              Cine THCProce
             </span>
           </span>
         )}

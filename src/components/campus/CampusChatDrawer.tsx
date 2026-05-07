@@ -6,9 +6,11 @@ import { HandMetal, MessageCircle, Send, Trophy, X } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { areas } from "@/data/courses";
+import { Button } from "@/components/ui/button";
 import { useCampusHudStore } from "@/stores/campusHudStore";
 import { trpc } from "@/lib/trpc/react";
-import { Button } from "@/components/ui/button";
+import { isCampusAdminEmail } from "@/lib/campusAdmin";
+import { useCampusStore } from "@/stores/campusStore";
 
 /** Chat global / por área + ranking rápido — armazenado em SQLite via tRPC. */
 export function CampusChatDrawer() {
@@ -18,6 +20,7 @@ export function CampusChatDrawer() {
   const setChannel = useCampusHudStore((s) => s.setChatChannel);
   const { data: session, status } = useSession();
   const inputRef = useRef<HTMLInputElement>(null);
+  const isAdmin = isCampusAdminEmail(session?.user?.email ?? null);
 
   const { data: rows, refetch } = trpc.campus.chatHistory.useQuery(
     { channel, take: 60 },
@@ -51,12 +54,18 @@ export function CampusChatDrawer() {
       : "Visitante";
 
   function sendBody(body: string) {
+    const trimmed = body.trim();
+    if (!trimmed) return;
     post.mutate({
       channel,
       authorName: authorNick,
-      body
+      body: trimmed
     });
     if (inputRef.current) inputRef.current.value = "";
+    if (isAdmin && /^!/.test(trimmed)) {
+      const highlight = trimmed.replace(/^!+\s*/, "").trim();
+      if (highlight) useCampusStore.getState().fireAdminBroadcast(highlight);
+    }
   }
 
   return (
@@ -184,6 +193,14 @@ export function CampusChatDrawer() {
                   <li className="text-white/50 text-xs">Sem dados ainda.</li>
                 )}
               </ul>
+              {isAdmin ? (
+                <p className="text-[11px] leading-snug text-amber-200/85 rounded-lg border border-amber-400/25 bg-amber-950/35 px-2.5 py-2">
+                  <span className="font-semibold">Prof:</span> começa com{" "}
+                  <span className="font-mono text-amber-100">!</span> — o chat guarda a linha
+                  inteira; no balão aparece só o texto sem os <span className="font-mono">!</span>{" "}
+                  do início (~5&nbsp;s + som).
+                </p>
+              ) : null}
               <div className="flex gap-2">
                 <input
                   ref={inputRef}

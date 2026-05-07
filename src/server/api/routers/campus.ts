@@ -109,13 +109,14 @@ export const campusRouter = router({
     const email = ctx.session.user.email;
     const p = await prisma.profile.findUnique({
       where: { email },
-      select: { accessStatus: true }
+      select: { accessStatus: true, createdAt: true }
     });
     const accessStatus = p?.accessStatus ?? "pendente";
     const isCampusAdmin = isCampusAdminEmail(email);
     return {
       accessStatus,
       isCampusAdmin,
+      memberSinceIso: p?.createdAt ? p.createdAt.toISOString() : null,
       canOpenCourses:
         isCampusAdmin || canOpenCampusCourses(accessStatus, true)
     };

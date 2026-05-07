@@ -118,3 +118,40 @@ export function clampToWalkZone(p: MapPctPoint): MapPctPoint {
 
   return { x: clamp(best.x, 1, 99), y: clamp(best.y, 1, 99) };
 }
+
+/** Fileiras do auditório ao pé do telão Cine THC (%, espaço dos hotspots — alinhar ao mapa quando trocar a arte). */
+function buildCinemaSeats(): MapPctPoint[] {
+  const raw: MapPctPoint[] = [];
+  const cols = 8;
+  const rows = 6;
+  for (let row = 0; row < rows; row++) {
+    for (let col = 0; col < cols; col++) {
+      const yaw = row * 0.38;
+      const x = 55.5 + col * 4.35 + yaw;
+      const y = 91.8 - row * 2.15;
+      raw.push({ x, y });
+    }
+  }
+  return raw.map(clampToWalkZone);
+}
+
+export const CINEMA_SEATS: readonly MapPctPoint[] = buildCinemaSeats();
+
+/**
+ * Corredores / laterais junto ao auditório — quando não há assento, o avatar vem para aqui
+ * (em pé). Ajuste com a arte do mapa.
+ */
+function buildCinemaStandingSpots(): MapPctPoint[] {
+  const raw: MapPctPoint[] = [
+    { x: 52.2, y: 74 },
+    { x: 52.8, y: 80.5 },
+    { x: 53.4, y: 87 },
+    { x: 91.5, y: 76 },
+    { x: 92, y: 83 },
+    { x: 57, y: 71 },
+    { x: 88, y: 90 }
+  ];
+  return raw.map(clampToWalkZone);
+}
+
+export const CINEMA_STANDING_SPOTS: readonly MapPctPoint[] = buildCinemaStandingSpots();
