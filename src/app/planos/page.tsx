@@ -10,7 +10,8 @@ const tiers = [
     id: "mensal",
     title: "Mensal",
     price: "—",
-    copy: "Acesso completo ao conteúdo pelo tempo do plano. O paywall é por duração, não por curso.",
+    copy:
+      "Matrícula ativa pelo período do plano; você explora o campus e as salas conforme calendário de liberação (pré-lançamento). O paywall é por duração, não por curso isolado.",
     href: lodger
   },
   {
@@ -39,7 +40,7 @@ const tiers = [
 export const metadata: Metadata = {
   title: "Planos por tempo — THCProce",
   description:
-    "Mensal, trimestral, anual ou vitalício. Conteúdo liberado; o tempo de acesso é o que muda."
+    "Mensal, trimestral, anual ou vitalício. No pré-lançamento fundador o catálogo cresce por fases; o tempo de matrícula é o que muda entre planos."
 };
 
 export default function PlanosPage() {
@@ -58,9 +59,9 @@ export default function PlanosPage() {
           Planos por tempo de acesso
         </h1>
         <p className="text-center text-white/70 max-w-2xl mx-auto mb-12">
-          Todos os cursos e áreas do campus ficam disponíveis no mesmo nível; o que muda é{" "}
+          O mapa e as salas abrem conforme o calendário da escola (liberação progressiva). Entre os planos, o que muda é{" "}
           <strong className="text-canna-200">quanto tempo</strong> sua matrícula permanece
-          ativa — alinhado ao Lodger/PIX já usados na escola.
+          ativa — integração Lodger/PIX como na escola principal.
         </p>
         <div className="grid sm:grid-cols-2 gap-6">
           {tiers.map((t) => (

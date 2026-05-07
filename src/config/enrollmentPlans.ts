@@ -31,7 +31,7 @@ export const ENROLLMENT_PLANS: EnrollmentPlan[] = [
     priceDisplay: "R$ 4,90",
     billingNote: "ideal para experimentar o campus",
     benefits: [
-      "Acesso imediato a todo o conteúdo do período",
+      "Exploração do campus no período; salas conforme calendário de liberação",
       "Mesmo ecossistema do aluno mensal",
       "Upgrade reaproveita seu progresso"
     ]
@@ -43,8 +43,8 @@ export const ENROLLMENT_PLANS: EnrollmentPlan[] = [
     priceDisplay: "R$ 19,90",
     billingNote: "cobrança mensal",
     benefits: [
-      "Rotina de estudos com flexibilidade",
-      "Campus, aulas e comunidade",
+      "Rotina de estudos; novas aulas entram em calendário (pré-lançamento)",
+      "Campus, trilhas liberadas e comunidade",
       "Renovação simples quando precisar"
     ]
   },
@@ -55,9 +55,9 @@ export const ENROLLMENT_PLANS: EnrollmentPlan[] = [
     priceDisplay: "R$ 79,90",
     billingNote: "melhor custo por mês",
     benefits: [
-      "Compromisso médio com melhor preço",
-      "Acompanha atualizações e eventos sazonais",
-      "Indicado para certificações"
+      "Melhor preço por mês no semestre",
+      "Acompanha atualizações e eventos sazonais do campus",
+      "Certificações conforme regras publicadas pela escola"
     ]
   },
   {
@@ -68,8 +68,8 @@ export const ENROLLMENT_PLANS: EnrollmentPlan[] = [
     billingNote: "Melhor escolha para acompanhar o campus por 12 meses",
     benefits: [
       "Menor custo por mês no ano frente ao mensal",
-      "Eventos e lives ao longo do ciclo",
-      "Prioridade em novidades do campus"
+      "Eventos e lives ao longo do ciclo (conforme calendário)",
+      "Novidades do campus em liberação progressiva"
     ],
     recommended: true
   },
@@ -78,11 +78,11 @@ export const ENROLLMENT_PLANS: EnrollmentPlan[] = [
     name: "Vitalício",
     durationLabel: "Acesso permanente",
     priceDisplay: "R$ 297,00",
-    billingNote: "Acesso permanente de fundador",
+    billingNote: "Pré-lançamento fundador · acesso prolongado (ver termos)",
     benefits: [
-      "Valor único para quem quer estudar a longo prazo",
-      "Campus e atualizações conforme política da escola",
-      "Histórico e progresso preservados"
+      "Valor único para quem quer acompanhar a expansão do campus",
+      "Campus e novos módulos conforme política e calendário da escola",
+      "Histórico e progresso preservados na sua conta"
     ]
   }
 ];

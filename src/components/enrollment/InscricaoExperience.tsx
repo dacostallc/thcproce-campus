@@ -136,7 +136,7 @@ export function InscricaoExperience() {
             className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass-strong text-xs uppercase tracking-[0.15em] text-canna-300 font-semibold mb-6 border border-canna-400/30"
           >
             <Sparkles size={14} />
-            <span>Oferta de lançamento</span>
+            <span>Pré-lançamento fundador</span>
           </motion.div>
           <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-shadow-soft">
             Entre no{" "}
@@ -145,8 +145,9 @@ export function InscricaoExperience() {
             </span>
           </h1>
           <p className="mt-4 text-base sm:text-lg text-white/70 leading-relaxed">
-            Na fase de lançamento, o acesso está com valor promocional para formar a primeira
-            comunidade da nossa universidade digital de cannabis.
+            Fase de pré-lançamento fundador: valores promocionais para a primeira comunidade da
+            universidade digital de cannabis. O catálogo de aulas e materiais cresce por etapas —
+            sem promessa de título ou biblioteca finalizada nesta fase.
           </p>
         </div>
 

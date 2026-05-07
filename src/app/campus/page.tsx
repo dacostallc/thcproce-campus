@@ -3,7 +3,7 @@ import { CampusMap } from "@/components/campus/CampusMap";
 export const metadata = {
   title: "Campus — THCProce",
   description:
-    "Caminhe pelo campus interativo da Escola PROCBD. 14 áreas, 11 cursos com certificado, +600 aulas em vídeo."
+    "Campus interativo THCProce: 14 áreas, trilhas em liberação progressiva no pré-lançamento fundador. Sem promessa de catálogo finalizado."
 };
 
 export default function CampusPage() {

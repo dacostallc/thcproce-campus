@@ -96,8 +96,9 @@ export function Cannabis101LessonHero({
             <p className="max-w-2xl text-sm leading-relaxed text-white/88">{theme.mood}</p>
 
             <p className="max-w-2xl rounded-lg border border-amber-500/25 bg-black/45 px-3 py-2 text-[11px] leading-relaxed text-amber-100/90 sm:text-xs">
-              Conteúdo em liberação progressiva durante o pré-lançamento fundador. Aulas em vídeo completas e
-              materiais extras aparecem nesta sala conforme publicação.
+              Conteúdo em liberação progressiva durante o pré-lançamento fundador. Novas aulas em vídeo
+              e materiais extras entram nesta sala conforme o calendário da escola — nada aqui garante
+              catálogo já fechado ou gravações 100% disponíveis.
             </p>
 
             <div className="flex flex-wrap items-center gap-3 pt-2">

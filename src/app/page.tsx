@@ -50,7 +50,7 @@ export default function Home() {
         <div className="max-w-4xl">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full glass-strong text-xs uppercase tracking-[0.15em] text-canna-300 font-semibold mb-6">
             <Sparkles size={14} />
-            <span>11 cursos · +600 aulas · certificado oficial</span>
+            <span>Pré-lançamento fundador · campus em expansão</span>
           </div>
 
           <h1 className="text-5xl sm:text-6xl md:text-7xl font-extrabold tracking-tight leading-[1.02] text-white text-shadow-soft">
@@ -86,8 +86,8 @@ export default function Home() {
           </div>
 
           <div className="mt-14 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl">
-            <Stat label="Cursos completos" value="11" />
-            <Stat label="Vídeo-aulas" value="600+" />
+            <Stat label="Áreas no mapa" value="14" />
+            <Stat label="Trilhas · salas" value="11+" />
             <Stat label="Inscritos no YouTube" value="70k" />
             <Stat label="Anos ensinando" value="5+" />
           </div>
@@ -124,8 +124,9 @@ export default function Home() {
           Acesso por tempo, não por tranca
         </h2>
         <p className="text-white/65 text-center max-w-2xl mx-auto mb-12">
-          Todo aluno pagante tem acesso completo às 14 áreas. O que muda entre os planos é
-          quanto tempo você fica no campus.
+          Durante o pré-lançamento fundador, matrículas ativas exploram as 14 áreas do mapa; novos
+          módulos e aulas entram em calendário — sem promessa de biblioteca finalizada. Entre os
+          planos, muda o <strong className="text-white/80">tempo</strong> da sua matrícula.
         </p>
 
         <div className="grid md:grid-cols-3 gap-4">
@@ -133,20 +134,35 @@ export default function Home() {
             name="Mensal"
             price="R$ 19"
             period="/mês"
-            features={["Acesso completo às 14 áreas", "Todos os 600+ vídeos", "Prof THC 24h", "Cancelamento livre"]}
+            features={[
+              "Explorar as 14 áreas conforme liberação",
+              "Biblioteca e aulas em expansão (pré-lançamento)",
+              "Comunidade e suporte no ritmo do campus",
+              "Renovação ou cancelamento conforme plano"
+            ]}
           />
           <PlanCard
             name="Anual"
             price="R$ 100"
             period="/ano"
             highlight
-            features={["Tudo do mensal", "Certificado oficial", "Comunidade do campus", "Lives ao vivo", "Economia de 56%"]}
+            features={[
+              "Tudo do mensal",
+              "Certificação e lives conforme regras publicadas pela escola",
+              "Comunidade e eventos no calendário do pré-lançamento",
+              "Economia frente ao mensal (quando aplicável)"
+            ]}
           />
           <PlanCard
             name="Vitalício"
             price="R$ 597"
             period="único"
-            features={["Acesso permanente", "Avatar exclusivo Master", "Acesso antecipado a novos cursos", "Suporte prioritário"]}
+            features={[
+              "Pacote fundador · acesso prolongado (ver termos)",
+              "Novas trilhas conforme a escola publicar",
+              "Benefícios de fundador quando anunciados",
+              "Suporte conforme canal oficial"
+            ]}
           />
         </div>
       </section>
