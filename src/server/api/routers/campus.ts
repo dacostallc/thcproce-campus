@@ -12,6 +12,7 @@ import { LEVELS, levelFromXp } from "@/server/gamification";
 import { moodleCourseIdForArea } from "@/lib/moodle/courseMap";
 import { signedBunnyStreamEmbedUrl } from "@/lib/bunny/signedEmbed";
 import { canOpenCampusCourses } from "@/lib/campusAccess";
+import { isCampusAdminEmail } from "@/lib/campusAdmin";
 
 const mockCourses: MoodleCourse[] = areas.map((a, i) => ({
   id: 100 + i,
@@ -105,14 +106,18 @@ export const campusRouter = router({
     if (!ctx.session?.user?.email) {
       throw new TRPCError({ code: "UNAUTHORIZED", message: "Sem e-mail na sessão." });
     }
+    const email = ctx.session.user.email;
     const p = await prisma.profile.findUnique({
-      where: { email: ctx.session.user.email },
+      where: { email },
       select: { accessStatus: true }
     });
     const accessStatus = p?.accessStatus ?? "pendente";
+    const isCampusAdmin = isCampusAdminEmail(email);
     return {
       accessStatus,
-      canOpenCourses: canOpenCampusCourses(accessStatus, true)
+      isCampusAdmin,
+      canOpenCourses:
+        isCampusAdmin || canOpenCampusCourses(accessStatus, true)
     };
   }),
 

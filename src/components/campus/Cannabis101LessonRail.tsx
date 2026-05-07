@@ -1,6 +1,5 @@
 "use client";
 
-import type { ReactNode } from "react";
 import Link from "next/link";
 import {
   Clock,
@@ -13,6 +12,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { levelNumberFromKey } from "@/data/gamificationLevels";
+import { useSession } from "next-auth/react";
+import { isCampusAdminEmail } from "@/lib/campusAdmin";
 
 const MOODLE = "https://thcproce.com.br/escola";
 
@@ -60,6 +61,9 @@ export function Cannabis101LessonRail({
   onBackToCampus,
   className
 }: Props) {
+  const { data: session } = useSession();
+  const campusAdmin = isCampusAdminEmail(session?.user?.email ?? null);
+
   const nextMilestone = 5;
   const towardFive = Math.min(doneCount, nextMilestone);
   const nextPct = Math.round((towardFive / nextMilestone) * 100);
@@ -70,6 +74,13 @@ export function Cannabis101LessonRail({
 
   return (
     <div className={cn("flex flex-col gap-3", className)}>
+      {campusAdmin ? (
+        <div className="rounded-lg border border-amber-400/40 bg-gradient-to-r from-amber-500/15 to-transparent px-2.5 py-1.5 text-center">
+          <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-amber-100">
+            Admin THCProce
+          </span>
+        </div>
+      ) : null}
       <div className="flex flex-col gap-2">
         <Button
           type="button"

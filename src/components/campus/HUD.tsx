@@ -20,6 +20,7 @@ import { useCampusSkyStore } from "@/stores/campusSkyStore";
 import { useCampusHudStore } from "@/stores/campusHudStore";
 import { trpc } from "@/lib/trpc/react";
 import { Button } from "@/components/ui/button";
+import { isCampusAdminEmail } from "@/lib/campusAdmin";
 
 export function HUD() {
   const sky = useCampusSkyStore((s) => s.sky);
@@ -33,6 +34,7 @@ export function HUD() {
   const muralOpen = useCampusHudStore((s) => s.muralOpen);
 
   const { data: session, status } = useSession();
+  const campusAdmin = isCampusAdminEmail(session?.user?.email ?? null);
   const { data: xpData } = trpc.campus.myProgress.useQuery(undefined, {
     enabled: status === "authenticated",
     staleTime: 30_000
@@ -148,6 +150,11 @@ export function HUD() {
 
             {status === "authenticated" ? (
               <>
+                {campusAdmin ? (
+                  <span className="rounded-md border border-amber-400/45 bg-amber-500/15 px-2 py-1 text-[9px] font-bold uppercase tracking-[0.14em] text-amber-100 shadow-sm shadow-amber-900/40">
+                    Admin THCProce
+                  </span>
+                ) : null}
                 <span className="hidden xl:inline max-w-[120px] truncate text-[11px] text-white/60">
                   {session?.user?.email}
                 </span>

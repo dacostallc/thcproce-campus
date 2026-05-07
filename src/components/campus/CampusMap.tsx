@@ -25,6 +25,7 @@ import { isCampusAreaConstruction } from "@/config/campusAreaRollout";
 import { getLastLessonIndex } from "@/lib/campusLastLesson";
 import { trpc } from "@/lib/trpc/react";
 import { CampusAreaGateModal, type CampusGateKind } from "./CampusAreaGateModal";
+import { isCampusAdminEmail } from "@/lib/campusAdmin";
 
 const PLACEHOLDER_NIGHT = `
   radial-gradient(ellipse at 20% 30%, rgba(34, 197, 94, 0.20), transparent 45%),
@@ -84,14 +85,24 @@ export function CampusMap({
     staleTime: 60_000
   });
 
+  const isCampusAdmin = useMemo(
+    () => isCampusAdminEmail(session?.user?.email ?? null),
+    [session?.user?.email]
+  );
+
   const canEnterCourses = useMemo(() => {
     if (process.env.NEXT_PUBLIC_CAMPUS_PUBLIC_ALL === "true") return true;
+    if (isCampusAdmin) return true;
     if (status !== "authenticated") return false;
     if (!campusAccess) return false;
     return campusAccess.canOpenCourses;
-  }, [status, campusAccess]);
+  }, [status, campusAccess, isCampusAdmin]);
 
   const handleSelectArea = (area: Area) => {
+    if (isCampusAdmin) {
+      setSelected(area);
+      return;
+    }
     if (isCampusAreaConstruction(area.id)) {
       setGateOpen({ kind: "construction", area });
       return;
