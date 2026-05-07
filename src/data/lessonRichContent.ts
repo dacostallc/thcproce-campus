@@ -1,21 +1,18 @@
 import type { Area } from "@/data/courses";
-import { getCannabis101LessonRichContent } from "@/data/cannabis101LessonRich";
-import { getCampusCourseLessonRich } from "@/data/campusCourseRich";
 import type { LessonRichContent } from "./lessonRichTypes";
+import { getLessonStreamContent, lessonStreamToRich } from "@/data/lessonContent";
 
-export type { LessonRichContent } from "./lessonRichTypes";
+export type { LessonRichContent };
 
 /**
- * Conteúdo textual por aula — gerado a partir do curso + índice (sem Moodle).
- * Substitui ou enriquece quando houver integração com LMS.
+ * Conteúdo textual por aula — modelo canónico em `lessonContent/` (manual + substituição fácil por curso).
  */
 export function getLessonRichContent(
   area: Area,
   lessonIndex: number,
-  lessonTitle: string
+  _lessonTitle: string
 ): LessonRichContent {
-  if (area.id === "cannabis-101") {
-    return getCannabis101LessonRichContent(lessonIndex, lessonTitle);
-  }
-  return getCampusCourseLessonRich(area, lessonIndex, lessonTitle);
+  void _lessonTitle;
+  const stream = getLessonStreamContent(area, lessonIndex);
+  return lessonStreamToRich(stream);
 }

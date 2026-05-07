@@ -8,9 +8,15 @@ import {
   GraduationCap,
   Library,
   StickyNote,
-  Target
+  Target,
+  Video,
+  Image as ImageIcon,
+  LayoutGrid,
+  FileStack
 } from "lucide-react";
 import type { LessonRichContent } from "@/data/lessonRichTypes";
+import type { LessonQuizItem } from "@/data/lessonRichTypes";
+import type { LessonMediaHints } from "@/data/lessonRichTypes";
 import type { AreaColor } from "@/data/courses";
 import { cn } from "@/lib/utils";
 
@@ -93,16 +99,113 @@ type TabId = (typeof TABS)[number]["id"];
 type Props = {
   storageKey: string;
   content: LessonRichContent;
-  /** Tema âmbar / ouro para sala Cannabis 101 */
   variant?: "default" | "cannabis101" | "campus";
-  /**
-   * `stream`: uma coluna contínua (estilo Notion/LMS) — sem barra de tabs dominando.
-   * `tabs`: navegação por abas (default).
-   */
   layout?: "tabs" | "stream";
-  /** Com `variant="campus"` + `layout="stream"`: acento visual do curso. */
   streamAccent?: AreaColor;
 };
+
+function splitBody(body?: string): string[] {
+  if (!body?.trim()) return [];
+  return body
+    .split(/\n\n+/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
+function StreamQuizBlock({ items }: { items: LessonQuizItem[] }) {
+  return (
+    <div className="space-y-5">
+      {items.map((q, qi) => (
+        <StreamQuizQuestion key={qi} q={q} index={qi} />
+      ))}
+    </div>
+  );
+}
+
+function StreamQuizQuestion({
+  q,
+  index
+}: {
+  q: LessonQuizItem;
+  index: number;
+}) {
+  const [picked, setPicked] = useState<number | null>(null);
+  const done = picked !== null;
+  return (
+    <div className="rounded-lg border border-white/10 bg-black/25 px-4 py-3">
+      <p className="mb-2 text-sm font-semibold leading-snug text-white/90">
+        <span className="mr-2 inline-flex size-6 shrink-0 items-center justify-center rounded-md bg-emerald-500/15 text-[11px] font-bold text-emerald-200">
+          {index + 1}
+        </span>
+        {q.question}
+      </p>
+      <div className="grid gap-1.5 sm:grid-cols-2">
+        {q.options.map((opt, oi) => {
+          const isCorrect = oi === q.correctIndex;
+          const isWrongPick = done && picked === oi && !isCorrect;
+          return (
+            <button
+              key={oi}
+              type="button"
+              disabled={done}
+              onClick={() => setPicked(oi)}
+              className={cn(
+                "rounded-md border px-3 py-2.5 text-left text-[13px] leading-snug transition-colors",
+                !done && "border-white/15 bg-black/30 text-white/85 hover:bg-white/8",
+                done && isCorrect && "border-emerald-500/45 bg-emerald-500/10 text-emerald-50",
+                done && isWrongPick && "border-rose-500/35 bg-rose-500/10 text-white/85"
+              )}
+            >
+              {opt}
+            </button>
+          );
+        })}
+      </div>
+      {done ? (
+        <p className="mt-2 text-xs text-white/50">
+          {picked === q.correctIndex
+            ? "Correto — conecte à evidência citada no desenvolvimento."
+            : "Revise o bloco de desenvolvimento e os objetivos; a resposta indicada reflete o texto-base desta edição."}
+        </p>
+      ) : null}
+    </div>
+  );
+}
+
+function MediaHintRow({ media, pal }: { media: LessonMediaHints; pal: StreamPal }) {
+  const row: { label: string; Icon: typeof Video; on: boolean }[] = [
+    { label: "Vídeo / demonstração", Icon: Video, on: media.needsVideo },
+    { label: "Imagens (campo, bancada, equipamento)", Icon: ImageIcon, on: media.needsImage },
+    { label: "Infográfico ou esquema", Icon: LayoutGrid, on: media.needsInfographic },
+    { label: "Material de apoio (PDF, checklists)", Icon: FileStack, on: media.needsSupportMaterial }
+  ];
+  const any = row.some((x) => x.on);
+  if (!any) {
+    return (
+      <p className="text-[13px] text-white/45">
+        Nenhum recurso audiovisual obrigatório indicado — texto-base autossuficiente para estudo inicial.
+      </p>
+    );
+  }
+  return (
+    <ul className="flex flex-wrap gap-2">
+      {row
+        .filter((x) => x.on)
+        .map(({ label, Icon }) => (
+          <li
+            key={label}
+            className={cn(
+              "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-white/80",
+              pal.articleBorder
+            )}
+          >
+            <Icon className="size-3.5 shrink-0 opacity-80" aria-hidden />
+            {label}
+          </li>
+        ))}
+    </ul>
+  );
+}
 
 export function LessonRichTabs({
   storageKey,
@@ -138,7 +241,9 @@ export function LessonRichTabs({
   const campusStream = variant === "campus" && layout === "stream";
   const stream = layout === "stream" && (c || campusStream);
   const pal = c ? STREAM_PALETTE.amber : STREAM_PALETTE[streamAccent];
-  const wrap = c ? "border-amber-500/25 bg-[#050d0a]/80 shadow-[0_0_40px_rgba(0,0,0,0.35)]" : "border-white/10 bg-black/20";
+  const wrap = c
+    ? "border-amber-500/25 bg-[#050d0a]/80 shadow-[0_0_40px_rgba(0,0,0,0.35)]"
+    : "border-white/10 bg-black/20";
   const tabBar = c ? "border-amber-500/20" : "border-white/10";
   const activeTab = c
     ? "bg-amber-500/20 text-amber-100 border border-amber-400/40"
@@ -148,29 +253,40 @@ export function LessonRichTabs({
     : "text-white/55 hover:bg-white/5 hover:text-white/90 border border-transparent";
 
   const bodyProse = "text-[15px] leading-[1.65] text-white/[0.88]";
+  const bodyParagraphs = splitBody(content.body);
 
   if (stream) {
     return (
       <article
         className={cn(
-          "rounded-xl border px-4 py-5 sm:px-6 sm:py-6",
+          "mx-auto w-full max-w-[70ch] rounded-xl border px-4 py-5 sm:px-6 sm:py-6",
           pal.articleBorder,
-          "bg-[#030806]/60 max-w-[70ch] mx-auto w-full"
+          "bg-[#030806]/60"
         )}
       >
         <section className={cn("border-b pb-8", pal.sectionBorder)}>
-          <h2 className={pal.sectionTitle}>Conteúdo</h2>
+          <h2 className={pal.sectionTitle}>Introdução</h2>
           <div className={cn("space-y-4", bodyProse)}>
             <p>{content.intro}</p>
-            <div className="rounded-lg border border-white/10 bg-white/[0.03] px-4 py-3">
-              <p className={cn("mb-2", pal.summaryKicker)}>Resumo técnico</p>
-              <p className="text-[14px] leading-relaxed text-white/80">{content.summary}</p>
-            </div>
           </div>
         </section>
 
         <section className={cn("border-b py-8", pal.sectionBorder)}>
-          <h2 className={pal.sectionTitle}>Objetivos</h2>
+          <h2 className={pal.sectionTitle}>Desenvolvimento</h2>
+          <div className={cn("space-y-4", bodyProse)}>
+            {bodyParagraphs.length ? (
+              bodyParagraphs.map((p, i) => <p key={i}>{p}</p>)
+            ) : (
+              <p className="text-white/50">
+                Conteúdo principal será exibido aqui quando o campo de desenvolvimento estiver preenchido no
+                ficheiro da aula.
+              </p>
+            )}
+          </div>
+        </section>
+
+        <section className={cn("border-b py-8", pal.sectionBorder)}>
+          <h2 className={pal.sectionTitle}>Objetivos da aula</h2>
           <ul className="space-y-2.5 text-[14px] leading-snug text-white/85">
             {content.objectives.map((o, i) => (
               <li key={i} className="flex gap-3">
@@ -189,7 +305,31 @@ export function LessonRichTabs({
         </section>
 
         <section className={cn("border-b py-8", pal.sectionBorder)}>
-          <h2 className={pal.sectionTitle}>Materiais</h2>
+          <h2 className={pal.sectionTitle}>Resumo final</h2>
+          <div className="rounded-lg border border-white/10 bg-white/[0.03] px-4 py-3">
+            <p className="text-[14px] leading-relaxed text-white/85">{content.summary}</p>
+          </div>
+        </section>
+
+        {content.quiz?.length ? (
+          <section className={cn("border-b py-8", pal.sectionBorder)}>
+            <h2 className={pal.sectionTitle}>Quiz rápido</h2>
+            <StreamQuizBlock items={content.quiz} />
+          </section>
+        ) : null}
+
+        {content.media ? (
+          <section className={cn("border-b py-8", pal.sectionBorder)}>
+            <h2 className={pal.sectionTitle}>Recursos sugeridos (produção)</h2>
+            <p className={cn("mb-3 text-[12px] leading-relaxed text-white/50")}>
+              Indicação editorial para equipe de mídia THCProce: o que complementar em versões futuras desta aula.
+            </p>
+            <MediaHintRow media={content.media} pal={pal} />
+          </section>
+        ) : null}
+
+        <section className={cn("border-b py-8", pal.sectionBorder)}>
+          <h2 className={pal.sectionTitle}>Materiais de apoio</h2>
           <ul className="space-y-2 text-[14px] text-white/85 list-none">
             {content.materials.map((m, i) => (
               <li key={i} className="rounded-md border border-white/10 bg-black/25 px-3 py-2">
@@ -224,9 +364,7 @@ export function LessonRichTabs({
 
         <section className="pt-8">
           <h2 className={pal.sectionTitle}>Suas notas</h2>
-          <p className="mb-2 text-xs text-white/45">
-            Guardadas neste dispositivo — para revisão rápida.
-          </p>
+          <p className="mb-2 text-xs text-white/45">Guardadas neste dispositivo — para revisão rápida.</p>
           <textarea
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
@@ -275,13 +413,46 @@ export function LessonRichTabs({
         >
           {tab === "conteudo" && (
             <div className="space-y-4 text-sm leading-relaxed">
-              <p className="text-white/90">{content.intro}</p>
+              <div>
+                <p className="mb-1 text-[10px] font-bold uppercase tracking-widest text-white/40">Introdução</p>
+                <p className="text-white/90">{content.intro}</p>
+              </div>
+              {bodyParagraphs.length ? (
+                <div>
+                  <p className="mb-1 text-[10px] font-bold uppercase tracking-widest text-white/40">
+                    Desenvolvimento
+                  </p>
+                  <div className="space-y-3">
+                    {bodyParagraphs.map((p, i) => (
+                      <p key={i} className="text-white/88">
+                        {p}
+                      </p>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
               <div className="rounded-xl border border-white/10 bg-white/5 p-4">
-                <p className="text-[10px] uppercase tracking-widest text-canna-300/90 font-bold mb-2">
-                  Resumo técnico
+                <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-canna-300/90">
+                  Resumo final
                 </p>
                 <p className="text-white/80">{content.summary}</p>
               </div>
+              {content.quiz?.length ? (
+                <div>
+                  <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-white/40">
+                    Quiz rápido
+                  </p>
+                  <StreamQuizBlock items={content.quiz} />
+                </div>
+              ) : null}
+              {content.media ? (
+                <div>
+                  <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-white/40">
+                    Recursos sugeridos
+                  </p>
+                  <MediaHintRow media={content.media} pal={STREAM_PALETTE.canna} />
+                </div>
+              ) : null}
             </div>
           )}
           {tab === "objetivos" && (
