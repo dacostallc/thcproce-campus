@@ -8,6 +8,7 @@ import { SECAGEM_CURA_LESSONS } from "./courses/secagem-cura";
 import { EXTRACOES_SOLVENTLESS_LESSONS } from "./courses/extracoes-solventless";
 import { EXTRACAO_OLEO_LESSONS } from "./courses/extracao-oleo";
 import { MEDICINA_LESSONS } from "./courses/medicina";
+import { CULINARIA_LESSONS } from "./courses/culinaria";
 import { generateDeterministicLesson } from "./generateDeterministicLesson";
 
 /**
@@ -21,7 +22,8 @@ const MANUAL_BY_COURSE: Partial<Record<string, readonly LessonStreamContent[]>> 
   "secagem-cura": SECAGEM_CURA_LESSONS,
   "extracoes-solventless": EXTRACOES_SOLVENTLESS_LESSONS,
   "extracao-oleo": EXTRACAO_OLEO_LESSONS,
-  "medicina": MEDICINA_LESSONS
+  "medicina": MEDICINA_LESSONS,
+  "culinaria": CULINARIA_LESSONS
 };
 
 export type { LessonStreamContent, LessonQuizItem, LessonMediaHints } from "./types";
