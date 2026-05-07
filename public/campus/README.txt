@@ -22,3 +22,15 @@ Dicas de qualidade:
 Se quiser servir a versão @2x para retina, salve também:
     aerial@2x.webp
 (o componente CampusMap pode ser ajustado depois pra usar srcset)
+
+Cine THC — telão opcional no mapa
+---------------------------------
+
+Arte opcional do telão pulsante (quando há live):
+
+    public/campus/cine-tela.png
+
+Variáveis de ambiente públicas (.env.local):
+
+    NEXT_PUBLIC_CAMPUS_LIVE_ACTIVE=true|false
+    NEXT_PUBLIC_CAMPUS_LIVE_YOUTUBE_URL=https://www.youtube.com/watch?v=...

@@ -26,6 +26,8 @@ import { getLastLessonIndex } from "@/lib/campusLastLesson";
 import { trpc } from "@/lib/trpc/react";
 import { CampusAreaGateModal, type CampusGateKind } from "./CampusAreaGateModal";
 import { isCampusAdminEmail } from "@/lib/campusAdmin";
+import { CineDriveIn } from "@/components/CineDriveIn";
+import { CampusCineHotspot } from "./CampusCineHotspot";
 
 const PLACEHOLDER_NIGHT = `
   radial-gradient(ellipse at 20% 30%, rgba(34, 197, 94, 0.20), transparent 45%),
@@ -231,6 +233,8 @@ export function CampusMap({
             ))}
           </div>
 
+          <CampusCineHotspot />
+
           <div className="absolute inset-0 z-[12] pointer-events-none">
             <CampusPlayer />
             <CampusPeerAvatars myLabel={myLabel} />
@@ -251,6 +255,8 @@ export function CampusMap({
           if (nearResult) setDismissNearId(nearResult.area.id);
         }}
       />
+
+      <CineDriveIn />
 
       <HUD />
 
