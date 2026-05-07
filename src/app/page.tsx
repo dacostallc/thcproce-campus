@@ -89,7 +89,11 @@ export default function Home() {
             <Stat label="Áreas no mapa" value="14" />
             <Stat label="Trilhas · salas" value="11+" />
             <Stat label="Inscritos no YouTube" value="70k" />
-            <Stat label="Anos ensinando" value="5+" />
+            <Stat
+              label="Ensinando com responsabilidade, prática e ciência"
+              value="+10 anos"
+              labelTone="sentence"
+            />
           </div>
         </div>
       </section>
@@ -177,11 +181,26 @@ export default function Home() {
   );
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
+function Stat({
+  label,
+  value,
+  labelTone = "caps"
+}: {
+  label: string;
+  value: string;
+  labelTone?: "caps" | "sentence";
+}) {
   return (
     <div className="px-4 py-3 rounded-xl glass-strong">
       <div className="text-3xl font-extrabold text-canna-300">{value}</div>
-      <div className="text-[11px] uppercase tracking-wider text-white/55 mt-0.5">{label}</div>
+      <div
+        className={
+          "text-[11px] mt-0.5 text-white/55 " +
+          (labelTone === "caps" ? "uppercase tracking-wider" : "normal-case tracking-wide leading-snug")
+        }
+      >
+        {label}
+      </div>
     </div>
   );
 }
