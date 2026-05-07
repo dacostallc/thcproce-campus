@@ -121,16 +121,26 @@ function EntrarInner() {
       </form>
 
       <p className="mt-6 text-xs text-white/45 leading-relaxed">
-        Desenvolvimento: qualquer e-mail válido + senha em{" "}
+        Criou conta em{" "}
+        <Link href="/inscrever-se" className="text-canna-300 hover:underline font-semibold">
+          Inscrição
+        </Link>
+        ? Use a mesma senha. Modo dev: e-mail válido +{" "}
         <code className="text-canna-200">CAMPUS_DEMO_PASSWORD</code> (padrão{" "}
-        <code className="text-canna-200">demo</code>). SSO: configurar endpoints em{" "}
-        <code className="text-canna-200">MOODLE_OAUTH_*</code> ou discovery OIDC (ver docs).
+        <code className="text-canna-200">demo</code>) só se ainda não há senha cadastrada.
       </p>
 
-      <div className="mt-4 text-center text-sm">
-        <Link href="/campus" className="text-canna-300 hover:underline">
-          Voltar ao mapa
-        </Link>
+      <div className="mt-4 text-center text-sm space-y-2">
+        <div>
+          <Link href="/inscrever-se" className="text-canna-300 hover:underline font-semibold">
+            Primeira vez? Inscreva-se no campus
+          </Link>
+        </div>
+        <div>
+          <Link href="/campus" className="text-white/50 hover:underline">
+            Voltar ao mapa
+          </Link>
+        </div>
       </div>
     </div>
   );

@@ -20,6 +20,7 @@ import { InternalPreviewBanner } from "./InternalPreviewBanner";
 import { useCampusSkyStore } from "@/stores/campusSkyStore";
 import { useCampusStore } from "@/stores/campusStore";
 import { nearestArea } from "@/lib/campusProximity";
+import { CAMPUS_ART_ASPECT } from "@/lib/campusArt";
 import { trpc } from "@/lib/trpc/react";
 
 const PLACEHOLDER_NIGHT = `
@@ -92,6 +93,9 @@ export function CampusMap({
       ? (session?.user?.name ?? session?.user?.email?.split("@")[0] ?? "Aluno")
       : "Visitante";
 
+  /** Largura do palco do mapa: cabe no viewport sem crop lateral quando o PNG tem o mesmo ratio de `campusArt.ts`. */
+  const stageWidth = `min(100vw, calc(100svh * ${CAMPUS_ART_ASPECT}))`;
+
   return (
     <div
       className="relative w-full h-[100svh] overflow-hidden bg-ink-900 no-select"
@@ -100,98 +104,108 @@ export function CampusMap({
       {internalPreview ? <InternalPreviewBanner /> : null}
 
       <motion.div
-        className="absolute inset-0"
-        initial={{ scale: 1.18, opacity: 0 }}
+        className="absolute inset-0 flex items-center justify-center bg-ink-900"
+        initial={{ scale: 1.05, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        transition={{ duration: 2.2, ease: [0.16, 1, 0.3, 1] }}
+        transition={{ duration: 2, ease: [0.16, 1, 0.3, 1] }}
       >
-        <motion.div
-          className="absolute inset-0"
-          initial={false}
-          animate={{ opacity: sky === "night" ? 1 : 0 }}
-          transition={{ duration: 0.75, ease: [0.4, 0, 0.2, 1] }}
+        <div
+          className="relative isolate max-h-full max-w-full overflow-hidden shadow-2xl ring-1 ring-white/5"
+          style={{
+            aspectRatio: CAMPUS_ART_ASPECT,
+            width: stageWidth
+          }}
         >
-          {nightOk ? (
-            <Image
-              src={bgNightSrc}
-              alt="Campus THCProce ao entardecer / noite"
-              fill
-              priority={sky === "night"}
-              sizes="100vw"
-              className="object-cover"
-              onError={() => setNightOk(false)}
-            />
-          ) : (
-            <div className="absolute inset-0" style={{ background: PLACEHOLDER_NIGHT }} />
-          )}
           <motion.div
-            aria-hidden
-            className="absolute inset-0 pointer-events-none"
+            className="absolute inset-0"
+            initial={false}
             animate={{ opacity: sky === "night" ? 1 : 0 }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.75, ease: [0.4, 0, 0.2, 1] }}
           >
-            <div className="absolute inset-0 bg-gradient-to-b from-black/25 via-transparent to-black/45" />
+            {nightOk ? (
+              <Image
+                src={bgNightSrc}
+                alt="Campus THCProce ao entardecer / noite"
+                fill
+                priority={sky === "night"}
+                sizes="(max-width: 768px) 100vw, 96vw"
+                className="object-cover object-center"
+                onError={() => setNightOk(false)}
+              />
+            ) : (
+              <div className="absolute inset-0" style={{ background: PLACEHOLDER_NIGHT }} />
+            )}
+            <motion.div
+              aria-hidden
+              className="absolute inset-0 pointer-events-none"
+              animate={{ opacity: sky === "night" ? 1 : 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/38" />
+            </motion.div>
           </motion.div>
-        </motion.div>
 
-        <motion.div
-          className="absolute inset-0"
-          initial={false}
-          animate={{ opacity: sky === "day" ? 1 : 0 }}
-          transition={{ duration: 0.75, ease: [0.4, 0, 0.2, 1] }}
-        >
-          {dayOk ? (
-            <Image
-              src={bgDaySrc}
-              alt="Campus THCProce durante o dia"
-              fill
-              priority={sky === "day"}
-              sizes="100vw"
-              className="object-cover"
-              onError={() => setDayOk(false)}
-            />
-          ) : (
-            <div className="absolute inset-0" style={{ background: PLACEHOLDER_DAY }} />
-          )}
           <motion.div
-            aria-hidden
-            className="absolute inset-0 pointer-events-none"
+            className="absolute inset-0"
+            initial={false}
             animate={{ opacity: sky === "day" ? 1 : 0 }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.75, ease: [0.4, 0, 0.2, 1] }}
           >
-            <div className="absolute inset-0 bg-gradient-to-b from-sky-400/15 via-transparent to-amber-200/20" />
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_12%,rgba(255,251,235,0.35),transparent_52%)]" />
+            {dayOk ? (
+              <Image
+                src={bgDaySrc}
+                alt="Campus THCProce durante o dia"
+                fill
+                priority={sky === "day"}
+                sizes="(max-width: 768px) 100vw, 96vw"
+                className="object-cover object-center"
+                onError={() => setDayOk(false)}
+              />
+            ) : (
+              <div className="absolute inset-0" style={{ background: PLACEHOLDER_DAY }} />
+            )}
+            <motion.div
+              aria-hidden
+              className="absolute inset-0 pointer-events-none"
+              animate={{ opacity: sky === "day" ? 1 : 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-b from-sky-400/12 via-transparent to-amber-200/18" />
+              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_12%,rgba(255,251,235,0.32),transparent_52%)]" />
+            </motion.div>
           </motion.div>
-        </motion.div>
+
+          <div className="absolute inset-0 z-[7] pointer-events-none">
+            <AmbientLife phase={phase} />
+          </div>
+
+          <div className="absolute inset-0 z-[8]">
+            <MapWalkLayer onWalkTo={setPlayer} />
+          </div>
+
+          <div className="absolute inset-0 z-10">
+            {areas.map((area) => (
+              <Hotspot
+                key={area.id}
+                area={area}
+                showCourseLabels={showCourseLabels}
+                onSelect={setSelected}
+                active={selected?.id === area.id}
+                completed={Boolean(progress?.areas[area.id])}
+              />
+            ))}
+          </div>
+
+          <div className="absolute inset-0 z-[12] pointer-events-none">
+            <CampusPlayer />
+            <CampusPeerAvatars myLabel={myLabel} />
+          </div>
+        </div>
       </motion.div>
 
       {anyMissing ? <PlaceholderHint mode={sky} /> : null}
 
       <AmbientPixi phase={phase} />
-
-      <MapWalkLayer onWalkTo={setPlayer} />
-
-      <div className="absolute inset-0 z-[7] pointer-events-none">
-        <AmbientLife phase={phase} />
-      </div>
-
-      <div className="absolute inset-0 z-10">
-        {areas.map((area) => (
-          <Hotspot
-            key={area.id}
-            area={area}
-            showCourseLabels={showCourseLabels}
-            onSelect={setSelected}
-            active={selected?.id === area.id}
-            completed={Boolean(progress?.areas[area.id])}
-          />
-        ))}
-      </div>
-
-      <div className="absolute inset-0 z-[12] pointer-events-none">
-        <CampusPlayer />
-        <CampusPeerAvatars myLabel={myLabel} />
-      </div>
 
       <ProximityBanner
         areaName={proximityName}

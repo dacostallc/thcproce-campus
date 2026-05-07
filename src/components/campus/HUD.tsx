@@ -115,6 +115,7 @@ export function HUD() {
             <NavLink href="https://thcproce.com.br/escola">Cursos</NavLink>
             <NavLink href="https://thcproce.com.br/escola">Prof THC</NavLink>
             <NavLink href="/planos">Planos</NavLink>
+            <NavLink href="/inscrever-se">Inscrever</NavLink>
           </nav>
 
           <div className="flex shrink-0 flex-wrap items-center justify-end gap-1.5 sm:gap-2">

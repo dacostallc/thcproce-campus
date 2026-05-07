@@ -21,6 +21,7 @@ import { CampusLessonVideo } from "./CampusLessonVideo";
 import { getLessonTitlesForArea } from "@/data/lessonOutline";
 import { trpc } from "@/lib/trpc/react";
 import { Button } from "@/components/ui/button";
+import { useCampusSkyStore } from "@/stores/campusSkyStore";
 
 const LS_KEY = "thc_campus_lesson_v1";
 
@@ -105,6 +106,7 @@ export function LessonPanel({
   onSelectLesson
 }: Props) {
   const { status } = useSession();
+  const sky = useCampusSkyStore((s) => s.sky);
   const utils = trpc.useUtils();
 
   const MUX_DEMO = getMuxDemoId();
@@ -175,7 +177,12 @@ export function LessonPanel({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[44] bg-black/55 backdrop-blur-[3px] pointer-events-auto"
+            className={cn(
+              "fixed inset-0 z-[44] pointer-events-auto backdrop-blur-[2px]",
+              sky === "day"
+                ? "bg-gradient-to-b from-sky-100/15 via-slate-900/30 to-slate-950/55"
+                : "bg-gradient-to-b from-black/25 via-ink-950/50 to-black/45"
+            )}
             onClick={onClose}
           />
           <motion.div

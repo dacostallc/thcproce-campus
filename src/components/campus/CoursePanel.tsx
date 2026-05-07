@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import type { Area } from "@/data/courses";
 import { cn } from "@/lib/utils";
+import { useCampusSkyStore } from "@/stores/campusSkyStore";
 
 const colorAccent = {
   canna: "from-canna-500/30 to-canna-700/10 border-canna-400/40",
@@ -55,6 +56,7 @@ export function CoursePanel({
   onClose,
   onOpenCampusLesson
 }: Props) {
+  const sky = useCampusSkyStore((s) => s.sky);
   return (
     <AnimatePresence>
       {area && (
@@ -65,7 +67,12 @@ export function CoursePanel({
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/40 backdrop-blur-[2px] z-30"
+            className={cn(
+              "fixed inset-0 z-30 backdrop-blur-[2px]",
+              sky === "day"
+                ? "bg-sky-950/20"
+                : "bg-black/35"
+            )}
           />
 
           <motion.aside

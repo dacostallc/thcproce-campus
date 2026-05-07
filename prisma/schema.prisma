@@ -7,6 +7,13 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum AccessStatus {
+  pendente
+  ativo
+  expirado
+  vitalicio
+}
+
 model Profile {
   id           String   @id @default(cuid())
   email        String?  @unique
@@ -18,6 +25,21 @@ model Profile {
   lastActive   DateTime @default(now())
   // Progresso de aulas ({ [slug]: number[] }) em JSON texto
   lessonProgress String @default("{}")
+  // Hash bcrypt (credenciais). OAuth pode deixar vazio.
+  passwordHash   String?
+  whatsapp       String?
+  cpf            String?
+  country        String?
+  city           String?
+  stateRegion    String?
+  // Plano escolhido: ids em src/config/enrollmentPlans.ts
+  selectedPlanId String?
+  accessStatus     AccessStatus @default(pendente)
+  termsAcceptedAt  DateTime?
+  // Checkout futuro: pix, stripe, mercadopago...
+  preferredCheckoutProvider String?
+  // Fila Moodle quando WS ativo
+  moodleSyncPending Boolean @default(false)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 }

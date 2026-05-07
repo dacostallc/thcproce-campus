@@ -46,6 +46,14 @@ export default function PlanosPage() {
   return (
     <main className="min-h-screen bg-ink-900 text-white px-4 py-16">
       <div className="max-w-5xl mx-auto">
+        <p className="text-center text-white/70 max-w-2xl mx-auto mb-8">
+          <Link
+            href="/inscrever-se"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-canna-500/20 border border-canna-400/35 text-canna-200 font-semibold hover:bg-canna-500/30 transition-colors"
+          >
+            Matrícula no campus digital →
+          </Link>
+        </p>
         <h1 className="text-3xl sm:text-4xl font-bold text-center mb-3">
           Planos por tempo de acesso
         </h1>

@@ -1,12 +1,14 @@
 import type { NextAuthOptions } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
+import bcrypt from "bcryptjs";
+import { prisma } from "@/server/db";
 import { moodleOAuthProvider } from "@/lib/auth/moodleOAuth";
 
 const moodleOAuth = moodleOAuthProvider();
 
 /**
  * Auth mínima para dev + Credenciais; SSO opcional (OpenID Discovery ou OAuth2 manual).
- * Credenciais: e-mail + CAMPUS_DEMO_PASSWORD ou "demo".
+ * Credenciais: inscrição no campus (hash em `Profile.passwordHash`) ou senha demo (CAMPUS_DEMO_PASSWORD).
  */
 export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET ?? "dev-insecure-change-me",
@@ -23,14 +25,27 @@ export const authOptions: NextAuthOptions = {
         const email = creds?.email?.trim().toLowerCase();
         if (!email || !email.includes("@")) return null;
 
-        const demoPass = process.env.CAMPUS_DEMO_PASSWORD ?? "demo";
-        if (creds?.password !== demoPass) return null;
+        const row = await prisma.profile.findUnique({ where: { email } });
+        if (row?.passwordHash) {
+          const ok = await bcrypt.compare(creds?.password ?? "", row.passwordHash);
+          if (!ok) return null;
+          return {
+            id: row.id,
+            email,
+            name: row.displayName ?? email.split("@")[0]?.replace(/\./g, " ") ?? "Aluno"
+          };
+        }
 
-        return {
-          id: email,
-          email,
-          name: email.split("@")[0]?.replace(/\./g, " ") ?? "Aluno"
-        };
+        const demoPass = process.env.CAMPUS_DEMO_PASSWORD ?? "demo";
+        if (creds?.password === demoPass) {
+          return {
+            id: email,
+            email,
+            name: email.split("@")[0]?.replace(/\./g, " ") ?? "Aluno"
+          };
+        }
+
+        return null;
       }
     })
   ],

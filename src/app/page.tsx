@@ -33,6 +33,7 @@ export default function Home() {
         <nav className="hidden md:flex items-center gap-1">
           <a className="px-3.5 py-2 rounded-xl text-sm text-white/70 hover:text-white" href="#areas">Áreas</a>
           <a className="px-3.5 py-2 rounded-xl text-sm text-white/70 hover:text-white" href="#planos">Planos</a>
+          <Link className="px-3.5 py-2 rounded-xl text-sm text-canna-200 hover:text-white font-semibold" href="/inscrever-se">Inscrever-se</Link>
           <a className="px-3.5 py-2 rounded-xl text-sm text-white/70 hover:text-white" href="https://thcproce.com.br/escola/login/index.php">Entrar</a>
         </nav>
 
