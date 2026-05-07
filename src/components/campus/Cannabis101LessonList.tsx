@@ -11,11 +11,16 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { getCannabis101LessonGate, type LessonGateStatus } from "@/config/cannabis101LessonGate";
+import { getCampusLessonGate } from "@/config/campusLessonGate";
+import type { LessonGateStatus } from "@/config/cannabis101LessonGate";
+import type { AreaColor } from "@/data/courses";
+import { getLessonListAccent } from "@/lib/campusAccent";
 
 export type LessonFilter = "all" | "available" | "seen" | "soon";
 
 type Props = {
+  areaId: string;
+  accent: AreaColor;
   titles: string[];
   activeIndex: number;
   doneSet: Set<number>;
@@ -41,6 +46,8 @@ const FILTER_CHIPS: { id: LessonFilter; label: string }[] = [
 ];
 
 export function Cannabis101LessonList({
+  areaId,
+  accent,
   titles,
   activeIndex,
   doneSet,
@@ -51,13 +58,14 @@ export function Cannabis101LessonList({
 }: Props) {
   const [q, setQ] = useState("");
   const [filter, setFilter] = useState<LessonFilter>("all");
+  const A = getLessonListAccent(accent);
 
   const rows = useMemo(() => {
     return titles.map((title, idx) => {
-      const gate = getCannabis101LessonGate(idx, titles.length, doneSet);
+      const gate = getCampusLessonGate(areaId, idx, titles.length, doneSet);
       return { idx, title, gate };
     });
-  }, [titles, doneSet]);
+  }, [titles, doneSet, areaId]);
 
   const filtered = useMemo(() => {
     const needle = q.trim().toLowerCase();
@@ -78,11 +86,11 @@ export function Cannabis101LessonList({
 
   return (
     <div className={cn("flex h-full min-h-0 flex-col", className)}>
-      <div className="shrink-0 border-b border-amber-500/20 px-3 py-3">
-        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-amber-200/75">Programa da aula</p>
+      <div className={cn("shrink-0 px-3 py-3", A.headerBottom)}>
+        <p className={cn("text-[10px] font-bold uppercase tracking-[0.2em]", A.kicker)}>Programa da aula</p>
         <p className="mt-1 text-xs text-white/55">Índice do curso — localize-se rápido</p>
-        <label className="mt-3 flex items-center gap-2 rounded-xl border border-amber-500/20 bg-black/40 px-3 py-2">
-          <Search className="size-4 shrink-0 text-amber-200/50" aria-hidden />
+        <label className={cn("mt-3 flex items-center gap-2 rounded-xl border bg-black/40 px-3 py-2", A.search)}>
+          <Search className={cn("size-4 shrink-0", A.searchIcon)} aria-hidden />
           <input
             type="search"
             value={q}
@@ -100,9 +108,7 @@ export function Cannabis101LessonList({
               onClick={() => setFilter(c.id)}
               className={cn(
                 "rounded-lg px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide transition-colors",
-                filter === c.id
-                  ? "bg-amber-500/25 text-amber-100 ring-1 ring-amber-400/40"
-                  : "text-white/45 hover:bg-white/5 hover:text-white/80"
+                filter === c.id ? A.chipOn : A.chipOff
               )}
             >
               {c.label}
@@ -123,16 +129,14 @@ export function Cannabis101LessonList({
                 onClick={() => !disabled && onSelectLesson(idx)}
                 className={cn(
                   "flex w-full items-start gap-2 rounded-xl border px-2.5 py-2.5 text-left text-sm transition-all",
-                  active
-                    ? "border-amber-400/55 bg-amber-500/20 text-white shadow-[0_0_24px_rgba(212,175,55,0.15)] ring-1 ring-amber-500/30"
-                    : "border-white/10 bg-black/25 text-white/85 hover:border-amber-500/30",
+                  active ? A.lessonOn : A.lessonOff,
                   disabled && "cursor-not-allowed opacity-55"
                 )}
               >
                 <span
                   className={cn(
                     "mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-lg text-[11px] font-bold",
-                    active ? "bg-amber-500/30 text-amber-50" : "bg-white/5 text-white/50"
+                    active ? A.numOn : A.numOff
                   )}
                 >
                   {idx + 1}
@@ -142,7 +146,7 @@ export function Cannabis101LessonList({
                   <span className="mt-1 flex flex-wrap items-center gap-1">
                     <StatusPill gate={gate} />
                     {active ? (
-                      <span className="rounded bg-amber-500/20 px-1.5 py-0.5 text-[9px] font-bold uppercase text-amber-200">
+                      <span className={cn("rounded px-1.5 py-0.5 text-[9px] font-bold uppercase", A.atual)}>
                         Atual
                       </span>
                     ) : null}
@@ -153,7 +157,7 @@ export function Cannabis101LessonList({
                 ) : gate === "locked" ? (
                   <Lock className="mt-1 size-4 shrink-0 text-white/35" aria-hidden />
                 ) : (
-                  <Clock className="mt-1 size-4 shrink-0 text-amber-300/50" aria-hidden />
+                  <Clock className="mt-1 size-4 shrink-0 text-white/40" aria-hidden />
                 )}
               </button>
             </li>
@@ -164,14 +168,14 @@ export function Cannabis101LessonList({
         <p className="px-3 py-6 text-center text-xs text-white/40">Nenhuma aula com esse filtro.</p>
       ) : null}
 
-      <div className="shrink-0 border-t border-amber-500/20 bg-[#020705]/95 p-3">
-        <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-amber-200/55">Módulo atual</p>
+      <div className={cn("shrink-0 p-3", A.footerTop)}>
+        <p className={cn("text-[9px] font-bold uppercase tracking-[0.2em]", A.modKicker)}>Módulo atual</p>
         <p className="mt-1 line-clamp-2 text-xs font-semibold leading-snug text-white">
           {titles[activeIndex] ?? "—"}
         </p>
-        <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-black/60 ring-1 ring-amber-500/10">
+        <div className={cn("mt-2 h-1.5 overflow-hidden rounded-full", A.barTrack)}>
           <div
-            className="h-full rounded-full bg-gradient-to-r from-amber-700 to-canna-500 transition-all"
+            className={cn("h-full rounded-full transition-all", A.barFill)}
             style={{
               width: `${titles.length ? Math.min(100, ((activeIndex + 1) / titles.length) * 100) : 0}%`
             }}
@@ -181,7 +185,7 @@ export function Cannabis101LessonList({
           <Button
             type="button"
             size="sm"
-            className="mt-3 w-full bg-amber-600 font-bold text-ink-900 hover:bg-amber-500"
+            className={cn("mt-3 w-full", A.nextBtn)}
             disabled={nextLessonDisabled}
             onClick={onNextLesson}
           >

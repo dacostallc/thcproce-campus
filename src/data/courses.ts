@@ -41,7 +41,7 @@ export const areas: Area[] = [
       "Onboarding THCProce: trilha, Moodle e próximos módulos"
     ],
     professor: "Prof THC",
-    lessons: 24,
+    lessons: 10,
     hours: "9h"
   },
   {
@@ -61,7 +61,7 @@ export const areas: Area[] = [
       "Manejo integrado de pragas"
     ],
     professor: "Prof THC",
-    lessons: 38,
+    lessons: 10,
     hours: "16h"
   },
   {
@@ -81,7 +81,7 @@ export const areas: Area[] = [
       "Proteção contra pragas e clima"
     ],
     professor: "Prof THC",
-    lessons: 30,
+    lessons: 10,
     hours: "13h"
   },
   {
@@ -101,7 +101,7 @@ export const areas: Area[] = [
       "Cronograma de floração e colheita"
     ],
     professor: "Prof THC",
-    lessons: 46,
+    lessons: 10,
     hours: "21h"
   },
   {
@@ -121,7 +121,7 @@ export const areas: Area[] = [
       "Banco de mães e clones"
     ],
     professor: "Prof THC",
-    lessons: 22,
+    lessons: 10,
     hours: "10h"
   },
   {
@@ -141,7 +141,7 @@ export const areas: Area[] = [
       "Armazenamento de longo prazo"
     ],
     professor: "Prof THC",
-    lessons: 14,
+    lessons: 10,
     hours: "5h"
   },
   {
@@ -161,7 +161,7 @@ export const areas: Area[] = [
       "Limpeza e armazenamento"
     ],
     professor: "Prof THC",
-    lessons: 28,
+    lessons: 10,
     hours: "12h"
   },
   {
@@ -181,7 +181,7 @@ export const areas: Area[] = [
       "Filtragem, winterização e clareamento"
     ],
     professor: "Prof THC",
-    lessons: 26,
+    lessons: 10,
     hours: "11h"
   },
   {
@@ -201,7 +201,7 @@ export const areas: Area[] = [
       "Interações com outros medicamentos"
     ],
     professor: "Prof THC",
-    lessons: 32,
+    lessons: 10,
     hours: "14h"
   },
   {
@@ -221,7 +221,7 @@ export const areas: Area[] = [
       "Receitas doces e salgadas"
     ],
     professor: "Prof THC",
-    lessons: 20,
+    lessons: 10,
     hours: "8h"
   },
   {
@@ -241,7 +241,7 @@ export const areas: Area[] = [
       "Padronização de lotes"
     ],
     professor: "Prof THC",
-    lessons: 18,
+    lessons: 10,
     hours: "8h"
   },
   {
@@ -261,7 +261,7 @@ export const areas: Area[] = [
       "Direito de pacientes e cuidadores"
     ],
     professor: "Prof THC",
-    lessons: 16,
+    lessons: 10,
     hours: "6h"
   },
   {
@@ -281,7 +281,7 @@ export const areas: Area[] = [
       "Modelo de produção e distribuição"
     ],
     professor: "Prof THC",
-    lessons: 14,
+    lessons: 10,
     hours: "6h"
   },
   {
@@ -301,7 +301,7 @@ export const areas: Area[] = [
       "Carreiras e oportunidades"
     ],
     professor: "Prof THC",
-    lessons: 18,
+    lessons: 10,
     hours: "8h"
   }
 ];
