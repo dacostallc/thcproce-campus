@@ -10,6 +10,10 @@ import { EXTRACAO_OLEO_LESSONS } from "./courses/extracao-oleo";
 import { MEDICINA_LESSONS } from "./courses/medicina";
 import { CULINARIA_LESSONS } from "./courses/culinaria";
 import { LABORATORIO_LESSONS } from "./courses/laboratorio";
+import { GENETICA_LESSONS } from "./courses/genetica";
+import { LEGISLACAO_LESSONS } from "./courses/legislacao";
+import { COOPERATIVISMO_LESSONS } from "./courses/cooperativismo";
+import { INDUSTRIA_LESSONS } from "./courses/industria";
 import { generateDeterministicLesson } from "./generateDeterministicLesson";
 
 /**
@@ -25,7 +29,11 @@ const MANUAL_BY_COURSE: Partial<Record<string, readonly LessonStreamContent[]>> 
   "extracao-oleo": EXTRACAO_OLEO_LESSONS,
   "medicina": MEDICINA_LESSONS,
   "culinaria": CULINARIA_LESSONS,
-  "laboratorio": LABORATORIO_LESSONS
+  "laboratorio": LABORATORIO_LESSONS,
+  genetica: GENETICA_LESSONS,
+  legislacao: LEGISLACAO_LESSONS,
+  cooperativismo: COOPERATIVISMO_LESSONS,
+  industria: INDUSTRIA_LESSONS
 };
 
 export type { LessonStreamContent, LessonQuizItem, LessonMediaHints } from "./types";
