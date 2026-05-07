@@ -22,6 +22,8 @@ import type { Area } from "@/data/courses";
 import { cn } from "@/lib/utils";
 import { CampusLessonVideo } from "./CampusLessonVideo";
 import { LessonRichTabs } from "./LessonRichTabs";
+import { Cannabis101LessonRail } from "./Cannabis101LessonRail";
+import { Cannabis101LessonFooter } from "./Cannabis101LessonFooter";
 import { getLessonTitlesForArea } from "@/data/lessonOutline";
 import { getLessonRichContent } from "@/data/lessonRichContent";
 import { trpc } from "@/lib/trpc/react";
@@ -110,7 +112,7 @@ export function LessonPanel({
   onSelectArea,
   onSelectLesson
 }: Props) {
-  const { status } = useSession();
+  const { status, data: session } = useSession();
   const sky = useCampusSkyStore((s) => s.sky);
   const utils = trpc.useUtils();
 
@@ -195,6 +197,7 @@ export function LessonPanel({
     : 0;
 
   const notesStorageKey = `thc_lesson_notes_v2_${area?.id ?? "_"}_${clampedLesson}`;
+  const isCannabis101 = area?.id === "cannabis-101";
 
   return (
     <AnimatePresence>
@@ -220,13 +223,20 @@ export function LessonPanel({
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 20, opacity: 0 }}
             transition={{ type: "spring", stiffness: 260, damping: 30 }}
-            className="fixed inset-2 sm:inset-4 md:inset-6 z-[45] flex max-h-[calc(100svh-1rem)] flex-col overflow-hidden rounded-2xl border border-canna-400/25 glass-strong shadow-2xl pointer-events-auto"
+            className={cn(
+              "fixed inset-2 sm:inset-4 md:inset-6 z-[45] flex max-h-[calc(100svh-1rem)] flex-col overflow-hidden rounded-2xl border shadow-2xl pointer-events-auto",
+              isCannabis101
+                ? "border-amber-500/35 bg-[#040a07]/98 backdrop-blur-md"
+                : "border-canna-400/25 glass-strong"
+            )}
             onClick={(e) => e.stopPropagation()}
           >
             <header
               className={cn(
-                "shrink-0 border-b border-white/10 px-4 py-3 sm:px-6 sm:py-4 bg-gradient-to-br",
-                colorAccent[area.color]
+                "shrink-0 border-b px-4 py-3 sm:px-6 sm:py-4",
+                isCannabis101
+                  ? "border-amber-500/20 bg-gradient-to-r from-[#0a1810] via-[#06120d] to-[#040807]"
+                  : cn("border-white/10 bg-gradient-to-br", colorAccent[area.color])
               )}
             >
               <div className="flex flex-wrap items-start justify-between gap-3">
@@ -278,15 +288,27 @@ export function LessonPanel({
 
             <div className="flex min-h-0 flex-1 flex-col md:flex-row">
               <div className="min-h-0 flex-1 overflow-y-auto scrollbar-thin p-4 sm:p-6 space-y-4">
-                <div className="flex flex-wrap items-center gap-2 text-xs text-white/60">
+                <div
+                  className={cn(
+                    "flex flex-wrap items-center gap-2 text-xs",
+                    isCannabis101 ? "text-amber-100/55" : "text-white/60"
+                  )}
+                >
                   <span>
                     Aula {clampedLesson + 1} / {titles.length || "—"}
                   </span>
                   <span className="text-white/25">·</span>
-                  <span className="text-canna-200/90 font-medium">{lessonTitle}</span>
+                  <span
+                    className={cn(
+                      "font-medium",
+                      isCannabis101 ? "text-amber-200/90" : "text-canna-200/90"
+                    )}
+                  >
+                    {lessonTitle}
+                  </span>
                 </div>
 
-                {status === "authenticated" && progressUi ? (
+                {status === "authenticated" && progressUi && !isCannabis101 ? (
                   <div className="rounded-2xl border border-white/10 bg-black/25 p-4 space-y-3">
                     <div className="flex flex-wrap items-center gap-3 justify-between text-xs">
                       <span className="inline-flex items-center gap-1.5 text-canna-200 font-semibold">
@@ -320,11 +342,13 @@ export function LessonPanel({
                       </p>
                     </div>
                   </div>
-                ) : (
+                ) : null}
+
+                {!isCannabis101 && status !== "authenticated" ? (
                   <p className="text-[11px] text-white/45">
                     Entre com sua conta para ver nível, XP, conquistas e progresso global.
                   </p>
-                )}
+                ) : null}
 
                 <CampusLessonVideo
                   areaId={area.id}
@@ -333,7 +357,11 @@ export function LessonPanel({
                 />
 
                 {richContent ? (
-                  <LessonRichTabs storageKey={notesStorageKey} content={richContent} />
+                  <LessonRichTabs
+                    storageKey={notesStorageKey}
+                    content={richContent}
+                    variant={isCannabis101 ? "cannabis101" : "default"}
+                  />
                 ) : null}
 
                 <div className="flex flex-wrap gap-2">
@@ -401,66 +429,129 @@ export function LessonPanel({
                 </div>
               </div>
 
-              <aside className="w-full shrink-0 border-t border-white/10 md:w-80 md:border-l md:border-t-0 flex flex-col max-h-[42vh] md:max-h-none min-h-[180px]">
-                <div className="px-4 py-3 border-b border-white/10 text-[11px] uppercase tracking-[0.2em] text-canna-300 font-semibold flex items-center gap-2 shrink-0">
-                  <CourseNavIcon size={14} /> Este curso
-                </div>
-                <ul className="flex-1 overflow-y-auto scrollbar-thin p-2 space-y-0.5 min-h-0">
-                  {titles.map((t, idx) => {
-                    const checked = doneSet.has(idx);
-                    const active = idx === clampedLesson;
-                    return (
-                      <li key={idx}>
-                        <button
-                          type="button"
-                          onClick={() => onSelectLesson(idx)}
-                          className={cn(
-                            "w-full flex items-start gap-2 rounded-xl px-3 py-2.5 text-left text-sm transition-colors",
-                            active
-                              ? "bg-canna-500/20 text-white border border-canna-400/40"
-                              : "hover:bg-white/5 text-white/85 border border-transparent"
-                          )}
-                        >
-                          <span className="mt-0.5 shrink-0 text-canna-300">
-                            {checked ? <CheckCircle2 size={16} /> : <Circle size={16} />}
-                          </span>
-                          <span>
-                            <span className="text-[10px] font-bold uppercase tracking-wider text-white/45 block">
-                              {idx + 1}
-                            </span>
-                            {t}
-                          </span>
-                        </button>
-                      </li>
-                    );
-                  })}
-                </ul>
-
-                <div className="p-2 border-t border-white/10 overflow-y-auto scrollbar-thin max-h-48 shrink-0">
-                  <div className="text-[10px] uppercase tracking-[0.2em] text-white/45 px-2 py-2 font-semibold">
-                    Outras áreas
+              {isCannabis101 ? (
+                <aside className="flex max-h-[min(52vh,520px)] w-full shrink-0 flex-col border-t border-amber-500/20 bg-[#030806]/90 md:max-h-none md:h-auto md:max-h-[calc(100svh-8rem)] md:w-[380px] md:border-l md:border-t-0">
+                  <div className="shrink-0 border-b border-amber-500/20 px-4 py-3">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-amber-200/80">
+                      Painel do aluno
+                    </p>
+                    <p className="text-sm font-bold text-white">Cannabis 101</p>
                   </div>
-                  <ul className="space-y-0.5">
-                    {allAreas.map((a) => (
-                      <li key={a.id}>
-                        <button
-                          type="button"
-                          onClick={() => onSelectArea(a)}
-                          className={cn(
-                            "w-full text-left truncate rounded-lg px-3 py-2 text-xs transition-colors",
-                            a.id === area.id
-                              ? "bg-white/15 text-white font-semibold"
-                              : "text-white/65 hover:bg-white/8 hover:text-white"
-                          )}
-                        >
-                          {a.name}
-                        </button>
-                      </li>
-                    ))}
+                  <div className="min-h-0 flex-1 overflow-y-auto scrollbar-thin p-3">
+                    <Cannabis101LessonRail
+                      coursePct={coursePct}
+                      doneCount={doneSet.size}
+                      totalLessons={titles.length}
+                      courseHoursLabel={area.hours}
+                      titles={titles}
+                      clampedLesson={clampedLesson}
+                      doneSet={doneSet}
+                      onSelectLesson={onSelectLesson}
+                      progressUi={
+                        status === "authenticated" && progressUi
+                          ? {
+                              xp: progressUi.xp,
+                              levelLabel: progressUi.levelLabel,
+                              levelKey: progressUi.levelKey,
+                              streak: progressUi.streak
+                            }
+                          : null
+                      }
+                    />
+                    <div className="mt-6 border-t border-amber-500/15 pt-4">
+                      <div className="text-[10px] uppercase tracking-[0.2em] text-amber-200/50 px-1 py-2 font-semibold">
+                        Outras áreas
+                      </div>
+                      <ul className="space-y-0.5">
+                        {allAreas.map((a) => (
+                          <li key={a.id}>
+                            <button
+                              type="button"
+                              onClick={() => onSelectArea(a)}
+                              className={cn(
+                                "w-full truncate rounded-lg px-3 py-2 text-left text-xs transition-colors",
+                                a.id === area.id
+                                  ? "bg-amber-500/20 font-semibold text-white"
+                                  : "text-white/65 hover:bg-white/8 hover:text-white"
+                              )}
+                            >
+                              {a.name}
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                </aside>
+              ) : (
+                <aside className="w-full shrink-0 border-t border-white/10 md:w-80 md:border-l md:border-t-0 flex flex-col max-h-[42vh] md:max-h-none min-h-[180px]">
+                  <div className="px-4 py-3 border-b border-white/10 text-[11px] uppercase tracking-[0.2em] text-canna-300 font-semibold flex items-center gap-2 shrink-0">
+                    <CourseNavIcon size={14} /> Este curso
+                  </div>
+                  <ul className="flex-1 overflow-y-auto scrollbar-thin p-2 space-y-0.5 min-h-0">
+                    {titles.map((t, idx) => {
+                      const checked = doneSet.has(idx);
+                      const active = idx === clampedLesson;
+                      return (
+                        <li key={idx}>
+                          <button
+                            type="button"
+                            onClick={() => onSelectLesson(idx)}
+                            className={cn(
+                              "w-full flex items-start gap-2 rounded-xl px-3 py-2.5 text-left text-sm transition-colors",
+                              active
+                                ? "bg-canna-500/20 text-white border border-canna-400/40"
+                                : "hover:bg-white/5 text-white/85 border border-transparent"
+                            )}
+                          >
+                            <span className="mt-0.5 shrink-0 text-canna-300">
+                              {checked ? <CheckCircle2 size={16} /> : <Circle size={16} />}
+                            </span>
+                            <span>
+                              <span className="text-[10px] font-bold uppercase tracking-wider text-white/45 block">
+                                {idx + 1}
+                              </span>
+                              {t}
+                            </span>
+                          </button>
+                        </li>
+                      );
+                    })}
                   </ul>
-                </div>
-              </aside>
+
+                  <div className="p-2 border-t border-white/10 overflow-y-auto scrollbar-thin max-h-48 shrink-0">
+                    <div className="text-[10px] uppercase tracking-[0.2em] text-white/45 px-2 py-2 font-semibold">
+                      Outras áreas
+                    </div>
+                    <ul className="space-y-0.5">
+                      {allAreas.map((a) => (
+                        <li key={a.id}>
+                          <button
+                            type="button"
+                            onClick={() => onSelectArea(a)}
+                            className={cn(
+                              "w-full text-left truncate rounded-lg px-3 py-2 text-xs transition-colors",
+                              a.id === area.id
+                                ? "bg-white/15 text-white font-semibold"
+                                : "text-white/65 hover:bg-white/8 hover:text-white"
+                            )}
+                          >
+                            {a.name}
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </aside>
+              )}
             </div>
+
+            {isCannabis101 ? (
+              <Cannabis101LessonFooter
+                userName={session?.user?.name}
+                levelLabel={progressUi?.levelLabel}
+              />
+            ) : null}
           </motion.div>
         </>
       ) : null}

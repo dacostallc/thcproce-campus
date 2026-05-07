@@ -27,9 +27,11 @@ type TabId = (typeof TABS)[number]["id"];
 type Props = {
   storageKey: string;
   content: LessonRichContent;
+  /** Tema âmbar / ouro para sala Cannabis 101 */
+  variant?: "default" | "cannabis101";
 };
 
-export function LessonRichTabs({ storageKey, content }: Props) {
+export function LessonRichTabs({ storageKey, content, variant = "default" }: Props) {
   const [tab, setTab] = useState<TabId>("conteudo");
   const [notes, setNotes] = useState("");
 
@@ -49,9 +51,19 @@ export function LessonRichTabs({ storageKey, content }: Props) {
     }
   }, [storageKey, notes]);
 
+  const c = variant === "cannabis101";
+  const wrap = c ? "border-amber-500/25 bg-[#050d0a]/80 shadow-[0_0_40px_rgba(0,0,0,0.35)]" : "border-white/10 bg-black/20";
+  const tabBar = c ? "border-amber-500/20" : "border-white/10";
+  const activeTab = c
+    ? "bg-amber-500/20 text-amber-100 border border-amber-400/40"
+    : "bg-canna-500/25 text-canna-100 border border-canna-400/35";
+  const idleTab = c
+    ? "text-white/50 hover:bg-amber-500/10 hover:text-white/90 border border-transparent"
+    : "text-white/55 hover:bg-white/5 hover:text-white/90 border border-transparent";
+
   return (
-    <div className="rounded-2xl border border-white/10 bg-black/20 shadow-inner">
-      <div className="flex flex-wrap gap-1 border-b border-white/10 p-2">
+    <div className={cn("rounded-2xl border shadow-inner", wrap)}>
+      <div className={cn("flex flex-wrap gap-1 border-b p-2", tabBar)}>
         {TABS.map((t) => {
           const Icon = t.icon;
           const active = tab === t.id;
@@ -62,9 +74,7 @@ export function LessonRichTabs({ storageKey, content }: Props) {
               onClick={() => setTab(t.id)}
               className={cn(
                 "inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-[11px] font-bold uppercase tracking-wide transition-colors",
-                active
-                  ? "bg-canna-500/25 text-canna-100 border border-canna-400/35"
-                  : "text-white/55 hover:bg-white/5 hover:text-white/90 border border-transparent"
+                active ? activeTab : idleTab
               )}
             >
               <Icon size={14} />
