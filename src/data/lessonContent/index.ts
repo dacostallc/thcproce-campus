@@ -9,6 +9,7 @@ import { EXTRACOES_SOLVENTLESS_LESSONS } from "./courses/extracoes-solventless";
 import { EXTRACAO_OLEO_LESSONS } from "./courses/extracao-oleo";
 import { MEDICINA_LESSONS } from "./courses/medicina";
 import { CULINARIA_LESSONS } from "./courses/culinaria";
+import { LABORATORIO_LESSONS } from "./courses/laboratorio";
 import { generateDeterministicLesson } from "./generateDeterministicLesson";
 
 /**
@@ -23,7 +24,8 @@ const MANUAL_BY_COURSE: Partial<Record<string, readonly LessonStreamContent[]>> 
   "extracoes-solventless": EXTRACOES_SOLVENTLESS_LESSONS,
   "extracao-oleo": EXTRACAO_OLEO_LESSONS,
   "medicina": MEDICINA_LESSONS,
-  "culinaria": CULINARIA_LESSONS
+  "culinaria": CULINARIA_LESSONS,
+  "laboratorio": LABORATORIO_LESSONS
 };
 
 export type { LessonStreamContent, LessonQuizItem, LessonMediaHints } from "./types";
