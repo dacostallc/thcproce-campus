@@ -33,8 +33,7 @@ const colorBadge = {
 type Props = {
   area: Area | null;
   onClose: () => void;
-  /** Abre o painel de aula integrado no mapa (prioridade em relação a sair do campus). */
-  /** Abre o painel de aula: sem índice = retoma última aula guardada (localStorage). */
+  /** Abre a sala no mapa; sem `lessonIndex` retoma a última aula (localStorage). */
   onOpenCampusLesson?: (lessonIndex?: number) => void;
 };
 
