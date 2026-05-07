@@ -2,15 +2,20 @@ import type { Area } from "@/data/courses";
 import type { LessonStreamContent } from "./types";
 import { CANNABIS101_LESSONS } from "./courses/cannabis101";
 import { CULTIVO_GREENHOUSE_LESSONS } from "./courses/cultivo-greenhouse";
+import { CULTIVO_OUTDOOR_LESSONS } from "./courses/cultivo-outdoor";
+import { CULTIVO_INDOOR_LESSONS } from "./courses/cultivo-indoor";
+import { SECAGEM_CURA_LESSONS } from "./courses/secagem-cura";
 import { generateDeterministicLesson } from "./generateDeterministicLesson";
 
 /**
- * Conteúdo manual por curso (prioridade) — acrescente chaves conforme ficheiros editoriais prontos.
- * Demais cursos: `generateDeterministicLesson` com bancos rotativos (substituível depois).
+ * Conteúdo manual por curso. Cursos sem entrada aqui ainda utilizam fallback editorial temporário em `generateDeterministicLesson.ts`.
  */
 const MANUAL_BY_COURSE: Partial<Record<string, readonly LessonStreamContent[]>> = {
   "cannabis-101": CANNABIS101_LESSONS,
-  "cultivo-greenhouse": CULTIVO_GREENHOUSE_LESSONS
+  "cultivo-greenhouse": CULTIVO_GREENHOUSE_LESSONS,
+  "cultivo-outdoor": CULTIVO_OUTDOOR_LESSONS,
+  "cultivo-indoor": CULTIVO_INDOOR_LESSONS,
+  "secagem-cura": SECAGEM_CURA_LESSONS
 };
 
 export type { LessonStreamContent, LessonQuizItem, LessonMediaHints } from "./types";
