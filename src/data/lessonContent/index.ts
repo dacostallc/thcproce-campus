@@ -6,6 +6,7 @@ import { CULTIVO_OUTDOOR_LESSONS } from "./courses/cultivo-outdoor";
 import { CULTIVO_INDOOR_LESSONS } from "./courses/cultivo-indoor";
 import { SECAGEM_CURA_LESSONS } from "./courses/secagem-cura";
 import { EXTRACOES_SOLVENTLESS_LESSONS } from "./courses/extracoes-solventless";
+import { EXTRACAO_OLEO_LESSONS } from "./courses/extracao-oleo";
 import { generateDeterministicLesson } from "./generateDeterministicLesson";
 
 /**
@@ -17,7 +18,8 @@ const MANUAL_BY_COURSE: Partial<Record<string, readonly LessonStreamContent[]>> 
   "cultivo-outdoor": CULTIVO_OUTDOOR_LESSONS,
   "cultivo-indoor": CULTIVO_INDOOR_LESSONS,
   "secagem-cura": SECAGEM_CURA_LESSONS,
-  "extracoes-solventless": EXTRACOES_SOLVENTLESS_LESSONS
+  "extracoes-solventless": EXTRACOES_SOLVENTLESS_LESSONS,
+  "extracao-oleo": EXTRACAO_OLEO_LESSONS
 };
 
 export type { LessonStreamContent, LessonQuizItem, LessonMediaHints } from "./types";
