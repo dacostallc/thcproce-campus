@@ -25,11 +25,10 @@ import { LessonRichTabs } from "./LessonRichTabs";
 import { Cannabis101LessonList } from "./Cannabis101LessonList";
 import { Cannabis101LessonRail } from "./Cannabis101LessonRail";
 import { Cannabis101LessonFooter } from "./Cannabis101LessonFooter";
-import { Cannabis101LessonHero } from "./Cannabis101LessonHero";
+import { Cannabis101MicroBrandBar } from "./Cannabis101MicroBrandBar";
 import { getLessonTitlesForArea } from "@/data/lessonOutline";
 import { getLessonRichContent } from "@/data/lessonRichContent";
 import { setLastLessonIndex } from "@/lib/campusLastLesson";
-import { getCourseLessonTheme } from "@/data/courseLessonThemes";
 import { trpc } from "@/lib/trpc/react";
 import { Button } from "@/components/ui/button";
 import { useCampusSkyStore } from "@/stores/campusSkyStore";
@@ -223,9 +222,11 @@ export function LessonPanel({
             exit={{ opacity: 0 }}
             className={cn(
               "fixed inset-0 z-[44] pointer-events-auto backdrop-blur-[2px]",
-              sky === "day"
-                ? "bg-gradient-to-b from-sky-100/15 via-slate-900/30 to-slate-950/55"
-                : "bg-gradient-to-b from-black/25 via-ink-950/50 to-black/45"
+              isCannabis101
+                ? "bg-black/55"
+                : sky === "day"
+                  ? "bg-gradient-to-b from-sky-100/15 via-slate-900/30 to-slate-950/55"
+                  : "bg-gradient-to-b from-black/25 via-ink-950/50 to-black/45"
             )}
             onClick={onClose}
           />
@@ -249,10 +250,55 @@ export function LessonPanel({
               className={cn(
                 "shrink-0 border-b px-4 py-3 sm:px-6 sm:py-4",
                 isCannabis101
-                  ? "border-amber-500/20 bg-gradient-to-r from-[#0a1810] via-[#06120d] to-[#040807]"
+                  ? "border-amber-500/15 bg-[#030806] py-2.5 sm:py-3"
                   : cn("border-white/10 bg-gradient-to-br", colorAccent[area.color])
               )}
             >
+              {isCannabis101 ? (
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[10px] uppercase tracking-[0.22em] text-white/45">
+                      Aula agora · Cannabis 101
+                    </p>
+                    <h2
+                      id="lesson-panel-title"
+                      className="mt-0.5 text-base font-semibold leading-snug text-white sm:text-lg"
+                    >
+                      {lessonTitle}
+                    </h2>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <div className="hidden sm:flex items-center gap-1 rounded-lg border border-white/10 bg-black/30 p-0.5">
+                      <button
+                        type="button"
+                        disabled={!prevArea}
+                        onClick={() => prevArea && onSelectArea(prevArea)}
+                        className="p-2 rounded-md hover:bg-white/10 disabled:opacity-30 text-white"
+                        aria-label="Curso anterior"
+                      >
+                        <ChevronLeft size={18} />
+                      </button>
+                      <button
+                        type="button"
+                        disabled={!nextArea}
+                        onClick={() => nextArea && onSelectArea(nextArea)}
+                        className="p-2 rounded-md hover:bg-white/10 disabled:opacity-30 text-white"
+                        aria-label="Próximo curso"
+                      >
+                        <ChevronRight size={18} />
+                      </button>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={onClose}
+                      className="w-10 h-10 rounded-xl border border-white/10 bg-black/30 flex items-center justify-center hover:bg-white/10 text-white"
+                      aria-label="Fechar aulas"
+                    >
+                      <X size={20} />
+                    </button>
+                  </div>
+                </div>
+              ) : (
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div className="min-w-0 flex-1">
                   <p className="text-[10px] uppercase tracking-[0.22em] text-white/70 font-semibold flex items-center gap-2">
@@ -298,122 +344,109 @@ export function LessonPanel({
                   </button>
                 </div>
               </div>
+              )}
             </header>
 
             {isCannabis101 ? (
               <>
                 <div className="flex min-h-0 flex-1 flex-col">
                   <div className="flex min-h-0 flex-1 flex-col md:flex-row">
-                    <aside className="hidden h-full min-h-0 w-[min(100%,290px)] shrink-0 flex-col border-amber-500/25 bg-[#030806]/98 md:flex md:border-r">
+                    <aside className="hidden min-h-0 w-[min(100%,272px)] shrink-0 flex-col border-amber-500/20 bg-[#030806]/98 md:sticky md:top-0 md:z-[1] md:flex md:max-h-[calc(100svh-9rem)] md:self-start md:overflow-hidden md:border-r">
                       <Cannabis101LessonList
                         titles={titles}
                         activeIndex={clampedLesson}
                         doneSet={doneSet}
                         onSelectLesson={onSelectLesson}
-                        className="h-full"
+                        onNextLesson={() => {
+                          if (clampedLesson < titles.length - 1) {
+                            onSelectLesson(clampedLesson + 1);
+                          }
+                        }}
+                        nextLessonDisabled={
+                          titles.length === 0 || clampedLesson >= titles.length - 1
+                        }
+                        className="h-full min-h-0"
                       />
                     </aside>
 
-                    <main className="order-first min-h-0 min-w-0 flex-1 space-y-5 overflow-y-auto scrollbar-thin px-3 py-4 sm:px-5 sm:py-5 md:order-none">
-                      <div className="relative overflow-hidden rounded-2xl border border-amber-500/25 bg-gradient-to-br from-[#0c1810]/95 via-[#06120d]/98 to-[#030806]/98 p-4 shadow-lg shadow-black/40 sm:p-5">
-                        <div
-                          aria-hidden
-                          className="pointer-events-none absolute -right-16 -top-12 h-40 w-40 rounded-full bg-amber-500/10 blur-3xl"
-                        />
-                        <p className="relative text-[10px] font-bold uppercase tracking-[0.2em] text-amber-200/80">
-                          Aula {clampedLesson + 1} / {titles.length || "—"} · Cannabis 101
-                        </p>
-                        <h1
-                          id="c101-lesson-heading"
-                          className="relative mt-2 text-xl font-bold leading-snug text-white text-shadow-soft sm:text-2xl md:text-3xl"
-                        >
-                          {lessonTitle}
-                        </h1>
-                        <p className="relative mt-2 text-sm text-white/55 line-clamp-2">{area.short}</p>
-                        <div className="relative mt-3 flex flex-wrap items-center gap-2 border-t border-amber-500/15 pt-3">
-                          <div className="flex h-2 min-w-[120px] flex-1 overflow-hidden rounded-full bg-black/50 ring-1 ring-amber-500/15">
-                            <div
-                              className="h-full rounded-full bg-gradient-to-r from-amber-700 via-amber-500 to-canna-500 transition-all duration-500"
-                              style={{ width: `${coursePct}%` }}
-                            />
-                          </div>
-                          <span className="text-[11px] font-bold tabular-nums text-amber-200/90">
-                            {coursePct}%
-                          </span>
-                          <span className="text-[10px] text-white/40">
-                            {doneSet.size}/{titles.length} vistas
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="flex flex-wrap gap-2">
-                        <Button
-                          type="button"
-                          size="sm"
-                          disabled={already || markSeen.isPending}
-                          onClick={markCurrent}
-                          className={cn("font-bold", already ? "opacity-70" : "")}
-                        >
-                          {already ? (
-                            <>
-                              <CheckCircle2 size={16} /> Aula registada
-                            </>
-                          ) : (
-                            <>
-                              <Sparkles size={16} /> Marcar como vista (+8 XP)
-                            </>
-                          )}
-                        </Button>
-                        {MUX_DEMO ? (
-                          <Button type="button" variant="glass" size="sm" asChild>
-                            <Link
-                              href={`/aula/${encodeURIComponent(MUX_DEMO)}?course=${encodeURIComponent(area.id)}`}
-                            >
-                              Mux (página)
-                            </Link>
-                          </Button>
-                        ) : null}
-                        {BUNNY_DEMO.lib && BUNNY_DEMO.vid ? (
-                          <Button type="button" variant="glass" size="sm" asChild>
-                            <Link
-                              href={`/aula/${encodeURIComponent(BUNNY_DEMO.vid)}?course=${encodeURIComponent(area.id)}&provider=bunny`}
-                            >
-                              Bunny (página)
-                            </Link>
-                          </Button>
-                        ) : null}
-                      </div>
-
-                      {richContent ? (
-                        <LessonRichTabs
-                          storageKey={notesStorageKey}
-                          content={richContent}
-                          variant="cannabis101"
-                        />
-                      ) : null}
-
-                      <CampusLessonVideo
-                        areaId={area.id}
-                        areaName={area.name}
-                        lessonTitle={lessonTitle}
-                        lessonVisual="compact"
-                        hideFallback
+                    <main className="relative order-first min-h-0 min-w-0 flex-1 overflow-y-auto scrollbar-thin px-4 py-3 sm:px-6 sm:py-4 md:order-none">
+                      <div
+                        aria-hidden
+                        className="pointer-events-none absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-emerald-950/[0.07] to-transparent"
                       />
 
-                      <div className="border-t border-amber-500/20 pt-4">
-                        <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.2em] text-amber-200/45">
-                          THCProce Science
-                        </p>
-                        <Cannabis101LessonHero
-                          theme={getCourseLessonTheme(area.id)}
-                          lessonTitle={lessonTitle}
+                      <div className="relative space-y-4">
+                        <Cannabis101MicroBrandBar />
+
+                        <div>
+                          <h1
+                            id="c101-lesson-heading"
+                            className="text-2xl font-semibold tracking-tight text-white sm:text-3xl"
+                          >
+                            {lessonTitle}
+                          </h1>
+                          <p className="mt-1.5 text-[13px] text-white/45">
+                            Aula {clampedLesson + 1} de {titles.length || "—"} · {area.short}
+                          </p>
+                        </div>
+
+                        <div className="flex flex-wrap gap-2 border-b border-white/10 pb-3">
+                          <Button
+                            type="button"
+                            size="sm"
+                            disabled={already || markSeen.isPending}
+                            onClick={markCurrent}
+                            className={cn("font-bold", already ? "opacity-70" : "")}
+                          >
+                            {already ? (
+                              <>
+                                <CheckCircle2 size={16} /> Aula registada
+                              </>
+                            ) : (
+                              <>
+                                <Sparkles size={16} /> Marcar como vista (+8 XP)
+                              </>
+                            )}
+                          </Button>
+                          {MUX_DEMO ? (
+                            <Button type="button" variant="glass" size="sm" asChild>
+                              <Link
+                                href={`/aula/${encodeURIComponent(MUX_DEMO)}?course=${encodeURIComponent(area.id)}`}
+                              >
+                                Mux (página)
+                              </Link>
+                            </Button>
+                          ) : null}
+                          {BUNNY_DEMO.lib && BUNNY_DEMO.vid ? (
+                            <Button type="button" variant="glass" size="sm" asChild>
+                              <Link
+                                href={`/aula/${encodeURIComponent(BUNNY_DEMO.vid)}?course=${encodeURIComponent(area.id)}&provider=bunny`}
+                              >
+                                Bunny (página)
+                              </Link>
+                            </Button>
+                          ) : null}
+                        </div>
+
+                        <CampusLessonVideo
+                          areaId={area.id}
                           areaName={area.name}
-                          compact
-                          brandingOnly
+                          lessonTitle={lessonTitle}
+                          lessonVisual="compact"
+                          hideFallback
                         />
+
+                        {richContent ? (
+                          <LessonRichTabs
+                            storageKey={notesStorageKey}
+                            content={richContent}
+                            variant="cannabis101"
+                            layout="stream"
+                          />
+                        ) : null}
                       </div>
 
-                      <div className="flex gap-2 border-t border-amber-500/15 pt-3 sm:hidden">
+                      <div className="flex gap-2 border-t border-amber-500/10 pt-4 sm:hidden">
                         <Button
                           type="button"
                           variant="glass"
@@ -435,8 +468,8 @@ export function LessonPanel({
                       </div>
                     </main>
 
-                    <aside className="hidden h-full min-h-0 w-[300px] shrink-0 flex-col border-amber-500/25 bg-[#030806]/95 md:flex md:border-l">
-                      <div className="min-h-0 flex-1 overflow-y-auto scrollbar-thin p-3">
+                    <aside className="hidden min-h-0 w-[min(100%,268px)] shrink-0 flex-col border-amber-500/20 bg-[#030806]/95 md:flex md:border-l">
+                      <div className="min-h-0 flex-1 overflow-y-auto scrollbar-thin p-2.5">
                         <Cannabis101LessonRail
                           coursePct={coursePct}
                           doneCount={doneSet.size}
@@ -454,8 +487,8 @@ export function LessonPanel({
                           }
                           onBackToCampus={onClose}
                         />
-                        <div className="mt-5 border-t border-amber-500/15 pt-4">
-                          <div className="px-1 py-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-amber-200/50">
+                        <div className="mt-4 border-t border-amber-500/15 pt-3">
+                          <div className="px-1 py-1.5 text-[9px] font-semibold uppercase tracking-[0.18em] text-amber-200/50">
                             Outras áreas
                           </div>
                           <ul className="space-y-0.5">
@@ -465,7 +498,7 @@ export function LessonPanel({
                                   type="button"
                                   onClick={() => onSelectArea(a)}
                                   className={cn(
-                                    "w-full truncate rounded-lg px-3 py-2 text-left text-xs transition-colors",
+                                    "w-full truncate rounded-lg px-2.5 py-1.5 text-left text-[11px] transition-colors",
                                     a.id === area.id
                                       ? "bg-amber-500/20 font-semibold text-white"
                                       : "text-white/65 hover:bg-white/8 hover:text-white"
@@ -529,6 +562,15 @@ export function LessonPanel({
                           onSelectLesson(i);
                           setMobileDrawer(null);
                         }}
+                        onNextLesson={() => {
+                          if (clampedLesson < titles.length - 1) {
+                            onSelectLesson(clampedLesson + 1);
+                            setMobileDrawer(null);
+                          }
+                        }}
+                        nextLessonDisabled={
+                          titles.length === 0 || clampedLesson >= titles.length - 1
+                        }
                         className="min-h-0 flex-1"
                       />
                     </div>

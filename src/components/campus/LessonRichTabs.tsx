@@ -29,11 +29,25 @@ type Props = {
   content: LessonRichContent;
   /** Tema âmbar / ouro para sala Cannabis 101 */
   variant?: "default" | "cannabis101";
+  /**
+   * `stream`: uma coluna contínua (estilo Notion/LMS) — sem barra de tabs dominando.
+   * `tabs`: navegação por abas (default).
+   */
+  layout?: "tabs" | "stream";
 };
 
-export function LessonRichTabs({ storageKey, content, variant = "default" }: Props) {
+export function LessonRichTabs({
+  storageKey,
+  content,
+  variant = "default",
+  layout = "tabs"
+}: Props) {
   const [tab, setTab] = useState<TabId>("conteudo");
   const [notes, setNotes] = useState("");
+
+  useEffect(() => {
+    setTab("conteudo");
+  }, [storageKey]);
 
   useEffect(() => {
     try {
@@ -52,6 +66,7 @@ export function LessonRichTabs({ storageKey, content, variant = "default" }: Pro
   }, [storageKey, notes]);
 
   const c = variant === "cannabis101";
+  const stream = layout === "stream";
   const wrap = c ? "border-amber-500/25 bg-[#050d0a]/80 shadow-[0_0_40px_rgba(0,0,0,0.35)]" : "border-white/10 bg-black/20";
   const tabBar = c ? "border-amber-500/20" : "border-white/10";
   const activeTab = c
@@ -60,6 +75,92 @@ export function LessonRichTabs({ storageKey, content, variant = "default" }: Pro
   const idleTab = c
     ? "text-white/50 hover:bg-amber-500/10 hover:text-white/90 border border-transparent"
     : "text-white/55 hover:bg-white/5 hover:text-white/90 border border-transparent";
+
+  const sectionTitle =
+    "text-[11px] font-bold uppercase tracking-[0.2em] text-amber-200/55 mb-3";
+  const bodyProse = "text-[15px] leading-[1.65] text-white/[0.88]";
+
+  if (stream && c) {
+    return (
+      <article
+        className={cn(
+          "rounded-xl border px-4 py-5 sm:px-6 sm:py-6",
+          "border-amber-500/15 bg-[#030806]/60",
+          "max-w-[70ch] mx-auto w-full"
+        )}
+      >
+        <section className="border-b border-amber-500/10 pb-8">
+          <h2 className={sectionTitle}>Conteúdo</h2>
+          <div className={cn("space-y-4", bodyProse)}>
+            <p>{content.intro}</p>
+            <div className="rounded-lg border border-white/10 bg-white/[0.03] px-4 py-3">
+              <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-amber-200/70">
+                Resumo técnico
+              </p>
+              <p className="text-[14px] leading-relaxed text-white/80">{content.summary}</p>
+            </div>
+          </div>
+        </section>
+
+        <section className="border-b border-amber-500/10 py-8">
+          <h2 className={sectionTitle}>Objetivos</h2>
+          <ul className="space-y-2.5 text-[14px] leading-snug text-white/85">
+            {content.objectives.map((o, i) => (
+              <li key={i} className="flex gap-3">
+                <span className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-md bg-amber-500/15 text-[11px] font-bold text-amber-200">
+                  {i + 1}
+                </span>
+                <span>{o}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <section className="border-b border-amber-500/10 py-8">
+          <h2 className={sectionTitle}>Materiais</h2>
+          <ul className="space-y-2 text-[14px] text-white/85 list-none">
+            {content.materials.map((m, i) => (
+              <li key={i} className="rounded-md border border-white/10 bg-black/25 px-3 py-2">
+                {m}
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <section className="border-b border-amber-500/10 py-8">
+          <h2 className={sectionTitle}>Referências</h2>
+          <ul className="space-y-2 text-[14px] text-amber-100/85 list-none">
+            {content.references.map((r, i) => (
+              <li key={i} className="border-l-2 border-amber-500/25 pl-3">
+                {r}
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <section className="border-b border-amber-500/10 py-8">
+          <h2 className={sectionTitle}>Notas do professor</h2>
+          <div className="rounded-lg border border-amber-500/15 bg-amber-950/10 px-4 py-3 text-[14px] leading-relaxed text-white/85">
+            {content.professorNotes}
+          </div>
+        </section>
+
+        <section className="pt-8">
+          <h2 className={sectionTitle}>Suas notas</h2>
+          <p className="mb-2 text-xs text-white/45">
+            Guardadas neste dispositivo — para revisão rápida.
+          </p>
+          <textarea
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            rows={6}
+            className="w-full rounded-lg border border-white/12 bg-black/35 px-3 py-2.5 text-[14px] text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-amber-500/35"
+            placeholder="Anotações, dúvidas, próximos passos…"
+          />
+        </section>
+      </article>
+    );
+  }
 
   return (
     <div className={cn("rounded-2xl border shadow-inner", wrap)}>
@@ -84,7 +185,7 @@ export function LessonRichTabs({ storageKey, content, variant = "default" }: Pro
         })}
       </div>
 
-      <div className="p-4 sm:p-5 min-h-[200px]">
+      <div className="min-h-[240px] p-4 sm:min-h-[280px] sm:p-5">
         <motion.div
           key={tab}
           initial={{ opacity: 0, y: 6 }}
