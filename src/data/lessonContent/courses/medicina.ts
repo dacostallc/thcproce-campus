@@ -340,7 +340,7 @@ Limitação: nada nesta edição substitui parecer jurídico‑regulatório atua
       ], 1)
     ],
     media: M.all,
-    materials: ["Linha temporal ilustrativa de marcos regulatorios brasileiros (verificar ano)", "Template de disclaimers institucionais atualizável"],
+    materials: ["Linha temporal ilustrativa de marcos regulatórios brasileiros (verificar ano)", "Template de disclaimers institucionais atualizável"],
     references: ["Atualização ANVISA e CFM pertinentes ao tema canabinoide", "Pareceres jurídicos internos THCProce conforme atualização municipal"],
     professorNotes:
       "Agendar atualização semestral desta aula com jurídico — legislação muda rápido."
