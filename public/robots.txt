@@ -1,0 +1,4 @@
+# O campus público pode ser indexado; a pasta de preview interna, não.
+User-agent: *
+Allow: /
+Disallow: /preview/

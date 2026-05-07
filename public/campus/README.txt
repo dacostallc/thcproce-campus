@@ -1,0 +1,24 @@
+COLOQUE A IMAGEM AÉREA DO CAMPUS AQUI
+======================================
+
+Salve a imagem cinematográfica do campus (a vista aérea noturna que você
+mandou no chat) com o nome:
+
+    aerial.webp
+
+Caminho final:  public/campus/aerial.webp
+
+Formatos aceitos: .webp (recomendado), .png, .jpg
+
+A página /campus carrega esse arquivo automaticamente. Se não existir,
+um fundo provisório com luzes ambientais aparece no lugar (e os hotspots
+continuam funcionando).
+
+Dicas de qualidade:
+- Resolução mínima: 1920x1280
+- Recomendado: 2560x1707 ou 3072x2048
+- Formato webp economiza ~60% de banda vs png
+
+Se quiser servir a versão @2x para retina, salve também:
+    aerial@2x.webp
+(o componente CampusMap pode ser ajustado depois pra usar srcset)

@@ -1,0 +1,16 @@
+# Postgres local — mesmo tipo de DATABASE_URL que usarás na Vercel (Neon, Supabase, etc.).
+# `docker compose up -d` e depois: npx prisma db push
+services:
+  db:
+    image: postgres:16-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: thcproce_campus
+    volumes:
+      - thcproce_pgdata:/var/lib/postgresql/data
+
+volumes:
+  thcproce_pgdata:
