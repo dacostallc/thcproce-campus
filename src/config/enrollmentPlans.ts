@@ -28,7 +28,7 @@ export const ENROLLMENT_PLANS: EnrollmentPlan[] = [
     id: "diario",
     name: "Diário",
     durationLabel: "24 horas",
-    priceDisplay: "R$ 9,90",
+    priceDisplay: "R$ 4,90",
     billingNote: "ideal para experimentar o campus",
     benefits: [
       "Acesso imediato a todo o conteúdo do período",
@@ -40,20 +40,19 @@ export const ENROLLMENT_PLANS: EnrollmentPlan[] = [
     id: "mensal",
     name: "Mensal",
     durationLabel: "30 dias",
-    priceDisplay: "R$ 49,90",
+    priceDisplay: "R$ 19,90",
     billingNote: "cobrança mensal",
     benefits: [
       "Rotina de estudos com flexibilidade",
       "Campus, aulas e comunidade",
       "Renovação simples quando precisar"
-    ],
-    recommended: true
+    ]
   },
   {
     id: "semestral",
     name: "Semestral",
     durationLabel: "6 meses",
-    priceDisplay: "R$ 249,90",
+    priceDisplay: "R$ 79,90",
     billingNote: "melhor custo por mês",
     benefits: [
       "Compromisso médio com melhor preço",
@@ -65,23 +64,24 @@ export const ENROLLMENT_PLANS: EnrollmentPlan[] = [
     id: "anual",
     name: "Anual",
     durationLabel: "12 meses",
-    priceDisplay: "R$ 449,90",
-    billingNote: "pagamento anual",
+    priceDisplay: "R$ 100,00",
+    billingNote: "Melhor escolha para acompanhar o campus por 12 meses",
     benefits: [
-      "Menor custo por mês no ano",
+      "Menor custo por mês no ano frente ao mensal",
       "Eventos e lives ao longo do ciclo",
       "Prioridade em novidades do campus"
-    ]
+    ],
+    recommended: true
   },
   {
     id: "vitalicio",
     name: "Vitalício",
     durationLabel: "Acesso permanente",
-    priceDisplay: "R$ 1.290,00",
-    billingNote: "onde disponível na escola",
+    priceDisplay: "R$ 297,00",
+    billingNote: "Acesso permanente de fundador",
     benefits: [
+      "Valor único para quem quer estudar a longo prazo",
       "Campus e atualizações conforme política da escola",
-      "Valor único para quem quer estudar no longo prazo",
       "Histórico e progresso preservados"
     ]
   }

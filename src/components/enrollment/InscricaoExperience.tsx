@@ -133,21 +133,20 @@ export function InscricaoExperience() {
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass-strong text-xs uppercase tracking-[0.15em] text-canna-300 font-semibold mb-6"
+            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass-strong text-xs uppercase tracking-[0.15em] text-canna-300 font-semibold mb-6 border border-canna-400/30"
           >
             <Sparkles size={14} />
-            <span>Universidade digital · entrada contínua</span>
+            <span>Oferta de lançamento</span>
           </motion.div>
           <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-shadow-soft">
-            Inscreva-se no{" "}
+            Entre no{" "}
             <span className="bg-gradient-to-r from-canna-300 via-canna-400 to-amber-300 bg-clip-text text-transparent">
               Campus THCProce
             </span>
           </h1>
           <p className="mt-4 text-base sm:text-lg text-white/70 leading-relaxed">
-            Escolha quanto tempo quer permanecer com a gente. O conteúdo é o mesmo; o plano define a
-            duração da sua matrícula. Depois da inscrição, seguimos para pagamento e liberação de
-            acesso.
+            Na fase de lançamento, o acesso está com valor promocional para formar a primeira
+            comunidade da nossa universidade digital de cannabis.
           </p>
         </div>
 

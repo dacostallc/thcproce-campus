@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import { InscricaoExperience } from "@/components/enrollment/InscricaoExperience";
 
 export const metadata: Metadata = {
-  title: "Inscrição — Campus THCProce",
+  title: "Entre no Campus THCProce — Oferta de lançamento",
   description:
-    "Matrícula na Escola Aberta: planos por tempo de acesso, formulário integrado ao campus virtual THCProce."
+    "Fase de lançamento com valores promocionais. Matrícula na universidade digital de cannabis — THCProce."
 };
 
 export default function InscreverSePage() {
