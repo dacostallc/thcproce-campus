@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { clampToWalkZone } from "@/lib/campusWalkable";
 
 /** Posição no mapa em % (0–100), igual aos hotspots em `courses.ts`. */
 export type PctPos = { x: number; y: number };
@@ -9,9 +10,9 @@ type CampusState = {
 };
 
 /** Ponto de spawn: praça / chafariz (parte inferior central do mapa). */
-const SPAWN: PctPos = { x: 42, y: 82 };
+const RAW_SPAWN: PctPos = { x: 42, y: 82 };
 
 export const useCampusStore = create<CampusState>((set) => ({
-  player: SPAWN,
-  setPlayer: (p) => set({ player: p })
+  player: clampToWalkZone(RAW_SPAWN),
+  setPlayer: (p) => set({ player: clampToWalkZone(p) })
 }));
