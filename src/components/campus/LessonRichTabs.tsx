@@ -10,7 +10,7 @@ import {
   StickyNote,
   Target
 } from "lucide-react";
-import type { LessonRichContent } from "@/data/lessonRichContent";
+import type { LessonRichContent } from "@/data/lessonRichTypes";
 import { cn } from "@/lib/utils";
 
 const TABS = [

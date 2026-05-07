@@ -1,13 +1,8 @@
 import type { Area } from "@/data/courses";
+import { getCannabis101LessonRichContent } from "@/data/cannabis101LessonRich";
+import type { LessonRichContent } from "./lessonRichTypes";
 
-export type LessonRichContent = {
-  intro: string;
-  summary: string;
-  objectives: string[];
-  materials: string[];
-  references: string[];
-  professorNotes: string;
-};
+export type { LessonRichContent } from "./lessonRichTypes";
 
 /**
  * Conteúdo textual por aula — gerado a partir do curso + índice (sem Moodle).
@@ -18,6 +13,10 @@ export function getLessonRichContent(
   lessonIndex: number,
   lessonTitle: string
 ): LessonRichContent {
+  if (area.id === "cannabis-101") {
+    return getCannabis101LessonRichContent(lessonIndex, lessonTitle);
+  }
+
   const hi = area.highlights;
   const h = (i: number) => hi[i] ?? null;
   const n = lessonIndex + 1;

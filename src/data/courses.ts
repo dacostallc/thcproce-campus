@@ -31,12 +31,12 @@ export const areas: Area[] = [
     color: "amber",
     position: { x: 70, y: 21 },
     description:
-      "Aula inaugural do campus. Botânica, química, terpenos, canabinoides — a base que todo aluno precisa antes de seguir para qualquer área.",
+      "Fundamentos científicos e responsáveis: sistema endocanabinoide; THC, CBD, CBN, CBG e terpenos; uso medicinal ético; distinção entre adulto, medicinal e educacional; base de evidências; e o caminho do aluno na escola antes de qualquer área avançada.",
     highlights: [
-      "História e ciência da Cannabis sativa",
-      "Sistema endocanabinoide humano",
-      "THC, CBD, CBN, CBG — diferenças e usos",
-      "Terpenos e o efeito séquito"
+      "ECS (CB1/CB2) em linguagem aplicável",
+      "Moléculas e matriz terpenica — leitura integrada",
+      "Medicinal responsável vs educação institucional",
+      "Onboarding THCProce: trilha, Moodle e próximos módulos"
     ],
     professor: "Prof THC",
     lessons: 24,

@@ -6,10 +6,15 @@ import { useSession } from "next-auth/react";
 import { trpc } from "@/lib/trpc/react";
 import {
   pickCampusLessonSourcePublic,
-  getBunnyDemoVideoIdPublic
+  getBunnyDemoVideoIdPublic,
+  type CampusLessonSource
 } from "@/lib/video/campusLessonSource";
+import {
+  getCannabis101PrimaryMuxPlaybackId
+} from "@/lib/video/cannabis101Stream";
 import { getCourseLessonTheme } from "@/data/courseLessonThemes";
 import { LessonCinematicFallback } from "./LessonCinematicFallback";
+import { Cannabis101LessonHero } from "./Cannabis101LessonHero";
 
 const MuxPlayer = dynamic(() => import("@mux/mux-player-react"), { ssr: false });
 
@@ -69,10 +74,21 @@ export function CampusLessonVideo({
 
   const skipUnsignedBunny = Boolean(flags?.bunnySigningEnabled);
 
-  const base =
-    signedIframe !== null && signedIframe.length > 0
-      ? { kind: "bunny" as const, embedUrl: signedIframe }
-      : pickCampusLessonSourcePublic({ omitBunnyIframe: skipUnsignedBunny });
+  const isCannabis101 = areaId === "cannabis-101";
+  const c101PrimaryMux = getCannabis101PrimaryMuxPlaybackId();
+
+  let base: CampusLessonSource;
+  if (signedIframe !== null && signedIframe.length > 0) {
+    base = { kind: "bunny", embedUrl: signedIframe };
+  } else if (isCannabis101) {
+    if (c101PrimaryMux) {
+      base = { kind: "mux", playbackId: c101PrimaryMux };
+    } else {
+      base = { kind: "none" };
+    }
+  } else {
+    base = pickCampusLessonSourcePublic({ omitBunnyIframe: skipUnsignedBunny });
+  }
 
   switch (base.kind) {
     case "mux":
@@ -120,7 +136,14 @@ export function CampusLessonVideo({
         </div>
       );
     default:
-      return (
+      return isCannabis101 ? (
+        <Cannabis101LessonHero
+          theme={theme}
+          lessonTitle={lessonTitle}
+          areaName={areaName}
+          className={className}
+        />
+      ) : (
         <LessonCinematicFallback
           theme={theme}
           lessonTitle={lessonTitle}

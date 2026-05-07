@@ -28,8 +28,9 @@ export const DEFAULT_COURSE_THEME: CourseLessonTheme = {
 export const COURSE_LESSON_THEMES: Record<string, CourseLessonTheme> = {
   "cannabis-101": {
     areaId: "cannabis-101",
-    tagline: "Ciência · medicina · moléculas",
-    mood: "Laboratório conceitual — canabinoides, terpenos e sistema endocanabinoide.",
+    tagline: "Ciência da cannabis · laboratório · ECS",
+    mood:
+      "Ponte entre botânica, química e fisiologia: canabinoides (THC, CBD, CBN, CBG), terpenos, sistema endocanabinoide e leitura responsável da evidência — referência THCProce para todo o campus.",
     heroClass: mesh("from-slate-950", "via-indigo-950/95", "to-emerald-950"),
     orbClass: "from-cyan-400/25 to-transparent"
   },
