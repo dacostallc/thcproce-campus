@@ -1,13 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { ExternalLink, Leaf } from "lucide-react";
+import { Leaf } from "lucide-react";
 import type { Area } from "@/data/courses";
 import { cn } from "@/lib/utils";
 import { getCourseLessonTheme } from "@/data/courseLessonThemes";
 import { Cannabis101MicroBrandBar } from "./Cannabis101MicroBrandBar";
 
-const MOODLE = "https://thcproce.com.br/escola";
+import { CAMPUS_HOME_PATH } from "@/config/siteUrls";
 
 const LEAF: Record<
   Area["color"],
@@ -74,13 +74,10 @@ export function CourseMicroBrandBar({ area, className }: Props) {
         </span>
       </div>
       <Link
-        href={MOODLE}
-        target="_blank"
-        rel="noreferrer"
+        href={CAMPUS_HOME_PATH}
         className="inline-flex items-center gap-1 rounded-md border border-white/10 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-white/65 transition-colors hover:border-white/25 hover:text-white"
       >
-        Moodle
-        <ExternalLink className="size-3 opacity-70" />
+        Campus
       </Link>
     </div>
   );

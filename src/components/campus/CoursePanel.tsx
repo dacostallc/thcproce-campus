@@ -37,7 +37,6 @@ type Props = {
   onOpenCampusLesson?: (lessonIndex?: number) => void;
 };
 
-const MOODLE_ESCOLA = "https://thcproce.com.br/escola";
 const MUX_DEMO =
   typeof process.env.NEXT_PUBLIC_MUX_DEMO_PLAYBACK_ID === "string"
     ? process.env.NEXT_PUBLIC_MUX_DEMO_PLAYBACK_ID.trim()
@@ -204,12 +203,10 @@ export function CoursePanel({
               </button>
               <div className="flex flex-col sm:flex-row gap-3">
               <Link
-                href={MOODLE_ESCOLA}
-                target="_blank"
-                rel="noreferrer"
+                href="/planos"
                 className="flex-1 px-4 py-3 rounded-xl glass hover:bg-white/10 transition-colors text-sm font-semibold text-center"
               >
-                Moodle (nova aba)
+                Planos e matrícula
               </Link>
               {MUX_DEMO ? (
                 <Link

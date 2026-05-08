@@ -187,7 +187,7 @@ export function generateDeterministicLesson(area: Area, lessonIndex: number): Le
   ] as const;
 
   const references = [
-    `THCProce — documentos institucionais e links oficiais em thcproce.com.br/escola`,
+    `THCProce — documentos institucionais em https://thcproce.com.br/planos`,
     `Bibliografia por módulo (Moodle) — priorize revisões e fontes primárias citadas pelo professor responsável`,
     `Normas técnicas e sanitárias aplicáveis à sua região — atualize com assessoria quando operar de fato`
   ] as const;

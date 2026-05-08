@@ -13,8 +13,6 @@ type Props = {
   className?: string;
 };
 
-const MOODLE = "https://thcproce.com.br/escola";
-
 /**
  * Hero cinematográfico THCProce quando não há stream Mux/Bunny/YouTube configurado.
  * Substitui qualquer vídeo genérico de demonstração.
@@ -75,12 +73,10 @@ export function LessonCinematicFallback({
               Conteúdo em integração — vídeos reais THCProce em Mux/Bunny
             </span>
             <Link
-              href={MOODLE}
-              target="_blank"
-              rel="noreferrer"
+              href="/entrar"
               className="rounded-xl border border-canna-400/40 bg-canna-500/15 px-4 py-2.5 text-sm font-bold text-canna-200 hover:bg-canna-500/25"
             >
-              Aulas na sala Moodle →
+              Entrar na conta →
             </Link>
           </div>
         </div>

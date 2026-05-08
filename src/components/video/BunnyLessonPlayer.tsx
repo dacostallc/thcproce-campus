@@ -50,7 +50,7 @@ export function BunnyLessonPlayer({ videoId, courseSlug }: Props) {
     return (
       <div className="min-h-screen bg-ink-900 text-white flex flex-col">
         <header className="px-6 py-4 border-b border-white/10 glass-strong flex justify-between gap-4">
-          <Link href="/campus" className="text-sm font-semibold text-canna-300">
+          <Link href="/" className="text-sm font-semibold text-canna-300">
             ← Voltar ao campus
           </Link>
         </header>
@@ -101,7 +101,7 @@ export function BunnyLessonPlayer({ videoId, courseSlug }: Props) {
           <p className="text-sm text-white/70">{courseSlug ? `Curso: ${courseSlug}` : "Demonstração"}</p>
         </div>
         <Link
-          href="/campus"
+          href="/"
           className="text-sm font-semibold text-canna-300 hover:text-canna-200"
         >
           ← Voltar ao campus

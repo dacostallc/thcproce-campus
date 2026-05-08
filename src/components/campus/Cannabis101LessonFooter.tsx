@@ -99,38 +99,32 @@ export function Cannabis101LessonFooter({
 
       <div className="hidden items-center gap-1 sm:flex">
         <Link
-          href="https://thcproce.com.br/escola"
-          target="_blank"
-          rel="noreferrer"
+          href="/"
           className={cn(
             "rounded-lg p-2 text-white/50 transition hover:bg-white/5",
             F.linkHover
           )}
-          aria-label="Comunidade"
+          aria-label="Campus"
         >
           <MessageCircle className="size-4" />
         </Link>
-        <Link
-          href="https://thcproce.com.br/escola"
-          target="_blank"
-          rel="noreferrer"
+        <a
+          href="mailto:procbd@icloud.com"
           className={cn(
             "rounded-lg p-2 text-white/50 transition hover:bg-white/5",
             F.linkHover
           )}
-          aria-label="Suporte"
+          aria-label="Suporte por e-mail"
         >
           <Headphones className="size-4" />
-        </Link>
+        </a>
         <Link
-          href="https://thcproce.com.br/escola"
-          target="_blank"
-          rel="noreferrer"
+          href="/planos"
           className={cn(
             "rounded-lg p-2 text-white/50 transition hover:bg-white/5",
             F.linkHover
           )}
-          aria-label="Certificados"
+          aria-label="Planos e certificação"
         >
           <GraduationCap className="size-4" />
         </Link>

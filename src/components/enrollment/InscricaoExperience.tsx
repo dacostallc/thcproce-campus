@@ -24,7 +24,7 @@ import {
 } from "@/config/enrollmentPlans";
 import { Button } from "@/components/ui/button";
 
-const TERMOS_HREF = "https://thcproce.com.br/escola";
+const TERMOS_HREF = "/planos";
 
 export function InscricaoExperience() {
   const formRef = useRef<HTMLDivElement>(null);
@@ -121,7 +121,7 @@ export function InscricaoExperience() {
             <Link href="/entrar">Já tenho conta</Link>
           </Button>
           <Button size="sm" className="hidden sm:inline-flex" asChild>
-            <Link href="/campus">
+            <Link href="/">
               Ver campus <ArrowRight className="ml-1 h-4 w-4" />
             </Link>
           </Button>
@@ -466,7 +466,7 @@ function SuccessOverlay({
         </p>
         <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
           <Button asChild className="font-bold text-ink-900">
-            <Link href="/campus" onClick={onDismiss}>
+            <Link href="/" onClick={onDismiss}>
               Entrar no campus
             </Link>
           </Button>

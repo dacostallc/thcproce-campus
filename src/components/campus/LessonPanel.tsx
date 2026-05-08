@@ -9,7 +9,6 @@ import {
   ChevronRight,
   CheckCircle2,
   Sparkles,
-  ExternalLink,
   HardHat
 } from "lucide-react";
 import { useSession } from "next-auth/react";
@@ -62,8 +61,6 @@ function mergeLs(areaId: string, lessonIdx: number): number[] {
   }
   return m[areaId]!;
 }
-
-const MOODLE_ESCOLA = "https://thcproce.com.br/escola";
 
 function getMuxDemoId(): string {
   return (
@@ -385,11 +382,6 @@ export function LessonPanel({
                           </Link>
                         </Button>
                       ) : null}
-                      <Button type="button" variant="glass" size="sm" asChild>
-                        <Link href={MOODLE_ESCOLA} target="_blank" rel="noreferrer">
-                          Moodle <ExternalLink size={14} />
-                        </Link>
-                      </Button>
                     </div>
 
                     <CampusLessonVideo

@@ -19,9 +19,9 @@ export function InternalPreviewBanner() {
             Ambiente interno · testes
           </span>
           <p className="text-amber-100/95 mt-0.5">
-            Esta URL não é divulgada ao público (noindex). Ajuste posições, textos e layout aqui; o campus público continua em{" "}
+            Esta URL não é divulgada ao público (noindex). Ajuste posições, textos e layout aqui; o campus público continua na{" "}
             <code className="px-1 py-px rounded bg-black/35 text-canna-200 text-[10px] sm:text-xs">
-              /campus
+              /
             </code>
             .
           </p>

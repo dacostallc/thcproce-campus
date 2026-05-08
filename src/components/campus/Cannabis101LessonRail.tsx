@@ -19,8 +19,6 @@ import { isCampusAdminEmail } from "@/lib/campusAdmin";
 import type { AreaColor } from "@/data/courses";
 import { getRailAccent } from "@/lib/campusAccent";
 
-const MOODLE = "https://thcproce.com.br/escola";
-
 type ProgressUi = {
   xp: number;
   levelLabel: string;
@@ -94,8 +92,8 @@ export function Cannabis101LessonRail({
           className="w-full bg-canna-600 font-bold text-ink-900 hover:bg-canna-500"
           asChild
         >
-          <Link href={MOODLE} target="_blank" rel="noreferrer">
-            Entrar no Moodle
+          <Link href="/entrar">
+            Entrar na conta
           </Link>
         </Button>
         <Button

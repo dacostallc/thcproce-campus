@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Leaf } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { CAMPUS_HOME_PATH } from "@/config/siteUrls";
 
 const showMoodle =
   typeof process.env.NEXT_PUBLIC_SHOW_MOODLE_LOGIN === "string" &&
@@ -13,7 +14,7 @@ const showMoodle =
 
 function EntrarInner() {
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl") ?? "/campus";
+  const callbackUrl = searchParams.get("callbackUrl") ?? CAMPUS_HOME_PATH;
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -39,7 +40,7 @@ function EntrarInner() {
       window.location.href =
         typeof callbackUrl === "string" && callbackUrl.startsWith("/")
           ? callbackUrl
-          : "/campus";
+          : CAMPUS_HOME_PATH;
     } finally {
       setLoading(false);
     }
@@ -70,7 +71,7 @@ function EntrarInner() {
                 callbackUrl:
                   typeof callbackUrl === "string" && callbackUrl.startsWith("/")
                     ? callbackUrl
-                    : "/campus"
+                    : CAMPUS_HOME_PATH
               })
             }
           >
@@ -137,7 +138,7 @@ function EntrarInner() {
           </Link>
         </div>
         <div>
-          <Link href="/campus" className="text-white/50 hover:underline">
+          <Link href={CAMPUS_HOME_PATH} className="text-white/50 hover:underline">
             Voltar ao mapa
           </Link>
         </div>

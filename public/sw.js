@@ -1,6 +1,6 @@
 /* eslint-disable no-restricted-globals */
 const CACHE = "thcproce-shell-v2";
-const SHELL = ["/", "/campus", "/manifest.webmanifest"];
+const SHELL = ["/", "/manifest.webmanifest"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -49,7 +49,7 @@ self.addEventListener("fetch", (event) => {
   event.respondWith(
     fetch(event.request).catch(async () => {
       const c = await caches.open(CACHE);
-      return (await c.match("/campus")) || (await c.match("/")) || Response.error();
+      return (await c.match("/")) || Response.error();
     })
   );
 });

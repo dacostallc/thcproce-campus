@@ -1,9 +1,18 @@
 /**
  * Chamadas ao Moodle Web Services (REST).
  * Sem MOODLE_WS_TOKEN, as funções devolvem mocks para desenvolvimento.
+ *
+ * Use `MOODLE_WS_BASE_URL` (servidor) quando o caminho público /escola estiver bloqueado no edge
+ * mas o Moodle continuar acessível por hostname interno ou URL técnica.
  */
-const base = () =>
-  process.env.NEXT_PUBLIC_MOODLE_BASE_URL?.replace(/\/$/, "") ?? "";
+const base = () => {
+  const internal =
+    typeof process.env.MOODLE_WS_BASE_URL === "string"
+      ? process.env.MOODLE_WS_BASE_URL.trim().replace(/\/$/, "")
+      : "";
+  if (internal) return internal;
+  return process.env.NEXT_PUBLIC_MOODLE_BASE_URL?.replace(/\/$/, "") ?? "";
+};
 
 function q(u: string, p: Record<string, string>) {
   const qs = new URLSearchParams({

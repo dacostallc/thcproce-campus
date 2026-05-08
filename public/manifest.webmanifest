@@ -2,7 +2,7 @@
   "name": "THCProce Campus",
   "short_name": "THCProce",
   "description": "Campus interativo da Escola Aberta — cannabis, cultivo e mais.",
-  "start_url": "/campus",
+  "start_url": "/",
   "display": "standalone",
   "background_color": "#050a07",
   "theme_color": "#050a07",

@@ -16,7 +16,7 @@ export function MuxLessonPlayer({ playbackId, courseSlug }: Props) {
           <p className="text-sm text-white/70">{courseSlug ? `Curso: ${courseSlug}` : "Demonstração"}</p>
         </div>
         <Link
-          href="/campus"
+          href="/"
           className="text-sm font-semibold text-canna-300 hover:text-canna-200"
         >
           ← Voltar ao campus

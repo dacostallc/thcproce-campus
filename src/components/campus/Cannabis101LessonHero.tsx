@@ -8,7 +8,6 @@ import { AnimatePresence, motion } from "framer-motion";
 import {
   BarChart2,
   BookOpen,
-  ExternalLink,
   FlaskConical,
   Leaf,
   Play,
@@ -27,8 +26,6 @@ const MuxPlayer = dynamic(() => import("@mux/mux-player-react"), { ssr: false })
 
 /** Poster em `/public/campus/themes/` */
 export const CANNABIS101_POSTER_SRC = "/campus/themes/cannabis101-hero.svg";
-
-const MOODLE = "https://thcproce.com.br/escola";
 
 const PILLARS = [
   { label: "Ciência", Icon: FlaskConical },
@@ -233,13 +230,10 @@ export function Cannabis101LessonHero({
               </button>
             ) : null}
             <Link
-              href={MOODLE}
-              target="_blank"
-              rel="noreferrer"
+              href="/entrar"
               className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-white/20 bg-black/50 px-3 py-2 text-xs font-bold text-white/90 hover:border-amber-500/35"
             >
-              Moodle
-              <ExternalLink size={14} />
+              Entrar na conta
             </Link>
           </div>
         </div>
@@ -363,13 +357,10 @@ export function Cannabis101LessonHero({
                 </button>
               ) : null}
               <Link
-                href={MOODLE}
-                target="_blank"
-                rel="noreferrer"
+                href="/entrar"
                 className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-[#0a1612] px-5 py-3 text-sm font-bold text-white/90 transition hover:border-amber-500/40 hover:bg-[#0f2218]"
               >
-                Ir para o Moodle
-                <ExternalLink size={16} className="opacity-80" />
+                Entrar na conta
               </Link>
             </div>
           </div>

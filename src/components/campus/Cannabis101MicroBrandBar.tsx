@@ -4,7 +4,7 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { ExternalLink, Leaf, Play, X } from "lucide-react";
+import { Leaf, Play, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   getCannabis101TrailerMuxPlaybackId,
@@ -12,9 +12,9 @@ import {
   hasCannabis101TrailerConfigured
 } from "@/lib/video/cannabis101Stream";
 
-const MuxPlayer = dynamic(() => import("@mux/mux-player-react"), { ssr: false });
+import { CAMPUS_HOME_PATH } from "@/config/siteUrls";
 
-const MOODLE = "https://thcproce.com.br/escola";
+const MuxPlayer = dynamic(() => import("@mux/mux-player-react"), { ssr: false });
 
 type Props = {
   className?: string;
@@ -123,13 +123,10 @@ export function Cannabis101MicroBrandBar({ className }: Props) {
             </button>
           ) : null}
           <Link
-            href={MOODLE}
-            target="_blank"
-            rel="noreferrer"
+            href={CAMPUS_HOME_PATH}
             className="inline-flex items-center gap-1 rounded-md border border-white/10 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-white/65 hover:border-amber-500/30 hover:text-white"
           >
-            Moodle
-            <ExternalLink className="size-3 opacity-70" />
+            Campus
           </Link>
         </div>
       </div>

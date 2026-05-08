@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   Leaf,
   MessageCircle,
@@ -21,8 +22,15 @@ import { useCampusHudStore } from "@/stores/campusHudStore";
 import { trpc } from "@/lib/trpc/react";
 import { Button } from "@/components/ui/button";
 import { isCampusAdminEmail } from "@/lib/campusAdmin";
+import {
+  CAMPUS_HOME_PATH,
+  isAbsoluteHttpUrl,
+  lodgerCheckoutHref
+} from "@/config/siteUrls";
 
 export function HUD() {
+  const pathname = usePathname();
+  const campusNavActive = pathname === CAMPUS_HOME_PATH || pathname === "/campus";
   const sky = useCampusSkyStore((s) => s.sky);
   const toggleSky = useCampusSkyStore((s) => s.toggleSky);
   const onlineApprox = useCampusHudStore((s) => s.onlineApprox);
@@ -86,6 +94,9 @@ export function HUD() {
     }
   }, [status, tickStreak]);
 
+  const checkoutHref = lodgerCheckoutHref();
+  const checkoutExternal = isAbsoluteHttpUrl(checkoutHref);
+
   return (
     <>
       <motion.header
@@ -111,11 +122,11 @@ export function HUD() {
           </Link>
 
           <nav className="hidden md:flex flex-1 justify-center gap-1 px-2 py-2 rounded-2xl glass-strong max-w-lg pointer-events-auto">
-            <NavLink active href="/campus">
+            <NavLink active={campusNavActive} href={CAMPUS_HOME_PATH}>
               Campus
             </NavLink>
-            <NavLink href="https://thcproce.com.br/escola">Cursos</NavLink>
-            <NavLink href="https://thcproce.com.br/escola">Prof THC</NavLink>
+            <NavLink href="/planos">Cursos</NavLink>
+            <NavLink href="/inscrever-se">Prof THC</NavLink>
             <NavLink href="/planos">Planos</NavLink>
             <NavLink href="/inscrever-se">Inscrever</NavLink>
           </nav>
@@ -163,7 +174,7 @@ export function HUD() {
                   variant="glass"
                   size="sm"
                   className="!px-3"
-                  onClick={() => void signOut({ callbackUrl: "/campus" })}
+                  onClick={() => void signOut({ callbackUrl: CAMPUS_HOME_PATH })}
                 >
                   Sair
                 </Button>
@@ -176,16 +187,13 @@ export function HUD() {
                   </Link>
                 </Button>
                 <Button size="sm" className="shadow-lg shadow-canna-500/25" asChild>
-                  <Link
-                    href={
-                      process.env.NEXT_PUBLIC_LODGER_CHECKOUT ??
-                      "https://thcproce.com.br/escola/lodger/join/subscription.php?productid=2"
-                    }
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    Inscrever-se
-                  </Link>
+                  {checkoutExternal ? (
+                    <Link href={checkoutHref} target="_blank" rel="noreferrer">
+                      Inscrever-se
+                    </Link>
+                  ) : (
+                    <Link href={checkoutHref}>Inscrever-se</Link>
+                  )}
                 </Button>
               </>
             )}
@@ -384,7 +392,7 @@ function CampusOverlay({
 function NavLink({
   href,
   children,
-  active
+  active = false
 }: {
   href: string;
   children: React.ReactNode;
