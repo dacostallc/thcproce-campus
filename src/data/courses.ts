@@ -1,4 +1,8 @@
-export type AreaColor = "canna" | "purple" | "amber" | "cyan" | "rose";
+import type { AreaColor, AreaLevelLabel } from "./areaTokens";
+import { getCourseManifest } from "@/content/courses/coursesRegistry";
+import type { CourseManifest } from "@/content/courses/types";
+
+export type { AreaColor } from "./areaTokens";
 
 export type Area = {
   id: string;
@@ -7,7 +11,7 @@ export type Area = {
   mapLabel?: string;
   short: string;
   category: string;
-  level: "Iniciante" | "Intermediário" | "Avançado" | "Todos os níveis";
+  level: AreaLevelLabel;
   color: AreaColor;
   /**
    * Posição do hotspot sobre a imagem do campus (em %).
@@ -23,26 +27,27 @@ export type Area = {
   hours: string;
 };
 
-export const areas: Area[] = [
+/** Fallback territorial do mapa (hotspots fixos); campos editorial sobrescritos quando há manifest registado. */
+const AREA_FALLBACK_ROWS: Area[] = [
   {
     id: "cannabis-101",
     name: "Cannabis 101",
-    short: "Curso base — mesmo roteiro que no Moodle",
+    short: "Fundamentos · método THCProce · sala oficial onde vive arquivo e certificado",
     category: "Anfiteatro",
     level: "Iniciante",
     color: "amber",
     position: { x: 70, y: 21 },
     description:
-      "Curso-base THCProce espelhado no Moodle: introdução à escola, aulas ao vivo, trilha de cultivo (do planeamento ao pós-colheita), questionários por módulo, avaliação final e certificado — sempre com separação clara entre educação institucional e orientação clínica ou jurídica profissional.",
+      "Base THCProce desenhada como série documental + disciplina técnica: porta de entrada cultural da escola, aulas síncronas no calendário, jornada de cultivo desde o planeamento ao pós-colheita e fecho com avaliação e certificado oficial — sempre com fronteira editorial entre formação institucional e orientação individual clínica ou jurídica.",
     highlights: [
-      "Mesma árvore de secções que no Moodle (29 actividades)",
-      "Questionários por módulo + prova final integrada",
-      "Introdução, cultivo, pós-colheita, avaliação e certificado",
-      "Textos e PDF oficiais: apenas no Moodle (campus = índice + progresso)",
+      "29 momentos estudados como episódios: introdução ao vivo, nove módulos de cultivo, pós-colheita, avaliação e encerramento com certificado",
+      "Pontes para a sala digital oficial THCProce quando há PDF, texto longo, entregas ou provas com valor formal",
+      "Questionários guiados ao longo da trilha e prova final integrada dentro do modelo escolar oficial",
+      "Campus THCProce = experiência cinematográfica + hábitos de progresso · arquivo assinável e notas ficam onde a equipa já publicou o curso institucional"
     ],
     professor: "Prof THC",
     lessons: 29,
-    hours: "≈24h (referência Moodle)"
+    hours: "≈24h (referência sala oficial THCProce)"
   },
   {
     id: "cultivo-greenhouse",
@@ -305,5 +310,48 @@ export const areas: Area[] = [
     hours: "8h"
   }
 ];
+
+function mergeRegisteredManifestIntoArea(base: Area, manifest: CourseManifest): Area {
+  const mk = manifest.marketing;
+  const position =
+    mk?.mapPosition != null
+      ? { x: mk.mapPosition.x, y: mk.mapPosition.y }
+      : base.position;
+
+  const highlights =
+    mk?.highlights != null && mk.highlights.length > 0 ? [...mk.highlights] : base.highlights;
+
+  return {
+    ...base,
+    id: manifest.areaId,
+    name: manifest.displayName,
+    short: mk?.short ?? base.short,
+    category: mk?.category ?? base.category,
+    level: mk?.level ?? base.level,
+    color: mk?.color ?? base.color,
+    position,
+    description: mk?.description ?? base.description,
+    highlights,
+    professor: mk?.professor ?? base.professor,
+    lessons: manifest.stats.lessonCount,
+    hours: manifest.stats.hoursLabel,
+    mapLabel: base.mapLabel
+  };
+}
+
+function applyRegisteredManifestIfAny(area: Area): Area {
+  const manifest = getCourseManifest(area.id);
+  return manifest ? mergeRegisteredManifestIntoArea(area, manifest) : area;
+}
+
+/**
+ * Lista de áreas do mapa: baseline territorial + overlays editoriais vindos dos manifests registados (`registerCourse`).
+ */
+export function getCampusAreasFromRegisteredCourses(fallbackAreas: Area[] = AREA_FALLBACK_ROWS): Area[] {
+  return fallbackAreas.map(applyRegisteredManifestIfAny);
+}
+
+/** Áreas efectivas para o campus (hotspots preservados; manifest define copy/stats onde existir registo). */
+export const areas: Area[] = getCampusAreasFromRegisteredCourses();
 
 export type AreaId = (typeof areas)[number]["id"];

@@ -36,7 +36,10 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className="min-h-screen bg-ink-900 text-canna-50 antialiased">
+      <body
+        className="min-h-screen bg-ink-900 text-canna-50 antialiased"
+        suppressHydrationWarning
+      >
         <Providers>{children}</Providers>
       </body>
     </html>

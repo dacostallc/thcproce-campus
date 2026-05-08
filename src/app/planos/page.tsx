@@ -60,10 +60,26 @@ function CheckoutButton({ href }: { href: string }) {
   );
 }
 
-export default function PlanosPage() {
+export default function PlanosPage({
+  searchParams
+}: {
+  searchParams?: { conta?: string };
+}) {
+  const contaCriada = searchParams?.conta === "criada";
+
   return (
     <main className="min-h-screen bg-ink-900 text-white px-4 py-16">
       <div className="max-w-5xl mx-auto">
+        {contaCriada ? (
+          <div className="mb-8 rounded-2xl border border-canna-400/45 bg-canna-500/10 px-5 py-4 text-center text-sm text-white/90">
+            <strong className="text-canna-200">Conta criada.</strong> Escolha um período abaixo e use{" "}
+            <strong className="text-white">Comprar / renovar</strong> para pagar. Em seguida entre em{" "}
+            <Link href="/entrar" className="text-canna-300 font-semibold underline hover:text-canna-200">
+              Entrar
+            </Link>{" "}
+            com o mesmo e-mail.
+          </div>
+        ) : null}
         <p className="text-center text-white/70 max-w-2xl mx-auto mb-8">
           <Link
             href="/inscrever-se"

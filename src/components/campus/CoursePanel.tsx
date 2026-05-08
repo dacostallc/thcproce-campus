@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   X,
@@ -11,6 +12,7 @@ import {
   ChevronRight
 } from "lucide-react";
 import type { Area } from "@/data/courses";
+import { coursePreviewLessonTitlesForArea } from "@/content/courses";
 import { cn } from "@/lib/utils";
 import { useCampusSkyStore } from "@/stores/campusSkyStore";
 
@@ -56,6 +58,21 @@ export function CoursePanel({
   onOpenCampusLesson
 }: Props) {
   const sky = useCampusSkyStore((s) => s.sky);
+
+  const previewLessonTitles = useMemo((): readonly string[] => {
+    if (!area) return [];
+    const registryTitles = coursePreviewLessonTitlesForArea(area.id);
+    if (registryTitles && registryTitles.length > 0) {
+      return registryTitles;
+    }
+    return [
+      `Introdução à ${area.name.toLowerCase()}`,
+      `${area.highlights[0]}`,
+      `${area.highlights[1] ?? "Aplicação prática"}`,
+      "Estudos de caso e exemplos reais"
+    ];
+  }, [area]);
+
   return (
     <AnimatePresence>
       {area && (
@@ -155,12 +172,7 @@ export function CoursePanel({
                   Prévia das aulas
                 </h3>
                 <div className="space-y-2">
-                  {[
-                    `Introdução à ${area.name.toLowerCase()}`,
-                    `${area.highlights[0]}`,
-                    `${area.highlights[1] ?? "Aplicação prática"}`,
-                    "Estudos de caso e exemplos reais"
-                  ].map((title, idx) => (
+                  {previewLessonTitles.map((title, idx) => (
                     <div
                       key={idx}
                       role="button"

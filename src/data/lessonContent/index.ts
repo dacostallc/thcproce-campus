@@ -15,12 +15,13 @@ import { LEGISLACAO_LESSONS } from "./courses/legislacao";
 import { COOPERATIVISMO_LESSONS } from "./courses/cooperativismo";
 import { INDUSTRIA_LESSONS } from "./courses/industria";
 import { generateDeterministicLesson } from "./generateDeterministicLesson";
+import { CANNABIS101_AREA_ID } from "@/content/courses/cannabis-101/manifest";
 
 /**
  * Conteúdo manual por curso. Cursos sem entrada aqui ainda utilizam fallback editorial temporário em `generateDeterministicLesson.ts`.
  */
 const MANUAL_BY_COURSE: Partial<Record<string, readonly LessonStreamContent[]>> = {
-  "cannabis-101": CANNABIS101_LESSONS,
+  [CANNABIS101_AREA_ID]: CANNABIS101_LESSONS,
   "cultivo-greenhouse": CULTIVO_GREENHOUSE_LESSONS,
   "cultivo-outdoor": CULTIVO_OUTDOOR_LESSONS,
   "cultivo-indoor": CULTIVO_INDOOR_LESSONS,
@@ -35,6 +36,14 @@ const MANUAL_BY_COURSE: Partial<Record<string, readonly LessonStreamContent[]>> 
   cooperativismo: COOPERATIVISMO_LESSONS,
   industria: INDUSTRIA_LESSONS
 };
+
+/** Lista manual registada ou `undefined` para cair no gerador contextual. */
+export function tryGetManualLessonsForCourse(
+  areaId: string
+): readonly LessonStreamContent[] | undefined {
+  const list = MANUAL_BY_COURSE[areaId];
+  return list === undefined ? undefined : list;
+}
 
 export type { LessonStreamContent, LessonQuizItem, LessonMediaHints } from "./types";
 export { lessonStreamToRich } from "./adaptLessonContent";

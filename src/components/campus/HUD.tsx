@@ -11,7 +11,8 @@ import {
   Sun,
   Moon,
   CalendarHeart,
-  Newspaper
+  Newspaper,
+  Radio
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { signOut, useSession } from "next-auth/react";
@@ -27,6 +28,7 @@ import {
   isAbsoluteHttpUrl,
   lodgerCheckoutHref
 } from "@/config/siteUrls";
+import { cannabis101HudNextLessonCue } from "@/content/courses";
 
 export function HUD() {
   const pathname = usePathname();
@@ -40,6 +42,9 @@ export function HUD() {
   const setMuralOpen = useCampusHudStore((s) => s.setMuralOpen);
   const eventsOpen = useCampusHudStore((s) => s.eventsOpen);
   const muralOpen = useCampusHudStore((s) => s.muralOpen);
+  const setCampusLiveComposerOpen = useCampusHudStore(
+    (s) => s.setCampusLiveComposerOpen
+  );
 
   const { data: session, status } = useSession();
   const campusAdmin = isCampusAdminEmail(session?.user?.email ?? null);
@@ -162,9 +167,18 @@ export function HUD() {
             {status === "authenticated" ? (
               <>
                 {campusAdmin ? (
-                  <span className="rounded-md border border-amber-400/45 bg-amber-500/15 px-2 py-1 text-[9px] font-bold uppercase tracking-[0.14em] text-amber-100 shadow-sm shadow-amber-900/40">
-                    Admin THCProce
-                  </span>
+                  <>
+                    <IconButton
+                      aria-label="Configurar live do Cine"
+                      title="Live do campus (Ctrl+Shift+L)"
+                      onClick={() => setCampusLiveComposerOpen(true)}
+                    >
+                      <Radio size={16} className="text-emerald-300" />
+                    </IconButton>
+                    <span className="rounded-md border border-amber-400/45 bg-amber-500/15 px-2 py-1 text-[9px] font-bold uppercase tracking-[0.14em] text-amber-100 shadow-sm shadow-amber-900/40">
+                      Admin THCProce
+                    </span>
+                  </>
                 ) : null}
                 <span className="hidden xl:inline max-w-[120px] truncate text-[11px] text-white/60">
                   {session?.user?.email}
@@ -245,7 +259,9 @@ export function HUD() {
             ) : null}
             <span className="w-px h-5 bg-white/15" />
             <span className="text-xs text-white/70">Próxima:</span>
-            <span className="text-xs font-semibold text-white">Cannabis 101 · Aula 1</span>
+            <span className="text-xs font-semibold text-white">
+              {cannabis101HudNextLessonCue()}
+            </span>
           </div>
         </div>
       </motion.div>

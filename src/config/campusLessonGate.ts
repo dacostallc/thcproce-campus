@@ -1,8 +1,5 @@
-import type { LessonGateStatus } from "@/config/cannabis101LessonGate";
-import {
-  getCannabis101LessonGate,
-  getPublishedLessonCount as getC101PublishedCount
-} from "@/config/cannabis101LessonGate";
+import type { LessonGateStatus } from "@/content/courses/cannabis-101/gating";
+import { getCourseGate } from "@/content/courses";
 
 function parsePublishedMap(): Record<string, number> | null {
   const raw =
@@ -37,7 +34,8 @@ function defaultPublishedForCourse(areaId: string, total: number): number {
  * Quantas aulas do outline têm conteúdo “disponível” (restante = em breve).
  */
 export function getPublishedLessonCountForCourse(areaId: string, total: number): number {
-  if (areaId === "cannabis-101") return getC101PublishedCount(total);
+  const courseGate = getCourseGate(areaId);
+  if (courseGate) return courseGate.getPublishedLessonCount(total);
   const map = parsePublishedMap();
   if (map && map[areaId] != null) return Math.min(map[areaId]!, total);
   return defaultPublishedForCourse(areaId, total);
@@ -56,8 +54,9 @@ export function getCampusLessonGate(
   total: number,
   doneSet: Set<number>
 ): LessonGateStatus {
-  if (areaId === "cannabis-101") {
-    return getCannabis101LessonGate(index, total, doneSet);
+  const courseGate = getCourseGate(areaId);
+  if (courseGate) {
+    return courseGate.getLessonGate(index, total, doneSet);
   }
   const published = getPublishedLessonCountForCourse(areaId, total);
   if (index >= published) return "soon";

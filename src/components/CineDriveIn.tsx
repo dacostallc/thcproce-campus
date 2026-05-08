@@ -20,7 +20,7 @@ type Props = {
 };
 
 /**
- * Cine THCProce: player compacto ao topo para o auditório ficar visível em baixo + luz dinâmica no reflexo do telão.
+ * Cine THCProce: player grande ao topo para a live ocupar bem o ecrã; auditório permanece visível por baixo.
  */
 export function CineDriveIn({ youtubeUrl }: Props) {
   const url = youtubeUrl?.trim() || campusCineYoutubeUrlFromEnv();
@@ -57,7 +57,7 @@ export function CineDriveIn({ youtubeUrl }: Props) {
 
           {/* Camada principal: verde / branco pulsando (simula variações do telão) */}
           <motion.div
-            className="pointer-events-none fixed left-1/2 top-[8%] z-[25] block h-[min(40vh,420px)] w-[min(98vw,1200px)] -translate-x-1/2 md:h-[min(46vh,480px)]"
+            className="pointer-events-none fixed left-1/2 top-[6%] z-[25] block h-[min(58vh,620px)] w-[min(99vw,1420px)] -translate-x-1/2 md:h-[min(62vh,700px)]"
             aria-hidden
             animate={{
               opacity: [0.58, 0.93, 0.66, 0.88],
@@ -81,7 +81,7 @@ export function CineDriveIn({ youtubeUrl }: Props) {
           />
 
           <motion.div
-            className="pointer-events-none fixed left-1/2 top-[8%] z-[26] block h-[min(40vh,420px)] w-[min(98vw,1200px)] -translate-x-1/2 mix-blend-screen md:h-[min(46vh,480px)]"
+            className="pointer-events-none fixed left-1/2 top-[6%] z-[26] block h-[min(58vh,620px)] w-[min(99vw,1420px)] -translate-x-1/2 mix-blend-screen md:h-[min(62vh,700px)]"
             aria-hidden
             animate={{
               opacity: [0.12, 0.34, 0.18, 0.3]
@@ -100,7 +100,7 @@ export function CineDriveIn({ youtubeUrl }: Props) {
           />
 
           <div
-            className="pointer-events-none fixed inset-x-0 bottom-0 top-[calc(12%+min(44vh,440px))] z-[38] md:top-[calc(14%+min(44vh,440px))]"
+            className="pointer-events-none fixed inset-x-0 bottom-0 top-[calc(10%+min(58vh,620px))] z-[38] md:top-[calc(11%+min(62vh,700px))]"
             aria-hidden
           >
             <motion.div
@@ -149,7 +149,7 @@ export function CineDriveIn({ youtubeUrl }: Props) {
           </div>
 
           <motion.div
-            className="pointer-events-auto fixed left-1/2 top-[12%] z-[41] max-h-[min(44vh,440px)] w-[min(94vw,min(760px,calc(100vw-1.25rem)))] origin-top -translate-x-[calc(50%+min(1vw,6px))] md:top-[14%] md:max-h-[min(42vh,420px)] md:w-[min(86vw,min(780px,calc(100vw-3rem)))] md:-translate-x-[calc(50%+min(2.5vw,22px))] lg:w-[min(78vw,min(820px,calc(100vw-4rem)))] lg:-translate-x-[calc(50%+min(3.5vw,32px))]"
+            className="pointer-events-auto fixed left-1/2 top-[8%] z-[41] flex h-[min(62vh,660px)] max-h-[calc(100vh-6rem)] w-[min(96vw,min(1200px,calc(100vw-0.75rem)))] flex-col origin-top -translate-x-1/2 md:top-[9%] md:h-[min(70vh,760px)] md:w-[min(94vw,min(1320px,calc(100vw-2rem)))] lg:h-[min(74vh,820px)] lg:w-[min(92vw,min(1440px,calc(100vw-3rem)))]"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -157,7 +157,7 @@ export function CineDriveIn({ youtubeUrl }: Props) {
             onClick={(e) => e.stopPropagation()}
           >
             <motion.div
-              className="relative flex h-full w-full flex-col rounded-2xl border-2 border-canna-400/70 bg-black/38 p-2.5 shadow-[0_0_32px_rgba(74,222,128,0.45),0_0_4px_rgba(74,222,128,0.9)_inset] sm:rounded-3xl sm:p-3 md:p-4"
+              className="relative flex h-full min-h-0 w-full min-w-0 flex-col rounded-2xl border-2 border-canna-400/70 bg-black/38 p-2.5 shadow-[0_0_32px_rgba(74,222,128,0.45),0_0_4px_rgba(74,222,128,0.9)_inset] sm:rounded-3xl sm:p-3 md:p-4"
               style={{
                 WebkitBackdropFilter: "blur(14px)",
                 backdropFilter: "blur(14px)"
@@ -182,7 +182,7 @@ export function CineDriveIn({ youtubeUrl }: Props) {
 
               <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-white/12 bg-black/25">
                 {url ? (
-                  <div className="relative aspect-auto min-h-0 flex-1 w-full [&_.react-player]:!h-full [&_.react-player]:!w-full">
+                  <div className="relative flex min-h-[min(48vh,460px)] flex-1 flex-col overflow-hidden [&_.react-player]:!absolute [&_.react-player]:!left-0 [&_.react-player]:!top-0 [&_.react-player]:!h-full [&_.react-player]:!w-full [&_iframe]:!h-full [&_iframe]:!w-full">
                     <ReactPlayer
                       url={url}
                       width="100%"
@@ -202,11 +202,9 @@ export function CineDriveIn({ youtubeUrl }: Props) {
                       Nenhuma transmissão configurada
                     </p>
                     <p className="max-w-sm text-xs text-white/65">
-                      Defina{" "}
-                      <code className="rounded bg-white/10 px-1 py-0.5 text-[11px] text-canna-200">
-                        NEXT_PUBLIC_CAMPUS_LIVE_YOUTUBE_URL
-                      </code>{" "}
-                      com o link da live THCProce.
+                      Um administrador pode configurar o link no campus (ícone{" "}
+                      <span className="text-canna-200">Live</span> na barra) ou no deploy com a variável
+                      pública do YouTube.
                     </p>
                   </div>
                 )}

@@ -5,7 +5,8 @@ import { Leaf } from "lucide-react";
 import type { Area } from "@/data/courses";
 import { cn } from "@/lib/utils";
 import { getCourseLessonTheme } from "@/data/courseLessonThemes";
-import { Cannabis101MicroBrandBar } from "./Cannabis101MicroBrandBar";
+import { isCannabis101CourseArea } from "@/content/courses";
+import { CampusFeaturedMicroBrandBar } from "./CampusFeaturedMicroBrandBar";
 
 import { CAMPUS_HOME_PATH } from "@/config/siteUrls";
 
@@ -44,12 +45,12 @@ type Props = {
 
 /**
  * Faixa fina acima do conteúdo — marca do curso sem competir com a aula.
- * Cannabis 101 mantém trailer / stream dedicados em `Cannabis101MicroBrandBar`.
+ * Sala Cannabis 101 usa `CampusFeaturedMicroBrandBar` (Mux / trailer YT configuráveis por env).
  */
 export function CourseMicroBrandBar({ area, className, lessonIndex }: Props) {
-  if (area.id === "cannabis-101") {
+  if (isCannabis101CourseArea(area.id)) {
     return (
-      <Cannabis101MicroBrandBar className={className} lessonIndex={lessonIndex} />
+      <CampusFeaturedMicroBrandBar className={className} lessonIndex={lessonIndex} />
     );
   }
 

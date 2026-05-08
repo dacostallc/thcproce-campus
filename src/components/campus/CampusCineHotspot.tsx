@@ -16,7 +16,15 @@ import { useCampusPresenceStore } from "@/stores/campusPresenceStore";
 import { useCampusStore } from "@/stores/campusStore";
 import { cn } from "@/lib/utils";
 
-const CINE_SCREEN_IMG = "/campus/cine-tela.png";
+/**
+ * Telão do Cine THCProce (opcional).
+ * Sem `NEXT_PUBLIC_CAMPUS_CINE_TELA` não há pedido HTTP ao mapa live (evita 404 quando o PNG não existe).
+ * Com arte: copie para `public/...` e defina por ex. `/campus/cine-tela.png`.
+ */
+function cineTelaSrc(): string {
+  const raw = process.env.NEXT_PUBLIC_CAMPUS_CINE_TELA;
+  return typeof raw === "string" ? raw.trim() : "";
+}
 
 /** Telão pulsante quando há live + zona clicável — Cine THCProce. */
 export function CampusCineHotspot() {
@@ -103,14 +111,16 @@ export function CampusCineHotspot() {
 
 function TelaoLayer() {
   const [broken, setBroken] = useState(false);
+  const src = cineTelaSrc();
+  const showImg = Boolean(src) && !broken;
 
   return (
     <span className="relative flex size-full overflow-hidden rounded-[inherit]">
-      {!broken ? (
-        /* Arte opcional: `public/campus/cine-tela.png` */
+      {showImg ? (
+        /* Arte opcional: ver `NEXT_PUBLIC_CAMPUS_CINE_TELA` + `public/campus/README.txt`. */
         /* eslint-disable-next-line @next/next/no-img-element */
         <img
-          src={CINE_SCREEN_IMG}
+          src={src}
           alt="Telão de cinema THCProce"
           className="absolute inset-0 size-full object-cover"
           draggable={false}
@@ -123,7 +133,7 @@ function TelaoLayer() {
         />
       )}
 
-      {broken ? (
+      {!showImg ? (
         <span className="pointer-events-none absolute inset-0 z-[1] flex items-center justify-center">
           <Film
             size={42}
@@ -133,7 +143,7 @@ function TelaoLayer() {
         </span>
       ) : null}
 
-      {!broken ? (
+      {showImg ? (
         <span
           aria-hidden
           className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_20%,transparent_55%,rgba(0,0,0,0.35)_100%)]"

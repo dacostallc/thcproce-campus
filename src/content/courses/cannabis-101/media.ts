@@ -1,14 +1,24 @@
+import type { LessonMediaHints } from "@/data/lessonContent/types";
+
 /**
- * Bunny Stream = infraestrutura: vocês fazem upload dos vídeos na biblioteca Bunny;
- * o campus apenas consome playback via Mux/Bunny embed conforme env.
- *
- * Cannabis 101 — vídeo “principal” do curso (quando existir upload):
- *   NEXT_PUBLIC_CANNABIS101_PRIMARY_MUX_PLAYBACK_ID
- *
- * Trailer opcional (botão “Assistir trailer” na sala):
- *   NEXT_PUBLIC_CANNABIS101_TRAILER_MUX_PLAYBACK_ID
- *   ou NEXT_PUBLIC_CANNABIS101_TRAILER_YOUTUBE_ID (embed no-cookie)
+ * Chaves de ambiente usadas pelo player / trailer deste curso (documentação + tipagem implícita).
  */
+export const CANNABIS101_MEDIA_ENV = {
+  primaryMux: "NEXT_PUBLIC_CANNABIS101_PRIMARY_MUX_PLAYBACK_ID",
+  trailerMux: "NEXT_PUBLIC_CANNABIS101_TRAILER_MUX_PLAYBACK_ID",
+  trailerYoutube: "NEXT_PUBLIC_CANNABIS101_TRAILER_YOUTUBE_ID"
+} as const;
+
+/** Hero / poster fallback usado pelos componentes Cannabis 101. */
+export const CANNABIS101_HERO_POSTER_SRC = "/campus/themes/cannabis101-hero.svg";
+
+/** Hints editoriais por aula (stream / tabs). */
+export const CANNABIS101_LESSON_MEDIA_HINTS: LessonMediaHints = {
+  needsVideo: false,
+  needsImage: false,
+  needsInfographic: false,
+  needsSupportMaterial: true
+};
 
 export function getCannabis101PrimaryMuxPlaybackId(): string {
   return (
