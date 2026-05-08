@@ -77,9 +77,8 @@ export default function PlanosPage() {
         </h1>
         <p className="text-center text-white/70 max-w-2xl mx-auto mb-12">
           O mapa e as salas abrem conforme o calendário da escola (liberação progressiva). Entre os planos, o que muda é{" "}
-          <strong className="text-canna-200">quanto tempo</strong> sua matrícula permanece
-          ativa — integração Lodger/PIX quando configurada (
-          <code className="text-canna-200">NEXT_PUBLIC_LODGER_CHECKOUT</code>).
+          <strong className="text-canna-200">quanto tempo</strong> sua matrícula permanece ativa. Pagamento e renovação
+          ficam no mesmo fluxo oficial assim que o checkout estiver ligado.
         </p>
         <div className="grid sm:grid-cols-2 gap-6">
           {tiers.map((t) => (
@@ -94,9 +93,16 @@ export default function PlanosPage() {
             </article>
           ))}
         </div>
-        <p className="text-center mt-12 text-sm text-white/50">
-          Sem Lodger configurado, o botão acima leva a esta página — defina um checkout absoluto em{" "}
-          <code className="text-canna-200">NEXT_PUBLIC_LODGER_CHECKOUT</code> no deploy.
+        <p className="text-center mt-12 text-sm text-white/50 max-w-xl mx-auto">
+          Em pré-lançamento, prefira{" "}
+          <Link href="/inscrever-se" className="text-canna-300 hover:underline font-semibold">
+            Matrícula no campus digital
+          </Link>
+          . Dúvidas sobre cobrança:{" "}
+          <a href="mailto:procbd@icloud.com" className="text-canna-300 hover:underline">
+            procbd@icloud.com
+          </a>
+          .
         </p>
         <div className="text-center mt-6">
           <Link href="/" className="text-canna-300 hover:underline text-sm font-semibold">
