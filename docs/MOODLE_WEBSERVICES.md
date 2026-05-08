@@ -14,6 +14,7 @@ Este app consome REST em [`src/lib/moodle/ws.ts`](../src/lib/moodle/ws.ts). Sem 
 
    - `core_enrol_get_users_courses`
    - `core_completion_get_course_completion_status`
+   - (Futuro, para copiar outline/texto para o campus sem drift) `core_course_get_contents` — requer mapear secções → itens e permissões de leitura adequadas no token.
 
 3. Opcional futuro SSO: token de usuário ou plugin OAuth.
 

@@ -28,9 +28,9 @@ export const DEFAULT_COURSE_THEME: CourseLessonTheme = {
 export const COURSE_LESSON_THEMES: Record<string, CourseLessonTheme> = {
   "cannabis-101": {
     areaId: "cannabis-101",
-    tagline: "Ciência da cannabis · laboratório · ECS",
+    tagline: "Curso base · Moodle · entrada na escola",
     mood:
-      "Dez aulas editoriais densas: ECS e receptores; canabinoides e terpenos; uso medicinal e quadro legal; evidência científica; integração com o restante do campus THCProce.",
+      "Mesmos 29 passos que no Moodle. O texto completo de cada parte está na escola Moodle — este painel é mapa e registo de progresso no campus até haver importação automática.",
     heroClass: mesh("from-slate-950", "via-indigo-950/95", "to-emerald-950"),
     orbClass: "from-cyan-400/25 to-transparent"
   },

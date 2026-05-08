@@ -1,11 +1,11 @@
-import { CANNABIS101_LESSONS } from "@/data/lessonContent/courses/cannabis101";
+import { CANNABIS101_OUTLINE_TITLES } from "@/data/lessonContent/courses/cannabis101MoodleOfficial";
 
 /**
  * Outline editorial por curso (pré-lançamento fundador).
- * Cannabis 101: 10 aulas com texto editorial completo (ECS, canabinoides, evidência, campus).
+ * Cannabis 101: lista igual ao Moodle (29 itens); cópia didática só no Moodle até integração.
  */
 export const COURSE_OUTLINES: Record<string, readonly string[]> = {
-  "cannabis-101": CANNABIS101_LESSONS.map((l) => l.title),
+  "cannabis-101": CANNABIS101_OUTLINE_TITLES,
   "cultivo-greenhouse": [
     "Estufas: tipos, clima e decisão de projeto",
     "Luz solar, suplementação LED e fotoperíodo",

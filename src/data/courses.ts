@@ -27,22 +27,22 @@ export const areas: Area[] = [
   {
     id: "cannabis-101",
     name: "Cannabis 101",
-    short: "Fundamentos da cannabis medicinal",
+    short: "Curso base — mesmo roteiro que no Moodle",
     category: "Anfiteatro",
     level: "Iniciante",
     color: "amber",
     position: { x: 70, y: 21 },
     description:
-      "Fundamentos científicos e responsáveis: sistema endocanabinoide; THC, CBD, CBN, CBG e terpenos; uso medicinal ético; distinção entre adulto, medicinal e educacional; base de evidências; e o caminho do aluno na escola antes de qualquer área avançada.",
+      "Curso-base THCProce espelhado no Moodle: introdução à escola, aulas ao vivo, trilha de cultivo (do planeamento ao pós-colheita), questionários por módulo, avaliação final e certificado — sempre com separação clara entre educação institucional e orientação clínica ou jurídica profissional.",
     highlights: [
-      "ECS, receptores CB1/CB2 e moléculas da planta sem hype",
-      "THC, CBD, CBG, CBN e terpenos com linguagem honesta",
-      "Medicinal, legalidade BR e leitura crítica de estudos",
-      "Roteiros THCProce e ponte para as salas especializadas"
+      "Mesma árvore de secções que no Moodle (29 actividades)",
+      "Questionários por módulo + prova final integrada",
+      "Introdução, cultivo, pós-colheita, avaliação e certificado",
+      "Textos e PDF oficiais: apenas no Moodle (campus = índice + progresso)",
     ],
     professor: "Prof THC",
-    lessons: 10,
-    hours: "≈9h"
+    lessons: 29,
+    hours: "≈24h (referência Moodle)"
   },
   {
     id: "cultivo-greenhouse",
