@@ -84,10 +84,12 @@ function bodyFor(section: string, label: string): string {
 **Todo o texto oficial, vídeos, PDF e avaliações ficam no Moodle.** Este painel não replica esse material para não ficar desatualizado nem contradizer o que a equipa publica.
 
 **O que fazer agora**
-1. Abra o curso no Moodle: ${url}
-2. No índice do curso, localize a secção «${section}» e a actividade «${label}».
 
-Se o link não abrir directamente o Cannabis 101, defina nas variáveis de ambiente do campus (ex.: Vercel) \`NEXT_PUBLIC_MOODLE_CANNABIS101_COURSE_ID\` com o ID numérico do curso no Moodle (o mesmo que aparece em \`course/view.php?id=...\`).
+Abra o curso na escola Moodle e localize no índice a secção «${section}» e a actividade «${label}».
+
+Endereço da escola (copiar para o navegador se não abrir como link nos Materiais abaixo):
+
+${url}
 
 «Marcar como vista» no campus é apenas registo de ritmo aqui — não substitui conclusão nem notas no Moodle até existir integração oficial.`;
 }
@@ -145,7 +147,7 @@ function buildLesson(
     materials: ["Curso Cannabis 101 — plataforma Moodle THCProce", url],
     references: [url],
     professorNotes:
-      "Prefira MBZ export ou WS core_course_get_contents no futuro para preencher texto aqui sem drift."
+      "Link directo ao curso: definir NEXT_PUBLIC_MOODLE_CANNABIS101_COURSE_ID na Vercel (id em course/view.php?id=…). Opcional futuro: MBZ ou core_course_get_contents para texto aqui."
   };
 }
 
