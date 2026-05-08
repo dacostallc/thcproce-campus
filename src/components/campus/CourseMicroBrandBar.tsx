@@ -39,15 +39,18 @@ const LABEL: Record<Area["color"], string> = {
 type Props = {
   area: Area;
   className?: string;
+  lessonIndex?: number;
 };
 
 /**
  * Faixa fina acima do conteúdo — marca do curso sem competir com a aula.
  * Cannabis 101 mantém trailer / stream dedicados em `Cannabis101MicroBrandBar`.
  */
-export function CourseMicroBrandBar({ area, className }: Props) {
+export function CourseMicroBrandBar({ area, className, lessonIndex }: Props) {
   if (area.id === "cannabis-101") {
-    return <Cannabis101MicroBrandBar className={className} />;
+    return (
+      <Cannabis101MicroBrandBar className={className} lessonIndex={lessonIndex} />
+    );
   }
 
   const theme = getCourseLessonTheme(area.id);

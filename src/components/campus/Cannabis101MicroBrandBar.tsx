@@ -19,6 +19,8 @@ const MuxPlayer = dynamic(() => import("@mux/mux-player-react"), { ssr: false })
 
 type Props = {
   className?: string;
+  /** Índice da aula atual — na primeira (0) evita-se «ECS» no subtítulo antes da trilha técnica. */
+  lessonIndex?: number;
 };
 
 function TrailerModal({
@@ -88,12 +90,17 @@ function TrailerModal({
 /**
  * Faixa mínima no topo da coluna central — marca sem competir com o conteúdo da aula.
  */
-export function Cannabis101MicroBrandBar({ className }: Props) {
+const FIRST_LESSON_SUBTITLE =
+  "Boas-vindas · fundação · campus";
+
+export function Cannabis101MicroBrandBar({ className, lessonIndex }: Props) {
   const [trailerOpen, setTrailerOpen] = useState(false);
   const showTrailer = hasCannabis101TrailerConfigured();
   const trailerMux = getCannabis101TrailerMuxPlaybackId();
   const trailerYt = getCannabis101TrailerYoutubeId();
   const theme = getCourseLessonTheme("cannabis-101");
+  const subtitle =
+    lessonIndex === 0 ? FIRST_LESSON_SUBTITLE : theme.tagline;
 
   return (
     <>
@@ -110,7 +117,7 @@ export function Cannabis101MicroBrandBar({ className }: Props) {
           </span>
           <span className="text-white/20">·</span>
           <span className="truncate text-[10px] font-semibold uppercase tracking-[0.12em] text-white/40">
-            {theme.tagline}
+            {subtitle}
           </span>
         </div>
         <div className="flex flex-wrap items-center justify-end gap-1.5">

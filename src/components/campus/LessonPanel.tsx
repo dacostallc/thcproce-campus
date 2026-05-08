@@ -303,7 +303,6 @@ export function LessonPanel({
                 >
                   <Cannabis101LessonList
                     areaId={area.id}
-                    courseName={area.name}
                     accent={accent}
                     {...lessonListProps}
                     className="h-full min-h-0"
@@ -317,7 +316,7 @@ export function LessonPanel({
                   />
 
                   <div className="relative space-y-4">
-                    <CourseMicroBrandBar area={area} />
+                    <CourseMicroBrandBar area={area} lessonIndex={clampedLesson} />
 
                     {underConstruction ? (
                       <div
@@ -530,7 +529,6 @@ export function LessonPanel({
                   </div>
                   <Cannabis101LessonList
                     areaId={area.id}
-                    courseName={area.name}
                     accent={accent}
                     {...lessonListProps}
                     onSelectLesson={(i) => {
