@@ -249,12 +249,13 @@ export function LessonPanel({
             >
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div className="min-w-0 flex-1">
-                  <p className="text-[10px] uppercase tracking-[0.22em] text-white/45">
-                    Aula agora · {area.name}
+                  <p className="text-[10px] uppercase tracking-[0.22em] text-white/55">{area.name}</p>
+                  <p className="mt-0.5 text-[10px] uppercase tracking-[0.16em] text-white/40">
+                    Aula {clampedLesson + 1} de {titles.length || "—"}
                   </p>
                   <h2
                     id="lesson-panel-title"
-                    className="mt-0.5 text-base font-semibold leading-snug text-white sm:text-lg"
+                    className="mt-1 text-base font-semibold leading-snug text-white sm:text-lg"
                   >
                     {lessonTitle}
                   </h2>
@@ -302,6 +303,7 @@ export function LessonPanel({
                 >
                   <Cannabis101LessonList
                     areaId={area.id}
+                    courseName={area.name}
                     accent={accent}
                     {...lessonListProps}
                     className="h-full min-h-0"
@@ -341,9 +343,7 @@ export function LessonPanel({
                       >
                         {lessonTitle}
                       </h1>
-                      <p className="mt-1.5 text-[13px] text-white/45">
-                        Aula {clampedLesson + 1} de {titles.length || "—"} · {area.short}
-                      </p>
+                      <p className="mt-1.5 text-[13px] text-white/45">{area.short}</p>
                     </div>
 
                     <div className="flex flex-wrap gap-2 border-b border-white/10 pb-3">
@@ -530,6 +530,7 @@ export function LessonPanel({
                   </div>
                   <Cannabis101LessonList
                     areaId={area.id}
+                    courseName={area.name}
                     accent={accent}
                     {...lessonListProps}
                     onSelectLesson={(i) => {

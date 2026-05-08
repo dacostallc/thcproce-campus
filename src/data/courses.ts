@@ -35,14 +35,14 @@ export const areas: Area[] = [
     description:
       "Fundamentos científicos e responsáveis: sistema endocanabinoide; THC, CBD, CBN, CBG e terpenos; uso medicinal ético; distinção entre adulto, medicinal e educacional; base de evidências; e o caminho do aluno na escola antes de qualquer área avançada.",
     highlights: [
-      "ECS (CB1/CB2) em linguagem aplicável",
-      "Moléculas e matriz terpenica — leitura integrada",
-      "Medicinal responsável vs educação institucional",
-      "Onboarding THCProce: trilha, Moodle e próximos módulos"
+      "ECS, receptores CB1/CB2 e moléculas da planta sem hype",
+      "THC, CBD, CBG, CBN e terpenos com linguagem honesta",
+      "Medicinal, legalidade BR e leitura crítica de estudos",
+      "Roteiros THCProce e ponte para as salas especializadas"
     ],
     professor: "Prof THC",
     lessons: 10,
-    hours: "9h"
+    hours: "≈9h"
   },
   {
     id: "cultivo-greenhouse",

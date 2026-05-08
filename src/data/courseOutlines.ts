@@ -1,20 +1,11 @@
+import { CANNABIS101_LESSONS } from "@/data/lessonContent/courses/cannabis101";
+
 /**
  * Outline editorial por curso (pré-lançamento fundador).
- * 8–12 aulas; progresso e XP usam `lessons` alinhado em `courses.ts`.
+ * Cannabis 101: 10 aulas com texto editorial completo (ECS, canabinoides, evidência, campus).
  */
 export const COURSE_OUTLINES: Record<string, readonly string[]> = {
-  "cannabis-101": [
-    "Boas-vindas: ECS, moléculas e ética THCProce",
-    "Receptores CB1/CB2 e leitura fisiológica aplicada",
-    "THC, CBD, CBG, CBN: perfis e contexto clínico",
-    "Terpenos, matriz da planta e “entourage” responsável",
-    "Uso medicinal: evidências, incertezas e limites",
-    "Legalidade, consentimento e fronteira educação / saúde",
-    "Como ler estudos: viés, amostra, generalização",
-    "Roteiros da escola e integração com Moodle",
-    "Revisão integrada e checklist de boas práticas",
-    "Encerramento do módulo base e ponte para o campus"
-  ],
+  "cannabis-101": CANNABIS101_LESSONS.map((l) => l.title),
   "cultivo-greenhouse": [
     "Estufas: tipos, clima e decisão de projeto",
     "Luz solar, suplementação LED e fotoperíodo",

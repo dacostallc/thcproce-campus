@@ -20,6 +20,8 @@ export type LessonFilter = "all" | "available" | "seen" | "soon";
 
 type Props = {
   areaId: string;
+  /** Nome do curso — mostrado no topo do índice para alinhar com o header e «Outras áreas». */
+  courseName?: string;
   accent: AreaColor;
   titles: string[];
   activeIndex: number;
@@ -47,6 +49,7 @@ const FILTER_CHIPS: { id: LessonFilter; label: string }[] = [
 
 export function Cannabis101LessonList({
   areaId,
+  courseName,
   accent,
   titles,
   activeIndex,
@@ -88,7 +91,10 @@ export function Cannabis101LessonList({
     <div className={cn("flex h-full min-h-0 flex-col", className)}>
       <div className={cn("shrink-0 px-3 py-3", A.headerBottom)}>
         <p className={cn("text-[10px] font-bold uppercase tracking-[0.2em]", A.kicker)}>Programa da aula</p>
-        <p className="mt-1 text-xs text-white/55">Índice do curso — localize-se rápido</p>
+        {courseName ? (
+          <p className="mt-1 text-[11px] font-semibold leading-snug text-white/75">{courseName}</p>
+        ) : null}
+        <p className="mt-1 text-xs text-white/55">Índice das aulas deste curso</p>
         <label className={cn("mt-3 flex items-center gap-2 rounded-xl border bg-black/40 px-3 py-2", A.search)}>
           <Search className={cn("size-4 shrink-0", A.searchIcon)} aria-hidden />
           <input

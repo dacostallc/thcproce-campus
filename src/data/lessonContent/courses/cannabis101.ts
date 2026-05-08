@@ -3,51 +3,54 @@ import type { LessonStreamContent } from "../types";
 /** Cannabis 101 — conteúdo editorial completo (10 aulas). */
 export const CANNABIS101_LESSONS = [
   {
-    title: "Boas-vindas: ECS, moléculas e ética THCProce",
+    title: "Cannabis 101: boas-vindas e roteiro do curso",
     introduction:
-      "Esta primeira sessão posiciona a cannabis como objeto científico e regulatório: não promessa terapêutica genérica, mas alfabetização em fisiologia, química vegetal e responsabilidade profissional. O sistema endocanabinoide (ECS) é a coluna vertebral interpretativa de todo o campus THCProce.",
-    body: `O ECS compreende receptores (principalmente CB1 no sistema nervoso central e CB2 no imune/periférico), ligantes endógenos e enzimas de síntese e degradação. Canabinoides fitogênicos (THC, CBD, CBG, CBN…) modulam esse sistema com afinidades e eficácias diferentes — por isso “cannabis” não é substância única, e sim família química em matriz vegetal (incluindo terpenos e flavonoides).
+      "Esta primeira aula é só sobre o que é o Cannabis 101 dentro do campus THCProce: para quem é, como navegar, o que vem nas próximas nove sessões e onde ficam os limites legais e éticos. A parte técnica — sistema endocanabinoide, receptores e canabinoides — começa na aula seguinte, com calma e ordem.",
+    body: `O Cannabis 101 é o curso-base da escola: alfabetização responsável em torno da planta, da biologia humana relevante e das narrativas que cercam uso medicinal, adulto e educação institucional. Não é consultório, não é prescrição e não substitui engenheiro agrônomo, farmacêutico ou advogado quando a decisão é operacional ou clínica.
 
-A THCProce separa, com rigor didático, três eixos: (1) educação científica institucional — o que fazemos aqui; (2) uso medicinal, sempre no âmbito da legislação e com profissional habilitado quando prescreve ou orienta clínica; (3) narrativas de uso adulto onde a lei brasileira ou comparada se aplica, sem confundir audiência nem mensagem de compliance.
+Nas próximas aulas você vai, em sequência: entrar no ECS e nos receptores CB1/CB2; comparar THC, CBD, CBG e CBN; estudar terpenos e a hipótese de entourage com pé no chão; discutir uso medicinal sem hype; situar legalidade no Brasil; aprender a ler estudos; integrar o campus com Moodle e salas avançadas; fechar com revisão integrada e encaminhamento ético para cultivo, extração ou outras trilhas.
 
-Ao final deste módulo base você deve ler artigos e rótulos com vocabulário estável: agonismo parcial, tolerância, vias de sinalização, “entourage” como hipótese heurística (não dogma comercial) e incertezas honestas da literatura. O campus existe para formar leitores críticos, não para substituir MIP, prescrição ou licenciamento ambiental/fitossanitário.`,
+Aqui no painel: use o índice à esquerda para saltar entre aulas, marque “aula vista” quando terminar a leitura (ganha XP como registro formativo) e “Outras áreas” à direita troca de curso sem sair do campus. Conteúdos longos ou PDFs complementares podem continuar linkados ao Moodle — o texto principal da trilha está aqui.
+
+Três eixos THCProce que vão repetir ao longo do curso: (1) educação científica institucional — o que fazemos neste ambiente; (2) uso medicinal apenas dentro da lei e com profissional habilitado quando couber prescrição ou conduta clínica; (3) narrativas de uso adulto onde a legislação aplicável vale, sem misturar mensagens nem públicos.`,
     objectives: [
-      "Descrever o ECS em nível de curso superior não-clínico: receptores, ligantes e degradantes.",
-      "Nomear canabinoides principais e localizar pelo menos um efeito fisiológico comum associado a CB1 vs CB2.",
-      "Explicar o posicionamento THCProce: educação, limites legais e encaminhamento a profissionais quando couber."
+      "Definir o papel do Cannabis 101 no campus THCProce e o que ele não substitui.",
+      "Nomear, em alto nível, o tema de cada uma das dez aulas da trilha.",
+      "Usar o painel de aula (índice, vista registrada, troca de área) com autonomia.",
+      "Reconhecer os três eixos institucionais: educação, medicinal dentro da lei, uso adulto conforme legislação."
     ],
     closingSummary:
-      "Você levou um mapa mental do ECS e das moléculas da planta, com fronteiras éticas THCProce. Nas próximas aulas aprofundamos receptores, canabinoides individuais e terpenos sem misturar finalidades de uso.",
+      "Você situou o Cannabis 101 como porta de entrada: roteiro das dez aulas, navegação no campus e limites éticos. Na próxima aula começamos o bloco técnico com o sistema endocanabinoide, as moléculas da planta e os receptores CB1/CB2.",
     quiz: [
       {
-        question: "Qual par melhor descreve a distribuição típica dos receptores canabinoides CB1 e CB2?",
+        question: "O Cannabis 101 no campus THCProce tem como função principal:",
         options: [
-          "CB1 predominantemente SNC; CB2 mais periférico/imune",
-          "CB2 apenas no fígado; CB1 apenas na pele",
-          "Ambos exclusivamente no sangue arterial",
-          "CB1 e CB2 indistintos só no músculo esquelético"
-        ],
-        correctIndex: 0
-      },
-      {
-        question: "No contexto THCProce, qual assertiva está alinhada ao propósito educativo do Cannabis 101?",
-        options: [
-          "Substituir médico e prescrição com base em texto de aula",
-          "Oferecer alfabetização científica e compliance, sem confundir educação com consultório",
-          "Garantir resultado clínico ao paciente que estudar o campus",
-          "Ignorar legislação local por ser conteúdo internacional"
+          "Substituir médico, agrônomo e advogado nas decisões do aluno",
+          "Oferecer alfabetização científica e institucional, sem papel de consultório ou licenciamento",
+          "Garantir resultado clínico a quem concluir as dez aulas",
+          "Ensinar apenas cultivo indoor sem contexto legal"
         ],
         correctIndex: 1
       },
       {
-        question: "Sobre a hipótese de ‘efeito entourage’, qual postura é mais científica em sala?",
+        question: "Dúvidas sobre dose, prescrição ou quadro clínico individual devem ser levadas:",
         options: [
-          "Tratá-la como lei absoluta do produto mais caro",
-          "Ignorar terpenos por serem voláteis",
-          "Reconhecer evidência parcial e interações plausíveis sem confundir marketing com dado",
-          "Afirmar que CBD sempre neutraliza THC em qualquer dose"
+          "Somente ao chat da comunidade da escola",
+          "A profissional habilitado e aos canais legais aplicáveis — não a esta aula como consultório",
+          "Ao primeiro vídeo encontrado em rede social",
+          "A ninguém, pois o curso cobre todos os casos"
         ],
-        correctIndex: 2
+        correctIndex: 1
+      },
+      {
+        question: "O bloco técnico sobre sistema endocanabinoide (ECS), receptores e canabinoides da planta começa:",
+        options: [
+          "Nesta mesma aula, antes do roteiro",
+          "Na aula seguinte, após esta introdução ao curso",
+          "Somente na última aula do módulo",
+          "Apenas nos cursos de cultivo, não no Cannabis 101"
+        ],
+        correctIndex: 1
       }
     ],
     media: {
@@ -57,35 +60,39 @@ Ao final deste módulo base você deve ler artigos e rótulos com vocabulário e
       needsSupportMaterial: true
     },
     materials: [
-      "Ficha: glossário ECS + canabinoides (PDF Moodle quando publicado)",
-      "Quadro comparativo CB1/CB2 — versão impressa para anotação",
-      "Roteiro de perguntas para trazer ao fórum do curso"
+      "Checklist: como navegar o painel de aula e registrar vista",
+      "Mapa das dez aulas (uma linha por tema — imprimir ou anotar)",
+      "Links institucionais THCProce / Moodle quando publicados pelo corpo docente"
     ],
     references: [
-      "Zou & Kumar — cannabinoid receptors and endocannabinoid system (revisões gerais, via biblioteca Moodle)",
-      "IACM / consensos educacionais — sempre como segunda leitura após o texto-base",
-      "Legislação brasileira consolidada — links oficiais no portal THCProce quando atualizados"
+      "Comunicados e código de ética THCProce — versão vigente no portal",
+      "Índice do curso em `courseOutlines` / programa da aula no próprio campus"
     ],
     professorNotes:
-      "Reforce que ‘medicina’ na boca do aluno não vira telemedicina da escola: canalizar dúvidas clínicas ao profissional. Use a aula para desincentivar achismo de influencer e rótulos milagrosos."
+      "Primeira sessão zero-equação: se alguém quiser CB1 na primeira hora, direcione para a aula 2. Reforce que ‘boas-vindas’ não é conteúdo leve demais — é contrato didático com o aluno."
   },
 
   {
-    title: "Receptores CB1/CB2 e leitura fisiológica aplicada",
+    title: "ECS, moléculas da planta e receptores CB1/CB2",
     introduction:
-      "Afinidade, densidade de receptores e contexto fisiológico explicam por que a mesma concentração plasmática pode gerar experiências diferentes entre pessoas. Esta aula ensina a leitura ‘de laboratório’ sem transformar o aluno em prescritor.",
-    body: `CB1 concentra-se em estruturas relacionadas a coordenação, memória, recompensa e nocicepção — daí a importância de não simplificar “efeito psicoativo” como mero label. CB2 associa-se a modulação imunoinflamatória periférica, com relevo crescente em pesquisa, mas com mapa ainda em evolução em humanos.
+      "Agora começa o núcleo técnico do Cannabis 101: o sistema endocanabinoide como arcabouço, as moléculas da planta em matriz vegetal e a leitura fisiológica de CB1 e CB2 — afinidade, densidade e contexto explicam por que a mesma concentração pode gerar experiências diferentes entre pessoas, sem transformar o aluno em prescritor.",
+    body: `O ECS compreende receptores (principalmente CB1 no sistema nervoso central e CB2 no imune/periférico), ligantes endógenos e enzimas de síntese e degradação. Canabinoides fitogênicos (THC, CBD, CBG, CBN…) modulam esse sistema com afinidades e eficácias diferentes — por isso “cannabis” não é substância única, e sim família química em matriz vegetal (incluindo terpenos e flavonoides).
+
+Ao avançar neste módulo base você deve começar a ler artigos e rótulos com vocabulário estável: agonismo parcial, tolerância, vias de sinalização, “entourage” como hipótese heurística (não dogma comercial) e incertezas honestas da literatura. O campus existe para formar leitores críticos, não para substituir MIP, prescrição ou licenciamento ambiental/fitossanitário.
+
+CB1 concentra-se em estruturas relacionadas a coordenação, memória, recompensa e nocicepção — daí a importância de não simplificar “efeito psicoativo” como mero label. CB2 associa-se a modulação imunoinflamatória periférica, com relevo crescente em pesquisa, mas com mapa ainda em evolução em humanos.
 
 Ligantes endógenos (anandamida, 2-AG…) mostram que o ECS é homeostático: não é ‘ligaço para ficar alto’, é rede de retrocontrole. Agonistas exógenos competem e desviam essa música — por isso titulação em contexto clínico importa, e autocultivo recreational fora da lei permanece risco jurídico e de segurança, mesmo que a anatomia seja a mesma.
 
 Para o leitor de evidências: pergunte sempre população (animal vs humano), via de administração, duração e desfecho medido. O campus treina esse check-list mental para destravar leitura de meta-análises com fervor comercial ao redor.`,
     objectives: [
+      "Descrever o ECS em nível introdutório: receptores, ligantes endógenos e papel dos fitocanabinoides na matriz vegetal.",
       "Diferenciar distribuição e papel fisiológico típico de CB1 e CB2 em modelos mais aceitos.",
       "Relacionar agonismo parcial do THC a curva dose–efeito não linear.",
       "Aplicar o filtro população–via–desfecho à leitura de estudos citados em marketing."
     ],
     closingSummary:
-      "CB1 e CB2 deixam de ser ‘siglas’ e viram âncoras para entender variabilidade de resposta e literatura. Na próxima aula isolamos THC, CBD, CBG e CBN sem confundir hype com perfil clínico.",
+      "O ECS e as moléculas da planta deixam de ser abstração; CB1 e CB2 viram âncoras para variabilidade de resposta e leitura de papers. Na próxima aula isolamos THC, CBD, CBG e CBN sem confundir hype com perfil clínico.",
     quiz: [
       {
         question: "Qual característica costuma associar-se ao receptor CB1 na literatura de referência?",
@@ -125,11 +132,13 @@ Para o leitor de evidências: pergunte sempre população (animal vs humano), vi
       needsSupportMaterial: true
     },
     materials: [
-      "Diagrama sinapse ECS (impresso)",
+      "Ficha: glossário ECS + canabinoides (PDF Moodle quando publicado)",
+      "Diagrama sinapse ECS e quadro comparativo CB1/CB2 (impresso)",
       "Planilha-guia de leitura crítica de abstract",
       "Lista de mecanismos citados em artigos populares vs artigos primários"
     ],
     references: [
+      "Zou & Kumar — cannabinoid receptors and ECS (revisões gerais, via biblioteca Moodle)",
       "Literatura de revisão sobre CB1/CB2 e ligantes (acesso via Moodle)",
       "Guias de leitura crítica CONSORT / SYRCLE (quando aplicável a RCTs citados)"
     ],

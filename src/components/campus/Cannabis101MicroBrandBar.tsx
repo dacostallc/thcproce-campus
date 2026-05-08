@@ -13,6 +13,7 @@ import {
 } from "@/lib/video/cannabis101Stream";
 
 import { CAMPUS_HOME_PATH } from "@/config/siteUrls";
+import { getCourseLessonTheme } from "@/data/courseLessonThemes";
 
 const MuxPlayer = dynamic(() => import("@mux/mux-player-react"), { ssr: false });
 
@@ -92,6 +93,7 @@ export function Cannabis101MicroBrandBar({ className }: Props) {
   const showTrailer = hasCannabis101TrailerConfigured();
   const trailerMux = getCannabis101TrailerMuxPlaybackId();
   const trailerYt = getCannabis101TrailerYoutubeId();
+  const theme = getCourseLessonTheme("cannabis-101");
 
   return (
     <>
@@ -108,7 +110,7 @@ export function Cannabis101MicroBrandBar({ className }: Props) {
           </span>
           <span className="text-white/20">·</span>
           <span className="truncate text-[10px] font-semibold uppercase tracking-[0.12em] text-white/40">
-            THCProce Science
+            {theme.tagline}
           </span>
         </div>
         <div className="flex flex-wrap items-center justify-end gap-1.5">
