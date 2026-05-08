@@ -1,3 +1,6 @@
+import { CANNABIS101_AREA_ID } from "@/content/courses/cannabis-101/manifest";
+import { CANNABIS101_COURSE_THEME } from "@/content/courses/cannabis-101/theme";
+
 /**
  * Identidade visual por curso — hero cinematográfico quando ainda não há vídeo hospedado (Mux/Bunny).
  * Amplie com imagens em /public/campus/themes/<id>.webp quando existirem.
@@ -26,14 +29,7 @@ export const DEFAULT_COURSE_THEME: CourseLessonTheme = {
 
 /** Temas alinhados aos 14 cursos do campus */
 export const COURSE_LESSON_THEMES: Record<string, CourseLessonTheme> = {
-  "cannabis-101": {
-    areaId: "cannabis-101",
-    tagline: "Curso base · Moodle · entrada na escola",
-    mood:
-      "Mesmos 29 passos que no Moodle. O texto completo de cada parte está na escola Moodle — este painel é mapa e registo de progresso no campus até haver importação automática.",
-    heroClass: mesh("from-slate-950", "via-indigo-950/95", "to-emerald-950"),
-    orbClass: "from-cyan-400/25 to-transparent"
-  },
+  [CANNABIS101_AREA_ID]: CANNABIS101_COURSE_THEME,
   "cultivo-greenhouse": {
     areaId: "cultivo-greenhouse",
     tagline: "Estufa · clima · yield",

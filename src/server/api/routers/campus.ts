@@ -1,24 +1,71 @@
+import type { AccessStatus } from "@prisma/client";
 import { router, publicProcedure, protectedProcedure } from "@/server/api/trpc";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import {
   fetchCompletionStatus,
   fetchEnrolledCoursesForUser,
+  fetchCourseContentsFlat,
   MoodleCourse
 } from "@/lib/moodle/ws";
+import { matchMoodleModuleForCampusLesson } from "@/lib/moodle/moodleMatchLesson";
 import { areas } from "@/data/courses";
 import { prisma } from "@/server/db";
 import { LEVELS, levelFromXp } from "@/server/gamification";
 import { moodleCourseIdForArea } from "@/lib/moodle/courseMap";
 import { signedBunnyStreamEmbedUrl } from "@/lib/bunny/signedEmbed";
-import { canOpenCampusCourses } from "@/lib/campusAccess";
+import { canOpenCampusCoursesWithPulse } from "@/lib/campusAccess";
 import { isCampusAdminEmail } from "@/lib/campusAdmin";
+import { getMergedLiveBroadcast } from "@/server/campusLiveSettings";
+import { areaUsesMoodleLessonSnippet } from "@/content/courses";
 
 const mockCourses: MoodleCourse[] = areas.map((a, i) => ({
   id: 100 + i,
   fullname: a.name,
   shortname: a.id
 }));
+
+const CAMPUS_EVENTS_STATIC = [
+  {
+    id: "festival-420",
+    title: "Festival 4/20 — Colheita aberta virtual",
+    when: "Abril · lives e encontros no campus",
+    href: "https://youtube.com/@thcproce"
+  },
+  {
+    id: "colheita-anual",
+    title: "Colheita anual THCProce",
+    when: "Fim do ano · desafios e ranking",
+    href: "/planos"
+  }
+] as const;
+
+function areaProgressZero(): { areas: Record<string, boolean> } {
+  const map: Record<string, boolean> = {};
+  for (const a of areas) map[a.id] = false;
+  return { areas: map };
+}
+
+/** Suaviza títulos vindos do LMS só para exposição ao aluno — mantém etiquetas internas tipo Secção N no ingest. */
+function softenPublicSectionHeading(raw: string): string {
+  const s = raw.trim();
+  const stripNum = s.match(/^Sec(c|ç)[aã]o\s*(\d+)\s*[.:)\-–—]\s*(.+)$/iu);
+  if (stripNum?.[3]?.trim()) return stripNum[3].trim();
+
+  const onlySecPt = s.match(/^Sec(c|ç)[aã]o\s*(\d+)\s*$/iu);
+  if (onlySecPt?.[2] !== undefined && onlySecPt[2] !== "")
+    return `Parte ${Number(onlySecPt[2]) + 1}`;
+
+  const stripEn = s.match(/^Section\s*\d+\s*[.:)\-–—]\s*(.+)$/iu);
+  if (stripEn?.[1]?.trim()) return stripEn[1].trim();
+  const onlySectionEn = s.match(/^Section\s*(\d+)\s*$/iu);
+  if (onlySectionEn?.[1] !== undefined && onlySectionEn[1] !== "")
+    return `Parte ${Number(onlySectionEn[1]) + 1}`;
+
+  if (/^sec(c|ç)[aã]o$/iu.test(s) || /^section$/iu.test(s)) return "Panorama inicial";
+
+  return s.replace(/\bGeneral\b/i, "Abertura").replace(/^Topics?\s+/iu, "Bloco ").trim();
+}
 
 function parseLessonMap(raw: unknown): Record<string, number[]> {
   let v: unknown = raw;
@@ -42,6 +89,44 @@ function parseLessonMap(raw: unknown): Record<string, number[]> {
 export const campusRouter = router({
   health: publicProcedure.query(() => ({ ok: true as const, ts: Date.now() })),
 
+  /** Live + URL do Cine — só variáveis públicas de ambiente (sem Prisma). */
+  liveBroadcast: publicProcedure.query(async () => {
+    try {
+      return await getMergedLiveBroadcast();
+    } catch (e) {
+      console.warn("[campus] liveBroadcast: fallback", e);
+      const envUrl = (process.env.NEXT_PUBLIC_CAMPUS_LIVE_YOUTUBE_URL ?? "").trim();
+      return { liveActive: false, youtubeUrl: envUrl };
+    }
+  }),
+
+  /** Sem persistência na BD: devolve valores para a UI; produção usa NEXT_PUBLIC_* na Vercel. */
+  adminSetLiveBroadcast: protectedProcedure
+    .input(
+      z.object({
+        liveActive: z.boolean(),
+        youtubeUrl: z.string().max(2048)
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const email = ctx.session?.user?.email;
+      if (!email || !isCampusAdminEmail(email)) {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Só administradores." });
+      }
+      const url = input.youtubeUrl.trim();
+      if (url && !/^https?:\/\//i.test(url)) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "O link deve começar com http:// ou https://"
+        });
+      }
+      const envUrl = (process.env.NEXT_PUBLIC_CAMPUS_LIVE_YOUTUBE_URL ?? "").trim();
+      return {
+        liveActive: input.liveActive,
+        youtubeUrl: url || envUrl
+      };
+    }),
+
   /** Lista cursos (Moodle se token + userId; senão mock da grade local). */
   courses: publicProcedure.query(async () => {
     const uid = process.env.MOODLE_MOCK_USER_ID;
@@ -52,29 +137,95 @@ export const campusRouter = router({
     return mockCourses;
   }),
 
+  /**
+   * Resumo (description) + URL do módulo Moodle para uma posição do outline do campus.
+   * Só é resolvido para áreas registadas em `areaUsesMoodleLessonSnippet` (Cannabis 101).
+   * Requer `core_course_get_contents` no serviço WS + `MOODLE_WS_TOKEN` + id em `MOODLE_COURSE_MAP`.
+   */
+  moodleLessonSnippet: publicProcedure
+    .input(
+      z.object({
+        areaId: z.string(),
+        lessonIndex: z.number().int().min(0),
+        lessonTitle: z.string()
+      })
+    )
+    .query(async ({ input }) => {
+      const idx = areas.findIndex((a) => a.id === input.areaId);
+      if (idx < 0) {
+        return { ok: false as const, reason: "unknown_area" as const };
+      }
+      if (!areaUsesMoodleLessonSnippet(input.areaId)) {
+        return { ok: false as const, reason: "not_supported" as const };
+      }
+      const courseId = moodleCourseIdForArea(input.areaId, idx);
+      try {
+        const flat = await fetchCourseContentsFlat(courseId);
+        if (!flat?.length) {
+          return { ok: false as const, reason: "ws_empty" as const, courseId };
+        }
+        const mod = matchMoodleModuleForCampusLesson(
+          flat,
+          input.lessonTitle,
+          input.lessonIndex
+        );
+        if (!mod) {
+          if (process.env.NODE_ENV === "development") {
+            console.warn("[campus] moodleLessonSnippet no_match", {
+              lessonTitle: input.lessonTitle,
+              lessonIndex: input.lessonIndex,
+              flatLength: flat.length
+            });
+          }
+          return { ok: false as const, reason: "no_match" as const, courseId };
+        }
+        return {
+          ok: true as const,
+          courseId,
+          sectionTitle: softenPublicSectionHeading(mod.sectionTitle),
+          moduleName: mod.moduleName,
+          modname: mod.modname,
+          summaryText: mod.summaryText,
+          moodleUrl: mod.moodleUrl
+        };
+      } catch (e) {
+        console.warn("[campus] moodleLessonSnippet", e);
+        return { ok: false as const, reason: "error" as const, courseId };
+      }
+    }),
+
   /** Progresso por área (mapa acende) — integração real quando houver user Moodle. */
   areaProgress: publicProcedure
     .input(z.object({ moodleUserId: z.number().optional() }))
     .query(async ({ input }) => {
-      const map: Record<string, boolean> = {};
-      for (const a of areas) {
-        map[a.id] = false;
-      }
-
-      const uid =
-        input.moodleUserId ??
-        (process.env.MOODLE_MOCK_USER_ID ? Number(process.env.MOODLE_MOCK_USER_ID) : 1);
-
-      if (process.env.MOODLE_WS_TOKEN) {
-        for (let i = 0; i < areas.length; i++) {
-          const a = areas[i]!;
-          const courseId = moodleCourseIdForArea(a.id, i);
-          const s = await fetchCompletionStatus(courseId, uid);
-          if (s?.completed) map[a.id] = true;
+      try {
+        const map: Record<string, boolean> = {};
+        for (const a of areas) {
+          map[a.id] = false;
         }
-      }
 
-      return { areas: map };
+        const uid =
+          input.moodleUserId ??
+          (process.env.MOODLE_MOCK_USER_ID ? Number(process.env.MOODLE_MOCK_USER_ID) : 1);
+
+        if (process.env.MOODLE_WS_TOKEN) {
+          try {
+            for (let i = 0; i < areas.length; i++) {
+              const a = areas[i]!;
+              const courseId = moodleCourseIdForArea(a.id, i);
+              const s = await fetchCompletionStatus(courseId, uid);
+              if (s?.completed) map[a.id] = true;
+            }
+          } catch (e) {
+            console.warn("[campus] areaProgress: Moodle indisponível, progresso zerado", e);
+          }
+        }
+
+        return { areas: map };
+      } catch (e) {
+        console.warn("[campus] areaProgress: fallback", e);
+        return areaProgressZero();
+      }
     }),
 
   /** Perfil XP / níveis (SQLite local ou cria skeleton). */
@@ -85,20 +236,32 @@ export const campusRouter = router({
     }
     const email = session.user.email;
     const name = session.user.name ?? "Aluno";
-    let p = await prisma.profile.findUnique({ where: { email } });
-    if (!p)
-      p = await prisma.profile.create({
-        data: { email, displayName: name }
-      });
+    try {
+      let p = await prisma.profile.findUnique({ where: { email } });
+      if (!p)
+        p = await prisma.profile.create({
+          data: { email, displayName: name }
+        });
 
-    const level = levelFromXp(p.xpTotal);
-    return {
-      xp: p.xpTotal,
-      levelKey: p.levelKey,
-      levelLabel: level.label,
-      streak: p.streakDays,
-      nextLevel: LEVELS.find((x) => x.minXp > p.xpTotal) ?? null
-    };
+      const level = levelFromXp(p.xpTotal);
+      return {
+        xp: p.xpTotal,
+        levelKey: p.levelKey,
+        levelLabel: level.label,
+        streak: p.streakDays,
+        nextLevel: LEVELS.find((x) => x.minXp > p.xpTotal) ?? null
+      };
+    } catch (e) {
+      console.warn("[campus] myProgress: fallback sem BD", e);
+      const level = levelFromXp(0);
+      return {
+        xp: 0,
+        levelKey: level.key,
+        levelLabel: level.label,
+        streak: 0,
+        nextLevel: LEVELS.find((x) => x.minXp > 0) ?? null
+      };
+    }
   }),
 
   /** Acesso às salas do mapa (perfil local + flags públicas resolvidas no cliente para anônimos). */
@@ -107,19 +270,37 @@ export const campusRouter = router({
       throw new TRPCError({ code: "UNAUTHORIZED", message: "Sem e-mail na sessão." });
     }
     const email = ctx.session.user.email;
-    const p = await prisma.profile.findUnique({
-      where: { email },
-      select: { accessStatus: true, createdAt: true }
-    });
-    const accessStatus = p?.accessStatus ?? "pendente";
-    const isCampusAdmin = isCampusAdminEmail(email);
-    return {
-      accessStatus,
-      isCampusAdmin,
-      memberSinceIso: p?.createdAt ? p.createdAt.toISOString() : null,
-      canOpenCourses:
-        isCampusAdmin || canOpenCampusCourses(accessStatus, true)
-    };
+    try {
+      const p = await prisma.profile.findUnique({
+        where: { email },
+        select: { accessStatus: true, createdAt: true }
+      });
+      const accessStatus = p?.accessStatus ?? "pendente";
+      const isCampusAdmin = isCampusAdminEmail(email);
+      const mergedLive = await getMergedLiveBroadcast();
+      return {
+        accessStatus,
+        isCampusAdmin,
+        memberSinceIso: p?.createdAt ? p.createdAt.toISOString() : null,
+        canOpenCourses:
+          isCampusAdmin ||
+          canOpenCampusCoursesWithPulse(accessStatus, true, mergedLive.liveActive)
+      };
+    } catch (e) {
+      console.warn("[campus] myCampusAccess: fallback sem BD", e);
+      const isCampusAdmin = isCampusAdminEmail(email);
+      const accessStatus: AccessStatus = "pendente";
+      const envLive = process.env.NEXT_PUBLIC_CAMPUS_LIVE_ACTIVE === "true";
+      return {
+        accessStatus,
+        isCampusAdmin,
+        memberSinceIso: null,
+        canOpenCourses:
+          isCampusAdmin ||
+          process.env.NEXT_PUBLIC_CAMPUS_PUBLIC_ALL === "true" ||
+          canOpenCampusCoursesWithPulse(accessStatus, true, envLive)
+      };
+    }
   }),
 
   addXpDemo: protectedProcedure
@@ -186,20 +367,14 @@ export const campusRouter = router({
       });
     }),
 
-  campusEvents: publicProcedure.query(() => [
-    {
-      id: "festival-420",
-      title: "Festival 4/20 — Colheita aberta virtual",
-      when: "Abril · lives e encontros no campus",
-      href: "https://youtube.com/@thcproce"
-    },
-    {
-      id: "colheita-anual",
-      title: "Colheita anual THCProce",
-      when: "Fim do ano · desafios e ranking",
-      href: "/planos"
+  campusEvents: publicProcedure.query(() => {
+    try {
+      return [...CAMPUS_EVENTS_STATIC];
+    } catch (e) {
+      console.warn("[campus] campusEvents: fallback", e);
+      return [];
     }
-  ]),
+  }),
 
   muralFeed: publicProcedure
     .input(z.object({ take: z.number().max(30).default(12) }))

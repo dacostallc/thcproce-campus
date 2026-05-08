@@ -112,11 +112,37 @@ function splitBody(body?: string): string[] {
     .filter(Boolean);
 }
 
-function StreamQuizBlock({ items }: { items: LessonQuizItem[] }) {
+const CAN101_STREAM_SECTION = {
+  intro: "Abertura",
+  body: "Trilho principal",
+  objectives: "O que você leva daqui",
+  summary: "Síntese",
+  quiz: "Check rápido",
+  media: "Produção e visuais",
+  materials: "Materiais",
+  refs: "Referências",
+  prof: "Notas para facilitador(a)",
+  notes: "Suas notas"
+} as const;
+
+type StreamQuizQuestionProps = {
+  q: LessonQuizItem;
+  index: number;
+  /** Cannabis 101: feedback textual mais “premium” e menos jargon de sala de aula. */
+  cinematicHints?: boolean;
+};
+
+function StreamQuizBlock({
+  items,
+  cinematicHints
+}: {
+  items: LessonQuizItem[];
+  cinematicHints?: boolean;
+}) {
   return (
     <div className="space-y-5">
       {items.map((q, qi) => (
-        <StreamQuizQuestion key={qi} q={q} index={qi} />
+        <StreamQuizQuestion key={qi} q={q} index={qi} cinematicHints={cinematicHints} />
       ))}
     </div>
   );
@@ -124,11 +150,9 @@ function StreamQuizBlock({ items }: { items: LessonQuizItem[] }) {
 
 function StreamQuizQuestion({
   q,
-  index
-}: {
-  q: LessonQuizItem;
-  index: number;
-}) {
+  index,
+  cinematicHints
+}: StreamQuizQuestionProps) {
   const [picked, setPicked] = useState<number | null>(null);
   const done = picked !== null;
   return (
@@ -164,8 +188,12 @@ function StreamQuizQuestion({
       {done ? (
         <p className="mt-2 text-xs text-white/50">
           {picked === q.correctIndex
-            ? "Correto — conecte à evidência citada no desenvolvimento."
-            : "Revise o bloco de desenvolvimento e os objetivos; a resposta indicada reflete o texto-base desta edição."}
+            ? cinematicHints
+              ? "Certo — conecte aos argumentos mestre destacados mais acima nesta sala."
+              : "Correto — conecte à evidência citada no texto principal da aula."
+            : cinematicHints
+              ? "Volte aos objetivos e à abertura: a opção assinalada segue o roteiro desta edição THCProce."
+              : "Revise o corpo da aula e os objetivos; a resposta indicada reflete o texto-base desta edição."}
         </p>
       ) : null}
     </div>
@@ -265,28 +293,29 @@ export function LessonRichTabs({
         )}
       >
         <section className={cn("border-b pb-8", pal.sectionBorder)}>
-          <h2 className={pal.sectionTitle}>Introdução</h2>
+          <h2 className={pal.sectionTitle}>{c ? CAN101_STREAM_SECTION.intro : "Introdução"}</h2>
           <div className={cn("space-y-4", bodyProse)}>
             <p>{content.intro}</p>
           </div>
         </section>
 
         <section className={cn("border-b py-8", pal.sectionBorder)}>
-          <h2 className={pal.sectionTitle}>Desenvolvimento</h2>
+          <h2 className={pal.sectionTitle}>{c ? CAN101_STREAM_SECTION.body : "Desenvolvimento"}</h2>
           <div className={cn("space-y-4", bodyProse)}>
             {bodyParagraphs.length ? (
               bodyParagraphs.map((p, i) => <p key={i}>{p}</p>)
             ) : (
               <p className="text-white/50">
-                Conteúdo principal será exibido aqui quando o campo de desenvolvimento estiver preenchido no
-                ficheiro da aula.
+                {c
+                  ? "O roteiro detalhado deste episódio aparece aqui assim que estiver sincronizado pela equipa THCProce — até lá, avance pela abertura, pelos objetivos e pelas ligações em «Materiais»."
+                  : "Conteúdo principal será exibido aqui quando o campo textual da aula estiver preenchido."}
               </p>
             )}
           </div>
         </section>
 
         <section className={cn("border-b py-8", pal.sectionBorder)}>
-          <h2 className={pal.sectionTitle}>Objetivos da aula</h2>
+          <h2 className={pal.sectionTitle}>{c ? CAN101_STREAM_SECTION.objectives : "Objetivos da aula"}</h2>
           <ul className="space-y-2.5 text-[14px] leading-snug text-white/85">
             {content.objectives.map((o, i) => (
               <li key={i} className="flex gap-3">
@@ -305,7 +334,7 @@ export function LessonRichTabs({
         </section>
 
         <section className={cn("border-b py-8", pal.sectionBorder)}>
-          <h2 className={pal.sectionTitle}>Resumo final</h2>
+          <h2 className={pal.sectionTitle}>{c ? CAN101_STREAM_SECTION.summary : "Resumo final"}</h2>
           <div className="rounded-lg border border-white/10 bg-white/[0.03] px-4 py-3">
             <p className="text-[14px] leading-relaxed text-white/85">{content.summary}</p>
           </div>
@@ -313,23 +342,25 @@ export function LessonRichTabs({
 
         {content.quiz?.length ? (
           <section className={cn("border-b py-8", pal.sectionBorder)}>
-            <h2 className={pal.sectionTitle}>Quiz rápido</h2>
-            <StreamQuizBlock items={content.quiz} />
+            <h2 className={pal.sectionTitle}>{c ? CAN101_STREAM_SECTION.quiz : "Quiz rápido"}</h2>
+            <StreamQuizBlock items={content.quiz} cinematicHints={c} />
           </section>
         ) : null}
 
         {content.media ? (
           <section className={cn("border-b py-8", pal.sectionBorder)}>
-            <h2 className={pal.sectionTitle}>Recursos sugeridos (produção)</h2>
+            <h2 className={pal.sectionTitle}>{c ? CAN101_STREAM_SECTION.media : "Recursos sugeridos (produção)"}</h2>
             <p className={cn("mb-3 text-[12px] leading-relaxed text-white/50")}>
-              Indicação editorial para equipe de mídia THCProce: o que complementar em versões futuras desta aula.
+              {c
+                ? "Indicação editorial para equipe de mídia THCProce: o que complementar em versões futuras desta aula."
+                : "Indicações editoriais para enriquecer versões futuras desta aula com visuais e demonstrações."}
             </p>
             <MediaHintRow media={content.media} pal={pal} />
           </section>
         ) : null}
 
         <section className={cn("border-b py-8", pal.sectionBorder)}>
-          <h2 className={pal.sectionTitle}>Materiais de apoio</h2>
+          <h2 className={pal.sectionTitle}>{c ? CAN101_STREAM_SECTION.materials : "Materiais de apoio"}</h2>
           <ul className="space-y-2 text-[14px] text-white/85 list-none">
             {content.materials.map((m, i) => (
               <li key={i} className="rounded-md border border-white/10 bg-black/25 px-3 py-2">
@@ -340,7 +371,7 @@ export function LessonRichTabs({
         </section>
 
         <section className={cn("border-b py-8", pal.sectionBorder)}>
-          <h2 className={pal.sectionTitle}>Referências</h2>
+          <h2 className={pal.sectionTitle}>{c ? CAN101_STREAM_SECTION.refs : "Referências"}</h2>
           <ul className="space-y-2 text-[14px] text-white/90 list-none">
             {content.references.map((r, i) => (
               <li key={i} className={cn("pl-3", pal.refBorder)}>
@@ -351,7 +382,7 @@ export function LessonRichTabs({
         </section>
 
         <section className={cn("border-b py-8", pal.sectionBorder)}>
-          <h2 className={pal.sectionTitle}>Notas do professor</h2>
+          <h2 className={pal.sectionTitle}>{c ? CAN101_STREAM_SECTION.prof : "Notas do professor"}</h2>
           <div
             className={cn(
               "rounded-lg px-4 py-3 text-[14px] leading-relaxed text-white/85",
@@ -363,7 +394,7 @@ export function LessonRichTabs({
         </section>
 
         <section className="pt-8">
-          <h2 className={pal.sectionTitle}>Suas notas</h2>
+          <h2 className={pal.sectionTitle}>{c ? CAN101_STREAM_SECTION.notes : "Suas notas"}</h2>
           <p className="mb-2 text-xs text-white/45">Guardadas neste dispositivo — para revisão rápida.</p>
           <textarea
             value={notes}
@@ -414,13 +445,15 @@ export function LessonRichTabs({
           {tab === "conteudo" && (
             <div className="space-y-4 text-sm leading-relaxed">
               <div>
-                <p className="mb-1 text-[10px] font-bold uppercase tracking-widest text-white/40">Introdução</p>
+                <p className="mb-1 text-[10px] font-bold uppercase tracking-widest text-white/40">
+                  {c ? CAN101_STREAM_SECTION.intro : "Introdução"}
+                </p>
                 <p className="text-white/90">{content.intro}</p>
               </div>
               {bodyParagraphs.length ? (
                 <div>
                   <p className="mb-1 text-[10px] font-bold uppercase tracking-widest text-white/40">
-                    Desenvolvimento
+                    {c ? CAN101_STREAM_SECTION.body : "Desenvolvimento"}
                   </p>
                   <div className="space-y-3">
                     {bodyParagraphs.map((p, i) => (
@@ -433,16 +466,16 @@ export function LessonRichTabs({
               ) : null}
               <div className="rounded-xl border border-white/10 bg-white/5 p-4">
                 <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-canna-300/90">
-                  Resumo final
+                  {c ? CAN101_STREAM_SECTION.summary : "Resumo final"}
                 </p>
                 <p className="text-white/80">{content.summary}</p>
               </div>
               {content.quiz?.length ? (
                 <div>
                   <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-white/40">
-                    Quiz rápido
+                    {c ? CAN101_STREAM_SECTION.quiz : "Quiz rápido"}
                   </p>
-                  <StreamQuizBlock items={content.quiz} />
+                  <StreamQuizBlock items={content.quiz} cinematicHints={c} />
                 </div>
               ) : null}
               {content.media ? (

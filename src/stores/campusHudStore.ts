@@ -16,6 +16,8 @@ type HudState = {
   setEventsOpen: (v: boolean) => void;
   adminBroadcastComposerOpen: boolean;
   setAdminBroadcastComposerOpen: (v: boolean) => void;
+  campusLiveComposerOpen: boolean;
+  setCampusLiveComposerOpen: (v: boolean) => void;
 };
 
 export const useCampusHudStore = create<HudState>((set) => ({
@@ -31,5 +33,8 @@ export const useCampusHudStore = create<HudState>((set) => ({
   setEventsOpen: (eventsOpen) => set({ eventsOpen }),
   adminBroadcastComposerOpen: false,
   setAdminBroadcastComposerOpen: (adminBroadcastComposerOpen) =>
-    set({ adminBroadcastComposerOpen })
+    set({ adminBroadcastComposerOpen }),
+  campusLiveComposerOpen: false,
+  setCampusLiveComposerOpen: (campusLiveComposerOpen) =>
+    set({ campusLiveComposerOpen })
 }));

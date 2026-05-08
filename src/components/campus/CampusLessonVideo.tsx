@@ -9,12 +9,10 @@ import {
   getBunnyDemoVideoIdPublic,
   type CampusLessonSource
 } from "@/lib/video/campusLessonSource";
-import {
-  getCannabis101PrimaryMuxPlaybackId
-} from "@/lib/video/cannabis101Stream";
+import { areaUsesRegisteredPrimaryMux, isCannabis101CourseArea, registeredPrimaryMuxPlaybackId } from "@/content/courses";
 import { getCourseLessonTheme } from "@/data/courseLessonThemes";
 import { LessonCinematicFallback } from "./LessonCinematicFallback";
-import { Cannabis101LessonHero } from "./Cannabis101LessonHero";
+import { CampusLessonHero } from "./CampusLessonHero";
 
 const MuxPlayer = dynamic(() => import("@mux/mux-player-react"), { ssr: false });
 
@@ -27,7 +25,7 @@ type Props = {
   lessonVisual?: "default" | "compact";
   /**
    * Sem stream (Mux/Bunny/Youtube): não renderizar hero/cinemático automático.
-   * Permite colocar Cannabis101LessonHero manualmente (ex.: no fim da coluna).
+   * Permite colocar CampusLessonHero manualmente (ex.: no fim da coluna).
    */
   hideFallback?: boolean;
 };
@@ -83,15 +81,15 @@ export function CampusLessonVideo({
 
   const skipUnsignedBunny = Boolean(flags?.bunnySigningEnabled);
 
-  const isCannabis101 = areaId === "cannabis-101";
-  const c101PrimaryMux = getCannabis101PrimaryMuxPlaybackId();
+  const dedicatedMuxPath = areaUsesRegisteredPrimaryMux(areaId);
+  const primaryMuxId = registeredPrimaryMuxPlaybackId(areaId);
 
   let base: CampusLessonSource;
   if (signedIframe !== null && signedIframe.length > 0) {
     base = { kind: "bunny", embedUrl: signedIframe };
-  } else if (isCannabis101) {
-    if (c101PrimaryMux) {
-      base = { kind: "mux", playbackId: c101PrimaryMux };
+  } else if (dedicatedMuxPath) {
+    if (primaryMuxId) {
+      base = { kind: "mux", playbackId: primaryMuxId };
     } else {
       base = { kind: "none" };
     }
@@ -148,8 +146,8 @@ export function CampusLessonVideo({
       if (hideFallback) {
         return null;
       }
-      return isCannabis101 ? (
-        <Cannabis101LessonHero
+      return isCannabis101CourseArea(areaId) ? (
+        <CampusLessonHero
           theme={theme}
           lessonTitle={lessonTitle}
           areaName={areaName}

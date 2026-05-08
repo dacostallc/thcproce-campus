@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowRight,
@@ -23,11 +24,14 @@ import {
   type EnrollmentPlanId
 } from "@/config/enrollmentPlans";
 import { Button } from "@/components/ui/button";
+import { isAbsoluteHttpUrl, lodgerCheckoutHref } from "@/config/siteUrls";
 
 const TERMOS_HREF = "/planos";
 
 export function InscricaoExperience() {
+  const router = useRouter();
   const formRef = useRef<HTMLDivElement>(null);
+  const plansRef = useRef<HTMLDivElement>(null);
   const [selectedPlanId, setSelectedPlanId] = useState<EnrollmentPlanId | null>(null);
 
   const [displayName, setDisplayName] = useState("");
@@ -41,8 +45,14 @@ export function InscricaoExperience() {
   const [passwordConfirm, setPasswordConfirm] = useState("");
   const [acceptTerms, setAcceptTerms] = useState(false);
 
-  const [success, setSuccess] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  useEffect(() => {
+    const id = window.requestAnimationFrame(() => {
+      plansRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+    return () => window.cancelAnimationFrame(id);
+  }, []);
 
   const selectedPlan = useMemo(
     () => (selectedPlanId ? getPlanById(selectedPlanId) : undefined),
@@ -52,8 +62,12 @@ export function InscricaoExperience() {
   const register = trpc.enrollment.register.useMutation({
     onSuccess: () => {
       setErrorMsg(null);
-      setSuccess(true);
-      formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      const pay = lodgerCheckoutHref();
+      if (isAbsoluteHttpUrl(pay)) {
+        window.location.assign(pay);
+        return;
+      }
+      router.push("/planos?conta=criada");
     },
     onError: (e) => {
       setErrorMsg(e.message ?? "Não foi possível concluir o cadastro.");
@@ -138,20 +152,20 @@ export function InscricaoExperience() {
             <Sparkles size={14} />
             <span>Pré-lançamento fundador</span>
           </motion.div>
-          <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-shadow-soft">
-            Entre no{" "}
-            <span className="bg-gradient-to-r from-canna-300 via-canna-400 to-amber-300 bg-clip-text text-transparent">
-              Campus THCProce
-            </span>
+          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-shadow-soft">
+            Escolha o plano e finalize com seus dados
           </h1>
-          <p className="mt-4 text-base sm:text-lg text-white/70 leading-relaxed">
-            Fase de pré-lançamento fundador: valores promocionais para a primeira comunidade da
-            universidade digital de cannabis. O catálogo de aulas e materiais cresce por etapas —
-            sem promessa de título ou biblioteca finalizada nesta fase.
+          <p className="mt-3 text-base sm:text-lg text-white/70 leading-relaxed">
+            Primeiro o tempo de acesso; em seguida você preenche os dados e segue para o pagamento quando o checkout
+            estiver ativo.
           </p>
         </div>
 
-        <div className="grid lg:grid-cols-5 gap-4 mb-14">
+        <div
+          ref={plansRef}
+          id="escolher-plano"
+          className="grid lg:grid-cols-5 gap-4 mb-14 scroll-mt-28"
+        >
           {ENROLLMENT_PLANS.map((plan, idx) => {
             const active = selectedPlanId === plan.id;
             return (
@@ -236,9 +250,11 @@ export function InscricaoExperience() {
                 </p>
                 <p className="text-sm text-white/65">{selectedPlan.durationLabel} · matrícula digital</p>
               </div>
-              <div className="flex items-center gap-2 text-xs text-white/50">
-                <Shield size={14} className="text-canna-400" />
-                <span>Checkout (PIX, cartão, gateways) em integração futura</span>
+              <div className="flex flex-wrap items-center gap-2 text-xs text-white/55">
+                <Shield size={14} className="text-canna-400 shrink-0" />
+                <span>
+                  Após criar a conta você será levado ao pagamento (link externo) ou à página de planos para concluir.
+                </span>
               </div>
             </motion.div>
           ) : null}
@@ -260,7 +276,7 @@ export function InscricaoExperience() {
                 <h2 className="text-xl font-bold text-white">Seus dados na comunidade</h2>
                 <p className="text-sm text-white/55">
                   {selectedPlanId
-                    ? "Complete para efetivar a pré-matrícula. O acesso segue pendente até confirmarmos o pagamento."
+                    ? "Complete para criar sua conta. Em seguida abrimos o checkout ou a página de pagamento."
                     : "Primeiro escolha um plano acima para liberar o formulário."}
                 </p>
               </div>
@@ -379,27 +395,20 @@ export function InscricaoExperience() {
                 disabled={!selectedPlanId || register.isPending}
                 className="w-full sm:w-auto min-w-[220px] font-bold text-ink-900"
               >
-                {register.isPending ? "Enviando…" : "Concluir inscrição"}
+                {register.isPending ? "Criando conta…" : "Continuar para pagamento"}
               </Button>
             </form>
           </motion.div>
         </div>
 
         <p className="text-center text-xs text-white/40 mt-10 max-w-xl mx-auto leading-relaxed">
-          Moodle e certificados aparecem no fluxo quando o WS estiver ativo; até lá, nada disso bloqueia
-          sua inscrição. Pagamento via provedores listados na documentação interna quando ativados.
+          Precisa só explorar o mapa primeiro?{" "}
+          <Link href="/" className="text-canna-300 hover:underline font-semibold">
+            Voltar ao campus
+          </Link>
+          .
         </p>
       </section>
-
-      <AnimatePresence>
-        {success && selectedPlan ? (
-          <SuccessOverlay
-            planName={selectedPlan.name}
-            price={selectedPlan.priceDisplay}
-            onDismiss={() => setSuccess(false)}
-          />
-        ) : null}
-      </AnimatePresence>
     </main>
   );
 }
@@ -429,54 +438,5 @@ function Field({
         {...props}
       />
     </label>
-  );
-}
-
-function SuccessOverlay({
-  planName,
-  price,
-  onDismiss
-}: {
-  planName: string;
-  price: string;
-  onDismiss: () => void;
-}) {
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md"
-    >
-      <motion.div
-        initial={{ scale: 0.95, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        className="max-w-lg w-full rounded-3xl border border-canna-400/35 glass-strong p-8 text-center shadow-2xl"
-      >
-        <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-canna-500/20 border border-canna-400/40">
-          <CheckCircle2 className="h-9 w-9 text-canna-300" />
-        </div>
-        <h3 className="text-2xl font-extrabold text-white">Cadastro recebido</h3>
-        <p className="mt-2 text-white/70">
-          Plano: <strong className="text-canna-200">{planName}</strong> ({price})
-        </p>
-        <p className="mt-4 text-sm text-white/60 leading-relaxed">
-          Próximo passo: confirmação de pagamento e liberação do acesso. Enviaremos atualizações no
-          e-mail cadastrado assim que o campus estiver ativo na sua conta.
-        </p>
-        <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
-          <Button asChild className="font-bold text-ink-900">
-            <Link href="/" onClick={onDismiss}>
-              Entrar no campus
-            </Link>
-          </Button>
-          <Button variant="glass" asChild>
-            <Link href="/entrar" onClick={onDismiss}>
-              Fazer login
-            </Link>
-          </Button>
-        </div>
-      </motion.div>
-    </motion.div>
   );
 }

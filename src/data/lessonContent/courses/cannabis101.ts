@@ -1,8 +1,9 @@
 /**
- * Cannabis 101 — mesma árvore de 29 itens que no Moodle; texto oficial só no Moodle (ligações aqui).
+ * Cannabis 101 — 29 capítulos alinhados à trilha institucional THCProce (ligações para sala oficial exportadas no pacote).
+ * Fonte canónica: `@/content/courses/cannabis-101`.
  */
 export {
   CANNABIS101_LESSONS,
   CANNABIS101_OUTLINE_TITLES,
   cannabis101MoodleCourseUrl
-} from "./cannabis101MoodleOfficial";
+} from "@/content/courses/cannabis-101";

@@ -9,14 +9,15 @@ import {
   ChevronRight,
   CheckCircle2,
   Sparkles,
-  HardHat
+  HardHat,
+  Loader2
 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import type { Area } from "@/data/courses";
 import { cn } from "@/lib/utils";
 import { CampusLessonVideo } from "./CampusLessonVideo";
 import { LessonRichTabs } from "./LessonRichTabs";
-import { Cannabis101LessonList } from "./Cannabis101LessonList";
+import { CampusLessonSidebar } from "./CampusLessonSidebar";
 import { Cannabis101LessonRail } from "./Cannabis101LessonRail";
 import { Cannabis101LessonFooter } from "./Cannabis101LessonFooter";
 import { CourseMicroBrandBar } from "./CourseMicroBrandBar";
@@ -28,6 +29,10 @@ import { Button } from "@/components/ui/button";
 import { getCampusPanelAccent, getRailAccent } from "@/lib/campusAccent";
 import { isCampusAreaConstruction } from "@/config/campusAreaRollout";
 import { isCampusAdminEmail } from "@/lib/campusAdmin";
+import {
+  areaUsesMoodleLessonSnippet,
+  lessonRichTabsVariantForArea
+} from "@/content/courses";
 
 const LS_KEY = "thc_campus_lesson_v1";
 
@@ -179,6 +184,18 @@ export function LessonPanel({
 
   const lessonTitle = titles[clampedLesson] ?? "Conteúdo";
 
+  const moodleSnippet = trpc.campus.moodleLessonSnippet.useQuery(
+    {
+      areaId: area?.id ?? "",
+      lessonIndex: clampedLesson,
+      lessonTitle
+    },
+    {
+      enabled: Boolean(open && areaUsesMoodleLessonSnippet(area?.id) && titles.length > 0),
+      staleTime: 120_000
+    }
+  );
+
   const richContent = useMemo(
     () => (area ? getLessonRichContent(area, clampedLesson, lessonTitle) : null),
     [area, clampedLesson, lessonTitle]
@@ -194,7 +211,7 @@ export function LessonPanel({
   const railTokens = getRailAccent(accent);
   const underConstruction =
     area != null && isCampusAreaConstruction(area.id) && !campusAdmin;
-  const richVariant = area?.id === "cannabis-101" ? "cannabis101" : "campus";
+  const richVariant = lessonRichTabsVariantForArea(area?.id);
 
   const progressPayload =
     status === "authenticated" && progressUi
@@ -301,7 +318,7 @@ export function LessonPanel({
                     panel.asideLeft
                   )}
                 >
-                  <Cannabis101LessonList
+                  <CampusLessonSidebar
                     areaId={area.id}
                     accent={accent}
                     {...lessonListProps}
@@ -330,7 +347,7 @@ export function LessonPanel({
                         <p>
                           <span className="font-semibold text-white">Área em construção colaborativa.</span>{" "}
                           O conteúdo deste curso entra em calendário durante o pré-lançamento fundador —
-                          use o que já está liberado e acompanhe novidades no Moodle.
+                          use o que já está liberado e acompanhe novidades na sala oficial de formação.
                         </p>
                       </div>
                     ) : null}
@@ -390,6 +407,70 @@ export function LessonPanel({
                       lessonVisual="compact"
                       hideFallback
                     />
+
+                    {areaUsesMoodleLessonSnippet(area.id) ? (
+                      <div
+                        className="rounded-xl border border-white/10 bg-black/30 px-4 py-3"
+                      >
+                        {moodleSnippet.isFetching ? (
+                          <p className="flex items-center gap-2 text-xs text-white/55">
+                            <Loader2 className="size-3.5 shrink-0 animate-spin" aria-hidden />
+                            A sincronizar o resumo desta aula com a sala oficial THCProce…
+                          </p>
+                        ) : moodleSnippet.data?.ok ? (
+                          <>
+                            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-emerald-200/85">
+                              Sala oficial — resumo da aula
+                            </p>
+                            <p className="mt-1 text-[11px] text-white/45">
+                              {moodleSnippet.data.sectionTitle} · {moodleSnippet.data.moduleName}
+                            </p>
+                            {moodleSnippet.data.summaryText ? (
+                              <p className="mt-3 whitespace-pre-wrap text-[14px] leading-relaxed text-white/[0.88]">
+                                {moodleSnippet.data.summaryText}
+                              </p>
+                            ) : (
+                              <p className="mt-3 text-sm text-white/55">
+                                Ainda não há resumo curto indexado para esta aula na sala oficial — abra o link para
+                                ler a ficha completa, anexos e instruções de entrega.
+                              </p>
+                            )}
+                            {moodleSnippet.data.moodleUrl ? (
+                              <Button type="button" variant="glass" size="sm" className="mt-3 font-semibold" asChild>
+                                <a
+                                  href={moodleSnippet.data.moodleUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                >
+                                  Abrir esta aula na sala oficial THCProce
+                                </a>
+                              </Button>
+                            ) : null}
+                          </>
+                        ) : campusAdmin ? (
+                          <p className="text-xs leading-relaxed text-amber-200/85">
+                            <span className="font-semibold text-amber-100">Admin:</span> sem ligação à sala oficial (
+                            {moodleSnippet.data && "reason" in moodleSnippet.data
+                              ? moodleSnippet.data.reason
+                              : "—"}
+                            ). Ative{" "}
+                            <code className="rounded bg-black/40 px-1 text-[10px]">
+                              core_course_get_contents
+                            </code>{" "}
+                            no serviço WS,{" "}
+                            <code className="rounded bg-black/40 px-1 text-[10px]">MOODLE_WS_TOKEN</code> e{" "}
+                            <code className="rounded bg-black/40 px-1 text-[10px]">MOODLE_COURSE_MAP</code> com o
+                            id do Cannabis 101.
+                          </p>
+                        ) : (
+                          <p className="text-xs leading-relaxed text-white/55">
+                            O arquivo completo desta aula (texto longo, PDFs, entregas) está na sala digital oficial
+                            THCProce. Desça até «Materiais» e «Referências» neste painel ou peça apoio à equipa se
+                            precisar de acesso.
+                          </p>
+                        )}
+                      </div>
+                    ) : null}
 
                     {richContent ? (
                       <LessonRichTabs
@@ -527,7 +608,7 @@ export function LessonPanel({
                       <X size={20} />
                     </button>
                   </div>
-                  <Cannabis101LessonList
+                  <CampusLessonSidebar
                     areaId={area.id}
                     accent={accent}
                     {...lessonListProps}

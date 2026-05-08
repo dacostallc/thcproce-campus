@@ -1,8 +1,6 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
-import { motion } from "framer-motion";
 import { useSession } from "next-auth/react";
 import { areas, type Area } from "@/data/courses";
 import { Hotspot } from "./Hotspot";
@@ -19,7 +17,9 @@ import { ProximityBanner } from "./ProximityBanner";
 import { CampusChatDrawer } from "./CampusChatDrawer";
 import { CampusAdminBroadcastLayer } from "./CampusAdminBroadcastLayer";
 import { CampusAdminBroadcastComposer } from "./CampusAdminBroadcastComposer";
+import { CampusLiveAdminComposer } from "./CampusLiveAdminComposer";
 import { useCampusAdminBroadcastHotkeys } from "./useCampusAdminBroadcastHotkeys";
+import { useCampusLiveAdminHotkeys } from "./useCampusLiveAdminHotkeys";
 import { InternalPreviewBanner } from "./InternalPreviewBanner";
 import { useCampusSkyStore } from "@/stores/campusSkyStore";
 import { useCampusStore } from "@/stores/campusStore";
@@ -30,10 +30,20 @@ import { getLastLessonIndex } from "@/lib/campusLastLesson";
 import { trpc } from "@/lib/trpc/react";
 import { CampusAreaGateModal, type CampusGateKind } from "./CampusAreaGateModal";
 import { isCampusAdminEmail } from "@/lib/campusAdmin";
+import {
+  isCampusLiveCourseHourActiveWithPulse,
+  isCampusLiveVisitorAreaAccessWithPulse
+} from "@/lib/campusAccess";
 import { deriveCampusPresenceRole } from "@/config/userRoles";
 import { CineDriveIn } from "@/components/CineDriveIn";
 import { CampusCineHotspot } from "./CampusCineHotspot";
 import { useCampusEmojiReactionHotkeys } from "./useCampusEmojiReactionHotkeys";
+import { CampusMapErrorBoundary } from "./CampusMapErrorBoundary";
+import { cn } from "@/lib/utils";
+import {
+  isCampusMapDebugOutline,
+  isCampusPixiLayerEnabled
+} from "@/config/campusMapStability";
 
 const PLACEHOLDER_NIGHT = `
   radial-gradient(ellipse at 20% 30%, rgba(34, 197, 94, 0.20), transparent 45%),
@@ -98,6 +108,19 @@ export function CampusMap({
     staleTime: 60_000
   });
 
+  const { data: liveBroadcast } = trpc.campus.liveBroadcast.useQuery(undefined, {
+    staleTime: 8_000,
+    refetchInterval: 18_000
+  });
+
+  const envLivePulse = process.env.NEXT_PUBLIC_CAMPUS_LIVE_ACTIVE === "true";
+  const livePulse =
+    liveBroadcast !== undefined ? liveBroadcast.liveActive : envLivePulse;
+
+  useEffect(() => {
+    useCampusStore.getState().setLiveActive(livePulse);
+  }, [livePulse]);
+
   const isCampusAdmin = useMemo(
     () => isCampusAdminEmail(session?.user?.email ?? null),
     [session?.user?.email]
@@ -106,10 +129,16 @@ export function CampusMap({
   const canEnterCourses = useMemo(() => {
     if (process.env.NEXT_PUBLIC_CAMPUS_PUBLIC_ALL === "true") return true;
     if (isCampusAdmin) return true;
+    if (isCampusLiveVisitorAreaAccessWithPulse(livePulse) && status === "unauthenticated") {
+      return true;
+    }
+    if (status === "authenticated" && isCampusLiveCourseHourActiveWithPulse(livePulse))
+      return true;
+
     if (status !== "authenticated") return false;
     if (!campusAccess) return false;
     return campusAccess.canOpenCourses;
-  }, [status, campusAccess, isCampusAdmin]);
+  }, [status, campusAccess, isCampusAdmin, livePulse]);
 
   const handleSelectArea = (area: Area) => {
     if (isCampusAdmin) {
@@ -173,6 +202,7 @@ export function CampusMap({
     status === "authenticated" ? campusAccess?.memberSinceIso ?? null : null;
 
   useCampusAdminBroadcastHotkeys(isCampusAdmin);
+  useCampusLiveAdminHotkeys(isCampusAdmin);
 
   useCampusEmojiReactionHotkeys();
 
@@ -191,77 +221,85 @@ export function CampusMap({
         memberSinceIso={membershipSinceIso}
       />
 
-      <motion.div
-        className="absolute inset-0 bg-ink-900"
-        initial={{ scale: 1.05, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ duration: 2, ease: [0.16, 1, 0.3, 1] }}
-      >
-        <div className="relative isolate h-full w-full overflow-hidden shadow-2xl ring-1 ring-white/5">
-          <motion.div
-            className="absolute inset-0"
-            initial={false}
-            animate={{ opacity: sky === "night" ? 1 : 0 }}
-            transition={{ duration: 0.75, ease: [0.4, 0, 0.2, 1] }}
-          >
-            {nightOk ? (
-              <Image
-                src={bgNightSrc}
-                alt="Campus THCProce ao entardecer / noite"
-                fill
-                priority={sky === "night"}
-                sizes="100vw"
-                className="object-cover"
-                style={{ objectPosition: CAMPUS_IMAGE_OBJECT_POSITION }}
-                onError={() => setNightOk(false)}
-              />
-            ) : (
-              <div className="absolute inset-0" style={{ background: PLACEHOLDER_NIGHT }} />
-            )}
-            <motion.div
-              aria-hidden
-              className="absolute inset-0 pointer-events-none"
-              animate={{ opacity: sky === "night" ? 1 : 0 }}
-              transition={{ duration: 0.5 }}
+      <div className="absolute inset-0 z-[1] min-h-0 bg-ink-900">
+        <div
+          id="campus-map-stage"
+          className={cn(
+            "relative isolate h-full min-h-0 w-full overflow-hidden shadow-2xl ring-1 ring-white/5",
+            isCampusMapDebugOutline() &&
+              "outline outline-[3px] outline-red-600 outline-offset-[-3px]"
+          )}
+        >
+          <CampusMapErrorBoundary bgNightSrc={bgNightSrc} bgDaySrc={bgDaySrc}>
+            {/* Fundos estáticos (<img>): sem Opacity inicial do Framer no pai — evita tela só com bg-ink-900. */}
+            <div
+              className={cn(
+                "absolute inset-0 z-[2] transition-opacity duration-300 ease-out",
+                sky === "night" ? "opacity-100" : "opacity-0 pointer-events-none"
+              )}
+              aria-hidden={sky !== "night"}
             >
-              <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/38" />
-            </motion.div>
-          </motion.div>
-
-          <motion.div
-            className="absolute inset-0"
-            initial={false}
-            animate={{ opacity: sky === "day" ? 1 : 0 }}
-            transition={{ duration: 0.75, ease: [0.4, 0, 0.2, 1] }}
-          >
-            {dayOk ? (
-              <Image
-                src={bgDaySrc}
-                alt="Campus THCProce durante o dia"
-                fill
-                priority={sky === "day"}
-                sizes="100vw"
-                className="object-cover"
-                style={{ objectPosition: CAMPUS_IMAGE_OBJECT_POSITION }}
-                onError={() => setDayOk(false)}
+              {nightOk ? (
+                /* eslint-disable-next-line @next/next/no-img-element -- fundo full-viewport estável */
+                <img
+                  src={bgNightSrc}
+                  alt=""
+                  className="absolute inset-0 z-0 h-full w-full object-cover opacity-100 brightness-100 contrast-100 saturate-100"
+                  style={{ objectPosition: CAMPUS_IMAGE_OBJECT_POSITION }}
+                  decoding="async"
+                  onError={() => setNightOk(false)}
+                />
+              ) : (
+                <div
+                  className="absolute inset-0 z-0"
+                  style={{ background: PLACEHOLDER_NIGHT }}
+                />
+              )}
+              <div
+                className="pointer-events-none absolute inset-0 z-[1] bg-gradient-to-b from-black/8 via-transparent to-black/14"
+                aria-hidden
               />
-            ) : (
-              <div className="absolute inset-0" style={{ background: PLACEHOLDER_DAY }} />
-            )}
-            <motion.div
-              aria-hidden
-              className="absolute inset-0 pointer-events-none"
-              animate={{ opacity: sky === "day" ? 1 : 0 }}
-              transition={{ duration: 0.5 }}
-            >
-              <div className="absolute inset-0 bg-gradient-to-b from-sky-400/12 via-transparent to-amber-200/18" />
-              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_12%,rgba(255,251,235,0.32),transparent_52%)]" />
-            </motion.div>
-          </motion.div>
+            </div>
 
-          <div className="absolute inset-0 z-[7] pointer-events-none">
-            <AmbientLife phase={phase} />
-          </div>
+            <div
+              className={cn(
+                "absolute inset-0 z-[3] transition-opacity duration-300 ease-out",
+                sky === "day" ? "opacity-100" : "opacity-0 pointer-events-none"
+              )}
+              aria-hidden={sky !== "day"}
+            >
+              {dayOk ? (
+                /* eslint-disable-next-line @next/next/no-img-element -- fundo full-viewport estável */
+                <img
+                  src={bgDaySrc}
+                  alt=""
+                  className="absolute inset-0 z-0 h-full w-full object-cover opacity-100 brightness-100 contrast-100 saturate-100"
+                  style={{ objectPosition: CAMPUS_IMAGE_OBJECT_POSITION }}
+                  decoding="async"
+                  onError={() => setDayOk(false)}
+                />
+              ) : (
+                <div
+                  className="absolute inset-0 z-0"
+                  style={{ background: PLACEHOLDER_DAY }}
+                />
+              )}
+              <div
+                className="pointer-events-none absolute inset-0 z-[1] bg-gradient-to-b from-sky-400/8 via-transparent to-amber-200/12"
+                aria-hidden
+              />
+              <div
+                className="pointer-events-none absolute inset-0 z-[1] bg-[radial-gradient(ellipse_at_50%_12%,rgba(255,251,235,0.2),transparent_52%)]"
+                aria-hidden
+              />
+            </div>
+
+            <div className="pointer-events-none absolute inset-0 z-[6]">
+              <AmbientLife phase={phase} />
+            </div>
+
+            {isCampusPixiLayerEnabled() ? <AmbientPixi phase={phase} /> : null}
+          </CampusMapErrorBoundary>
 
           <div className="absolute inset-0 z-[8]">
             <MapWalkLayer onWalkTo={setPlayer} />
@@ -282,7 +320,7 @@ export function CampusMap({
 
           <CampusCineHotspot />
 
-          <div className="absolute inset-0 z-[12] pointer-events-none">
+          <div className="pointer-events-none absolute inset-0 z-[12]">
             <CampusPlayer
               tagDisplayName={presenceDisplayName}
               tagXpTotal={presenceXpTotal}
@@ -292,11 +330,9 @@ export function CampusMap({
             <CampusPeerAvatars />
           </div>
         </div>
-      </motion.div>
+      </div>
 
       {anyMissing ? <PlaceholderHint mode={sky} /> : null}
-
-      <AmbientPixi phase={phase} />
 
       <ProximityBanner
         areaName={proximityName}
@@ -308,10 +344,11 @@ export function CampusMap({
         }}
       />
 
-      <CineDriveIn />
+      <CineDriveIn youtubeUrl={liveBroadcast?.youtubeUrl} />
 
       <CampusAdminBroadcastLayer isCampusAdmin={isCampusAdmin} />
       <CampusAdminBroadcastComposer isCampusAdmin={isCampusAdmin} />
+      <CampusLiveAdminComposer isCampusAdmin={isCampusAdmin} />
 
       <HUD />
 

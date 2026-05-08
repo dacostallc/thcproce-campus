@@ -28,7 +28,11 @@ Cine THC — telão opcional no mapa
 
 Arte opcional do telão pulsante (quando há live):
 
-    public/campus/cine-tela.png
+1. Copie uma imagem (ex.: PNG) para `public/campus/cine-tela.png` ou outro caminho público.
+
+2. No `.env` / `.env.local`, defina o URL público (vazio por defeito = sem pedido de imagem, só gradiente e ícone — evita 404):
+
+       NEXT_PUBLIC_CAMPUS_CINE_TELA=/campus/cine-tela.png
 
 Variáveis de ambiente públicas (.env.local):
 

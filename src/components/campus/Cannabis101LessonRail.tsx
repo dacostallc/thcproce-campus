@@ -128,7 +128,9 @@ export function Cannabis101LessonRail({
           />
         </div>
         <p className="mt-2 text-[11px] text-white/45">
-          {doneCount} / {totalLessons || "—"} aulas com vista registrada
+          {doneCount > 0
+            ? `Trilho desta temporada: ${doneCount} de ${totalLessons || "—"} episódios com ritmo marcado aqui`
+            : `Trilho de ${totalLessons || "—"} episódios — marque o seu ritmo de estudo à medida que avança`}
         </p>
       </div>
 

@@ -1,6 +1,11 @@
 export type LessonGateStatus = "seen" | "available" | "locked" | "soon";
 
-/** Índices [0, published) liberados para conteúdo textual. Vazio no env = todas as aulas do outline. */
+export const CANNABIS101_GATING_ENV = {
+  publishedLessons: "NEXT_PUBLIC_CANNABIS101_PUBLISHED_LESSONS",
+  sequentialLock: "NEXT_PUBLIC_CANNABIS101_SEQUENTIAL_LOCK"
+} as const;
+
+/** Índices [0, published) liberados. Vazio no env = todas as aulas do outline. */
 export function getPublishedLessonCount(totalLessons: number): number {
   const raw =
     typeof process.env.NEXT_PUBLIC_CANNABIS101_PUBLISHED_LESSONS === "string"
