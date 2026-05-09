@@ -23,8 +23,8 @@ export const CANNABIS101_MODULES: readonly Cannabis101Module[] = [
     id: "intro",
     title: "Introdução",
     lessons: [
-      { id: "c101-intro-p1", activityLabel: "Página 1" },
-      { id: "c101-intro-p2", activityLabel: "Página 2" }
+      { id: "c101-intro-p1", activityLabel: "Boas-vindas e estrutura do curso" },
+      { id: "c101-intro-p2", activityLabel: "Como estudar no campus e sala oficial" }
     ]
   },
   {
@@ -36,8 +36,8 @@ export const CANNABIS101_MODULES: readonly Cannabis101Module[] = [
     id: "cultivo-intro",
     title: "Introdução ao Cultivo de Cannabis",
     lessons: [
-      { id: "c101-cultivo-intro-p1", activityLabel: "Página 1" },
-      { id: "c101-cultivo-intro-p2", activityLabel: "Página 2" },
+      { id: "c101-cultivo-intro-p1", activityLabel: "Botânica e ciclo de vida" },
+      { id: "c101-cultivo-intro-p2", activityLabel: "Sexagem, fotoperíodo e enquadramento legal" },
       { id: "c101-cultivo-intro-quiz", activityLabel: "Questionário do módulo" }
     ]
   },
@@ -45,8 +45,8 @@ export const CANNABIS101_MODULES: readonly Cannabis101Module[] = [
     id: "variedades",
     title: "Compreensão das variedades de Cannabis",
     lessons: [
-      { id: "c101-variedades-p1", activityLabel: "Página 1" },
-      { id: "c101-variedades-p2", activityLabel: "Página 2" },
+      { id: "c101-variedades-p1", activityLabel: "Morfo-tipos e escolha de genética" },
+      { id: "c101-variedades-p2", activityLabel: "Canabinoides, terpenos e laudos" },
       { id: "c101-variedades-quiz", activityLabel: "Questionário do módulo" }
     ]
   },
@@ -54,9 +54,9 @@ export const CANNABIS101_MODULES: readonly Cannabis101Module[] = [
     id: "preparativos",
     title: "Preparativos para o Cultivo de Cannabis",
     lessons: [
-      { id: "c101-preparativos-p1", activityLabel: "Página 1" },
-      { id: "c101-preparativos-p2", activityLabel: "Página 2" },
-      { id: "c101-preparativos-p3", activityLabel: "Página 3" },
+      { id: "c101-preparativos-p1", activityLabel: "Espaço, segurança e checklist" },
+      { id: "c101-preparativos-p2", activityLabel: "Iluminação e ventilação" },
+      { id: "c101-preparativos-p3", activityLabel: "Substrato, vasos e água" },
       { id: "c101-preparativos-quiz", activityLabel: "Questionário do módulo" }
     ]
   },
@@ -64,9 +64,9 @@ export const CANNABIS101_MODULES: readonly Cannabis101Module[] = [
     id: "processo",
     title: "Processo de Cultivo de Cannabis",
     lessons: [
-      { id: "c101-processo-p1", activityLabel: "Página 1" },
-      { id: "c101-processo-p2", activityLabel: "Página 2" },
-      { id: "c101-processo-p3", activityLabel: "Página 3" },
+      { id: "c101-processo-p1", activityLabel: "Germinação e plântulas" },
+      { id: "c101-processo-p2", activityLabel: "Fase vegetativa e dossel" },
+      { id: "c101-processo-p3", activityLabel: "Floração e ambiente floral" },
       { id: "c101-processo-quiz", activityLabel: "Questionário do módulo" }
     ]
   },
@@ -74,9 +74,9 @@ export const CANNABIS101_MODULES: readonly Cannabis101Module[] = [
     id: "manutencao",
     title: "Manutenção e cuidado da planta de Cannabis",
     lessons: [
-      { id: "c101-manutencao-p1", activityLabel: "Página 1" },
-      { id: "c101-manutencao-p2", activityLabel: "Página 2" },
-      { id: "c101-manutencao-p3", activityLabel: "Página 3" },
+      { id: "c101-manutencao-p1", activityLabel: "Rega, pH e condutividade (noções)" },
+      { id: "c101-manutencao-p2", activityLabel: "Nutrição e diagnóstico visual prudente" },
+      { id: "c101-manutencao-p3", activityLabel: "Pragas e técnicas avançadas introdutórias" },
       { id: "c101-manutencao-quiz", activityLabel: "Questionário do módulo" }
     ]
   },
@@ -84,8 +84,8 @@ export const CANNABIS101_MODULES: readonly Cannabis101Module[] = [
     id: "pos-colheita",
     title: "Pós-colheita e Processamento de Cannabis",
     lessons: [
-      { id: "c101-pos-p1", activityLabel: "Página 1" },
-      { id: "c101-pos-p2", activityLabel: "Página 2" },
+      { id: "c101-pos-p1", activityLabel: "Colheita e maturação" },
+      { id: "c101-pos-p2", activityLabel: "Secagem e cura" },
       { id: "c101-pos-quiz", activityLabel: "Questionário do módulo" }
     ]
   },
@@ -98,8 +98,8 @@ export const CANNABIS101_MODULES: readonly Cannabis101Module[] = [
     id: "consideracoes",
     title: "Considerações Finais",
     lessons: [
-      { id: "c101-consideracoes-p1", activityLabel: "Página 1" },
-      { id: "c101-consideracoes-p2", activityLabel: "Página 2" }
+      { id: "c101-consideracoes-p1", activityLabel: "Próximos passos e estudo contínuo" },
+      { id: "c101-consideracoes-p2", activityLabel: "Mensagem de encerramento" }
     ]
   },
   {
@@ -132,18 +132,18 @@ export const CANNABIS101_MANIFEST = {
   areaId: CANNABIS101_AREA_ID,
   displayName: "Cannabis 101",
   marketing: {
-    short: "Fundamentos · método THCProce · sala oficial onde vive arquivo e certificado",
+    short: "Cultivo com respeito · cultura THCProce · sala oficial com arquivo e certificado",
     category: "Anfiteatro" as const,
     level: "Iniciante" as const,
     color: "amber" as AreaColor,
-    mapPosition: { x: 70, y: 21 } as const,
+    mapPosition: { x: 86, y: 36 } as const,
     description:
-      "Base THCProce desenhada como série documental + disciplina técnica: porta de entrada cultural da escola, aulas síncronas no calendário, jornada de cultivo desde o planeamento ao pós-colheita e fecho com avaliação e certificado oficial — sempre com fronteira editorial entre formação institucional e orientação individual clínica ou jurídica.",
+      "O Cannabis 101 é a porta de entrada THCProce com a vibe certa: cultura da planta, ciência sem arrogância, um toque de lifestyle consciente e cultivo responsável. É pra quem curte a cena mas quer método — sem parecer aula de hospital, sem papo de guru na internet, e com a comunidade junto. A formação séria fica onde a escola publica o oficial; aqui no campus você vive a jornada.",
     highlights: [
-      "29 momentos estudados como episódios: introdução ao vivo, nove módulos de cultivo, pós-colheita, avaliação e encerramento com certificado",
-      "Pontes para a sala digital oficial THCProce quando há PDF, texto longo, entregas ou provas com valor formal",
-      "Questionários guiados ao longo da trilha e prova final integrada dentro do modelo escolar oficial",
-      "Campus THCProce = experiência cinematográfica + hábitos de progresso · arquivo assinável e notas ficam onde a equipa já publicou o curso institucional"
+      "29 momentos como episódios de uma série: intro, lives, blocos de cultivo, pós-colheita, prova final e encerramento com certificado",
+      "Quando o conteúdo pede PDF, texto longo ou prova formal, a ponte leva direto à sala digital oficial THCProce",
+      "Quizzes ao longo do caminho pra fixar sem trauma — e fechamento com avaliação que amarra tudo o que você viu",
+      "Campus THCProce = vibe gamer/streaming + progressão gostosa; o arquivo chancelado continua na sala onde a equipa manda"
     ] as const,
     professor: "Prof THC"
   },
@@ -158,14 +158,14 @@ export const CANNABIS101_MANIFEST = {
    * Etapa futura: CoursePanel lê isto por `areaId`.
    */
   previewLessonTitles: [
-    "Introdução · Página 1",
-    "Introdução · Página 2",
-    "Aulas ao vivo · Recursos, links e calendário",
-    "Introdução ao Cultivo de Cannabis · Página 1"
+    "Introdução · Boas-vindas e estrutura do curso",
+    "Introdução · Como estudar no campus e sala oficial",
+    "Aulas ao Vivo · Recursos, links e calendário",
+    "Introdução ao Cultivo de Cannabis · Botânica e ciclo de vida"
   ] as const,
   /** Textos do HUD até haver cálculo dinâmico por progresso. */
   hud: {
-    nextLessonFallbackLabel: "Cannabis 101 · Aula 1"
+    nextLessonFallbackLabel: "Próxima parada · Boas-vindas e estrutura do curso"
   },
   moodle: {
     defaultBaseUrl: "https://thcproce.com.br/escola",

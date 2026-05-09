@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -30,6 +30,8 @@ const TERMOS_HREF = "/planos";
 
 export function InscricaoExperience() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const referralFromUrl = searchParams.get("ref");
   const formRef = useRef<HTMLDivElement>(null);
   const plansRef = useRef<HTMLDivElement>(null);
   const [selectedPlanId, setSelectedPlanId] = useState<EnrollmentPlanId | null>(null);
@@ -100,7 +102,8 @@ export function InscricaoExperience() {
       city,
       stateRegion,
       planId: selectedPlanId,
-      acceptTerms
+      acceptTerms,
+      referralCode: referralFromUrl?.trim() || undefined,
     });
   };
 

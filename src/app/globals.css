@@ -28,8 +28,121 @@ html, body {
     -webkit-backdrop-filter: blur(22px) saturate(160%);
     border: 1px solid rgba(74, 222, 128, 0.22);
   }
+  /** HUD / nav — menos “painel corporativo”, mais lounge underground. */
+  .glass-hud {
+    background: linear-gradient(
+      145deg,
+      rgba(10, 22, 16, 0.88) 0%,
+      rgba(8, 18, 12, 0.82) 45%,
+      rgba(12, 28, 18, 0.86) 100%
+    );
+    backdrop-filter: blur(20px) saturate(155%);
+    -webkit-backdrop-filter: blur(20px) saturate(155%);
+    border: 1px solid rgba(251, 191, 36, 0.14);
+    box-shadow:
+      0 8px 32px rgba(0, 0, 0, 0.38),
+      inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  }
   .text-shadow-soft {
     text-shadow: 0 1px 2px rgba(0,0,0,0.6), 0 0 20px rgba(0,0,0,0.4);
+  }
+
+  /**
+   * Hotspot label chips — light holographic glass; --hotspot-accent-rgb set inline.
+   */
+  .glass-hotspot {
+    --glass-hotspot-fill-mix: 0.09;
+    --glass-hotspot-border-a: 0.26;
+    --glass-hotspot-glow-1: 0.16;
+    --glass-hotspot-glow-2: 0.07;
+    background: linear-gradient(
+      155deg,
+      rgba(255, 255, 255, 0.06) 0%,
+      rgba(var(--hotspot-accent-rgb), var(--glass-hotspot-fill-mix)) 44%,
+      rgba(6, 12, 10, 0.12) 100%
+    );
+    backdrop-filter: blur(2px) saturate(118%);
+    -webkit-backdrop-filter: blur(2px) saturate(118%);
+    border: 1px solid rgba(var(--hotspot-accent-rgb), var(--glass-hotspot-border-a));
+    box-shadow:
+      0 0 12px rgba(var(--hotspot-accent-rgb), var(--glass-hotspot-glow-1)),
+      0 0 26px rgba(var(--hotspot-accent-rgb), var(--glass-hotspot-glow-2)),
+      inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    transition:
+      background 0.2s ease,
+      border-color 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+  .glass-hotspot--night {
+    --glass-hotspot-fill-mix: 0.09;
+    --glass-hotspot-border-a: 0.26;
+    --glass-hotspot-glow-1: 0.16;
+    --glass-hotspot-glow-2: 0.07;
+  }
+  .glass-hotspot--day {
+    --glass-hotspot-fill-mix: 0.05;
+    --glass-hotspot-border-a: 0.14;
+    --glass-hotspot-glow-1: 0.07;
+    --glass-hotspot-glow-2: 0.03;
+    background: linear-gradient(
+      155deg,
+      rgba(255, 255, 255, 0.46) 0%,
+      rgba(255, 255, 255, 0.22) 42%,
+      rgba(var(--hotspot-accent-rgb), 0.05) 100%
+    );
+    border: 1px solid rgba(var(--hotspot-accent-rgb), var(--glass-hotspot-border-a));
+    box-shadow:
+      0 0 8px rgba(var(--hotspot-accent-rgb), var(--glass-hotspot-glow-1)),
+      0 0 18px rgba(255, 255, 255, 0.12),
+      inset 0 1px 0 rgba(255, 255, 255, 0.55);
+  }
+  .group:hover .glass-hotspot--night,
+  .group:focus-visible .glass-hotspot--night {
+    --glass-hotspot-fill-mix: 0.16;
+    --glass-hotspot-border-a: 0.42;
+    --glass-hotspot-glow-1: 0.24;
+    --glass-hotspot-glow-2: 0.12;
+    background: linear-gradient(
+      155deg,
+      rgba(255, 255, 255, 0.1) 0%,
+      rgba(var(--hotspot-accent-rgb), var(--glass-hotspot-fill-mix)) 44%,
+      rgba(6, 14, 11, 0.18) 100%
+    );
+  }
+  .group:hover .glass-hotspot--day,
+  .group:focus-visible .glass-hotspot--day {
+    --glass-hotspot-fill-mix: 0.1;
+    --glass-hotspot-border-a: 0.26;
+    --glass-hotspot-glow-1: 0.1;
+    --glass-hotspot-glow-2: 0.05;
+    background: linear-gradient(
+      155deg,
+      rgba(255, 255, 255, 0.58) 0%,
+      rgba(255, 255, 255, 0.34) 42%,
+      rgba(var(--hotspot-accent-rgb), 0.08) 100%
+    );
+  }
+  .glass-hotspot--active.glass-hotspot--night {
+    --glass-hotspot-glow-1: 0.32;
+    --glass-hotspot-glow-2: 0.16;
+    box-shadow:
+      0 0 14px rgba(var(--hotspot-accent-rgb), var(--glass-hotspot-glow-1)),
+      0 0 36px rgba(var(--hotspot-accent-rgb), var(--glass-hotspot-glow-2)),
+      inset 0 1px 0 rgba(255, 255, 255, 0.14);
+  }
+  .glass-hotspot--active.glass-hotspot--day {
+    --glass-hotspot-glow-1: 0.14;
+    --glass-hotspot-glow-2: 0.06;
+    box-shadow:
+      0 0 12px rgba(var(--hotspot-accent-rgb), var(--glass-hotspot-glow-1)),
+      0 0 22px rgba(255, 255, 255, 0.2),
+      inset 0 1px 0 rgba(255, 255, 255, 0.65);
+  }
+  .text-shadow-hotspot-night {
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+  }
+  .text-shadow-hotspot-day {
+    text-shadow: 0 1px 1px rgba(255, 255, 255, 0.45);
   }
   .scanlines::after {
     content: "";
@@ -72,9 +185,23 @@ html, body {
   .vignette {
     background: radial-gradient(
       ellipse at center,
-      transparent 52%,
-      rgba(0, 0, 0, 0.28) 100%
+      transparent 48%,
+      rgba(0, 0, 0, 0.38) 100%
     );
+  }
+  /** Profundidade cinematográfica sobre o mapa (noite). */
+  .campus-depth-night {
+    background:
+      radial-gradient(ellipse 100% 65% at 50% 115%, rgba(34, 197, 94, 0.11), transparent 58%),
+      radial-gradient(ellipse 55% 45% at 0% 40%, rgba(251, 191, 36, 0.07), transparent 52%),
+      radial-gradient(ellipse 50% 40% at 100% 25%, rgba(167, 139, 250, 0.06), transparent 48%),
+      linear-gradient(180deg, rgba(0, 0, 0, 0.22) 0%, transparent 28%, rgba(0, 0, 0, 0.42) 100%);
+  }
+  .campus-depth-day {
+    background:
+      radial-gradient(ellipse 90% 60% at 50% 100%, rgba(74, 222, 128, 0.1), transparent 55%),
+      radial-gradient(ellipse 50% 45% at 10% 30%, rgba(56, 189, 248, 0.08), transparent 50%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.06) 0%, transparent 35%, rgba(15, 23, 42, 0.12) 100%);
   }
   .scrollbar-thin::-webkit-scrollbar { width: 6px; }
   .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
@@ -82,6 +209,7 @@ html, body {
     background: rgba(74,222,128,0.3);
     border-radius: 999px;
   }
+
 }
 
 /* Disable text selection on the campus map (game-like feel) */

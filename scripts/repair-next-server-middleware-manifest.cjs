@@ -39,56 +39,12 @@ const CJS_REPLACEMENT = `    getMiddlewareManifest() {
                 throw err;
             }
             // thc-campus:middleware-manifest-missing-stub
-            {
-                // #region agent log
-                try {
-                    if (!global._thcMwFbLogTs || Date.now() - global._thcMwFbLogTs > 400) {
-                        global._thcMwFbLogTs = Date.now();
-                        const logPath = (0, _path.join)(process.env.USERPROFILE || process.env.HOME || "", ".cursor", "plans", "debug-2acee1.log");
-                        const line = JSON.stringify({
-                            sessionId: "2acee1",
-                            hypothesisId: "H-repair-fallback",
-                            location: "next-server.js:getMiddlewareManifest",
-                            message: "fallback_empty_middleware_manifest",
-                            data: { path: mPath, msgHit: /middleware-manifest\.json/i.test(msg) },
-                            timestamp: Date.now(),
-                            runId: process.env.DEBUG_RUN_ID || "repair",
-                        }) + "\\n";
-                        try {
-                            _fs.default.mkdirSync((0, _path.dirname)(logPath), { recursive: true });
-                        } catch (_m) {}
-                        _fs.default.appendFileSync(logPath, line, "utf8");
-                    }
-                } catch (_e1) {}
-                try {
-                    if (!global._thcMwFbFetchTs || Date.now() - global._thcMwFbFetchTs > 400) {
-                        global._thcMwFbFetchTs = Date.now();
-                        fetch("http://127.0.0.1:7936/ingest/cdeab175-b2cf-4820-b65d-bd3d63b2a032", {
-                            method: "POST",
-                            headers: {
-                                "Content-Type": "application/json",
-                                "X-Debug-Session-Id": "2acee1",
-                            },
-                            body: JSON.stringify({
-                                sessionId: "2acee1",
-                                hypothesisId: "H-repair-fallback",
-                                location: "next-server.js:getMiddlewareManifest",
-                                message: "fallback_empty_middleware_manifest",
-                                data: { path: mPath, msgHit: /middleware-manifest\.json/i.test(msg) },
-                                timestamp: Date.now(),
-                                runId: process.env.DEBUG_RUN_ID || "repair",
-                            }),
-                        }).catch(()=>{});
-                    }
-                } catch (_e2) {}
-                // #endregion
-                return {
-                    version: 3,
-                    middleware: {},
-                    functions: {},
-                    sortedMiddleware: []
-                };
-            }
+            return {
+                version: 3,
+                middleware: {},
+                functions: {},
+                sortedMiddleware: []
+            };
         }
     }`;
 
@@ -112,64 +68,12 @@ const ESM_REPLACEMENT = `    getMiddlewareManifest() {
                 throw err;
             }
             // thc-campus:middleware-manifest-missing-stub
-            {
-                // #region agent log
-                try {
-                    var _global = typeof global !== "undefined" ? global : globalThis;
-                    if (!_global._thcMwFbLogTsEsm || Date.now() - _global._thcMwFbLogTsEsm > 400) {
-                        _global._thcMwFbLogTsEsm = Date.now();
-                        const logPath = join(process.env.USERPROFILE || process.env.HOME || "", ".cursor", "plans", "debug-2acee1.log");
-                        const line = JSON.stringify({
-                            sessionId: "2acee1",
-                            hypothesisId: "H-repair-fallback-esm",
-                            location: "next-server.esm:getMiddlewareManifest",
-                            message: "fallback_empty_middleware_manifest",
-                            data: {
-                                path: mPath,
-                                msgHit: /middleware-manifest\.json/i.test(msg)
-                            },
-                            timestamp: Date.now(),
-                            runId: process.env.DEBUG_RUN_ID || "repair"
-                        }) + "\\n";
-                        try {
-                            fs.mkdirSync(dirname(logPath), { recursive: true });
-                        } catch (_m) {}
-                        fs.appendFileSync(logPath, line, "utf8");
-                    }
-                } catch (_e1) {}
-                try {
-                    var _g = typeof global !== "undefined" ? global : globalThis;
-                    if (!_g._thcMwFbFetchTsEsm || Date.now() - _g._thcMwFbFetchTsEsm > 400) {
-                        _g._thcMwFbFetchTsEsm = Date.now();
-                        fetch("http://127.0.0.1:7936/ingest/cdeab175-b2cf-4820-b65d-bd3d63b2a032", {
-                            method: "POST",
-                            headers: {
-                                "Content-Type": "application/json",
-                                "X-Debug-Session-Id": "2acee1"
-                            },
-                            body: JSON.stringify({
-                                sessionId: "2acee1",
-                                hypothesisId: "H-repair-fallback-esm",
-                                location: "next-server.esm:getMiddlewareManifest",
-                                message: "fallback_empty_middleware_manifest",
-                                data: {
-                                    path: mPath,
-                                    msgHit: /middleware-manifest\.json/i.test(msg)
-                                },
-                                timestamp: Date.now(),
-                                runId: process.env.DEBUG_RUN_ID || "repair"
-                            })
-                        }).catch(()=>{});
-                    }
-                } catch (_e2) {}
-                // #endregion
-                return {
-                    version: 3,
-                    middleware: {},
-                    functions: {},
-                    sortedMiddleware: []
-                };
-            }
+            return {
+                version: 3,
+                middleware: {},
+                functions: {},
+                sortedMiddleware: []
+            };
         }
     }`;
 

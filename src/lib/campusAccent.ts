@@ -14,7 +14,7 @@ export type CampusPanelAccent = {
 
 const PANEL: Record<AreaColor, CampusPanelAccent> = {
   amber: {
-    dialog: "border-amber-500/35 bg-[#040a07]/98 backdrop-blur-md",
+    dialog: "border-amber-500/35 bg-[#040a07]/98",
     headerBar: "border-amber-500/15 bg-[#030806] py-2.5 sm:py-3",
     asideLeft:
       "border-amber-500/20 bg-[#030806]/98 md:border-r",

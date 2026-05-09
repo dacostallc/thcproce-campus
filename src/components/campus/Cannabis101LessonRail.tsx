@@ -17,6 +17,7 @@ import { useSession } from "next-auth/react";
 import { isCampusAdminEmail } from "@/lib/campusAdmin";
 
 import type { AreaColor } from "@/data/courses";
+import type { Cannabis101StreamChapter } from "@/content/courses/cannabis-101";
 import { getRailAccent } from "@/lib/campusAccent";
 
 type ProgressUi = {
@@ -34,6 +35,8 @@ type Props = {
   /** Ex.: "9h" para estimativa de tempo */
   courseHoursLabel: string;
   progressUi: ProgressUi | null;
+  /** Capítulo atual (Cannabis 101) — cartão “jornada”. */
+  chapterMeta?: Cannabis101StreamChapter | null;
   onBackToCampus: () => void;
   className?: string;
 };
@@ -62,6 +65,7 @@ export function Cannabis101LessonRail({
   totalLessons,
   courseHoursLabel,
   progressUi,
+  chapterMeta = null,
   onBackToCampus,
   className
 }: Props) {
@@ -115,7 +119,7 @@ export function Cannabis101LessonRail({
             R.progKicker
           )}
         >
-          <span>Progresso do curso</span>
+          <span>Sua trilha no 101</span>
           <span className={R.progPct}>{coursePct}%</span>
         </div>
         <div className={cn("mt-2 h-2.5 overflow-hidden rounded-full", R.progBarTrack)}>
@@ -127,12 +131,42 @@ export function Cannabis101LessonRail({
             style={{ width: `${coursePct}%` }}
           />
         </div>
-        <p className="mt-2 text-[11px] text-white/45">
+        <p className="mt-2 text-[11px] leading-relaxed text-white/50">
           {doneCount > 0
-            ? `Trilho desta temporada: ${doneCount} de ${totalLessons || "—"} episódios com ritmo marcado aqui`
-            : `Trilho de ${totalLessons || "—"} episódios — marque o seu ritmo de estudo à medida que avança`}
+            ? `${doneCount} de ${totalLessons || "—"} episódios já marcados — segue que o XP acompanha`
+            : `${totalLessons || "—"} episódios na série; vai marcando cada um quando fechar com consciência`}
         </p>
       </div>
+
+      {chapterMeta ? (
+        <div
+          className={cn(
+            "rounded-2xl border bg-gradient-to-br from-amber-950/35 via-black/40 to-black/60 p-4 shadow-inner ring-1 ring-amber-500/15 transition duration-300 hover:ring-amber-400/25",
+            R.milestoneCard
+          )}
+          title="Onde você está na trilha do Cannabis 101"
+        >
+          <p className={cn("text-[10px] font-bold uppercase tracking-[0.2em]", R.milestoneKicker)}>
+            Onde você está agora
+          </p>
+          <p className="mt-1 text-[11px] font-semibold text-amber-200/85">
+            Capítulo {chapterMeta.moduleOrdinal}/{chapterMeta.moduleCount} · Aula{" "}
+            {chapterMeta.lessonOrdinalInModule}/{chapterMeta.lessonsInModule}
+          </p>
+          <p className="mt-2 text-sm font-bold leading-snug text-white">{chapterMeta.moduleTitle}</p>
+          <p className="mt-1.5 line-clamp-3 text-[11px] leading-relaxed text-white/55">
+            {chapterMeta.tagline}
+          </p>
+          <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-black/55">
+            <div
+              className={cn("h-full rounded-full bg-gradient-to-r transition-all", R.milestoneBar)}
+              style={{
+                width: `${Math.min(100, Math.round((chapterMeta.lessonOrdinalInModule / Math.max(chapterMeta.lessonsInModule, 1)) * 100))}%`
+              }}
+            />
+          </div>
+        </div>
+      ) : null}
 
       <div className="grid grid-cols-2 gap-2">
         <StatCard
@@ -169,7 +203,7 @@ export function Cannabis101LessonRail({
         <p className={cn("text-[10px] font-bold uppercase tracking-[0.2em]", R.milestoneKicker)}>
           Próxima conquista
         </p>
-        <p className="mt-2 text-sm font-semibold text-white">Completar {nextMilestone} aulas</p>
+        <p className="mt-2 text-sm font-semibold text-white">Fechar {nextMilestone} episódios</p>
         <div className="mt-3 h-2 overflow-hidden rounded-full bg-black/50">
           <div
             className={cn("h-full rounded-full bg-gradient-to-r", R.milestoneBar)}
@@ -178,7 +212,7 @@ export function Cannabis101LessonRail({
         </div>
         <p className={cn("mt-2 flex items-center gap-1.5 text-xs", R.milestoneXp)}>
           <Sparkles className="size-3.5 shrink-0" />
-          +250 XP ao completar
+          +250 XP quando cruzar a meta
         </p>
       </div>
     </div>
@@ -199,7 +233,12 @@ function StatCard({
   sub: string;
 }) {
   return (
-    <div className={cn("rounded-xl border bg-black/35 p-3", cardClass)}>
+    <div
+      className={cn(
+        "rounded-xl border bg-black/35 p-3 transition duration-200 hover:border-white/18 hover:bg-black/45",
+        cardClass
+      )}
+    >
       <div className="flex items-center gap-2 text-[9px] font-bold uppercase tracking-wider text-white/45">
         {icon}
         {label}

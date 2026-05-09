@@ -13,6 +13,11 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { getCampusLessonGate } from "@/config/campusLessonGate";
 import type { LessonGateStatus } from "@/content/courses/cannabis-101/gating";
+import {
+  CANNABIS101_AREA_ID,
+  CANNABIS101_MODULES,
+  getCannabis101StreamChapter
+} from "@/content/courses/cannabis-101";
 import type { AreaColor } from "@/data/courses";
 import { getLessonListAccent } from "@/lib/campusAccent";
 
@@ -84,18 +89,57 @@ export function CampusLessonSidebar({
     });
   }, [rows, q, filter]);
 
+  const moduleChapterStarts = useMemo(() => {
+    if (areaId !== CANNABIS101_AREA_ID) return [] as { idx: number; title: string; ordinal: number }[];
+    let off = 0;
+    return CANNABIS101_MODULES.map((m, i) => {
+      const start = off;
+      off += m.lessons.length;
+      return { idx: start, title: m.title, ordinal: i + 1 };
+    });
+  }, [areaId]);
+
+  const activeChapter = useMemo(() => {
+    if (areaId !== CANNABIS101_AREA_ID) return null;
+    return getCannabis101StreamChapter(activeIndex);
+  }, [areaId, activeIndex]);
+
   return (
     <div className={cn("flex h-full min-h-0 flex-col", className)}>
       <div className={cn("shrink-0 px-3 py-3", A.headerBottom)}>
-        <p className={cn("text-[10px] font-bold uppercase tracking-[0.2em]", A.kicker)}>Programa da aula</p>
-        <p className="mt-1 text-xs text-white/55">Índice do curso — localize-se rápido</p>
+        <p className={cn("text-[10px] font-bold uppercase tracking-[0.2em]", A.kicker)}>
+          {areaId === CANNABIS101_AREA_ID ? "Trilha do Cannabis 101" : "Programa da aula"}
+        </p>
+        <p className="mt-1 text-xs text-white/55">
+          {areaId === CANNABIS101_AREA_ID
+            ? "Todo o rolê em capítulos — busca por tema, número ou palavra que te lembra a cena."
+            : "Índice do curso — busque por tema ou número da aula."}
+        </p>
+        <p className="mt-2 text-[11px] text-white/45 leading-relaxed">
+          {areaId === CANNABIS101_AREA_ID ? (
+            <>
+              <span className="font-semibold text-white/55">Disponível</span> — entra na hora.{" "}
+              <span className="font-semibold text-white/55">Vista</span> — você já marcou que estudou.{" "}
+              <span className="font-semibold text-white/55">Bloqueada</span> — fecha a anterior primeiro (modo
+              sequência ligado). <span className="font-semibold text-white/55">Em breve</span> — ainda não entrou no
+              calendário publicado.
+            </>
+          ) : (
+            <>
+              Disponível: pode abrir. Vista: já marcou conclusão. Bloqueada: complete a aula anterior (sequência
+              ativa). Em breve: fora do calendário publicado.
+            </>
+          )}
+        </p>
         <label className={cn("mt-3 flex items-center gap-2 rounded-xl border bg-black/40 px-3 py-2", A.search)}>
           <Search className={cn("size-4 shrink-0", A.searchIcon)} aria-hidden />
           <input
             type="search"
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder="Buscar aula"
+            placeholder={
+              areaId === CANNABIS101_AREA_ID ? "Buscar episódio ou tema…" : "Buscar aula"
+            }
             className="min-w-0 flex-1 bg-transparent text-sm text-white outline-none placeholder:text-white/30"
             autoComplete="off"
           />
@@ -121,16 +165,34 @@ export function CampusLessonSidebar({
         {filtered.map(({ idx, title, gate }) => {
           const active = idx === activeIndex;
           const disabled = gate === "locked" || gate === "soon";
+          const chapterHead = moduleChapterStarts.find((s) => s.idx === idx);
           return (
-            <li key={idx}>
+            <li key={idx} className="space-y-1">
+              {chapterHead ? (
+                <div
+                  className="rounded-lg border border-amber-500/20 bg-gradient-to-r from-amber-950/50 to-transparent px-2.5 py-2"
+                  role="presentation"
+                >
+                  <p className={cn("text-[9px] font-bold uppercase tracking-[0.22em]", A.modKicker)}>
+                    Capítulo {chapterHead.ordinal}
+                  </p>
+                  <p className="mt-0.5 text-[11px] font-semibold leading-snug text-white/90">
+                    {chapterHead.title}
+                  </p>
+                </div>
+              ) : null}
               <button
                 type="button"
                 disabled={disabled}
+                aria-label={`Aula ${idx + 1} de ${titles.length}: ${title}. Estado: ${STATUS_LABEL[gate]}.${active ? " Aula atual." : ""}`}
                 onClick={() => !disabled && onSelectLesson(idx)}
                 className={cn(
-                  "flex w-full items-start gap-2 rounded-xl border px-2.5 py-2.5 text-left text-sm transition-all",
+                  "flex w-full items-start gap-2 rounded-xl border px-2.5 py-2.5 text-left text-sm transition-all duration-200",
                   active ? A.lessonOn : A.lessonOff,
-                  disabled && "cursor-not-allowed opacity-55"
+                  disabled && "cursor-not-allowed opacity-[0.58]",
+                  gate === "locked" && "border-dashed border-white/12",
+                  gate === "seen" && !active && "border-emerald-500/15 bg-emerald-950/10",
+                  !disabled && !active && "hover:-translate-y-px"
                 )}
               >
                 <span
@@ -142,7 +204,7 @@ export function CampusLessonSidebar({
                   {idx + 1}
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="line-clamp-2 leading-snug">{title}</span>
+                  <span className="line-clamp-3 leading-snug">{title}</span>
                   <span className="mt-1 flex flex-wrap items-center gap-1">
                     <StatusPill gate={gate} />
                     {active ? (
@@ -165,11 +227,21 @@ export function CampusLessonSidebar({
         })}
       </ul>
       {filtered.length === 0 ? (
-        <p className="px-3 py-6 text-center text-xs text-white/40">Nenhuma aula com esse filtro.</p>
+        <div className="space-y-2 px-3 py-8 text-center">
+          <p className="text-xs font-medium text-white/55">Nenhuma aula com esse filtro.</p>
+          <p className="text-[11px] text-white/35">Experimente “Todas” ou limpe a pesquisa.</p>
+        </div>
       ) : null}
 
       <div className={cn("shrink-0 p-3", A.footerTop)}>
-        <p className={cn("text-[9px] font-bold uppercase tracking-[0.2em]", A.modKicker)}>Módulo atual</p>
+        <p className={cn("text-[9px] font-bold uppercase tracking-[0.2em]", A.modKicker)}>
+          {activeChapter ? `Módulo · capítulo ${activeChapter.moduleOrdinal}` : "Módulo atual"}
+        </p>
+        {activeChapter ? (
+          <p className="mt-0.5 line-clamp-2 text-[11px] font-medium leading-snug text-amber-100/75">
+            {activeChapter.moduleTitle}
+          </p>
+        ) : null}
         <p className="mt-1 line-clamp-2 text-xs font-semibold leading-snug text-white">
           {titles[activeIndex] ?? "—"}
         </p>

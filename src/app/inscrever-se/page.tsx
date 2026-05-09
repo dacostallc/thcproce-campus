@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { InscricaoExperience } from "@/components/enrollment/InscricaoExperience";
 
 export const metadata: Metadata = {
@@ -8,5 +9,9 @@ export const metadata: Metadata = {
 };
 
 export default function InscreverSePage() {
-  return <InscricaoExperience />;
+  return (
+    <Suspense fallback={<div className="min-h-[40vh] p-8 text-center text-sm text-white/60">Carregando…</div>}>
+      <InscricaoExperience />
+    </Suspense>
+  );
 }

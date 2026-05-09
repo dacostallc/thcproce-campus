@@ -15,6 +15,11 @@ const showMoodle =
 function EntrarInner() {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") ?? CAMPUS_HOME_PATH;
+  const refParam = searchParams.get("ref");
+  const inscreverHref =
+    refParam && refParam.trim()
+      ? `/inscrever-se?ref=${encodeURIComponent(refParam.trim())}`
+      : "/inscrever-se";
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -123,7 +128,7 @@ function EntrarInner() {
 
       <p className="mt-6 text-xs text-white/45 leading-relaxed">
         Criou conta em{" "}
-        <Link href="/inscrever-se" className="text-canna-300 hover:underline font-semibold">
+        <Link href={inscreverHref} className="text-canna-300 hover:underline font-semibold">
           Inscrição
         </Link>
         ? Use a mesma senha. Modo dev: e-mail válido +{" "}
@@ -133,7 +138,7 @@ function EntrarInner() {
 
       <div className="mt-4 text-center text-sm space-y-2">
         <div>
-          <Link href="/inscrever-se" className="text-canna-300 hover:underline font-semibold">
+          <Link href={inscreverHref} className="text-canna-300 hover:underline font-semibold">
             Primeira vez? Inscreva-se no campus
           </Link>
         </div>

@@ -1,0 +1,12 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "ignoreFiles": [
+    "scripts/node-require-next-mw-fallback.cjs",
+    "public/sw.js"
+  ],
+  "ignoreDependencies": [
+    "eslint",
+    "eslint-config-next",
+    "@types/bcryptjs"
+  ]
+}

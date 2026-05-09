@@ -1,12 +1,13 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { Providers } from "./providers";
+import { siteCanonicalOrigin } from "@/config/sitePublic";
 
 export const metadata: Metadata = {
   title: "THCProce — Escola Aberta de Cannabis",
   description:
     "Campus virtual da Escola PROCBD: cultivo, extrações, medicina canabinoide, culinária, indústria e legislação. 11 cursos com certificado.",
-  metadataBase: new URL("https://thcproce.com.br"),
+  metadataBase: new URL(siteCanonicalOrigin()),
   openGraph: {
     title: "THCProce — Escola Aberta de Cannabis",
     description:

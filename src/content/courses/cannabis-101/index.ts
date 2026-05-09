@@ -33,3 +33,7 @@ export {
   getCannabis101LessonGate,
   type LessonGateStatus
 } from "./gating";
+export {
+  getCannabis101StreamChapter,
+  type Cannabis101StreamChapter
+} from "./streamChapter";

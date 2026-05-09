@@ -15,6 +15,7 @@ import {
 import { useSession } from "next-auth/react";
 import type { Area } from "@/data/courses";
 import { cn } from "@/lib/utils";
+import { BlockRenderer } from "@/components/campus/blocks/BlockRenderer";
 import { CampusLessonVideo } from "./CampusLessonVideo";
 import { LessonRichTabs } from "./LessonRichTabs";
 import { CampusLessonSidebar } from "./CampusLessonSidebar";
@@ -33,6 +34,7 @@ import {
   areaUsesMoodleLessonSnippet,
   lessonRichTabsVariantForArea
 } from "@/content/courses";
+import { CANNABIS101_AREA_ID, getCannabis101StreamChapter } from "@/content/courses/cannabis-101";
 
 const LS_KEY = "thc_campus_lesson_v1";
 
@@ -131,9 +133,16 @@ export function LessonPanel({
 
   const [localTick, setLocalTick] = useState(0);
   const [mobileDrawer, setMobileDrawer] = useState<null | "lessons" | "progress">(null);
+  const [markCelebration, setMarkCelebration] = useState(false);
   useEffect(() => {
     if (!open) setMobileDrawer(null);
   }, [open]);
+
+  useEffect(() => {
+    if (!markCelebration) return;
+    const t = window.setTimeout(() => setMarkCelebration(false), 820);
+    return () => window.clearTimeout(t);
+  }, [markCelebration]);
 
   const titles = useMemo(() => (area ? getLessonTitlesForArea(area) : []), [area]);
 
@@ -173,12 +182,13 @@ export function LessonPanel({
 
   const markCurrent = useCallback(() => {
     if (!area) return;
+    if (!doneSet.has(clampedLesson)) setMarkCelebration(true);
     mergeLs(area.id, clampedLesson);
     setLocalTick((t) => t + 1);
     if (status === "authenticated") {
       markSeen.mutate({ areaId: area.id, lessonIndex: clampedLesson });
     }
-  }, [area, clampedLesson, status, markSeen]);
+  }, [area, clampedLesson, status, markSeen, doneSet]);
 
   const already = doneSet.has(clampedLesson);
 
@@ -198,8 +208,18 @@ export function LessonPanel({
 
   const richContent = useMemo(
     () => (area ? getLessonRichContent(area, clampedLesson, lessonTitle) : null),
-    [area, clampedLesson, lessonTitle]
+    [area, clampedLesson, lessonTitle],
   );
+
+  const dbLessonQ = trpc.campus.lessonFromDb.useQuery(
+    { areaId: area?.id ?? "", lessonIndex: clampedLesson },
+    { enabled: open && Boolean(area), staleTime: 60_000 },
+  );
+
+  const showDbBlocks =
+    !dbLessonQ.isFetching &&
+    !dbLessonQ.isError &&
+    Boolean(dbLessonQ.data?.blocks?.length);
 
   const coursePct = titles.length
     ? Math.min(100, Math.round((doneSet.size / titles.length) * 100))
@@ -212,6 +232,13 @@ export function LessonPanel({
   const underConstruction =
     area != null && isCampusAreaConstruction(area.id) && !campusAdmin;
   const richVariant = lessonRichTabsVariantForArea(area?.id);
+
+  const streamChapter = useMemo(() => {
+    if (!area || area.id !== CANNABIS101_AREA_ID) return null;
+    return getCannabis101StreamChapter(clampedLesson);
+  }, [area?.id, clampedLesson]);
+
+  const isCannabis101Room = area?.id === CANNABIS101_AREA_ID;
 
   const progressPayload =
     status === "authenticated" && progressUi
@@ -244,7 +271,7 @@ export function LessonPanel({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[44] pointer-events-auto bg-black/55 backdrop-blur-[2px]"
+            className="fixed inset-0 z-[44] pointer-events-auto bg-black/65 backdrop-blur-[0.5px]"
             onClick={onClose}
           />
           <motion.div
@@ -267,24 +294,71 @@ export function LessonPanel({
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div className="min-w-0 flex-1">
                   <p className="text-[10px] uppercase tracking-[0.22em] text-white/55">{area.name}</p>
-                  <p className="mt-0.5 text-[10px] uppercase tracking-[0.16em] text-white/40">
+                  <p
+                    className={cn(
+                      "mt-0.5 text-[10px] uppercase tracking-[0.16em] text-white/40",
+                      isCannabis101Room && "tracking-[0.2em] text-amber-200/55"
+                    )}
+                  >
                     Aula {clampedLesson + 1} de {titles.length || "—"}
                   </p>
                   <h2
                     id="lesson-panel-title"
-                    className="mt-1 text-base font-semibold leading-snug text-white sm:text-lg"
+                    className={cn(
+                      "mt-1 text-base font-semibold leading-snug text-white sm:text-lg",
+                      isCannabis101Room &&
+                        "font-bold tracking-tight text-[1.05rem] sm:text-xl md:text-2xl bg-gradient-to-r from-white via-white to-amber-100/95 bg-clip-text text-transparent"
+                    )}
                   >
                     {lessonTitle}
                   </h2>
+                  {titles.length > 0 ? (
+                    <div className="mt-2.5 flex flex-wrap items-center gap-2">
+                      <div
+                        className="inline-flex items-center rounded-lg border border-white/12 bg-black/35 p-0.5 shadow-inner"
+                        title="Aulas deste curso"
+                      >
+                        <button
+                          type="button"
+                          disabled={clampedLesson < 1}
+                          onClick={() => clampedLesson >= 1 && onSelectLesson(clampedLesson - 1)}
+                          className="rounded-md p-1.5 text-white hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-35"
+                          aria-label="Aula anterior"
+                        >
+                          <ChevronLeft size={17} />
+                        </button>
+                        <span className="min-w-[3.25rem] px-1.5 text-center text-[11px] font-bold tabular-nums text-white/75">
+                          {clampedLesson + 1}/{titles.length}
+                        </span>
+                        <button
+                          type="button"
+                          disabled={clampedLesson >= titles.length - 1}
+                          onClick={() =>
+                            clampedLesson < titles.length - 1 && onSelectLesson(clampedLesson + 1)
+                          }
+                          className="rounded-md p-1.5 text-white hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-35"
+                          aria-label="Próxima aula"
+                        >
+                          <ChevronRight size={17} />
+                        </button>
+                      </div>
+                      <span className="hidden text-[10px] text-white/38 sm:inline">
+                        Aulas deste curso · no canto, setas trocam de curso no mapa
+                      </span>
+                    </div>
+                  ) : null}
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
-                  <div className="hidden items-center gap-1 rounded-lg border border-white/10 bg-black/30 p-0.5 sm:flex">
+                  <div
+                    className="hidden items-center gap-1 rounded-lg border border-white/10 bg-black/30 p-0.5 sm:flex"
+                    title="Navegar para outro curso no mapa do campus"
+                  >
                     <button
                       type="button"
                       disabled={!prevArea}
                       onClick={() => prevArea && onSelectArea(prevArea)}
                       className="rounded-md p-2 text-white hover:bg-white/10 disabled:opacity-30"
-                      aria-label="Curso anterior"
+                      aria-label="Curso anterior no mapa"
                     >
                       <ChevronLeft size={18} />
                     </button>
@@ -293,7 +367,7 @@ export function LessonPanel({
                       disabled={!nextArea}
                       onClick={() => nextArea && onSelectArea(nextArea)}
                       className="rounded-md p-2 text-white hover:bg-white/10 disabled:opacity-30"
-                      aria-label="Próximo curso"
+                      aria-label="Próximo curso no mapa"
                     >
                       <ChevronRight size={18} />
                     </button>
@@ -326,7 +400,7 @@ export function LessonPanel({
                   />
                 </aside>
 
-                <main className="relative order-first min-h-0 min-w-0 flex-1 overflow-y-auto scrollbar-thin px-4 py-3 sm:px-6 sm:py-4 md:order-none">
+                <main className="relative order-first min-h-0 min-w-0 flex-1 overflow-y-auto scrollbar-thin px-4 py-4 sm:px-7 sm:py-5 md:order-none">
                   <div
                     aria-hidden
                     className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-emerald-950/[0.06] to-transparent"
@@ -355,31 +429,71 @@ export function LessonPanel({
                     <div>
                       <h1
                         id="campus-lesson-heading"
-                        className="text-xl font-semibold tracking-tight text-white sm:text-2xl"
+                        className={cn(
+                          "text-xl font-semibold tracking-tight text-white sm:text-2xl",
+                          isCannabis101Room &&
+                            "font-bold sm:text-[1.65rem] md:text-3xl lg:text-[1.85rem] lg:leading-tight"
+                        )}
                       >
                         {lessonTitle}
                       </h1>
-                      <p className="mt-1.5 text-[13px] text-white/45">{area.short}</p>
+                      <p
+                        className={cn(
+                          "mt-1.5 text-[13px] text-white/45",
+                          isCannabis101Room && "text-[13px] sm:text-sm text-amber-100/45"
+                        )}
+                      >
+                        {area.short}
+                      </p>
                     </div>
 
                     <div className="flex flex-wrap gap-2 border-b border-white/10 pb-3">
-                      <Button
-                        type="button"
-                        size="sm"
-                        disabled={already || markSeen.isPending}
-                        onClick={markCurrent}
-                        className={cn("font-bold", already ? "opacity-70" : "")}
+                      <motion.div
+                        animate={
+                          markCelebration
+                            ? { scale: [1, 1.06, 1], boxShadow: ["0 0 0 0 rgba(245, 158, 11, 0)", "0 0 0 8px rgba(245, 158, 11, 0.12)", "0 0 0 0 rgba(245, 158, 11, 0)"] }
+                            : { scale: 1 }
+                        }
+                        transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+                        className="inline-flex"
                       >
-                        {already ? (
-                          <>
-                            <CheckCircle2 size={16} /> Aula registada
-                          </>
-                        ) : (
-                          <>
-                            <Sparkles size={16} /> Marcar como vista (+8 XP)
-                          </>
-                        )}
-                      </Button>
+                        <Button
+                          type="button"
+                          size="sm"
+                          disabled={already || markSeen.isPending}
+                          onClick={markCurrent}
+                          className={cn(
+                            "font-bold transition-all",
+                            already ? "opacity-80" : "",
+                            isCannabis101Room &&
+                              !already &&
+                              "shadow-md shadow-amber-950/40 ring-1 ring-amber-500/30 hover:ring-amber-400/50"
+                          )}
+                          title={
+                            already
+                              ? isCannabis101Room
+                                ? "Este episódio já conta no seu progresso."
+                                : "Esta aula já está registada no seu progresso."
+                              : isCannabis101Room
+                                ? "Registra que você passou por aqui e soma XP no campus."
+                                : "Regista conclusão e ganha XP no campus."
+                          }
+                        >
+                          {already ? (
+                            <>
+                              <CheckCircle2 size={16} />{" "}
+                              {isCannabis101Room ? "Episódio registrado" : "Aula registada"}
+                            </>
+                          ) : (
+                            <>
+                              <Sparkles size={16} />{" "}
+                              {isCannabis101Room
+                                ? "Marcar episódio (+8 XP)"
+                                : "Marcar como vista (+8 XP)"}
+                            </>
+                          )}
+                        </Button>
+                      </motion.div>
                       {MUX_DEMO ? (
                         <Button type="button" variant="glass" size="sm" asChild>
                           <Link
@@ -465,20 +579,41 @@ export function LessonPanel({
                         ) : (
                           <p className="text-xs leading-relaxed text-white/55">
                             O arquivo completo desta aula (texto longo, PDFs, entregas) está na sala digital oficial
-                            THCProce. Desça até «Materiais» e «Referências» neste painel ou peça apoio à equipa se
+                            THCProce. Desça até “Materiais” e “Referências” neste painel ou peça apoio à equipa se
                             precisar de acesso.
                           </p>
                         )}
                       </div>
                     ) : null}
 
-                    {richContent ? (
+                    {dbLessonQ.isFetching ? (
+                      <p className="text-xs text-white/45">A sincronizar conteúdo da aula…</p>
+                    ) : null}
+
+                    {showDbBlocks ? (
+                      <>
+                        <div
+                          className="rounded-xl border border-emerald-500/25 bg-emerald-950/15 px-3 py-2 text-[11px] text-emerald-100/90"
+                          role="status"
+                        >
+                          Conteúdo desta aula: <strong>CMS</strong> (piloto). Slugs:{" "}
+                          <span className="font-mono text-[10px] opacity-90">
+                            {dbLessonQ.data!.courseSlug}/{dbLessonQ.data!.moduleSlug}/
+                            {dbLessonQ.data!.lessonSlug}
+                          </span>
+                        </div>
+                        <BlockRenderer blocks={dbLessonQ.data!.blocks} />
+                      </>
+                    ) : null}
+
+                    {!showDbBlocks && richContent ? (
                       <LessonRichTabs
                         storageKey={notesStorageKey}
                         content={richContent}
                         variant={richVariant}
                         layout="stream"
                         streamAccent={accent}
+                        streamChapter={streamChapter}
                       />
                     ) : null}
                   </div>
@@ -519,6 +654,7 @@ export function LessonPanel({
                       totalLessons={titles.length}
                       courseHoursLabel={area.hours}
                       progressUi={progressPayload}
+                      chapterMeta={streamChapter}
                       onBackToCampus={onClose}
                     />
                     <div className="mt-4 border-t border-white/10 pt-3">

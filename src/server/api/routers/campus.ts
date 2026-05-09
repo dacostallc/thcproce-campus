@@ -18,6 +18,8 @@ import { canOpenCampusCoursesWithPulse } from "@/lib/campusAccess";
 import { isCampusAdminEmail } from "@/lib/campusAdmin";
 import { getMergedLiveBroadcast } from "@/server/campusLiveSettings";
 import { areaUsesMoodleLessonSnippet } from "@/content/courses";
+import { resolveCampusLessonDbContent } from "@/lib/campus/resolveCampusLessonDbContent";
+import { getPublishedQuizWithAnswers } from "@/lib/quiz/playable";
 
 const mockCourses: MoodleCourse[] = areas.map((a, i) => ({
   id: 100 + i,
@@ -480,9 +482,65 @@ export const campusRouter = router({
       return { done: lpMap[input.areaId]!, awardedXp: wasNew ? 8 : 0 };
     }),
 
+  quizForPlay: publicProcedure
+    .input(z.object({ quizId: z.string().min(1) }))
+    .query(async ({ input }) => {
+      const quiz = await getPublishedQuizWithAnswers(input.quizId);
+      if (!quiz?.questions.length) return null;
+      for (const q of quiz.questions) {
+        if (q.type !== "SINGLE_CHOICE" && q.type !== "TRUE_FALSE") return null;
+      }
+      return {
+        id: quiz.id,
+        title: quiz.title,
+        passingPercent: quiz.passingPercent,
+        questions: quiz.questions.map((q) => ({
+          id: q.id,
+          prompt: q.prompt,
+          type: q.type,
+          sortOrder: q.sortOrder,
+          options: [...q.options]
+            .sort((a, b) => a.sortOrder - b.sortOrder)
+            .map((o) => ({
+              id: o.id,
+              label: o.label,
+              sortOrder: o.sortOrder,
+            })),
+        })),
+      };
+    }),
+
   streamFlags: publicProcedure.query(() => ({
     bunnySigningEnabled: Boolean(process.env.BUNNY_STREAM_TOKEN_AUTH_KEY?.trim())
   })),
+
+  /**
+   * Aula publicada no CMS (Prisma) para o slot área + índice, quando configurada em
+   * `CAMPUS_DB_LESSONS` e válida. Caso contrário devolve `null` — a UI usa conteúdo legado.
+   */
+  lessonFromDb: publicProcedure
+    .input(
+      z.object({
+        areaId: z.string().min(1),
+        lessonIndex: z.number().int().min(0),
+      }),
+    )
+    .query(async ({ input }) => {
+      const r = await resolveCampusLessonDbContent(input.areaId, input.lessonIndex);
+      if (r.mode !== "db") return null;
+      return {
+        title: r.lesson.title,
+        courseSlug: r.lesson.module.course.slug,
+        moduleSlug: r.lesson.module.slug,
+        lessonSlug: r.lesson.slug,
+        blocks: r.lesson.blocks.map((b) => ({
+          id: b.id,
+          type: b.type,
+          sortOrder: b.sortOrder,
+          data: b.data as unknown,
+        })),
+      };
+    }),
 
   /** Iframe Bunny assinada (só com token de visualização ativo na biblioteca). */
   bunnyEmbedUrl: protectedProcedure

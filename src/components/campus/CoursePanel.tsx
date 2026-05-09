@@ -96,7 +96,7 @@ export function CoursePanel({
             animate={{ x: 0, opacity: 1 }}
             exit={{ x: 480, opacity: 0 }}
             transition={{ type: "spring", stiffness: 220, damping: 26 }}
-            className="fixed right-0 top-0 bottom-0 w-full sm:w-[460px] z-40 flex flex-col glass-strong border-l border-canna-400/20"
+            className="fixed right-0 top-0 bottom-0 w-full sm:w-[460px] z-40 flex flex-col glass-strong border-l border-canna-400/25 ring-1 ring-inset ring-white/[0.06]"
           >
             <header
               className={cn(
@@ -106,7 +106,7 @@ export function CoursePanel({
             >
               <button
                 onClick={onClose}
-                className="absolute top-4 right-4 w-9 h-9 rounded-full glass flex items-center justify-center hover:scale-105 transition-transform"
+                className="absolute top-4 right-4 w-9 h-9 rounded-full glass-hud flex items-center justify-center hover:scale-105 active:scale-95 transition-transform"
                 aria-label="Fechar"
               >
                 <X size={18} />
@@ -135,14 +135,14 @@ export function CoursePanel({
             <div className="flex-1 overflow-y-auto scrollbar-thin px-6 py-5 space-y-5">
               <section>
                 <h3 className="text-[11px] uppercase tracking-[0.2em] text-canna-300 mb-2 font-semibold">
-                  Sobre essa área
+                  O que rola neste canto
                 </h3>
                 <p className="text-white/85 leading-relaxed">{area.description}</p>
               </section>
 
               <section>
                 <h3 className="text-[11px] uppercase tracking-[0.2em] text-canna-300 mb-3 font-semibold">
-                  O que você vai aprender
+                  O que você leva daqui
                 </h3>
                 <ul className="space-y-2">
                   {area.highlights.map((h) => (
@@ -157,19 +157,19 @@ export function CoursePanel({
                 </ul>
               </section>
 
-              <section className="rounded-xl glass p-4 flex items-center gap-3 border-canna-400/30">
+              <section className="rounded-xl glass-hud p-4 flex items-center gap-3 border-canna-400/35">
                 <Award size={22} className="text-gold-400 shrink-0" />
                 <div className="text-sm">
-                  <div className="font-semibold">Certificado ao concluir</div>
+                  <div className="font-semibold">Conquista desbloqueável</div>
                   <div className="text-white/65 text-xs">
-                    Emitido em PDF + verificação online
+                    Certificado em PDF + verificação quando você cruzar a linha de chegada.
                   </div>
                 </div>
               </section>
 
               <section>
                 <h3 className="text-[11px] uppercase tracking-[0.2em] text-canna-300 mb-3 font-semibold">
-                  Prévia das aulas
+                  Tour pelas aulas
                 </h3>
                 <div className="space-y-2">
                   {previewLessonTitles.map((title, idx) => (
@@ -184,9 +184,9 @@ export function CoursePanel({
                           onOpenCampusLesson?.(idx);
                         }
                       }}
-                      className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-white/5 transition-colors cursor-pointer group outline-none focus-visible:ring-2 focus-visible:ring-canna-400/70"
+                      className="flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent hover:border-white/10 hover:bg-white/[0.06] hover:shadow-md hover:shadow-black/25 transition-all duration-200 cursor-pointer group outline-none focus-visible:ring-2 focus-visible:ring-canna-400/70"
                     >
-                      <span className="w-7 h-7 rounded-full bg-canna-500/20 text-canna-300 flex items-center justify-center text-xs font-bold border border-canna-400/30">
+                      <span className="w-7 h-7 rounded-full bg-canna-500/20 text-canna-300 flex items-center justify-center text-xs font-bold border border-canna-400/35 group-hover:scale-105 transition-transform">
                         {idx + 1}
                       </span>
                       <div className="flex-1 min-w-0">
@@ -209,9 +209,9 @@ export function CoursePanel({
               <button
                 type="button"
                 onClick={() => onOpenCampusLesson?.()}
-                className="w-full px-4 py-3 rounded-xl bg-canna-500 hover:bg-canna-400 text-ink-900 font-bold tracking-wide transition-colors shadow-lg shadow-canna-500/30 text-center"
+                className="w-full px-4 py-3 rounded-xl bg-gradient-to-r from-canna-500 to-canna-400 hover:from-canna-400 hover:to-canna-300 text-ink-900 font-bold tracking-wide transition-all shadow-lg shadow-canna-500/35 text-center hover:brightness-[1.03] active:scale-[0.99]"
               >
-                Aulas aqui na sala virtual
+                Entrar na sala virtual
               </button>
               <div className="flex flex-col sm:flex-row gap-3">
               <Link
@@ -257,7 +257,7 @@ function Stat({
   value: string;
 }) {
   return (
-    <div className="rounded-lg glass px-2.5 py-2 text-center">
+    <div className="rounded-xl glass-hud px-2.5 py-2 text-center transition-shadow duration-200 hover:shadow-md hover:shadow-black/20">
       <div className="flex items-center justify-center gap-1 text-canna-300 mb-0.5">
         {icon}
       </div>

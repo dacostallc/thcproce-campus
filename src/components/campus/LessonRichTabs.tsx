@@ -1,9 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import type { ReactNode } from "react";
 import { motion } from "framer-motion";
 import {
   BookOpen,
+  Bookmark,
   ClipboardList,
   GraduationCap,
   Library,
@@ -12,7 +14,8 @@ import {
   Video,
   Image as ImageIcon,
   LayoutGrid,
-  FileStack
+  FileStack,
+  Sparkles
 } from "lucide-react";
 import type { LessonRichContent } from "@/data/lessonRichTypes";
 import type { LessonQuizItem } from "@/data/lessonRichTypes";
@@ -34,14 +37,16 @@ type StreamPal = {
 /** Stream layout: Cannabis 101 = âmbar (`amber`); demais cursos = `streamAccent`. */
 const STREAM_PALETTE: Record<AreaColor, StreamPal> = {
   amber: {
-    articleBorder: "border-amber-500/15",
+    articleBorder: "border-amber-500/25",
     sectionBorder: "border-amber-500/10",
-    sectionTitle: "text-[11px] font-bold uppercase tracking-[0.2em] text-amber-200/55 mb-3",
-    summaryKicker: "text-[10px] font-bold uppercase tracking-widest text-amber-200/70",
-    badgeNum: "bg-amber-500/15 text-[11px] font-bold text-amber-200",
-    refBorder: "border-l-2 border-amber-500/25",
-    profBox: "border border-amber-500/15 bg-amber-950/10",
-    textareaFocus: "focus:ring-amber-500/35"
+    sectionTitle:
+      "mb-4 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.24em] text-amber-100/88 sm:text-xs",
+    summaryKicker: "text-[10px] font-bold uppercase tracking-widest text-amber-200/80",
+    badgeNum:
+      "bg-gradient-to-br from-amber-500/35 to-amber-900/30 text-[12px] font-bold text-amber-50 shadow-inner ring-1 ring-amber-400/25",
+    refBorder: "border-l-2 border-amber-400/35",
+    profBox: "border border-amber-500/20 bg-amber-950/20 shadow-inner",
+    textareaFocus: "focus:ring-amber-500/40"
   },
   canna: {
     articleBorder: "border-canna-500/15",
@@ -96,15 +101,49 @@ const TABS = [
 
 type TabId = (typeof TABS)[number]["id"];
 
+type StreamChapterMeta = {
+  moduleTitle: string;
+  moduleOrdinal: number;
+  moduleCount: number;
+  lessonOrdinalInModule: number;
+  lessonsInModule: number;
+  globalLesson: number;
+  globalTotal: number;
+  tagline: string;
+};
+
 type Props = {
   storageKey: string;
   content: LessonRichContent;
   variant?: "default" | "cannabis101" | "campus";
   layout?: "tabs" | "stream";
   streamAccent?: AreaColor;
+  /** Cannabis 101: metadados de capítulo para herói + progressão na sala. */
+  streamChapter?: StreamChapterMeta | null;
 };
 
-function splitBody(body?: string): string[] {
+function SectionTitle({
+  palette,
+  icon,
+  children
+}: {
+  palette: StreamPal;
+  icon?: ReactNode;
+  children: React.ReactNode;
+}) {
+  return (
+    <h2 className={palette.sectionTitle}>
+      {icon ? (
+        <span className="flex size-7 shrink-0 items-center justify-center rounded-lg border border-amber-500/30 bg-amber-500/10 text-amber-200">
+          {icon}
+        </span>
+      ) : null}
+      <span className="min-w-0 flex-1 border-l border-amber-500/20 pl-3 leading-tight">{children}</span>
+    </h2>
+  );
+}
+
+function splitBodyParagraphs(body: string | undefined): string[] {
   if (!body?.trim()) return [];
   return body
     .split(/\n\n+/)
@@ -113,16 +152,16 @@ function splitBody(body?: string): string[] {
 }
 
 const CAN101_STREAM_SECTION = {
-  intro: "Abertura",
-  body: "Trilho principal",
-  objectives: "O que você leva daqui",
-  summary: "Síntese",
-  quiz: "Check rápido",
-  media: "Produção e visuais",
-  materials: "Materiais",
-  refs: "Referências",
-  prof: "Notas para facilitador(a)",
-  notes: "Suas notas"
+  intro: "Começa assim",
+  body: "Na prática",
+  objectives: "O que você leva desta sessão",
+  summary: "Recap rápido",
+  quiz: "Quiz leve (sem drama)",
+  media: "Mídia & referência visual",
+  materials: "Materiais & links",
+  refs: "Leituras & fontes",
+  prof: "Bastidor pro facilitador(a)",
+  notes: "Suas anotações"
 } as const;
 
 type StreamQuizQuestionProps = {
@@ -156,7 +195,7 @@ function StreamQuizQuestion({
   const [picked, setPicked] = useState<number | null>(null);
   const done = picked !== null;
   return (
-    <div className="rounded-lg border border-white/10 bg-black/25 px-4 py-3">
+    <div className="rounded-xl border border-white/14 bg-black/40 px-4 py-3.5 transition duration-200 hover:-translate-y-px hover:border-amber-500/20 hover:shadow-md hover:shadow-black/30">
       <p className="mb-2 text-sm font-semibold leading-snug text-white/90">
         <span className="mr-2 inline-flex size-6 shrink-0 items-center justify-center rounded-md bg-emerald-500/15 text-[11px] font-bold text-emerald-200">
           {index + 1}
@@ -189,11 +228,11 @@ function StreamQuizQuestion({
         <p className="mt-2 text-xs text-white/50">
           {picked === q.correctIndex
             ? cinematicHints
-              ? "Certo — conecte aos argumentos mestre destacados mais acima nesta sala."
-              : "Correto — conecte à evidência citada no texto principal da aula."
+              ? "Isso aí — combina com o que a gente destacou mais acima nesta sessão."
+              : "Correto — fecha com o texto principal da aula."
             : cinematicHints
-              ? "Volte aos objetivos e à abertura: a opção assinalada segue o roteiro desta edição THCProce."
-              : "Revise o corpo da aula e os objetivos; a resposta indicada reflete o texto-base desta edição."}
+              ? "Quase! Dá uma olhada de novo na abertura e nos objetivos; a resposta que a THCProce considera certa está no roteiro desta aula."
+              : "Revise o miolo da aula e os objetivos; a alternativa certa segue o texto-base desta edição."}
         </p>
       ) : null}
     </div>
@@ -211,7 +250,7 @@ function MediaHintRow({ media, pal }: { media: LessonMediaHints; pal: StreamPal 
   if (!any) {
     return (
       <p className="text-[13px] text-white/45">
-        Nenhum recurso audiovisual obrigatório indicado — texto-base autossuficiente para estudo inicial.
+        Nada de obrigatório em vídeo aqui — o texto já se vira sozinho pra um primeiro contato.
       </p>
     );
   }
@@ -223,7 +262,7 @@ function MediaHintRow({ media, pal }: { media: LessonMediaHints; pal: StreamPal 
           <li
             key={label}
             className={cn(
-              "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-white/80",
+              "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-white/80 transition duration-200 hover:-translate-y-px hover:border-white/35 hover:text-white",
               pal.articleBorder
             )}
           >
@@ -240,7 +279,8 @@ export function LessonRichTabs({
   content,
   variant = "default",
   layout = "tabs",
-  streamAccent = "canna"
+  streamAccent = "canna",
+  streamChapter = null
 }: Props) {
   const [tab, setTab] = useState<TabId>("conteudo");
   const [notes, setNotes] = useState("");
@@ -280,112 +320,271 @@ export function LessonRichTabs({
     ? "text-white/50 hover:bg-amber-500/10 hover:text-white/90 border border-transparent"
     : "text-white/55 hover:bg-white/5 hover:text-white/90 border border-transparent";
 
-  const bodyProse = "text-[15px] leading-[1.65] text-white/[0.88]";
-  const bodyParagraphs = splitBody(content.body);
+  const bodyProse = "text-[15px] sm:text-[16px] leading-[1.78] text-white/[0.9] lg:text-[16px] lg:leading-[1.8]";
+  const bodyLead = c
+    ? "text-[16px] sm:text-[17px] font-medium leading-[1.72] text-white/[0.94]"
+    : bodyProse;
+
+  const bodyParagraphs = useMemo(() => splitBodyParagraphs(content.body), [content.body]);
 
   if (stream) {
     return (
-      <article
+      <motion.article
+        key={storageKey}
+        initial={{ opacity: 0, y: 14 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.38, ease: [0.22, 1, 0.36, 1] }}
         className={cn(
-          "mx-auto w-full max-w-[70ch] rounded-xl border px-4 py-5 sm:px-6 sm:py-6",
+          "mx-auto w-full max-w-[min(72ch,100%)] rounded-[1.25rem] border px-4 py-6 sm:px-9 sm:py-9 lg:max-w-[76ch] lg:px-11 lg:py-11 shadow-[0_28px_90px_rgba(0,0,0,0.55)]",
           pal.articleBorder,
-          "bg-[#030806]/60"
+          c
+            ? "bg-[#040907]/96 ring-1 ring-amber-500/15"
+            : "bg-[#050b08]/92 ring-1 ring-white/[0.06]"
         )}
       >
-        <section className={cn("border-b pb-8", pal.sectionBorder)}>
-          <h2 className={pal.sectionTitle}>{c ? CAN101_STREAM_SECTION.intro : "Introdução"}</h2>
-          <div className={cn("space-y-4", bodyProse)}>
-            <p>{content.intro}</p>
+        {c && streamChapter ? (
+          <motion.header
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.06, duration: 0.35 }}
+            className="relative mb-8 overflow-hidden rounded-2xl border border-amber-500/35 bg-gradient-to-br from-amber-950/55 via-[#06120c]/95 to-black/85 px-4 py-5 sm:px-6 sm:py-6"
+          >
+            <div
+              className="pointer-events-none absolute -right-16 -top-16 size-48 rounded-full bg-amber-400/20 blur-3xl"
+              aria-hidden
+            />
+            <div className="relative flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-400/45 bg-black/35 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-amber-100 shadow-sm shadow-amber-950/40">
+                <Sparkles className="size-3.5 shrink-0 text-amber-300" aria-hidden />
+                Capítulo {streamChapter.moduleOrdinal}/{streamChapter.moduleCount}
+              </span>
+              <span
+                className="rounded-full border border-white/12 bg-black/30 px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-wide text-white/60"
+                title="Posição dentro do módulo atual"
+              >
+                {streamChapter.lessonOrdinalInModule}/{streamChapter.lessonsInModule} no capítulo
+              </span>
+              <span className="ml-auto text-[10px] font-bold uppercase tracking-widest text-white/35">
+                {streamChapter.globalLesson}/{streamChapter.globalTotal}
+              </span>
+            </div>
+            <p className="relative mt-3 text-[12px] font-bold uppercase tracking-[0.2em] text-amber-200/90 sm:text-[13px]">
+              {streamChapter.moduleTitle}
+            </p>
+            <p className="relative mt-2 max-w-[52ch] text-[15px] font-semibold leading-snug text-white sm:text-[17px]">
+              {streamChapter.tagline}
+            </p>
+          </motion.header>
+        ) : null}
+
+        <section className={cn("border-b pb-8 sm:pb-11", pal.sectionBorder)}>
+          {c ? (
+            <SectionTitle palette={pal} icon={<BookOpen className="size-3.5 opacity-90" aria-hidden />}>
+              {CAN101_STREAM_SECTION.intro}
+            </SectionTitle>
+          ) : (
+            <h2 className={pal.sectionTitle}>Introdução</h2>
+          )}
+          <div className={cn("space-y-5 sm:space-y-6", bodyProse)}>
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.08 }}
+              className={bodyLead}
+            >
+              {content.intro}
+            </motion.p>
           </div>
         </section>
 
-        <section className={cn("border-b py-8", pal.sectionBorder)}>
-          <h2 className={pal.sectionTitle}>{c ? CAN101_STREAM_SECTION.body : "Desenvolvimento"}</h2>
-          <div className={cn("space-y-4", bodyProse)}>
+        <section className={cn("border-b py-8 sm:py-11", pal.sectionBorder)}>
+          {c ? (
+            <SectionTitle palette={pal} icon={<LayoutGrid className="size-3.5 opacity-90" aria-hidden />}>
+              {CAN101_STREAM_SECTION.body}
+            </SectionTitle>
+          ) : (
+            <h2 className={pal.sectionTitle}>Desenvolvimento</h2>
+          )}
+          <div className={cn("space-y-6 sm:space-y-8", bodyProse)}>
             {bodyParagraphs.length ? (
-              bodyParagraphs.map((p, i) => <p key={i}>{p}</p>)
+              bodyParagraphs.map((p, i) => (
+                <motion.p
+                  key={i}
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: Math.min(0.05 * i, 0.35) }}
+                  className={cn(
+                    c && "border-l-2 border-amber-500/20 pl-4 sm:pl-5 leading-[1.82]",
+                    i === 0 && c && "text-[16px] sm:text-[17px] font-medium text-white/[0.94]"
+                  )}
+                >
+                  {p}
+                </motion.p>
+              ))
             ) : (
               <p className="text-white/50">
                 {c
-                  ? "O roteiro detalhado deste episódio aparece aqui assim que estiver sincronizado pela equipa THCProce — até lá, avance pela abertura, pelos objetivos e pelas ligações em «Materiais»."
+                  ? "O texto completo deste episódio ainda tá entrando no campus — enquanto isso, aproveita a abertura, os objetivos e os links em Materiais pra não ficar no vácuo."
                   : "Conteúdo principal será exibido aqui quando o campo textual da aula estiver preenchido."}
               </p>
             )}
           </div>
         </section>
 
-        <section className={cn("border-b py-8", pal.sectionBorder)}>
-          <h2 className={pal.sectionTitle}>{c ? CAN101_STREAM_SECTION.objectives : "Objetivos da aula"}</h2>
-          <ul className="space-y-2.5 text-[14px] leading-snug text-white/85">
+        <section className={cn("border-b py-8 sm:py-11", pal.sectionBorder)}>
+          {c ? (
+            <SectionTitle palette={pal} icon={<Target className="size-3.5 opacity-90" aria-hidden />}>
+              {CAN101_STREAM_SECTION.objectives}
+            </SectionTitle>
+          ) : (
+            <h2 className={pal.sectionTitle}>Objetivos da aula</h2>
+          )}
+          <ul className="grid gap-3 sm:gap-4">
             {content.objectives.map((o, i) => (
-              <li key={i} className="flex gap-3">
+              <motion.li
+                key={i}
+                initial={{ opacity: 0, x: -8 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.04 * i }}
+                className={cn(
+                  "flex gap-3 rounded-2xl border px-4 py-3.5 sm:px-5 sm:py-4 text-[14px] sm:text-[15px] leading-relaxed text-white/[0.9] transition duration-200",
+                  c
+                    ? "border-amber-500/25 bg-gradient-to-br from-[#0c1610]/95 to-black/50 shadow-lg shadow-black/25 ring-1 ring-amber-500/10 hover:border-amber-400/40 hover:ring-amber-400/15"
+                    : "border-white/10 bg-black/25"
+                )}
+              >
                 <span
                   className={cn(
-                    "mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-md",
+                    "mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-xl font-bold",
                     pal.badgeNum
                   )}
                 >
                   {i + 1}
                 </span>
-                <span>{o}</span>
-              </li>
+                <span className="min-w-0 pt-0.5">{o}</span>
+              </motion.li>
             ))}
           </ul>
         </section>
 
-        <section className={cn("border-b py-8", pal.sectionBorder)}>
-          <h2 className={pal.sectionTitle}>{c ? CAN101_STREAM_SECTION.summary : "Resumo final"}</h2>
-          <div className="rounded-lg border border-white/10 bg-white/[0.03] px-4 py-3">
-            <p className="text-[14px] leading-relaxed text-white/85">{content.summary}</p>
+        <section className={cn("border-b py-8 sm:py-11", pal.sectionBorder)}>
+          {c ? (
+            <SectionTitle palette={pal} icon={<Bookmark className="size-3.5 opacity-90" aria-hidden />}>
+              {CAN101_STREAM_SECTION.summary}
+            </SectionTitle>
+          ) : (
+            <h2 className={pal.sectionTitle}>Resumo final</h2>
+          )}
+          <div
+            className={cn(
+              "relative overflow-hidden rounded-2xl border px-5 py-5 sm:px-7 sm:py-6",
+              c
+                ? "border-amber-400/35 bg-gradient-to-br from-amber-950/45 via-[#050c08] to-black/80 shadow-[0_0_48px_rgba(180,120,50,0.12)]"
+                : "border-white/14 bg-black/35"
+            )}
+          >
+            {c ? (
+              <div
+                className="pointer-events-none absolute right-0 top-0 size-32 bg-gradient-to-bl from-amber-400/10 to-transparent blur-2xl"
+                aria-hidden
+              />
+            ) : null}
+            <p className={cn("relative text-[14px] sm:text-[16px] leading-relaxed", c ? "text-amber-50/[0.93]" : "text-white/[0.9]")}>
+              {content.summary}
+            </p>
           </div>
         </section>
 
         {content.quiz?.length ? (
-          <section className={cn("border-b py-8", pal.sectionBorder)}>
-            <h2 className={pal.sectionTitle}>{c ? CAN101_STREAM_SECTION.quiz : "Quiz rápido"}</h2>
+          <section className={cn("border-b py-8 sm:py-11", pal.sectionBorder)}>
+            {c ? (
+              <SectionTitle palette={pal} icon={<Sparkles className="size-3.5 opacity-90" aria-hidden />}>
+                {CAN101_STREAM_SECTION.quiz}
+              </SectionTitle>
+            ) : (
+              <h2 className={pal.sectionTitle}>Quiz rápido</h2>
+            )}
             <StreamQuizBlock items={content.quiz} cinematicHints={c} />
           </section>
         ) : null}
 
         {content.media ? (
-          <section className={cn("border-b py-8", pal.sectionBorder)}>
-            <h2 className={pal.sectionTitle}>{c ? CAN101_STREAM_SECTION.media : "Recursos sugeridos (produção)"}</h2>
+          <section className={cn("border-b py-8 sm:py-11", pal.sectionBorder)}>
+            {c ? (
+              <SectionTitle palette={pal} icon={<Video className="size-3.5 opacity-90" aria-hidden />}>
+                {CAN101_STREAM_SECTION.media}
+              </SectionTitle>
+            ) : (
+              <h2 className={pal.sectionTitle}>Recursos sugeridos (produção)</h2>
+            )}
             <p className={cn("mb-3 text-[12px] leading-relaxed text-white/50")}>
               {c
-                ? "Indicação editorial para equipe de mídia THCProce: o que complementar em versões futuras desta aula."
+                ? "Sugestões criativas pra equipe THCProce: o que poderia virar vídeo, foto de bancada ou infográfico digno de doc no futuro."
                 : "Indicações editoriais para enriquecer versões futuras desta aula com visuais e demonstrações."}
             </p>
             <MediaHintRow media={content.media} pal={pal} />
           </section>
         ) : null}
 
-        <section className={cn("border-b py-8", pal.sectionBorder)}>
-          <h2 className={pal.sectionTitle}>{c ? CAN101_STREAM_SECTION.materials : "Materiais de apoio"}</h2>
-          <ul className="space-y-2 text-[14px] text-white/85 list-none">
+        <section className={cn("border-b py-8 sm:py-11", pal.sectionBorder)}>
+          {c ? (
+            <SectionTitle palette={pal} icon={<ClipboardList className="size-3.5 opacity-90" aria-hidden />}>
+              {CAN101_STREAM_SECTION.materials}
+            </SectionTitle>
+          ) : (
+            <h2 className={pal.sectionTitle}>Materiais de apoio</h2>
+          )}
+          <ul className="space-y-2.5 text-[14px] sm:text-[15px] text-white/[0.88] list-none">
             {content.materials.map((m, i) => (
-              <li key={i} className="rounded-md border border-white/10 bg-black/25 px-3 py-2">
+              <li
+                key={i}
+                className={cn(
+                  "rounded-xl border px-3 py-2.5 transition duration-200 sm:px-4 sm:py-3",
+                  c
+                    ? "border-white/12 bg-black/30 hover:border-amber-500/30 hover:bg-amber-950/20"
+                    : "border-white/10 bg-black/25"
+                )}
+              >
                 {m}
               </li>
             ))}
           </ul>
         </section>
 
-        <section className={cn("border-b py-8", pal.sectionBorder)}>
-          <h2 className={pal.sectionTitle}>{c ? CAN101_STREAM_SECTION.refs : "Referências"}</h2>
-          <ul className="space-y-2 text-[14px] text-white/90 list-none">
+        <section className={cn("border-b py-8 sm:py-11", pal.sectionBorder)}>
+          {c ? (
+            <SectionTitle palette={pal} icon={<Library className="size-3.5 opacity-90" aria-hidden />}>
+              {CAN101_STREAM_SECTION.refs}
+            </SectionTitle>
+          ) : (
+            <h2 className={pal.sectionTitle}>Referências</h2>
+          )}
+          <ul className="space-y-2.5 text-[14px] sm:text-[15px] text-white/[0.9] list-none">
             {content.references.map((r, i) => (
-              <li key={i} className={cn("pl-3", pal.refBorder)}>
+              <li
+                key={i}
+                className={cn(
+                  "rounded-lg py-1 pl-3 transition duration-150 hover:bg-white/5",
+                  pal.refBorder
+                )}
+              >
                 {r}
               </li>
             ))}
           </ul>
         </section>
 
-        <section className={cn("border-b py-8", pal.sectionBorder)}>
-          <h2 className={pal.sectionTitle}>{c ? CAN101_STREAM_SECTION.prof : "Notas do professor"}</h2>
+        <section className={cn("border-b py-8 sm:py-11", pal.sectionBorder)}>
+          {c ? (
+            <SectionTitle palette={pal} icon={<GraduationCap className="size-3.5 opacity-90" aria-hidden />}>
+              {CAN101_STREAM_SECTION.prof}
+            </SectionTitle>
+          ) : (
+            <h2 className={pal.sectionTitle}>Notas do professor</h2>
+          )}
           <div
             className={cn(
-              "rounded-lg px-4 py-3 text-[14px] leading-relaxed text-white/85",
+              "rounded-xl px-4 py-3.5 text-[14px] leading-relaxed text-white/[0.88] sm:px-5 sm:py-4",
               pal.profBox
             )}
           >
@@ -393,27 +592,43 @@ export function LessonRichTabs({
           </div>
         </section>
 
-        <section className="pt-8">
-          <h2 className={pal.sectionTitle}>{c ? CAN101_STREAM_SECTION.notes : "Suas notas"}</h2>
-          <p className="mb-2 text-xs text-white/45">Guardadas neste dispositivo — para revisão rápida.</p>
+        <section className="pt-8 sm:pt-11">
+          {c ? (
+            <SectionTitle palette={pal} icon={<StickyNote className="size-3.5 opacity-90" aria-hidden />}>
+              {CAN101_STREAM_SECTION.notes}
+            </SectionTitle>
+          ) : (
+            <h2 className={pal.sectionTitle}>Suas notas</h2>
+          )}
+          <p className="mb-2 text-xs text-white/45">
+            {c
+              ? "Fica guardado no seu aparelho — tipo caderninho de gameplay, só que do cultivo."
+              : "Guardadas neste dispositivo — para revisão rápida."}
+          </p>
           <textarea
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             rows={6}
             className={cn(
-              "w-full rounded-lg border border-white/12 bg-black/35 px-3 py-2.5 text-[14px] text-white placeholder:text-white/30 focus:outline-none focus:ring-2",
+              "w-full rounded-xl border border-white/12 bg-black/40 px-3 py-3 text-[14px] text-white placeholder:text-white/30 transition focus:outline-none focus:ring-2 sm:px-4 sm:py-3.5",
               pal.textareaFocus
             )}
             placeholder="Anotações, dúvidas, próximos passos…"
           />
         </section>
-      </article>
+      </motion.article>
     );
   }
 
   return (
-    <div className={cn("rounded-2xl border shadow-inner", wrap)}>
-      <div className={cn("flex flex-wrap gap-1 border-b p-2", tabBar)}>
+    <div className={cn("rounded-2xl border shadow-inner overflow-hidden", wrap)}>
+      <div
+        className={cn(
+          "flex flex-wrap gap-1 p-2 sm:p-2.5 border-b bg-black/25",
+          tabBar,
+          c && "glass-hud rounded-none border-amber-500/15"
+        )}
+      >
         {TABS.map((t) => {
           const Icon = t.icon;
           const active = tab === t.id;
@@ -423,7 +638,7 @@ export function LessonRichTabs({
               type="button"
               onClick={() => setTab(t.id)}
               className={cn(
-                "inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-[11px] font-bold uppercase tracking-wide transition-colors",
+                "inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-[11px] font-bold uppercase tracking-wide transition-all duration-200 motion-reduce:transition-none hover:scale-[1.02] active:scale-[0.98]",
                 active ? activeTab : idleTab
               )}
             >

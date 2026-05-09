@@ -3,8 +3,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 enum AccessStatus {
@@ -14,12 +15,52 @@ enum AccessStatus {
   vitalicio
 }
 
+/// Papéis para CMS/admin futuro; o campus existente não depende disto ainda.
+enum UserRole {
+  STUDENT
+  ADMIN
+}
+
+enum PublishStatus {
+  DRAFT
+  PUBLISHED
+}
+
+enum BlockType {
+  HEADING
+  PARAGRAPH
+  CALLOUT
+  IMAGE
+  VIDEO_EMBED
+  FILE_DOWNLOAD
+  QUIZ_EMBED
+  CUSTOM
+}
+
+enum AvatarItemType {
+  HAT
+  BADGE
+}
+
+enum MissionType {
+  COMPLETE_QUIZ
+  PASS_QUIZ
+  EARN_XP
+  UNLOCK_ACHIEVEMENT
+}
+
 model Profile {
   id           String   @id @default(cuid())
   email        String?  @unique
   displayName  String?
+  /// Tipo de avatar simbólico (valores fixos da app, ex.: menino, cultivador).
+  avatarType  String?
+  /// Cor de destaque do avatar (ex.: verde, dourado).
+  avatarColor String?
   moodleUserId Int?     @unique
   xpTotal      Int      @default(0)
+  /// Créditos simbólicos (“souvenirs”) — sem valor monetário; futuras recompensas da escola.
+  souvenirCredits Int @default(0)
   levelKey     String   @default("semente")
   streakDays   Int      @default(0)
   lastActive   DateTime @default(now())
@@ -40,8 +81,120 @@ model Profile {
   preferredCheckoutProvider String?
   // Fila Moodle quando WS ativo
   moodleSyncPending Boolean @default(false)
+  role              UserRole @default(STUDENT)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+
+  /// Código curto único para convites (normalizado em maiúsculas na app).
+  referralCode              String? @unique
+  referredByProfileId       String?
+  referredBy                Profile?  @relation("ProfileReferralParent", fields: [referredByProfileId], references: [id], onDelete: SetNull)
+  invitedProfiles           Profile[] @relation("ProfileReferralParent")
+  /// Créditos souvenir simbólicos ganhos por indicações concluídas (não confundir com souvenirCredits total).
+  referralSouvenirEarned    Int       @default(0)
+
+  referralsAsReferrer       Referral[] @relation("ReferralReferrer")
+  referralReceived          Referral?  @relation("ReferralReferred")
+
+  /// Histórico simples de recompensas (XP, souvenirs, eventos).
+  rewardLogs                ProfileRewardLog[]
+
+  activeHatItemId   String?
+  activeHatItem     AvatarItem? @relation("ProfileActiveHat", fields: [activeHatItemId], references: [id], onDelete: SetNull)
+  activeBadgeItemId String?
+  activeBadgeItem   AvatarItem? @relation("ProfileActiveBadge", fields: [activeBadgeItemId], references: [id], onDelete: SetNull)
+
+  quizAttempts      QuizAttempt[]
+  userAchievements  UserAchievement[]
+  userAvatarItems   UserAvatarItem[]
+  userMissionProgresses UserMissionProgress[]
+}
+
+/// Registo idempotente: um perfil só pode receber bónus de indicação uma vez (referredProfileId único).
+model Referral {
+  id                   String   @id @default(cuid())
+  referrerProfileId    String
+  referredProfileId    String   @unique
+  referrerRewardAmount Int
+  referredRewardAmount Int
+  createdAt            DateTime @default(now())
+
+  referrer Profile @relation("ReferralReferrer", fields: [referrerProfileId], references: [id], onDelete: Cascade)
+  referred Profile @relation("ReferralReferred", fields: [referredProfileId], references: [id], onDelete: Cascade)
+
+  @@index([referrerProfileId])
+}
+
+/// Linha de histórico de recompensas por perfil (auditoria simples para o aluno).
+model ProfileRewardLog {
+  id                    String   @id @default(cuid())
+  profileId             String
+  profile               Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  /// Código estável: QUIZ_PASS, ACHIEVEMENT_UNLOCK, MISSION_COMPLETE, REFERRAL_REFERRER, REFERRAL_RECIPIENT, COSMETIC_UNLOCK
+  type                  String
+  /// Origem curta opcional (quizId, código missão, código item, etc.)
+  source                String?
+  description           String
+  xpAmount              Int      @default(0)
+  souvenirCreditsAmount Int      @default(0)
+  createdAt             DateTime @default(now())
+
+  @@index([profileId, createdAt])
+}
+
+/// Item cosmético fixo (sem loja); desbloqueado por código de Achievement.
+model AvatarItem {
+  id                      String         @id @default(cuid())
+  code                    String         @unique
+  name                    String
+  description             String?
+  type                    AvatarItemType
+  displayGlyph            String         @default("✨")
+  /// Código opcional do `Achievement` que desbloqueia este item.
+  unlockAchievementCode String?
+  active                  Boolean        @default(true)
+
+  unlockedBy         UserAvatarItem[]
+  profilesAsActiveHat   Profile[] @relation("ProfileActiveHat")
+  profilesAsActiveBadge Profile[] @relation("ProfileActiveBadge")
+}
+
+model UserAvatarItem {
+  profileId    String
+  avatarItemId String
+  profile      Profile    @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  avatarItem   AvatarItem @relation(fields: [avatarItemId], references: [id], onDelete: Cascade)
+  unlockedAt   DateTime   @default(now())
+
+  @@id([profileId, avatarItemId])
+  @@index([profileId])
+}
+
+model Mission {
+  id                    String      @id @default(cuid())
+  code                  String      @unique
+  title                 String
+  description           String?
+  type                  MissionType
+  targetValue           Int         @default(1)
+  xpReward              Int         @default(0)
+  souvenirCreditsReward Int         @default(0)
+  sortOrder             Int         @default(0)
+  active                Boolean     @default(true)
+
+  progresses UserMissionProgress[]
+}
+
+model UserMissionProgress {
+  profileId       String
+  missionId       String
+  profile         Profile   @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  mission         Mission   @relation(fields: [missionId], references: [id], onDelete: Cascade)
+  currentProgress Int       @default(0)
+  completedAt     DateTime?
+
+  @@id([profileId, missionId])
+  @@index([profileId])
 }
 
 model ChatMessage {
@@ -61,4 +214,161 @@ model Subscription {
   endsAt     DateTime?
   externalId String?
   createdAt  DateTime  @default(now())
+}
+
+// --- Campus CMS (MVP): conteúdo versionado em DB; leitura pública ainda não ligada nas rotas. ---
+
+model Course {
+  id           String        @id @default(cuid())
+  slug         String        @unique
+  title        String
+  description  String?
+  thumbnailUrl String?
+  status       PublishStatus @default(DRAFT)
+  sortOrder    Int           @default(0)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  modules Module[]
+}
+
+model Module {
+  id          String        @id @default(cuid())
+  courseId    String
+  course      Course        @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  slug        String
+  title       String
+  description String?
+  status      PublishStatus @default(DRAFT)
+  sortOrder   Int           @default(0)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  lessons Lesson[]
+
+  @@unique([courseId, slug])
+  @@index([courseId, sortOrder])
+}
+
+model Lesson {
+  id        String        @id @default(cuid())
+  moduleId  String
+  module    Module        @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  slug      String
+  title     String
+  status    PublishStatus @default(DRAFT)
+  sortOrder Int           @default(0)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  blocks ContentBlock[]
+  quizzes Quiz[]
+
+  @@unique([moduleId, slug])
+  @@index([moduleId, sortOrder])
+}
+
+model ContentBlock {
+  id        String    @id @default(cuid())
+  lessonId  String
+  lesson    Lesson    @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  type      BlockType
+  sortOrder Int       @default(0)
+  data      Json
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([lessonId, sortOrder])
+}
+
+model Quiz {
+  id             String   @id @default(cuid())
+  lessonId       String
+  lesson         Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  title          String
+  passingPercent Int?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  questions Question[]
+  attempts  QuizAttempt[]
+
+  @@index([lessonId])
+}
+
+model Question {
+  id          String  @id @default(cuid())
+  quizId      String
+  quiz        Quiz    @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  prompt      String
+  type        String
+  sortOrder   Int     @default(0)
+  explanation String?
+
+  options QuestionOption[]
+
+  @@index([quizId, sortOrder])
+}
+
+model QuestionOption {
+  id          String   @id @default(cuid())
+  questionId  String
+  question    Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  label       String
+  isCorrect   Boolean  @default(false)
+  sortOrder   Int      @default(0)
+
+  @@index([questionId, sortOrder])
+}
+
+model QuizAttempt {
+  id         String    @id @default(cuid())
+  quizId     String
+  quiz       Quiz      @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  profileId  String
+  profile    Profile   @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  startedAt  DateTime  @default(now())
+  finishedAt DateTime?
+  score      Int       @default(0)
+  maxScore   Int       @default(0)
+  passed     Boolean?
+
+  responses QuizResponse[]
+
+  @@index([profileId, quizId])
+}
+
+model QuizResponse {
+  id            String      @id @default(cuid())
+  attemptId     String
+  attempt       QuizAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  questionId    String
+  value         Json
+  isCorrect     Boolean?
+  awardedPoints Int         @default(0)
+
+  @@unique([attemptId, questionId])
+  @@index([attemptId])
+}
+
+model Achievement {
+  id          String @id @default(cuid())
+  code        String @unique
+  title       String
+  description String?
+  xpReward    Int    @default(0)
+  /// Créditos simbólicos extra ao desbloquear (opcional).
+  souvenirCredits Int @default(0)
+
+  users UserAchievement[]
+}
+
+model UserAchievement {
+  profileId     String
+  achievementId String
+  profile       Profile     @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  achievement   Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+  unlockedAt    DateTime    @default(now())
+
+  @@id([profileId, achievementId])
 }

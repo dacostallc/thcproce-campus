@@ -1,4 +1,4 @@
-# Postgres local — mesmo tipo de DATABASE_URL que usarás na Vercel (Neon, Supabase, etc.).
+# Postgres local — ver docs/LOCAL_DATABASE.md
 # `docker compose up -d` e depois: npx prisma db push
 services:
   db:

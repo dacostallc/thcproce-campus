@@ -12,7 +12,9 @@ import {
   Moon,
   CalendarHeart,
   Newspaper,
-  Radio
+  Radio,
+  Eye,
+  EyeOff
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { signOut, useSession } from "next-auth/react";
@@ -29,6 +31,7 @@ import {
   lodgerCheckoutHref
 } from "@/config/siteUrls";
 import { cannabis101HudNextLessonCue } from "@/content/courses";
+import { CAMPUS_ZONE_BORDERS_LS_KEY } from "@/data/campusZones";
 
 export function HUD() {
   const pathname = usePathname();
@@ -44,6 +47,12 @@ export function HUD() {
   const muralOpen = useCampusHudStore((s) => s.muralOpen);
   const setCampusLiveComposerOpen = useCampusHudStore(
     (s) => s.setCampusLiveComposerOpen
+  );
+  const campusZoneBordersVisible = useCampusHudStore(
+    (s) => s.campusZoneBordersVisible
+  );
+  const setCampusZoneBordersVisible = useCampusHudStore(
+    (s) => s.setCampusZoneBordersVisible
   );
 
   const { data: session, status } = useSession();
@@ -76,6 +85,18 @@ export function HUD() {
   });
   const tickStreak = trpc.campus.tickStreak.useMutation();
   const streakOnceRef = useRef(false);
+
+  useEffect(() => {
+    try {
+      if (typeof localStorage === "undefined") return;
+      const raw = localStorage.getItem(CAMPUS_ZONE_BORDERS_LS_KEY);
+      if (raw !== null) {
+        setCampusZoneBordersVisible(raw === "true");
+      }
+    } catch {
+      /* ignore */
+    }
+  }, [setCampusZoneBordersVisible]);
 
   useEffect(() => {
     if (status !== "authenticated") return;
@@ -113,24 +134,27 @@ export function HUD() {
         <div className="max-w-[1700px] mx-auto flex items-center justify-between gap-2">
           <Link
             href="/"
-            className="flex shrink-0 items-center gap-2.5 px-4 py-2.5 rounded-2xl glass-strong pointer-events-auto"
+            className="flex shrink-0 items-center gap-2.5 px-4 py-2.5 rounded-2xl glass-hud pointer-events-auto transition-transform hover:scale-[1.02] duration-300"
           >
-            <span className="w-8 h-8 rounded-xl bg-canna-500/20 border border-canna-400/40 flex items-center justify-center">
-              <Leaf size={18} className="text-canna-300" />
+            <span className="w-8 h-8 rounded-xl bg-gradient-to-br from-canna-500/30 to-amber-500/20 border border-canna-400/45 flex items-center justify-center shadow-md shadow-canna-900/40">
+              <Leaf size={18} className="text-canna-200" />
             </span>
             <div className="leading-tight">
-              <div className="text-[10px] uppercase tracking-[0.18em] text-canna-300/80 font-semibold">
+              <div className="text-[10px] uppercase tracking-[0.18em] text-amber-200/85 font-semibold">
                 THCProce
               </div>
-              <div className="text-sm font-bold">Escola Aberta</div>
+              <div className="text-sm font-bold text-white">Escola Aberta</div>
+              <div className="text-[9px] text-white/45 font-medium tracking-wide max-sm:hidden">
+                Campus · cultura & cultivo
+              </div>
             </div>
           </Link>
 
-          <nav className="hidden md:flex flex-1 justify-center gap-1 px-2 py-2 rounded-2xl glass-strong max-w-lg pointer-events-auto">
+          <nav className="hidden md:flex flex-1 justify-center gap-1 px-2 py-2 rounded-2xl glass-hud max-w-lg pointer-events-auto">
             <NavLink active={campusNavActive} href={CAMPUS_HOME_PATH}>
-              Campus
+              Mapa
             </NavLink>
-            <NavLink href="/planos">Cursos</NavLink>
+            <NavLink href="/planos">Trilhas</NavLink>
             <NavLink href="/inscrever-se">Prof THC</NavLink>
             <NavLink href="/planos">Planos</NavLink>
             <NavLink href="/inscrever-se">Inscrever</NavLink>
@@ -149,6 +173,44 @@ export function HUD() {
               aria-label={sky === "night" ? "Modo dia" : "Modo noite"}
             >
               {sky === "night" ? <Moon size={15} /> : <Sun size={16} className="text-amber-200" />}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                const next = !campusZoneBordersVisible;
+                setCampusZoneBordersVisible(next);
+                try {
+                  if (typeof localStorage !== "undefined") {
+                    localStorage.setItem(
+                      CAMPUS_ZONE_BORDERS_LS_KEY,
+                      String(next)
+                    );
+                  }
+                } catch {
+                  /* ignore */
+                }
+              }}
+              className={cn(
+                "inline-flex h-10 items-center gap-1.5 rounded-full border px-3 text-[11px] font-semibold uppercase tracking-[0.12em] transition-all pointer-events-auto glass-hud",
+                campusZoneBordersVisible
+                  ? "border-canna-400/35 text-canna-100"
+                  : "border-white/15 text-white/55 opacity-90"
+              )}
+              aria-pressed={campusZoneBordersVisible}
+              aria-label={
+                campusZoneBordersVisible
+                  ? "Ocultar zonas no mapa"
+                  : "Mostrar zonas no mapa"
+              }
+              title="Zonas do mapa"
+            >
+              {campusZoneBordersVisible ? (
+                <Eye size={15} className="text-canna-200 shrink-0" />
+              ) : (
+                <EyeOff size={15} className="shrink-0 opacity-70" />
+              )}
+              <span className="max-[1050px]:sr-only">Zonas</span>
             </button>
 
             <IconButton aria-label="Eventos no campus" onClick={() => setEventsOpen(true)}>
@@ -180,6 +242,12 @@ export function HUD() {
                     </span>
                   </>
                 ) : null}
+                <Link
+                  href="/perfil"
+                  className="inline-block max-w-[7rem] truncate sm:max-w-none rounded-lg px-1.5 py-1 text-[10px] text-white/55 underline-offset-2 transition hover:text-canna-200 hover:underline sm:px-2 sm:text-[11px]"
+                >
+                  Meu progresso
+                </Link>
                 <span className="hidden xl:inline max-w-[120px] truncate text-[11px] text-white/60">
                   {session?.user?.email}
                 </span>
@@ -221,18 +289,20 @@ export function HUD() {
         transition={{ duration: 0.6, delay: 0.5 }}
         className="fixed bottom-4 left-1/2 z-20 hidden -translate-x-1/2 pointer-events-none sm:block"
       >
-        <div className="glass-strong rounded-2xl px-5 py-3 flex items-center gap-5">
+        <div className="glass-hud rounded-full px-5 py-2.5 flex items-center gap-5 shadow-lg shadow-black/35">
           <div className="flex items-center gap-2">
-            <span className="relative w-2 h-2 rounded-full bg-canna-400">
-              <span className="absolute inset-0 rounded-full bg-canna-400 animate-ping opacity-75" />
+            <span className="relative w-2 h-2 rounded-full bg-canna-400 shadow-[0_0_10px_rgba(74,222,128,0.8)]">
+              <span className="absolute inset-0 rounded-full bg-canna-400 animate-ping opacity-60" />
             </span>
-            <span className="text-xs uppercase tracking-wider text-white/70">Campus ativo</span>
-            <span className="text-xs font-semibold text-canna-300">{onlineApprox} online</span>
+            <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-white/65">
+              Mundo vivo
+            </span>
+            <span className="text-xs font-bold text-canna-200">{onlineApprox} online</span>
           </div>
-          <span className="w-px h-5 bg-white/15" />
+          <span className="w-px h-5 bg-gradient-to-b from-transparent via-white/25 to-transparent" />
           <div className="flex flex-wrap items-center gap-2">
             <Sparkles size={14} className="text-gold-400 shrink-0" />
-            <span className="text-xs text-white/70">XP</span>
+            <span className="text-[11px] uppercase tracking-wider text-white/55">Progressão</span>
             <span className="text-xs font-semibold text-white">
               {xpData?.xp ?? "—"}
               {xpData?.levelLabel ? (
@@ -244,12 +314,12 @@ export function HUD() {
             </span>
             {badges?.badges && badges.badges.length > 0 ? (
               <>
-                <span className="w-px h-5 bg-white/15 hidden lg:block" />
+                <span className="w-px h-5 bg-gradient-to-b from-transparent via-amber-400/25 to-transparent hidden lg:block" />
                 <span className="hidden lg:flex flex-wrap gap-1 max-w-[280px]">
                   {badges.badges.slice(0, 4).map((b) => (
                     <span
                       key={b.id}
-                      className="text-[10px] font-semibold rounded-md bg-gold-500/15 border border-gold-400/35 text-gold-200 px-1.5 py-0.5"
+                      className="text-[10px] font-bold rounded-full bg-gradient-to-r from-gold-500/20 to-amber-600/15 border border-gold-400/40 text-amber-100 px-2 py-0.5 shadow-sm shadow-amber-900/30"
                     >
                       {b.label}
                     </span>
@@ -257,8 +327,8 @@ export function HUD() {
                 </span>
               </>
             ) : null}
-            <span className="w-px h-5 bg-white/15" />
-            <span className="text-xs text-white/70">Próxima:</span>
+            <span className="w-px h-5 bg-gradient-to-b from-transparent via-white/20 to-transparent" />
+            <span className="text-[11px] text-white/55 uppercase tracking-wider">Próximo:</span>
             <span className="text-xs font-semibold text-white">
               {cannabis101HudNextLessonCue()}
             </span>
@@ -416,10 +486,10 @@ function NavLink({
 }) {
   const isExt = /^https?:\/\//.test(href);
   const cnBase =
-    "px-3.5 py-2 rounded-xl text-sm font-medium transition-colors " +
+    "px-3.5 py-2 rounded-full text-sm font-semibold transition-all duration-200 " +
     (active
-      ? "bg-canna-500/15 text-canna-300"
-      : "text-white/70 hover:bg-white/5 hover:text-white");
+      ? "bg-gradient-to-r from-canna-500/25 to-amber-500/15 text-amber-100 border border-amber-400/35 shadow-md shadow-black/25"
+      : "text-white/72 hover:bg-white/8 hover:text-white border border-transparent hover:border-white/10");
   return isExt ? (
     <a href={href} className={cnBase} target="_blank" rel="noreferrer">
       {children}
@@ -438,7 +508,7 @@ function IconButton({
   return (
     <button
       type="button"
-      className="w-10 h-10 rounded-xl glass-strong hover:bg-white/10 transition-colors flex items-center justify-center text-white/80 hover:text-white"
+      className="w-10 h-10 rounded-xl glass-hud hover:bg-white/12 hover:scale-105 active:scale-95 transition-all duration-200 flex items-center justify-center text-white/80 hover:text-white hover:shadow-lg hover:shadow-canna-900/20"
       {...props}
     >
       {children}

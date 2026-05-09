@@ -1,0 +1,27 @@
+THCPROCE CAMPUS — spatial brief (plaintext)
+
+REFERÊNCIA VISUAL OFICIAL: mapa THC Academy anotado pela direção — cópia em `public/campus/reference-director-layout.png`. Hotspots e zonas SVG seguem essa lógica.
+
+COORDENADAS: x,y em % (0 = esquerda/topo). Arte base 1920x1080; enquadramento em src/lib/campusArt.ts.
+
+HOTSPOTS (id @ x%, y%) — alinhados ao desenho
+cannabis-101 @ 86,36        Sala de aula cultivo
+cultivo-greenhouse @ 10,32  Estufas (oeste)
+cultivo-outdoor @ 46,18     Campo superior central
+cultivo-indoor @ 72,16      Bloco LED norte-direita
+genetica @ 41,50            Viveiro de mudas
+secagem-cura @ 93,44        Sala de secagem (direita)
+extracoes-solventless @ 24,46  Almoxarifado (entre estufas e viveiro)
+extracao-oleo @ 82,22       Torre de ciências (óleo)
+medicina @ 87,26            Torre de ciências (instituto)
+culinaria @ 53,48         Escola de culinária
+laboratorio @ 91,20       Laboratório de análises (topo direito)
+legislacao @ 16,84        Entrada THC Academy
+cooperativismo @ 54,64    Lounge / área social
+industria @ 79,74         Armazenamento
+
+Cine ~ 76,80 (src/config/campusCinema.ts)
+
+FONTE DE DADOS: src/data/courses.ts. mapPosition no manifest cannabis-101 deve igualar courses.ts.
+
+Zonas: src/data/campusZones.ts (12 polígonos apertados; laboratorio+medicina+extracao-oleo = zona “Torre de ciências”).

@@ -19,6 +19,8 @@ npm run dev
 
 Abre em `http://localhost:3030`.
 
+**Terminal integrado**: se o cwd for outra pasta (ex.: `~\.cursor\plans`), faz primeiro `cd` até **este** repositório antes de `npm install` / `npm run dev`. No PowerShell, **não** uses `cd %USERPROFILE%\...` — esse `%VAR%` é sintaxe `cmd`; em PS usa por exemplo `Set-Location ~\thcproce-campus`. Se mantiveres shim no workspace Cursor (ficheiros `campus-dev-launcher.*` + `scripts/run-next-dev.cjs` em `plans`), podes definir `TH_CAMPUS_ROOT` com o caminho absoluto deste clone.
+
 ### Mensagens em destaque no mapa / Cine THC (Prof THC · admin)
 
 Só admins (e-mails configurados em `NEXT_PUBLIC_CAMPUS_ADMIN_EMAILS`) podem enviar um **balão dourado (~5 s)** acima do avatar, **acima do overlay do cinema** mas **abaixo do painel do chat**:

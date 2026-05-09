@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { useSession } from "next-auth/react";
 import { areas, type Area } from "@/data/courses";
@@ -22,9 +23,12 @@ import { useCampusAdminBroadcastHotkeys } from "./useCampusAdminBroadcastHotkeys
 import { useCampusLiveAdminHotkeys } from "./useCampusLiveAdminHotkeys";
 import { InternalPreviewBanner } from "./InternalPreviewBanner";
 import { useCampusSkyStore } from "@/stores/campusSkyStore";
+import { useCampusHudStore } from "@/stores/campusHudStore";
 import { useCampusStore } from "@/stores/campusStore";
 import { nearestArea } from "@/lib/campusProximity";
 import { CAMPUS_IMAGE_OBJECT_POSITION } from "@/lib/campusArt";
+import { isAbsoluteHttpUrl } from "@/config/siteUrls";
+import type { CampusZone } from "@/data/campusZones";
 import { isCampusAreaConstruction } from "@/config/campusAreaRollout";
 import { getLastLessonIndex } from "@/lib/campusLastLesson";
 import { trpc } from "@/lib/trpc/react";
@@ -39,6 +43,12 @@ import { CineDriveIn } from "@/components/CineDriveIn";
 import { CampusCineHotspot } from "./CampusCineHotspot";
 import { useCampusEmojiReactionHotkeys } from "./useCampusEmojiReactionHotkeys";
 import { CampusMapErrorBoundary } from "./CampusMapErrorBoundary";
+import { CampusBiomeOverlays } from "./CampusBiomeOverlays";
+import { CampusZoneOverlays } from "./CampusZoneOverlays";
+import {
+  CampusZoneCoursePicker,
+  CampusZoneStatusModal
+} from "./CampusZoneInteractModals";
 import { cn } from "@/lib/utils";
 import {
   isCampusMapDebugOutline,
@@ -73,7 +83,11 @@ export function CampusMap({
   showCourseLabels = true,
   internalPreview = false
 }: Props) {
+  const router = useRouter();
   const sky = useCampusSkyStore((s) => s.sky);
+  const campusZoneBordersVisible = useCampusHudStore(
+    (s) => s.campusZoneBordersVisible
+  );
   const setPlayer = useCampusStore((s) => s.setPlayer);
   const player = useCampusStore((s) => s.player);
   const { data: session, status } = useSession();
@@ -89,6 +103,13 @@ export function CampusMap({
   const [gateOpen, setGateOpen] = useState<{
     kind: CampusGateKind;
     area: Area;
+  } | null>(null);
+  const [zoneCoursePicker, setZoneCoursePicker] = useState<CampusZone | null>(
+    null
+  );
+  const [zoneStatusBlock, setZoneStatusBlock] = useState<{
+    zone: CampusZone;
+    kind: "locked" | "comingSoon";
   } | null>(null);
 
   const phase = sky;
@@ -156,6 +177,38 @@ export function CampusMap({
     setSelected(area);
   };
 
+  const handleZonePointerDown = (zone: CampusZone) => {
+      if (zone.status === "locked" || zone.status === "comingSoon") {
+        setZoneStatusBlock({
+          zone,
+          kind: zone.status
+        });
+        return;
+      }
+
+      const matched = zone.courseIds
+        .map((id) => areas.find((a) => a.id === id))
+        .filter((a): a is Area => Boolean(a));
+
+      if (matched.length > 1) {
+        setZoneCoursePicker(zone);
+        return;
+      }
+
+      if (matched.length === 1) {
+        handleSelectArea(matched[0]!);
+        return;
+      }
+
+      if (zone.href && zone.href !== "/" && isAbsoluteHttpUrl(zone.href)) {
+        window.location.href = zone.href;
+        return;
+      }
+      if (zone.href && zone.href !== "/" && zone.href.startsWith("/")) {
+        router.push(zone.href);
+      }
+    };
+
   const nearResult = useMemo(
     () => nearestArea(player, 10),
     [player.x, player.y]
@@ -206,6 +259,13 @@ export function CampusMap({
 
   useCampusEmojiReactionHotkeys();
 
+  const zonePickerAreas = useMemo((): Area[] => {
+    if (!zoneCoursePicker) return [];
+    return zoneCoursePicker.courseIds
+      .map((id) => areas.find((a) => a.id === id))
+      .filter((a): a is Area => Boolean(a));
+  }, [zoneCoursePicker]);
+
   return (
     <div
       className="relative w-full h-[100svh] overflow-hidden bg-ink-900 no-select"
@@ -225,7 +285,7 @@ export function CampusMap({
         <div
           id="campus-map-stage"
           className={cn(
-            "relative isolate h-full min-h-0 w-full overflow-hidden shadow-2xl ring-1 ring-white/5",
+            "relative isolate h-full min-h-0 w-full overflow-hidden shadow-2xl shadow-black/50 ring-1 ring-amber-400/10",
             isCampusMapDebugOutline() &&
               "outline outline-[3px] outline-red-600 outline-offset-[-3px]"
           )}
@@ -234,7 +294,7 @@ export function CampusMap({
             {/* Fundos estáticos (<img>): sem Opacity inicial do Framer no pai — evita tela só com bg-ink-900. */}
             <div
               className={cn(
-                "absolute inset-0 z-[2] transition-opacity duration-300 ease-out",
+                "absolute inset-0 z-[2] transition-opacity duration-700 ease-out",
                 sky === "night" ? "opacity-100" : "opacity-0 pointer-events-none"
               )}
               aria-hidden={sky !== "night"}
@@ -244,7 +304,7 @@ export function CampusMap({
                 <img
                   src={bgNightSrc}
                   alt=""
-                  className="absolute inset-0 z-0 h-full w-full object-cover opacity-100 brightness-100 contrast-100 saturate-100"
+                  className="absolute inset-0 z-0 h-full w-full object-cover opacity-100 brightness-[1.02] contrast-[1.03] saturate-[1.06]"
                   style={{ objectPosition: CAMPUS_IMAGE_OBJECT_POSITION }}
                   decoding="async"
                   onError={() => setNightOk(false)}
@@ -256,14 +316,14 @@ export function CampusMap({
                 />
               )}
               <div
-                className="pointer-events-none absolute inset-0 z-[1] bg-gradient-to-b from-black/8 via-transparent to-black/14"
+                className="pointer-events-none absolute inset-0 z-[1] bg-gradient-to-b from-black/25 via-transparent to-black/35"
                 aria-hidden
               />
             </div>
 
             <div
               className={cn(
-                "absolute inset-0 z-[3] transition-opacity duration-300 ease-out",
+                "absolute inset-0 z-[3] transition-opacity duration-700 ease-out",
                 sky === "day" ? "opacity-100" : "opacity-0 pointer-events-none"
               )}
               aria-hidden={sky !== "day"}
@@ -273,7 +333,7 @@ export function CampusMap({
                 <img
                   src={bgDaySrc}
                   alt=""
-                  className="absolute inset-0 z-0 h-full w-full object-cover opacity-100 brightness-100 contrast-100 saturate-100"
+                  className="absolute inset-0 z-0 h-full w-full object-cover opacity-100 brightness-[1.02] contrast-[1.02] saturate-[1.05]"
                   style={{ objectPosition: CAMPUS_IMAGE_OBJECT_POSITION }}
                   decoding="async"
                   onError={() => setDayOk(false)}
@@ -294,7 +354,25 @@ export function CampusMap({
               />
             </div>
 
-            <div className="pointer-events-none absolute inset-0 z-[6]">
+            <div
+              className={cn(
+                "pointer-events-none absolute inset-0 z-[4] transition-opacity duration-700 ease-out",
+                sky === "night" ? "campus-depth-night" : "campus-depth-day"
+              )}
+              aria-hidden
+            />
+
+            <CampusBiomeOverlays phase={sky === "day" ? "day" : "night"} />
+
+            <CampusZoneOverlays
+              phase={sky === "day" ? "day" : "night"}
+              selectedAreaId={selected?.id ?? null}
+              nearestAreaId={nearResult?.area.id ?? null}
+              visible={campusZoneBordersVisible}
+              onZonePointerDown={handleZonePointerDown}
+            />
+
+            <div className="pointer-events-none absolute inset-0 z-[7]">
               <AmbientLife phase={phase} />
             </div>
 
@@ -392,10 +470,25 @@ export function CampusMap({
 
       <CampusChatDrawer />
 
+      <CampusZoneCoursePicker
+        zone={zoneCoursePicker}
+        areas={zonePickerAreas}
+        onClose={() => setZoneCoursePicker(null)}
+        onPickArea={(a) => {
+          setZoneCoursePicker(null);
+          handleSelectArea(a);
+        }}
+      />
+      <CampusZoneStatusModal
+        zone={zoneStatusBlock?.zone ?? null}
+        kind={zoneStatusBlock?.kind ?? null}
+        onClose={() => setZoneStatusBlock(null)}
+      />
+
       <div className="md:hidden fixed bottom-2 left-2 right-2 z-10 text-center">
-        <span className="inline-block px-3 py-1.5 rounded-full glass-strong text-[11px] tracking-wide text-white/70">
-          Toque no mapa para andar · no nome do curso pra abrir a sala ·{" "}
-          <span className="text-canna-300">{sky === "day" ? "Dia" : "Noite"}</span>
+        <span className="inline-block px-3 py-1.5 rounded-full glass-hud text-[11px] tracking-wide text-white/80 shadow-lg shadow-black/30">
+          Explora o mapa · toca numa área pra abrir a sala ·{" "}
+          <span className="text-amber-200/95">{sky === "day" ? "Modo dia" : "Modo noite"}</span>
         </span>
       </div>
     </div>

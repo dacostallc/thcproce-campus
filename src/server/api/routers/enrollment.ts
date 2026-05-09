@@ -4,6 +4,10 @@ import { TRPCError } from "@trpc/server";
 import { router, publicProcedure } from "@/server/api/trpc";
 import type { AccessStatus } from "@prisma/client";
 import { ENROLLMENT_PLANS, type EnrollmentPlanId } from "@/config/enrollmentPlans";
+import {
+  createNewProfileWithOptionalReferral,
+  upsertExistingEnrollmentProfile,
+} from "@/lib/referral/createEnrollmentProfile";
 
 const planIds = ENROLLMENT_PLANS.map((p) => p.id) as [EnrollmentPlanId, ...EnrollmentPlanId[]];
 
@@ -18,7 +22,9 @@ const registerInput = z.object({
   city: z.string().min(1).max(80),
   stateRegion: z.string().min(1).max(80),
   planId: z.enum(planIds),
-  acceptTerms: z.boolean().refine((v) => v === true, "Aceite os termos para continuar")
+  acceptTerms: z.boolean().refine((v) => v === true, "Aceite os termos para continuar"),
+  /** Código do amigo (mesmo valor que o parâmetro `?ref=` na inscrição). */
+  referralCode: z.string().max(32).optional().nullable(),
 });
 
 export const enrollmentRouter = router({
@@ -32,6 +38,7 @@ export const enrollmentRouter = router({
 
     const email = input.email.trim().toLowerCase();
     const existing = await ctx.prisma.profile.findUnique({ where: { email } });
+    // Referral: apenas perfil novo (`!existing`). Re-inscrição ignora `referralCode` (sem bónus).
 
     const hash = await bcrypt.hash(input.password, 12);
 
@@ -43,36 +50,40 @@ export const enrollmentRouter = router({
         ? existing.accessStatus
         : "pendente";
 
-    const row = await ctx.prisma.profile.upsert({
-      where: { email },
-      create: {
-        email,
-        displayName: input.displayName.trim(),
-        passwordHash: hash,
-        whatsapp: input.whatsapp.trim(),
-        cpf: input.cpf?.trim().replace(/\D/g, "") || null,
-        country: input.country.trim(),
-        city: input.city.trim(),
-        stateRegion: input.stateRegion.trim(),
-        selectedPlanId: input.planId,
-        accessStatus: "pendente",
-        termsAcceptedAt: new Date(),
-        moodleSyncPending: Boolean(process.env.MOODLE_WS_TOKEN?.trim())
-      },
-      update: {
-        displayName: input.displayName.trim(),
-        passwordHash: hash,
-        whatsapp: input.whatsapp.trim(),
-        cpf: input.cpf?.trim().replace(/\D/g, "") || null,
-        country: input.country.trim(),
-        city: input.city.trim(),
-        stateRegion: input.stateRegion.trim(),
-        selectedPlanId: input.planId,
-        termsAcceptedAt: new Date(),
-        accessStatus: nextStatus,
-        moodleSyncPending: Boolean(process.env.MOODLE_WS_TOKEN?.trim())
-      }
-    });
+    const moodlePending = Boolean(process.env.MOODLE_WS_TOKEN?.trim());
+
+    const row = existing
+      ? await upsertExistingEnrollmentProfile(
+          ctx.prisma,
+          {
+            email,
+            displayName: input.displayName.trim(),
+            passwordHash: hash,
+            whatsapp: input.whatsapp.trim(),
+            cpf: input.cpf?.trim().replace(/\D/g, "") || null,
+            country: input.country.trim(),
+            city: input.city.trim(),
+            stateRegion: input.stateRegion.trim(),
+            planId: input.planId,
+            accessStatus: "pendente",
+            moodleSyncPending: moodlePending,
+          },
+          nextStatus,
+        )
+      : await createNewProfileWithOptionalReferral(ctx.prisma, {
+          email,
+          displayName: input.displayName.trim(),
+          passwordHash: hash,
+          whatsapp: input.whatsapp.trim(),
+          cpf: input.cpf?.trim().replace(/\D/g, "") || null,
+          country: input.country.trim(),
+          city: input.city.trim(),
+          stateRegion: input.stateRegion.trim(),
+          planId: input.planId,
+          accessStatus: "pendente",
+          moodleSyncPending: moodlePending,
+          referralCode: input.referralCode?.trim() ? input.referralCode.trim() : null,
+        });
 
     return {
       ok: true as const,

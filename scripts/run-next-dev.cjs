@@ -46,7 +46,7 @@ function nextMiddlewarePatchPresent() {
     const s = fs.readFileSync(nextServerPath, "utf8");
     return (
       s.includes("thc-campus:middleware-manifest-missing-stub") &&
-      s.includes("fallback_empty_middleware_manifest")
+      s.includes("isMwManifestMiss")
     );
   } catch (_) {
     return false;

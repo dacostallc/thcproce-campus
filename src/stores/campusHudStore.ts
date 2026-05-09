@@ -18,6 +18,9 @@ type HudState = {
   setAdminBroadcastComposerOpen: (v: boolean) => void;
   campusLiveComposerOpen: boolean;
   setCampusLiveComposerOpen: (v: boolean) => void;
+  /** Limites / preenchimentos suaves das zonas do mapa (persiste em localStorage). */
+  campusZoneBordersVisible: boolean;
+  setCampusZoneBordersVisible: (v: boolean) => void;
 };
 
 export const useCampusHudStore = create<HudState>((set) => ({
@@ -36,5 +39,8 @@ export const useCampusHudStore = create<HudState>((set) => ({
     set({ adminBroadcastComposerOpen }),
   campusLiveComposerOpen: false,
   setCampusLiveComposerOpen: (campusLiveComposerOpen) =>
-    set({ campusLiveComposerOpen })
+    set({ campusLiveComposerOpen }),
+  campusZoneBordersVisible: true,
+  setCampusZoneBordersVisible: (campusZoneBordersVisible) =>
+    set({ campusZoneBordersVisible })
 }));
