@@ -9,7 +9,7 @@
 const path = require("path");
 const fs = require("fs");
 const net = require("net");
-const { spawn, spawnSync } = require("child_process");
+const { spawn } = require("child_process");
 
 const DEV_PORT = 3030;
 
@@ -55,30 +55,17 @@ function nextMiddlewarePatchPresent() {
 
 function ensureNextMiddlewarePatch() {
   if (nextMiddlewarePatchPresent()) return true;
-  const patchPkgCli = path.join(root, "node_modules", "patch-package", "index.js");
-  if (!fs.existsSync(patchPkgCli)) {
-    console.error(
-      "[thc-campus] patch-package absent — só repararemos vanilla em disco ou abortamos.",
-    );
-  } else {
-    console.warn(
-      "[thc-campus] Applying patches/next+*.patch via patch-package before dev …",
-    );
-    spawnSync(process.execPath, [patchPkgCli], {
-      cwd: root,
-      stdio: "inherit",
-      env: process.env,
-    });
-  }
-  if (nextMiddlewarePatchPresent()) return true;
 
+  console.warn(
+    "[thc-campus] Aplicando salvaguarda getMiddlewareManifest em next-server.js (reparo local, sem patch-package) …",
+  );
   const { repairNextServerMiddlewareManifest } = require(
     "./repair-next-server-middleware-manifest.cjs",
   );
   const repaired = repairNextServerMiddlewareManifest(root);
   if (repaired) {
     console.warn(
-      "[thc-campus] Repaired vanilla getMiddlewareManifest directly in node_modules/next (patch-package incompleto / CRLF / --ignore-scripts).",
+      "[thc-campus] next-server.js atualizado em node_modules/next (stub se middleware-manifest.json faltar).",
     );
   }
 
@@ -88,7 +75,7 @@ function ensureNextMiddlewarePatch() {
 console.warn("[thc-campus] Dev launcher: run-next-dev.cjs (middleware-manifest guard).");
 if (!ensureNextMiddlewarePatch()) {
   console.error(
-    "[thc-campus] next-server.js is still missing safeguards after patch-package + repair.",
+    "[thc-campus] next-server.js ainda sem salvaguarda após reparo. A versão do Next pode ter mudado — atualize scripts/repair-next-server-middleware-manifest.cjs",
   );
   process.exit(1);
 }

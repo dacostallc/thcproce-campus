@@ -1,8 +1,7 @@
 /**
- * Substitui a implementação vanilla de `getMiddlewareManifest` quando
- * patch-package não correu / falhou mas o projeto ainda está em Next 14.2.x com
- * o corpo esperado — evita ficar bloqueado com stack em next-server.js:932:26
- * (única linha do require).
+ * Substitui a implementação vanilla de `getMiddlewareManifest` quando o ficheiro
+ * em disco ainda é o esperado (Next 14.2.x) — evita bloqueio com stack em
+ * next-server.js no `require(middleware-manifest)` após clean `.next` ou estados inconsistentes.
  *
  * É idempotente: se já existir o comentário `thc-campus:middleware-manifest-missing-stub`, não mexe.
  */
