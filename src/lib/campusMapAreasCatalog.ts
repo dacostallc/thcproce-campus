@@ -5,6 +5,9 @@
  * Dados literais em `campusMapAreasCatalog.seed.ts` — `coords` iguais ao export &lt;area&gt; (pixéis na arte-base).
  * No mapa simples o SVG partilha o mesmo content-box que a PNG (frame `#campus-map-art-frame`), viewBox 1536×1024 e `preserveAspectRatio` alinhado ao `object-fit` da imagem.
  *
+ * ## Registo semântico (novo)
+ * Modelo declarativo paralelo em `@/lib/campus/campusMapRegistry` — áreas grandes vs hotspots; reexportado em baixo para descoberta sem alterar o fluxo SVG actual.
+ *
  * ## Legado (overlay JSON debug)
  * Polígonos percentagem ou pixéis na referência da arte — `CampusMapAreasDebugOverlay` + localStorage.
  */
@@ -259,6 +262,21 @@ export function parseCampusMapAreasOverlayJson(raw: string): CampusMapArea[] | n
 }
 
 export const CAMPUS_MAP_AREAS_OVERLAY_LS_KEY = "thc_campus_map_areas_overlay_json_v1" as const;
+
+/* ——— Registo semântico (áreas vs hotspots) ——— @see src/lib/campus/campusMapRegistry.ts */
+export {
+  CAMPUS_MAP_ITEMS,
+  CAMPUS_MAP_REGISTRY_TO_LEGACY_HIT_ID,
+  getAvailableCampusMapItems,
+  getCampusMapItemById,
+  getCampusMapItemsByCategory,
+  getCampusMapItemsByType,
+  getCampusRegistryIdFromLegacyHitId,
+  isCampusMapItemAvailable,
+  type CampusMapItem,
+  type CampusMapItemType,
+  type CampusPoint
+} from "@/lib/campus/campusMapRegistry";
 
 export type ResolveCampusMapAreasOptions = {
   includeExamples: boolean;
