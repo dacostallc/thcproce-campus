@@ -22,7 +22,7 @@ export function ProximityBanner({ areaName, onOpen, onDismiss }: Props) {
           transition={{ type: "spring", stiffness: 280, damping: 28 }}
           className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[35] px-4 w-full max-w-md"
         >
-          <div className="glass-hud rounded-2xl border border-canna-400/40 p-4 flex flex-col sm:flex-row sm:items-center gap-3 shadow-xl shadow-black/40">
+          <div className="glass-hud rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center gap-3">
             <p className="text-sm text-white/[0.92] flex-1 leading-snug">
               Quase lá — você entrou na zona de{" "}
               <span className="font-semibold text-canna-200">{areaName}</span>.

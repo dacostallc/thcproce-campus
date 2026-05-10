@@ -1,5 +1,5 @@
 /**
- * Cannabis 101 — fonte canónica de conteúdo e configuração do curso.
+ * Cannabis 101 — fonte canônica de conteúdo e configuração do curso.
  */
 export {
   CANNABIS101_AREA_ID,
@@ -13,16 +13,21 @@ export {
   CANNABIS101_LESSONS,
   CANNABIS101_LESSON_NODES,
   CANNABIS101_OUTLINE_TITLES,
+  cannabis101StableIdToLessonIndex,
   getCannabis101LessonStableId,
   type Cannabis101LessonNode
 } from "./lessons";
 export {
   CANNABIS101_MEDIA_ENV,
   CANNABIS101_HERO_POSTER_SRC,
+  CANNABIS101_OPENING_COPY,
   CANNABIS101_LESSON_MEDIA_HINTS,
   getCannabis101PrimaryMuxPlaybackId,
   getCannabis101TrailerMuxPlaybackId,
   getCannabis101TrailerYoutubeId,
+  getCannabis101LessonEmbedYoutubeId,
+  getCannabis101OpeningVideoSrc,
+  getCannabis101OpeningPosterSrc,
   hasCannabis101TrailerConfigured
 } from "./media";
 export { CANNABIS101_COURSE_THEME } from "./theme";

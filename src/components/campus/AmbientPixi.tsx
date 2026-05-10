@@ -66,30 +66,53 @@ export function AmbientPixi({ phase }: { phase: Phase }) {
 
         const tint = phase === "day" ? 0xfbbf24 : 0x86efac;
         const dots: InstanceType<typeof Graphics>[] = [];
-        const w = app.screen.width;
-        const h = app.screen.height;
-        const n = 18;
+        const pad = 10;
+        const n = 4;
+        const randIn = (mw: number, mh: number): { x: number; y: number } => ({
+          x: pad + Math.random() * Math.max(1, mw - pad * 2),
+          y: pad + Math.random() * Math.max(1, mh - pad * 2)
+        });
+        const spreadDots = (mw: number, mh: number): void => {
+          for (const g of dots) {
+            const p = randIn(mw, mh);
+            g.x = p.x;
+            g.y = p.y;
+          }
+        };
+
+        let w0 = app.screen.width;
+        let h0 = app.screen.height;
         for (let i = 0; i < n; i++) {
           const g = new Graphics();
-          const r = 1 + Math.random() * 2.5;
-          g.circle(0, 0, r).fill({ color: tint, alpha: 0.45 + Math.random() * 0.4 });
-          g.x = Math.random() * w;
-          g.y = Math.random() * h;
+          const r = 0.65 + Math.random() * 1.15;
+          g.circle(0, 0, r).fill({ color: tint, alpha: 0.18 + Math.random() * 0.14 });
+          const p = randIn(w0, h0);
+          g.x = p.x;
+          g.y = p.y;
           root.addChild(g);
           dots.push(g);
         }
 
         let t = 0;
         const tick = (): void => {
+          const w = app.screen.width;
+          const h = app.screen.height;
           t += 1;
           for (const g of dots) {
-            g.y -= 0.25 + Math.sin(t * 0.01 + g.x) * 0.08;
-            g.x += 0.06 * Math.cos(t * 0.015 + g.y * 0.02);
-            if (g.y < -4) {
-              g.y = h + 4;
-              g.x = Math.random() * w;
+            g.y -= 0.09 + Math.sin(t * 0.008 + g.x) * 0.035;
+            g.x += 0.026 * Math.cos(t * 0.012 + g.y * 0.018);
+            if (g.y < pad) {
+              const p = randIn(w, h);
+              g.y = p.y;
+              g.x = p.x;
             }
-            if (g.x < -4 || g.x > w + 4) g.x = ((g.x + w * 2) % w + w) % w;
+            if (g.x < pad || g.x > w - pad) {
+              const p = randIn(w, h);
+              g.x = p.x;
+              g.y = p.y;
+            }
+            g.x = Math.min(w - pad, Math.max(pad, g.x));
+            g.y = Math.min(h - pad, Math.max(pad, g.y));
           }
         };
 
@@ -101,6 +124,7 @@ export function AmbientPixi({ phase }: { phase: Phase }) {
             const ch = wrap.clientHeight;
             if (cw && ch && app.renderer) {
               app.renderer.resize(cw, ch);
+              spreadDots(app.screen.width, app.screen.height);
             }
           } catch {
             /* noop */
@@ -131,7 +155,7 @@ export function AmbientPixi({ phase }: { phase: Phase }) {
   return (
     <div
       ref={host}
-      className="pointer-events-none absolute inset-0 z-[6] opacity-50 md:opacity-65"
+      className="pointer-events-none absolute inset-0 z-[1] opacity-[0.22] md:opacity-[0.28]"
       aria-hidden
     />
   );

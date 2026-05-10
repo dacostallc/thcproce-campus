@@ -1,11 +1,16 @@
 "use client";
 
-import { CAMPUS_IMAGE_OBJECT_POSITION } from "@/lib/campusArt";
+import {
+  CAMPUS_MAP_BACKGROUND_IMG_STYLE,
+  CAMPUS_MAP_BACKGROUND_IMG_STYLE_CONTAIN
+} from "@/lib/campusArt";
 import { useCampusSkyStore } from "@/stores/campusSkyStore";
 
 type Props = {
   bgNightSrc: string;
   bgDaySrc: string;
+  /** Em sync com `CampusMap` quando debug/preview de alinhamento usam `contain`. */
+  campusMapAlignmentPreview?: boolean;
   /** Mensagem curta (ex.: erro de renderização ou WebGL). */
   hint?: string | null;
   onRetry?: () => void;
@@ -17,15 +22,17 @@ type Props = {
 export function CampusMapCanvasFallback({
   bgNightSrc,
   bgDaySrc,
+  campusMapAlignmentPreview,
   hint,
   onRetry
 }: Props) {
   const sky = useCampusSkyStore((s) => s.sky);
+  const imgStyle = campusMapAlignmentPreview ? CAMPUS_MAP_BACKGROUND_IMG_STYLE_CONTAIN : CAMPUS_MAP_BACKGROUND_IMG_STYLE;
 
   return (
     <div className="absolute inset-0 z-[5] overflow-hidden bg-ink-900">
       <div
-        className="absolute inset-0 transition-opacity duration-500"
+        className="absolute inset-0 transition-opacity duration-700 ease-out"
         style={{
           opacity: sky === "night" ? 1 : 0,
           pointerEvents: sky === "night" ? "auto" : "none"
@@ -35,8 +42,8 @@ export function CampusMapCanvasFallback({
         <img
           src={bgNightSrc}
           alt=""
-          className="absolute inset-0 z-0 h-full w-full object-cover opacity-100 brightness-100"
-          style={{ objectPosition: CAMPUS_IMAGE_OBJECT_POSITION }}
+          className="pointer-events-none opacity-100"
+          style={{ ...imgStyle }}
           decoding="async"
           onError={(e) => {
             e.currentTarget.style.display = "none";
@@ -49,7 +56,7 @@ export function CampusMapCanvasFallback({
       </div>
 
       <div
-        className="absolute inset-0 transition-opacity duration-500"
+        className="absolute inset-0 transition-opacity duration-700 ease-out"
         style={{
           opacity: sky === "day" ? 1 : 0,
           pointerEvents: sky === "day" ? "auto" : "none"
@@ -59,8 +66,8 @@ export function CampusMapCanvasFallback({
         <img
           src={bgDaySrc}
           alt=""
-          className="absolute inset-0 z-0 h-full w-full object-cover opacity-100 brightness-100"
-          style={{ objectPosition: CAMPUS_IMAGE_OBJECT_POSITION }}
+          className="pointer-events-none opacity-100"
+          style={{ ...imgStyle }}
           decoding="async"
           onError={(e) => {
             e.currentTarget.style.display = "none";

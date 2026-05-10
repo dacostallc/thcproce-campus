@@ -50,7 +50,7 @@ export function CineDriveIn({ youtubeUrl }: Props) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-0 pointer-events-auto bg-gradient-to-b from-black/62 via-black/42 to-transparent"
+            className="fixed inset-0 z-0 pointer-events-auto bg-gradient-to-b from-black/42 via-black/26 to-transparent"
             aria-hidden
             onClick={() => closeCineDriveIn()}
           />
@@ -60,7 +60,7 @@ export function CineDriveIn({ youtubeUrl }: Props) {
             className="pointer-events-none fixed left-1/2 top-[6%] z-[25] block h-[min(58vh,620px)] w-[min(99vw,1420px)] -translate-x-1/2 md:h-[min(62vh,700px)]"
             aria-hidden
             animate={{
-              opacity: [0.58, 0.93, 0.66, 0.88],
+              opacity: [0.4, 0.72, 0.48, 0.68],
               scale: [1, 1.012, 0.994, 1.006],
               rotate: [-0.3, 0.35, -0.2, 0.15]
             }}
@@ -72,9 +72,9 @@ export function CineDriveIn({ youtubeUrl }: Props) {
             }}
             style={{
               background: [
-                "radial-gradient(ellipse 92% 78% at 50% -2%, rgba(252,251,247,0.34) 0%, rgba(52,211,153,0.44) 22%, rgba(16,163,124,0.18) 48%, transparent 74%)",
-                "radial-gradient(ellipse 70% 60% at 46% 4%, rgba(224,247,239,0.28) 0%, transparent 55%)",
-                "radial-gradient(ellipse 95% 80% at 52% -6%, rgba(167,251,229,0.12) 0%, transparent 42%)"
+                "radial-gradient(ellipse 92% 78% at 50% -2%, rgba(252,251,247,0.22) 0%, rgba(52,211,153,0.28) 22%, rgba(16,163,124,0.12) 48%, transparent 74%)",
+                "radial-gradient(ellipse 70% 60% at 46% 4%, rgba(224,247,239,0.18) 0%, transparent 55%)",
+                "radial-gradient(ellipse 95% 80% at 52% -6%, rgba(167,251,229,0.08) 0%, transparent 42%)"
               ].join(", "),
               filter: "saturate(1.06)"
             }}
@@ -84,7 +84,7 @@ export function CineDriveIn({ youtubeUrl }: Props) {
             className="pointer-events-none fixed left-1/2 top-[6%] z-[26] block h-[min(58vh,620px)] w-[min(99vw,1420px)] -translate-x-1/2 mix-blend-screen md:h-[min(62vh,700px)]"
             aria-hidden
             animate={{
-              opacity: [0.12, 0.34, 0.18, 0.3]
+              opacity: [0.08, 0.22, 0.14, 0.22]
             }}
             transition={{
               repeat: Infinity,
@@ -95,7 +95,7 @@ export function CineDriveIn({ youtubeUrl }: Props) {
             }}
             style={{
               background:
-                "radial-gradient(ellipse 78% 52% at 50% 2%, rgba(250,250,250,0.65) 0%, rgba(110,231,183,0.15) 36%, transparent 68%)"
+                "radial-gradient(ellipse 78% 52% at 50% 2%, rgba(250,250,250,0.42) 0%, rgba(110,231,183,0.1) 36%, transparent 68%)"
             }}
           />
 
@@ -106,7 +106,7 @@ export function CineDriveIn({ youtubeUrl }: Props) {
             <motion.div
               className="mx-auto h-full max-w-[1200px]"
               animate={{
-                opacity: [0.68, 1, 0.76, 0.92]
+                opacity: [0.52, 0.82, 0.58, 0.74]
               }}
               transition={{
                 repeat: Infinity,
@@ -116,7 +116,7 @@ export function CineDriveIn({ youtubeUrl }: Props) {
               }}
               style={{
                 background:
-                  "linear-gradient(to bottom, rgba(248,250,252,0.11) 0%, rgba(34,197,94,0.15) 12%, rgba(45,212,191,0.07) 22%, transparent 72%)",
+                  "linear-gradient(to bottom, rgba(248,250,252,0.07) 0%, rgba(34,197,94,0.1) 12%, rgba(45,212,191,0.05) 22%, transparent 72%)",
                 maskImage:
                   "radial-gradient(ellipse 92% 100% at 50% -10%, black 52%, transparent 88%)",
                 WebkitMaskImage:
@@ -127,7 +127,7 @@ export function CineDriveIn({ youtubeUrl }: Props) {
             <motion.div
               className="pointer-events-none absolute inset-0 mx-auto max-w-[1200px]"
               animate={{
-                opacity: [0.22, 0.48, 0.26, 0.42],
+                opacity: [0.16, 0.34, 0.18, 0.3],
                 rotate: [-0.2, 0.25, -0.1, 0.15]
               }}
               transition={{
@@ -138,7 +138,7 @@ export function CineDriveIn({ youtubeUrl }: Props) {
               }}
               style={{
                 background:
-                  "linear-gradient(to bottom, rgba(240,253,244,0.14) 0%, rgba(16,185,129,0.11) 20%, transparent 78%)",
+                  "linear-gradient(to bottom, rgba(240,253,244,0.09) 0%, rgba(16,185,129,0.07) 20%, transparent 78%)",
                 mixBlendMode: "soft-light",
                 maskImage:
                   "radial-gradient(ellipse 88% 100% at 50% -8%, black 48%, transparent 86%)",
@@ -157,7 +157,7 @@ export function CineDriveIn({ youtubeUrl }: Props) {
             onClick={(e) => e.stopPropagation()}
           >
             <motion.div
-              className="relative flex h-full min-h-0 w-full min-w-0 flex-col rounded-2xl border-2 border-canna-400/70 bg-black/38 p-2.5 shadow-[0_0_32px_rgba(74,222,128,0.45),0_0_4px_rgba(74,222,128,0.9)_inset] sm:rounded-3xl sm:p-3 md:p-4"
+              className="relative flex h-full min-h-0 w-full min-w-0 flex-col rounded-2xl border-2 border-canna-400/70 bg-black/30 p-2.5 shadow-[0_0_32px_rgba(74,222,128,0.45),0_0_4px_rgba(74,222,128,0.9)_inset] sm:rounded-3xl sm:p-3 md:p-4"
               style={{
                 WebkitBackdropFilter: "blur(14px)",
                 backdropFilter: "blur(14px)"
@@ -180,7 +180,7 @@ export function CineDriveIn({ youtubeUrl }: Props) {
                 Cine THCProce — transmissão ao vivo
               </h2>
 
-              <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-white/12 bg-black/25">
+              <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-white/12 bg-black/18">
                 {url ? (
                   <div className="relative flex min-h-[min(48vh,460px)] flex-1 flex-col overflow-hidden [&_.react-player]:!absolute [&_.react-player]:!left-0 [&_.react-player]:!top-0 [&_.react-player]:!h-full [&_.react-player]:!w-full [&_iframe]:!h-full [&_iframe]:!w-full">
                     <ReactPlayer

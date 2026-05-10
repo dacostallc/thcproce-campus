@@ -28,20 +28,23 @@ html, body {
     -webkit-backdrop-filter: blur(22px) saturate(160%);
     border: 1px solid rgba(74, 222, 128, 0.22);
   }
-  /** HUD / nav — menos “painel corporativo”, mais lounge underground. */
+  /**
+   * Campus / HUD — light holographic glass (panels). Alias: `.glass-hud`.
+   * Primary solid CTAs use separate styles; do not rely on this for buttons.
+   */
+  .campus-hud-glass,
   .glass-hud {
-    background: linear-gradient(
-      145deg,
-      rgba(10, 22, 16, 0.88) 0%,
-      rgba(8, 18, 12, 0.82) 45%,
-      rgba(12, 28, 18, 0.86) 100%
-    );
-    backdrop-filter: blur(20px) saturate(155%);
-    -webkit-backdrop-filter: blur(20px) saturate(155%);
-    border: 1px solid rgba(251, 191, 36, 0.14);
+    background: rgba(6, 18, 12, 0.22);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(120, 255, 180, 0.14);
     box-shadow:
-      0 8px 32px rgba(0, 0, 0, 0.38),
-      inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      0 0 24px rgba(80, 255, 160, 0.05),
+      0 2px 14px rgba(0, 0, 0, 0.1);
+    transition:
+      background 220ms ease,
+      border-color 220ms ease,
+      opacity 220ms ease;
   }
   .text-shadow-soft {
     text-shadow: 0 1px 2px rgba(0,0,0,0.6), 0 0 20px rgba(0,0,0,0.4);
@@ -160,27 +163,27 @@ html, body {
   }
   .ring-glow-canna {
     box-shadow:
-      0 0 0 1px rgba(74, 222, 128, 0.5),
-      0 0 24px 4px rgba(74, 222, 128, 0.35),
-      0 0 64px 8px rgba(74, 222, 128, 0.18);
+      0 0 0 1px rgba(90, 150, 110, 0.22),
+      0 0 12px 2px rgba(74, 120, 92, 0.12),
+      0 0 28px 4px rgba(74, 100, 88, 0.06);
   }
   .ring-glow-purple {
     box-shadow:
-      0 0 0 1px rgba(192, 132, 252, 0.5),
-      0 0 24px 4px rgba(192, 132, 252, 0.35),
-      0 0 64px 8px rgba(192, 132, 252, 0.18);
+      0 0 0 1px rgba(140, 120, 160, 0.22),
+      0 0 12px 2px rgba(120, 100, 150, 0.1),
+      0 0 28px 4px rgba(100, 90, 120, 0.05);
   }
   .ring-glow-amber {
     box-shadow:
-      0 0 0 1px rgba(251, 191, 36, 0.5),
-      0 0 24px 4px rgba(251, 191, 36, 0.35),
-      0 0 64px 8px rgba(251, 191, 36, 0.18);
+      0 0 0 1px rgba(160, 130, 80, 0.24),
+      0 0 12px 2px rgba(140, 120, 70, 0.11),
+      0 0 28px 4px rgba(120, 100, 60, 0.05);
   }
   .ring-glow-cyan {
     box-shadow:
-      0 0 0 1px rgba(103, 232, 249, 0.5),
-      0 0 24px 4px rgba(103, 232, 249, 0.35),
-      0 0 64px 8px rgba(103, 232, 249, 0.18);
+      0 0 0 1px rgba(90, 130, 130, 0.22),
+      0 0 12px 2px rgba(80, 120, 120, 0.1),
+      0 0 28px 4px rgba(70, 100, 110, 0.05);
   }
   .vignette {
     background: radial-gradient(
@@ -216,4 +219,924 @@ html, body {
 .no-select {
   -webkit-user-select: none;
   user-select: none;
+}
+
+/* —— Campus mapa: zonas SVG + performance (só opacity/transform em keyframes) —— */
+#campus-map-stage.campus-map-native-cursor-hidden {
+  cursor: none;
+}
+
+/**
+ * Letterbox — mais translúcido e menos “modal”; o mapa ganha protagonismo.
+ */
+.campus-map-letterbox-gutter {
+  background-color: rgb(8 14 12 / 0.52);
+  background-image:
+    radial-gradient(ellipse 78% 62% at 48% 22%, rgba(34, 211, 238, 0.032), transparent 58%),
+    radial-gradient(ellipse 54% 46% at 82% 74%, rgba(167, 139, 250, 0.045), transparent 55%),
+    linear-gradient(180deg, rgba(5, 10, 7, 0.88) 0%, rgba(10, 22, 16, 0.92) 52%, rgba(5, 10, 7, 0.88) 100%);
+  -webkit-backdrop-filter: blur(10px) saturate(118%);
+  backdrop-filter: blur(10px) saturate(118%);
+}
+
+[data-sky="day"] .campus-map-letterbox-gutter {
+  background-color: rgb(224 242 254 / 0.22);
+  background-image:
+    radial-gradient(ellipse 72% 54% at 44% 18%, rgba(56, 189, 248, 0.09), transparent 56%),
+    radial-gradient(ellipse 50% 42% at 78% 78%, rgba(250, 204, 21, 0.05), transparent 54%),
+    linear-gradient(180deg, rgba(224, 242, 254, 0.42) 0%, rgba(254, 249, 195, 0.22) 55%, rgba(220, 252, 231, 0.34) 100%);
+  -webkit-backdrop-filter: blur(12px) saturate(124%);
+  backdrop-filter: blur(12px) saturate(124%);
+}
+
+.campus-map-zone {
+  opacity: var(--zone-opacity, 1);
+  filter: grayscale(var(--zone-grayscale, 0));
+}
+
+.campus-map-zone__hit {
+  pointer-events: auto;
+  fill: var(--zone-fill);
+  stroke: var(--zone-stroke);
+  stroke-width: 0.35px;
+  filter: var(--zone-glow, none);
+  transition: filter 0.2s ease, opacity 0.2s ease;
+}
+
+.campus-map-zone--active .campus-map-zone__hit {
+  stroke-width: 0.48px;
+}
+
+.campus-map-zone-live-scale {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: campus-map-live-breathe 3.85s ease-in-out infinite;
+}
+
+@keyframes campus-map-live-breathe {
+  0%,
+  100% {
+    opacity: 0.94;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.012);
+  }
+}
+
+/**
+ * Mapa simples: fundo full-bleed com a mesma arte (blur) atrás dos gutters + frame centrado `contain`.
+ */
+.campus-map-blur-backdrop {
+  contain: strict;
+}
+
+.campus-map-blur-backdrop__phase {
+  will-change: opacity;
+}
+
+/**
+ * Moldura mais discreta + zoom cinematográfico leve (protagonismo do mapa).
+ */
+#campus-map-art-frame.campus-map-art-frame-premium {
+  border-radius: clamp(11px, 1.9vw, 17px);
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.045);
+  box-shadow:
+    0 0 0 1px rgba(120, 255, 220, 0.035),
+    0 22px 56px rgba(0, 0, 0, 0.28),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.028);
+}
+
+[data-campus-immersive="1"] #campus-map-art-frame.campus-map-art-frame-premium {
+  transform: scale(1.056);
+  transform-origin: center center;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-campus-immersive="1"] #campus-map-art-frame.campus-map-art-frame-premium {
+    transform: none;
+    will-change: auto;
+  }
+}
+
+/**
+ * Raiz comum mapa simples + avançado: `min-height` preservado pelo flex/img;
+ * container queries para animações futuras; mapa avançado também beneficia de clip consistente.
+ */
+.campus-map-art-root {
+  container-type: inline-size;
+  container-name: campus-art;
+}
+
+/**
+ * Partículas/vida ambiente — clip estrito à caixa da arte (não letterbox).
+ * `contain: paint` reforça corte de brilho/blur em WebKit; `border-radius` herda a moldura premium.
+ */
+.campus-map-fx-clip {
+  contain: paint;
+  isolation: isolate;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+/* Ambiente: tráfego/drones ao longo da largura do frame (não `vw`, para não invadir gutters). */
+@keyframes campus-map-ambient-drone-a {
+  0% {
+    left: -56px;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+@keyframes campus-map-ambient-drone-b {
+  0% {
+    left: 100%;
+  }
+  100% {
+    left: -56px;
+  }
+}
+
+@keyframes campus-map-ambient-car-pass {
+  0% {
+    left: -18px;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+.campus-map-ambient-drone-a {
+  animation: campus-map-ambient-drone-a 38s linear infinite;
+}
+
+.campus-map-ambient-drone-b {
+  animation: campus-map-ambient-drone-b 46s linear infinite;
+}
+
+.campus-map-ambient-car-a {
+  animation: campus-map-ambient-car-pass 52s linear infinite;
+}
+
+.campus-map-ambient-car-b {
+  animation: campus-map-ambient-car-pass 62s linear infinite 9s;
+}
+
+@keyframes campus-map-vivo-drone-crawl {
+  0% {
+    left: -40px;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+.campus-map-vivo-drone-crawl {
+  animation: campus-map-vivo-drone-crawl 58s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .campus-map-ambient-drone-a,
+  .campus-map-ambient-drone-b,
+  .campus-map-ambient-car-a,
+  .campus-map-ambient-car-b,
+  .campus-map-vivo-drone-crawl {
+    animation: none !important;
+  }
+}
+
+/** Vigneta mais suave — menos “caixa escura” sobre o desenho. */
+.campus-map-art-vignette {
+  background: radial-gradient(circle at center, transparent 62%, rgba(0, 0, 0, 0.22) 100%);
+}
+
+[data-sky="day"] .campus-map-art-vignette {
+  background: radial-gradient(circle at center, transparent 58%, rgba(15, 23, 42, 0.08) 100%);
+}
+
+/** Sobreposição image-map: viewBox = pixéis da arte 1536×1024; SVG com overflow cortado para sombras não fugirem do mapa. */
+.campus-interactive-svg-capture {
+  pointer-events: all;
+}
+
+/**
+ * Camada “glass” sob cada hotspot — preenchimento muito transparente, traço fino, blend suave com a arte.
+ * O marcador circular permanece por cima (ordem no DOM). Forma = polígono/círculo real (sem rectângulos).
+ */
+.campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug)
+  .campus-interactive-shape--hits
+  .campus-interactive-shape__glass-fill {
+  pointer-events: none;
+  vector-effect: non-scaling-stroke;
+  mix-blend-mode: soft-light;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  transition:
+    fill 620ms cubic-bezier(0.2, 0.74, 0.18, 1),
+    stroke 620ms cubic-bezier(0.2, 0.74, 0.18, 1),
+    opacity 620ms cubic-bezier(0.2, 0.74, 0.18, 1),
+    filter 620ms cubic-bezier(0.2, 0.74, 0.18, 1);
+}
+
+/* Aberto — verde / dourado suave */
+.campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug)
+  .campus-interactive-shape--access-open.campus-interactive-shape--hits
+  .campus-interactive-shape__glass-fill {
+  fill: rgba(45, 212, 191, 0.056);
+  stroke: rgba(253, 224, 71, 0.13);
+  stroke-width: 0.056;
+  filter: none;
+  opacity: 0.94;
+}
+
+/* Ao vivo — vermelho discreto sobre a área */
+.campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug)
+  .campus-interactive-shape--live.campus-interactive-shape--access-open.campus-interactive-shape--hits
+  .campus-interactive-shape__glass-fill {
+  fill: rgba(248, 113, 113, 0.048);
+  stroke: rgba(254, 202, 202, 0.15);
+  stroke-width: 0.058;
+}
+
+/* Bloqueado — azul / cinza */
+.campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug)
+  .campus-interactive-shape--access-locked.campus-interactive-shape--hits
+  .campus-interactive-shape__glass-fill {
+  fill: rgba(56, 189, 248, 0.045);
+  stroke: rgba(148, 163, 184, 0.14);
+  stroke-width: 0.054;
+  opacity: 0.9;
+}
+
+/* Em breve — roxo suave */
+.campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug)
+  .campus-interactive-shape--access-soon.campus-interactive-shape--hits
+  .campus-interactive-shape__glass-fill {
+  fill: rgba(167, 139, 250, 0.05);
+  stroke: rgba(192, 132, 252, 0.15);
+  stroke-width: 0.056;
+  opacity: 0.92;
+}
+
+/* Área ativa (hit target): quase invisível mas perceptível */
+.campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug) .campus-interactive-shape__hit-face {
+  pointer-events: auto;
+  vector-effect: non-scaling-stroke;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  fill: transparent;
+  stroke: rgba(255, 255, 255, 0.038);
+  stroke-width: 0.048;
+  transition:
+    filter 620ms cubic-bezier(0.2, 0.74, 0.18, 1),
+    stroke 620ms cubic-bezier(0.2, 0.74, 0.18, 1),
+    stroke-width 620ms cubic-bezier(0.2, 0.74, 0.18, 1),
+    fill 620ms cubic-bezier(0.2, 0.74, 0.18, 1),
+    opacity 620ms cubic-bezier(0.2, 0.74, 0.18, 1);
+}
+
+.campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug)
+  .campus-interactive-shape__hit-face:focus-visible {
+  outline: none;
+  stroke: color-mix(in srgb, var(--campus-glow-color, #6ee7b7) 72%, rgba(255, 255, 255, 0.55));
+  stroke-width: 0.095;
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--campus-glow-color, #6ee7b7) 42%, transparent));
+}
+
+/* Hover — brilho + contorno + sombra seguindo a forma (drop-shadow no próprio path) */
+.campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug)
+  .campus-interactive-shape--hits:hover
+  .campus-interactive-shape__glass-fill {
+  opacity: 1;
+  stroke-width: 0.072;
+  filter: drop-shadow(0 0 4px color-mix(in srgb, var(--campus-glow-color, #a7f3d0) 28%, transparent))
+    drop-shadow(0 0 14px color-mix(in srgb, var(--campus-glow-color, #a7f3d0) 14%, transparent));
+}
+
+.campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug)
+  .campus-interactive-shape--access-open.campus-interactive-shape--hits:hover
+  .campus-interactive-shape__glass-fill {
+  fill: rgba(52, 211, 153, 0.078);
+  stroke: rgba(253, 224, 71, 0.22);
+}
+
+.campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug)
+  .campus-interactive-shape--live.campus-interactive-shape--access-open.campus-interactive-shape--hits:hover
+  .campus-interactive-shape__glass-fill {
+  fill: rgba(248, 113, 113, 0.072);
+  stroke: rgba(254, 226, 226, 0.26);
+  filter: drop-shadow(0 0 5px rgba(248, 113, 113, 0.35)) drop-shadow(0 0 14px rgba(248, 113, 113, 0.18));
+}
+
+.campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug)
+  .campus-interactive-shape--access-locked.campus-interactive-shape--hits:hover
+  .campus-interactive-shape__glass-fill {
+  fill: rgba(56, 189, 248, 0.068);
+  stroke: rgba(186, 230, 253, 0.22);
+  filter: drop-shadow(0 0 5px rgba(56, 189, 248, 0.28)) drop-shadow(0 0 14px rgba(56, 189, 248, 0.14));
+}
+
+.campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug)
+  .campus-interactive-shape--access-soon.campus-interactive-shape--hits:hover
+  .campus-interactive-shape__glass-fill {
+  fill: rgba(167, 139, 250, 0.078);
+  stroke: rgba(221, 214, 254, 0.26);
+  filter: drop-shadow(0 0 5px rgba(167, 139, 250, 0.32)) drop-shadow(0 0 14px rgba(167, 139, 250, 0.15));
+}
+
+.campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug)
+  .campus-interactive-shape--hits:hover
+  .campus-interactive-shape__hit-face {
+  stroke: color-mix(in srgb, var(--campus-glow-color, #fef9c3) 52%, rgba(255, 255, 255, 0.62));
+  stroke-width: 0.082;
+  fill: rgba(255, 255, 255, 0.028);
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--campus-glow-color, #a7f3d0) 32%, transparent))
+    drop-shadow(0 0 16px color-mix(in srgb, var(--campus-glow-color, #a7f3d0) 16%, transparent));
+}
+
+.campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug)
+  .campus-interactive-shape--access-locked.campus-interactive-shape--hits:hover
+  .campus-interactive-shape__hit-face {
+  stroke: color-mix(in srgb, #94a3b8 58%, rgba(56, 189, 248, 0.46));
+  filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.32))
+    drop-shadow(0 0 15px rgba(56, 189, 248, 0.14));
+}
+
+.campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug)
+  .campus-interactive-shape--access-soon.campus-interactive-shape--hits:hover
+  .campus-interactive-shape__hit-face {
+  stroke: color-mix(in srgb, #c4b5fd 56%, rgba(251, 191, 36, 0.48));
+  filter: drop-shadow(0 0 7px rgba(167, 139, 250, 0.32))
+    drop-shadow(0 0 16px rgba(167, 139, 250, 0.14));
+}
+
+.campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug)
+  .campus-interactive-shape--live.campus-interactive-shape--access-open.campus-interactive-shape--hits:hover
+  .campus-interactive-shape__hit-face {
+  stroke: color-mix(in srgb, rgba(254, 202, 202, 0.92) 48%, rgba(255, 255, 255, 0.58));
+  filter: drop-shadow(0 0 6px rgba(248, 113, 113, 0.42))
+    drop-shadow(0 0 17px rgba(248, 113, 113, 0.18));
+}
+
+/* Temas pequenos: proximidade do rato ≈ hover na camada glass */
+.campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug)
+  .campus-interactive-shape--light-topic.campus-interactive-shape--hits.campus-interactive-shape--proximity-near
+  .campus-interactive-shape__glass-fill {
+  opacity: 1;
+  stroke-width: 0.068;
+  filter: drop-shadow(0 0 4px color-mix(in srgb, var(--campus-glow-color, #7bd8ee) 26%, transparent))
+    drop-shadow(0 0 13px color-mix(in srgb, var(--campus-glow-color, #7bd8ee) 13%, transparent));
+}
+
+/* Proximidade: repetir matizes por estado (sem depender da cascata .access-open no mesmo elemento) */
+.campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug)
+  .campus-interactive-shape--light-topic.campus-interactive-shape--hits.campus-interactive-shape--proximity-near.campus-interactive-shape--access-open
+  .campus-interactive-shape__glass-fill {
+  fill: rgba(52, 211, 153, 0.072);
+  stroke: rgba(253, 224, 71, 0.19);
+}
+
+.campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug)
+  .campus-interactive-shape--light-topic.campus-interactive-shape--hits.campus-interactive-shape--proximity-near.campus-interactive-shape--live.campus-interactive-shape--access-open
+  .campus-interactive-shape__glass-fill {
+  fill: rgba(248, 113, 113, 0.068);
+  stroke: rgba(254, 226, 226, 0.22);
+  filter: drop-shadow(0 0 5px rgba(248, 113, 113, 0.32)) drop-shadow(0 0 13px rgba(248, 113, 113, 0.15));
+}
+
+.campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug)
+  .campus-interactive-shape--light-topic.campus-interactive-shape--hits.campus-interactive-shape--proximity-near.campus-interactive-shape--access-locked
+  .campus-interactive-shape__glass-fill {
+  fill: rgba(56, 189, 248, 0.062);
+  stroke: rgba(186, 230, 253, 0.2);
+  filter: drop-shadow(0 0 5px rgba(56, 189, 248, 0.26)) drop-shadow(0 0 13px rgba(56, 189, 248, 0.12));
+}
+
+.campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug)
+  .campus-interactive-shape--light-topic.campus-interactive-shape--hits.campus-interactive-shape--proximity-near.campus-interactive-shape--access-soon
+  .campus-interactive-shape__glass-fill {
+  fill: rgba(167, 139, 250, 0.072);
+  stroke: rgba(221, 214, 254, 0.23);
+  filter: drop-shadow(0 0 5px rgba(167, 139, 250, 0.28)) drop-shadow(0 0 13px rgba(167, 139, 250, 0.13));
+}
+
+.campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug)
+  .campus-interactive-shape--light-topic.campus-interactive-shape--hits.campus-interactive-shape--proximity-near
+  .campus-interactive-shape__hit-face,
+.campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug)
+  .campus-interactive-shape--light-topic.campus-interactive-shape--hits
+  .campus-interactive-shape__hit-face:hover {
+  stroke: color-mix(in srgb, var(--campus-glow-color, #7bd8ee) 55%, rgba(255, 250, 235, 0.48));
+  stroke-width: 0.078;
+  fill: rgba(255, 255, 255, 0.022);
+  filter: drop-shadow(0 0 5px color-mix(in srgb, var(--campus-glow-color, #7bd8ee) 34%, transparent))
+    drop-shadow(0 0 14px color-mix(in srgb, var(--campus-glow-color, #7bd8ee) 17%, transparent));
+}
+
+.campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug)
+  .campus-interactive-shape--access-locked.campus-interactive-shape--light-topic.campus-interactive-shape--hits.campus-interactive-shape--proximity-near
+  .campus-interactive-shape__hit-face {
+  stroke: color-mix(in srgb, #94a3b8 58%, rgba(56, 189, 248, 0.46)) !important;
+  filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.28)) drop-shadow(0 0 14px rgba(56, 189, 248, 0.12)) !important;
+}
+
+/* Salas primárias — mesmo tratamento; cor de glow já vem das CSS vars do grupo */
+.campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug)
+  .campus-interactive-shape--light-primary.campus-interactive-shape--hits:hover
+  .campus-interactive-shape__hit-face {
+  stroke: color-mix(in srgb, var(--campus-glow-color, #9ee8c8) 58%, rgba(255, 236, 190, 0.52));
+  stroke-width: 0.084;
+}
+
+/* Em breve + tema pequeno: proximidade revela contorno roxo/dourado */
+.campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug)
+  .campus-interactive-shape--access-soon.campus-interactive-shape--light-topic.campus-interactive-shape--hits.campus-interactive-shape--proximity-near
+  .campus-interactive-shape__hit-face {
+  stroke: color-mix(in srgb, #c4b5fd 56%, rgba(251, 191, 36, 0.42)) !important;
+  filter: drop-shadow(0 0 7px rgba(167, 139, 250, 0.26)) !important;
+}
+
+/* Modo dia — arte mais clara: contrastes ligeiramente mais fortes (sem ficar opaco) */
+[data-sky="day"]
+  .campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug)
+  .campus-interactive-shape--access-open.campus-interactive-shape--hits
+  .campus-interactive-shape__glass-fill {
+  fill: rgba(16, 185, 129, 0.062);
+  stroke: rgba(180, 83, 9, 0.17);
+}
+
+[data-sky="day"]
+  .campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug)
+  .campus-interactive-shape--live.campus-interactive-shape--access-open.campus-interactive-shape--hits
+  .campus-interactive-shape__glass-fill {
+  fill: rgba(239, 68, 68, 0.055);
+  stroke: rgba(252, 165, 165, 0.18);
+}
+
+[data-sky="day"]
+  .campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug)
+  .campus-interactive-shape--access-locked.campus-interactive-shape--hits
+  .campus-interactive-shape__glass-fill {
+  fill: rgba(59, 130, 246, 0.058);
+  stroke: rgba(100, 116, 139, 0.16);
+}
+
+[data-sky="day"]
+  .campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug)
+  .campus-interactive-shape--access-soon.campus-interactive-shape--hits
+  .campus-interactive-shape__glass-fill {
+  fill: rgba(124, 58, 237, 0.058);
+  stroke: rgba(167, 139, 250, 0.17);
+}
+
+[data-sky="day"]
+  .campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug)
+  .campus-interactive-shape__hit-face {
+  stroke: rgba(255, 255, 255, 0.052);
+}
+
+/**
+ * Marcadores glass/holográficos por hotspot — pequenos, acima do polígono.
+ */
+.campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug) .campus-hotspot-marker-hoverscale {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform 560ms cubic-bezier(0.2, 0.74, 0.18, 1);
+}
+
+.campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug)
+  .campus-interactive-shape--hits:hover
+  .campus-hotspot-marker-hoverscale {
+  transform: scale(1.15);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug) .campus-hotspot-marker-halo {
+    animation: campus-hotspot-marker-halo 7.4s ease-in-out infinite;
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+}
+
+@keyframes campus-hotspot-marker-halo {
+  0%,
+  100% {
+    opacity: 0.28;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.075);
+  }
+}
+
+/* Estado aberto — verde / dourado suave */
+.campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug)
+  .campus-hotspot-marker-root--open
+  .campus-hotspot-marker-halo {
+  fill: rgba(167, 243, 208, 0.17);
+  stroke: none;
+}
+
+.campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug)
+  .campus-hotspot-marker-root--open
+  .campus-hotspot-marker-ring {
+  fill: none;
+  stroke: rgba(251, 191, 36, 0.42);
+  stroke-width: 0.36;
+}
+
+.campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug)
+  .campus-hotspot-marker-root--open
+  .campus-hotspot-marker-core {
+  fill: rgba(255, 253, 246, 0.3);
+  stroke: rgba(52, 211, 153, 0.52);
+  stroke-width: 0.3;
+  filter: drop-shadow(0 0 4px rgba(167, 243, 208, 0.42)) drop-shadow(0 0 10px rgba(251, 191, 36, 0.15));
+}
+
+.campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug)
+  .campus-hotspot-marker-root--open
+  .campus-hotspot-marker-glint {
+  fill: rgba(255, 255, 255, 0.52);
+  mix-blend-mode: soft-light;
+}
+
+/* Bloqueado — azul / cinza */
+.campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug)
+  .campus-hotspot-marker-root--locked
+  .campus-hotspot-marker-halo {
+  fill: rgba(148, 163, 184, 0.11);
+}
+
+.campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug)
+  .campus-hotspot-marker-root--locked
+  .campus-hotspot-marker-ring {
+  fill: none;
+  stroke: rgba(56, 189, 248, 0.26);
+  stroke-width: 0.32;
+}
+
+.campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug)
+  .campus-hotspot-marker-root--locked
+  .campus-hotspot-marker-core {
+  fill: rgba(226, 232, 240, 0.17);
+  stroke: rgba(100, 116, 139, 0.46);
+  stroke-width: 0.26;
+  filter: drop-shadow(0 0 3px rgba(56, 189, 248, 0.22));
+}
+
+.campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug)
+  .campus-hotspot-marker-root--locked
+  .campus-hotspot-marker-glint {
+  fill: rgba(255, 255, 255, 0.3);
+  mix-blend-mode: soft-light;
+}
+
+/* Em breve — roxo suave */
+.campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug)
+  .campus-hotspot-marker-root--soon
+  .campus-hotspot-marker-halo {
+  fill: rgba(196, 181, 253, 0.11);
+}
+
+.campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug)
+  .campus-hotspot-marker-root--soon
+  .campus-hotspot-marker-ring {
+  fill: none;
+  stroke: rgba(167, 139, 250, 0.36);
+  stroke-width: 0.34;
+}
+
+.campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug)
+  .campus-hotspot-marker-root--soon
+  .campus-hotspot-marker-core {
+  fill: rgba(250, 245, 255, 0.19);
+  stroke: rgba(192, 132, 252, 0.42);
+  stroke-width: 0.27;
+  filter: drop-shadow(0 0 4px rgba(167, 139, 250, 0.26));
+}
+
+.campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug)
+  .campus-hotspot-marker-root--soon
+  .campus-hotspot-marker-glint {
+  fill: rgba(255, 255, 255, 0.38);
+  mix-blend-mode: soft-light;
+}
+
+/* Modo dia na arte clara — marcadores com mais presença */
+[data-sky="day"]
+  .campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug)
+  .campus-hotspot-marker-root--open
+  .campus-hotspot-marker-halo {
+  fill: rgba(34, 197, 94, 0.15);
+}
+
+[data-sky="day"]
+  .campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug)
+  .campus-hotspot-marker-root--open
+  .campus-hotspot-marker-ring {
+  stroke: rgba(180, 83, 9, 0.48);
+  stroke-width: 0.38;
+}
+
+[data-sky="day"]
+  .campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug)
+  .campus-hotspot-marker-root--open
+  .campus-hotspot-marker-core {
+  fill: rgba(255, 255, 252, 0.55);
+  stroke: rgba(21, 128, 61, 0.58);
+  stroke-width: 0.34;
+  filter: drop-shadow(0 0 4px rgba(34, 197, 94, 0.38)) drop-shadow(0 0 11px rgba(250, 204, 21, 0.18));
+}
+
+[data-sky="day"]
+  .campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug)
+  .campus-hotspot-marker-root--locked
+  .campus-hotspot-marker-core {
+  fill: rgba(248, 250, 252, 0.5);
+  stroke: rgba(37, 99, 235, 0.52);
+  filter: drop-shadow(0 0 4px rgba(59, 130, 246, 0.32));
+}
+
+[data-sky="day"]
+  .campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug)
+  .campus-hotspot-marker-root--soon
+  .campus-hotspot-marker-core {
+  fill: rgba(250, 245, 255, 0.52);
+  stroke: rgba(124, 58, 237, 0.52);
+  filter: drop-shadow(0 0 5px rgba(167, 139, 250, 0.34));
+}
+
+/* Ao vivo — bolinha vermelha satélite */
+.campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug) .campus-hotspot-marker-live {
+  transform-box: fill-box;
+  transform-origin: center;
+  pointer-events: none;
+  fill: #f87171;
+  stroke: rgba(255, 255, 255, 0.44);
+  stroke-width: 0.16;
+  filter: drop-shadow(0 0 4px rgba(248, 113, 113, 0.78));
+  animation: campus-map-hotspot-live-pulse 1.62s ease-in-out infinite;
+}
+
+@keyframes campus-map-hotspot-live-pulse {
+  0%,
+  100% {
+    opacity: 0.82;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.18);
+  }
+}
+
+/* Pulso curto após clique — subtil */
+.campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug)
+  .campus-interactive-shape--hit-flash
+  .campus-interactive-shape__hit-face {
+  animation: campus-map-hit-luma 0.52s cubic-bezier(0.22, 0.82, 0.12, 1) forwards;
+}
+
+@keyframes campus-map-hit-luma {
+  0% {
+    stroke-width: 0.14;
+    opacity: 1;
+  }
+  100% {
+    stroke-width: 0.06;
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug)
+    .campus-interactive-shape--hit-flash
+    .campus-interactive-shape__hit-face {
+    animation: none;
+  }
+  .campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug) .campus-hotspot-marker-halo {
+    animation: none;
+    opacity: 0.32;
+  }
+  .campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug)
+    .campus-interactive-shape--hits:hover
+    .campus-hotspot-marker-hoverscale {
+    transform: none;
+  }
+  .campus-hotspot-marker-live {
+    animation: none;
+  }
+}
+
+/** Debug / legacy: outlines preenchidos — reutiliza regra abaixo */
+.campus-interactive-shape--hits polygon.campus-interactive-shape__outline,
+.campus-interactive-shape--hits circle.campus-interactive-shape__outline {
+  pointer-events: auto;
+}
+
+.campus-map-interactive-overlay--debug .campus-interactive-shape__outline {
+  fill: rgba(52, 211, 153, 0.1);
+  stroke: rgba(45, 212, 191, 0.55);
+  stroke-width: 0.22;
+}
+
+.campus-interactive-shape__tech-label {
+  pointer-events: none;
+  fill: rgba(226, 255, 250, 0.88);
+  font-size: 1.85px;
+  paint-order: stroke fill;
+}
+
+.campus-zone-spark {
+  transform-box: fill-box;
+  transform-origin: center;
+  pointer-events: none;
+}
+
+.campus-zone-spark--a {
+  animation: campus-map-spark 3.85s ease-in-out infinite;
+}
+.campus-zone-spark--b {
+  animation: campus-map-spark 4.05s ease-in-out infinite 0.45s;
+}
+.campus-zone-spark--c {
+  animation: campus-map-spark 4.2s ease-in-out infinite 0.9s;
+}
+
+@keyframes campus-map-spark {
+  0%,
+  100% {
+    opacity: 0.06;
+    transform: scale(0.93);
+  }
+  50% {
+    opacity: 0.2;
+    transform: scale(1.02);
+  }
+}
+
+@keyframes beaconGlow {
+  0%,
+  100% {
+    opacity: 0.3;
+    transform: scale(0.94);
+  }
+  50% {
+    opacity: 0.62;
+    transform: scale(1.04);
+  }
+}
+
+/* Campus ambient soft lights — transform + inner opacity; variables per node. */
+@keyframes campusAmbientSparkMotion {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  33% {
+    transform: translate3d(calc(var(--sx) * 0.75), calc(var(--sy) * -0.4), 0);
+  }
+  66% {
+    transform: translate3d(calc(var(--sx) * -0.3), calc(var(--sy) * 0.85), 0);
+  }
+}
+
+@keyframes campusAmbientSparkCore {
+  0%,
+  100% {
+    opacity: 0.045;
+  }
+  50% {
+    opacity: 0.12;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .campus-ambient-spark-node {
+    animation: none !important;
+    transform: none !important;
+    opacity: 0.16 !important;
+  }
+  .campus-ambient-spark-core {
+    animation: none !important;
+    opacity: 0.13 !important;
+  }
+}
+
+@keyframes beaconArrow {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.65;
+  }
+  50% {
+    transform: translateY(3px);
+    opacity: 1;
+  }
+}
+
+/* Campus Vivo + avatar rarity (CSS-only; Tailwind anim classes use motion-reduce:animate-none) */
+@layer utilities {
+  .campus-rarity-frame {
+    position: relative;
+    isolation: isolate;
+  }
+  .campus-rarity-frame--rare::before,
+  .campus-rarity-frame--epic::before,
+  .campus-rarity-frame--legendary::before {
+    content: "";
+    position: absolute;
+    inset: -3px;
+    border-radius: inherit;
+    padding: 2px;
+    pointer-events: none;
+    z-index: 0;
+    background: linear-gradient(120deg, rgba(52, 211, 153, 0.75), rgba(192, 132, 252, 0.85), rgba(250, 204, 21, 0.75));
+    opacity: 0.55;
+    animation: campusRarityFrameGlow 4.2s ease-in-out infinite;
+  }
+  .campus-rarity-frame--legendary::before {
+    opacity: 0.78;
+    inset: -4px;
+    background: conic-gradient(from 120deg, rgba(52,211,153,0.95), rgba(56,189,248,0.75), rgba(250,204,21,0.85), rgba(192,132,252,0.92), rgba(52,211,153,0.95));
+    filter: blur(0.2px);
+  }
+  .campus-rarity-frame--legendary {
+    filter: drop-shadow(0 0 10px rgba(52, 211, 153, 0.35))
+      drop-shadow(0 0 18px rgba(192, 132, 252, 0.18));
+    box-shadow: 0 0 22px rgba(52, 211, 153, 0.12), inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+  }
+  .campus-holo-scanlines-overlay {
+    pointer-events: none;
+    opacity: 0.16;
+    background: repeating-linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0.05) 0px,
+      rgba(255, 255, 255, 0.05) 1px,
+      transparent 3px,
+      transparent 7px
+    );
+    animation: campusHoloShimmer 9s linear infinite;
+  }
+  .campus-holo-chroma-overlay {
+    pointer-events: none;
+    opacity: 0.1;
+    background: linear-gradient(
+      90deg,
+      rgba(56, 189, 248, 0.15),
+      rgba(250, 204, 21, 0.12),
+      rgba(244, 63, 94, 0.1)
+    );
+    mix-blend-mode: plus-lighter;
+    animation: campusHoloChromaburst 14s ease-in-out infinite alternate;
+  }
+}
+
+@keyframes campusRarityFrameGlow {
+  0%,
+  100% {
+    opacity: 0.52;
+    filter: hue-rotate(0deg);
+  }
+  50% {
+    opacity: 0.92;
+    filter: hue-rotate(35deg);
+  }
+}
+
+@keyframes campusHoloShimmer {
+  0% {
+    background-position-y: 0;
+  }
+  100% {
+    background-position-y: 240px;
+  }
+}
+
+@keyframes campusHoloChromaburst {
+  0% {
+    transform: translate3d(-2%, -1%, 0) rotate(0deg);
+    opacity: 0.08;
+  }
+  100% {
+    transform: translate3d(2%, 2%, 0) rotate(1.5deg);
+    opacity: 0.13;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .campus-vivo-motion * {
+    animation: none !important;
+  }
+  .campus-holo-scanlines-overlay,
+  .campus-holo-chroma-overlay {
+    animation: none !important;
+    opacity: 0.06 !important;
+  }
 }

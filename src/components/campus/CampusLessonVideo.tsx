@@ -9,8 +9,14 @@ import {
   getBunnyDemoVideoIdPublic,
   type CampusLessonSource
 } from "@/lib/video/campusLessonSource";
-import { areaUsesRegisteredPrimaryMux, isCannabis101CourseArea, registeredPrimaryMuxPlaybackId } from "@/content/courses";
+import {
+  areaUsesRegisteredPrimaryMux,
+  isCannabis101CourseArea,
+  registeredPrimaryMuxPlaybackId
+} from "@/content/courses";
+import { getCannabis101LessonEmbedYoutubeId } from "@/content/courses/cannabis-101/media";
 import { getCourseLessonTheme } from "@/data/courseLessonThemes";
+import { cn } from "@/lib/utils";
 import { LessonCinematicFallback } from "./LessonCinematicFallback";
 import { CampusLessonHero } from "./CampusLessonHero";
 
@@ -28,6 +34,10 @@ type Props = {
    * Permite colocar CampusLessonHero manualmente (ex.: no fim da coluna).
    */
   hideFallback?: boolean;
+  /**
+   * Sem URL de vídeo e `hideFallback`: `large` = bloco 16:9; `compact` = cartão discreto (ex.: fim da aula).
+   */
+  whenNone?: "large" | "compact";
 };
 
 /**
@@ -39,7 +49,8 @@ export function CampusLessonVideo({
   areaName,
   lessonTitle,
   lessonVisual = "default",
-  hideFallback = false
+  hideFallback = false,
+  whenNone = "large"
 }: Props) {
   const { status } = useSession();
   const theme = getCourseLessonTheme(areaId);
@@ -64,6 +75,20 @@ export function CampusLessonVideo({
   let signedIframe: string | null = null;
   if (signedNeeded && status === "authenticated") {
     if (signed.isLoading) {
+      if (whenNone === "compact") {
+        return (
+          <div
+            role="status"
+            className={cn(
+              "flex items-center gap-2.5 rounded-xl border border-amber-500/22 bg-black/28 px-3 py-2.5 backdrop-blur-sm",
+              className
+            )}
+          >
+            <Loader2 className="size-4 shrink-0 animate-spin text-amber-200/90" aria-hidden />
+            <span className="text-[12px] text-white/65">A preparar o player…</span>
+          </div>
+        );
+      }
       return (
         <div
           className={
@@ -90,6 +115,10 @@ export function CampusLessonVideo({
   } else if (dedicatedMuxPath) {
     if (primaryMuxId) {
       base = { kind: "mux", playbackId: primaryMuxId };
+    } else if (isCannabis101CourseArea(areaId)) {
+      const ytFallback = getCannabis101LessonEmbedYoutubeId().trim();
+      base =
+        ytFallback.length >= 8 ? { kind: "youtube", videoId: ytFallback } : { kind: "none" };
     } else {
       base = { kind: "none" };
     }
@@ -144,7 +173,43 @@ export function CampusLessonVideo({
       );
     default:
       if (hideFallback) {
-        return null;
+        if (whenNone === "compact") {
+          return (
+            <div
+              role="status"
+              className={cn(
+                "flex max-w-md flex-col gap-1 rounded-xl border border-amber-500/28 bg-gradient-to-br from-black/50 via-emerald-950/18 to-amber-950/14 px-3 py-2.5 shadow-inner sm:flex-row sm:items-center sm:gap-3 sm:py-2",
+                className
+              )}
+            >
+              <div className="flex items-center gap-2 text-amber-200/90">
+                <span className="inline-flex size-7 shrink-0 items-center justify-center rounded-lg border border-amber-400/25 bg-black/35 text-[10px] font-bold uppercase tracking-wide">
+                  Vídeo
+                </span>
+                <p className="text-[12px] font-semibold leading-snug text-white/88">Em preparação</p>
+              </div>
+              <p className="text-[11px] leading-relaxed text-white/48 sm:min-w-0 sm:flex-1">
+                O episódio entra no player em breve — por agora use o texto e os materiais desta página.
+              </p>
+            </div>
+          );
+        }
+        return (
+          <div
+            role="status"
+            className={
+              "flex aspect-video w-full flex-col items-center justify-center gap-2 rounded-xl border border-amber-500/25 bg-gradient-to-br from-black/55 via-emerald-950/25 to-amber-950/20 px-6 text-center shadow-inner " +
+              className
+            }
+          >
+            <p className="text-sm font-semibold text-white/90">
+              Vídeo da aula em preparação
+            </p>
+            <p className="max-w-sm text-[13px] leading-relaxed text-white/55">
+              Assim que o episódio estiver no player, aparece aqui no mesmo formato — até lá, siga pelo texto e materiais abaixo.
+            </p>
+          </div>
+        );
       }
       return isCannabis101CourseArea(areaId) ? (
         <CampusLessonHero

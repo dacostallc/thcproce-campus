@@ -32,23 +32,24 @@ const AREA_FALLBACK_ROWS: Area[] = [
   {
     id: "cannabis-101",
     name: "Cannabis 101",
-    mapLabel: "Sala de aula cultivo",
-    short: "Cultivo com respeito · cultura THCProce · sala oficial com arquivo e certificado",
+    mapLabel: "Cannabis 101",
+    short:
+      "Introdução à planta, ao corpo e ao contexto legal — método THCProce · sala oficial com materiais formais",
     category: "Anfiteatro",
     level: "Iniciante",
     color: "amber",
     position: { x: 86, y: 36 },
     description:
-      "No campus THC Academy, esta trilha vive na **Sala de aula de cultivo** — sala com telão, bancadas e a turma reunida, como no mapa oficial. O Cannabis 101 é a porta de entrada THCProce com a vibe certa: cultura da planta, ciência sem arrogância, um toque de lifestyle consciente e cultivo responsável. É pra quem curte a cena mas quer método — sem parecer aula de hospital, sem papo de guru na internet, e com a comunidade junto. A formação séria fica onde a escola publica o oficial; aqui no campus você vive a jornada.",
+      "No campus THC Academy, o **Cannabis 101** é a sala introdutória em português: o que é a planta, cânhamo e contextos de uso, canabinoides e terpenos, sistema endocanabinoide, consumo responsável, formas de administração e um panorama legal de alto nível (Brasil e EUA), sem consultoria jurídica nem promessas terapêuticas. Aprofundamentos em cultivo, extrações e medicina canabinoide estão nas salas vizinhas. Materiais formais e certificação, quando existirem, continuam na sala digital THCProce.",
     highlights: [
-      "29 momentos como episódios de uma série: intro, lives, blocos de cultivo, pós-colheita, prova final e encerramento com certificado",
-      "Quando o conteúdo pede PDF, texto longo ou prova formal, a ponte leva direto à sala digital oficial THCProce",
-      "Quizzes ao longo do caminho pra fixar sem trauma — e fechamento com avaliação que amarra tudo o que você viu",
-      "Campus THCProce = vibe gamer/streaming + progressão gostosa; o arquivo chancelado continua na sala onde a equipa manda"
+      "Onze aulas com resumo, pontos-chave, reflexão e quiz de três perguntas em cada tópico",
+      "Conteúdo pensado para iniciantes: linguagem acolhedora, ciência sem sensacionalismo e redução de danos",
+      "Ponte explícita para trilhas de cultivo, solventless, óleo e medicina quando quiser continuar",
+      "Não substitui orientação médica, jurídica ou profissional do seu caso; confirme leis e tratamentos com quem está habilitado"
     ],
-    professor: "Prof THC",
-    lessons: 29,
-    hours: "≈24h (referência sala oficial THCProce)"
+    professor: "Equipa THCProce",
+    lessons: 11,
+    hours: "≈6h (estimativa + materiais na sala oficial)"
   },
   {
     id: "cultivo-greenhouse",

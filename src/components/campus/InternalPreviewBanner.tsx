@@ -6,7 +6,7 @@ export function InternalPreviewBanner() {
   return (
     <div className="fixed top-0 left-0 right-0 z-[60] pointer-events-none flex justify-center pt-[4.5rem] sm:pt-[5rem] px-3">
       <div
-        className="pointer-events-auto max-w-2xl w-full rounded-xl border border-amber-500/50 bg-amber-950/90 backdrop-blur-md px-4 py-2.5 flex items-start gap-2 shadow-lg shadow-black/40"
+        className="pointer-events-auto max-w-2xl w-full rounded-xl campus-hud-glass border-amber-500/35 px-4 py-2.5 flex items-start gap-2 shadow-[0_0_28px_rgba(251,191,36,0.06)]"
         role="status"
       >
         <AlertTriangle
@@ -20,7 +20,7 @@ export function InternalPreviewBanner() {
           </span>
           <p className="text-amber-100/95 mt-0.5">
             Esta URL não é divulgada ao público (noindex). Ajuste posições, textos e layout aqui; o campus público continua na{" "}
-            <code className="px-1 py-px rounded bg-black/35 text-canna-200 text-[10px] sm:text-xs">
+            <code className="px-1 py-px rounded bg-[rgba(6,18,12,0.35)] border border-white/10 text-canna-200 text-[10px] sm:text-xs">
               /
             </code>
             .

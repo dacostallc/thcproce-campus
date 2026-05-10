@@ -74,3 +74,9 @@ export const CANNABIS101_OUTLINE_TITLES: readonly string[] = CANNABIS101_LESSONS
 export function getCannabis101LessonStableId(lessonIndex: number): string | undefined {
   return CANNABIS101_LESSON_NODES[lessonIndex]?.stableId;
 }
+
+/** Resolve índice 0-based da aula a partir do id estável (slug) no manifest. */
+export function cannabis101StableIdToLessonIndex(stableId: string): number | null {
+  const i = CANNABIS101_LESSON_NODES.findIndex((n) => n.stableId === stableId);
+  return i >= 0 ? i : null;
+}

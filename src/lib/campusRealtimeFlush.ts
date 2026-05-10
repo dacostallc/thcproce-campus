@@ -1,4 +1,4 @@
-/** Permite disparar sync imediato (ex.: emoji) antes do próximo intervalo de 400ms. */
+/** Dispara sync imediato (`track`/`broadcast`), ex.: reação emoji — fora dos heartbeats/throttle de movimento. */
 let realtimeFlush: (() => void) | null = null;
 
 export function registerCampusRealtimeFlush(fn: () => void) {

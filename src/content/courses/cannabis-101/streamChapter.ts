@@ -1,26 +1,14 @@
 import { CANNABIS101_MODULES } from "./manifest";
 
 const MODULE_TAGLINES: Record<string, string> = {
-  intro:
-    "Primeiro capítulo: por que esse curso existe, como a galera estuda na THCProce, e o clima da jornada que te espera.",
-  live: "Ao vivo, calendário e aquele feeling de estar na mesma energia que o resto da comunidade.",
-  "cultivo-intro":
-    "Da semente à folha — biologia com pé no chão, pra você chegar na bancada com confiança (e sem glossário chato).",
-  variedades:
-    "Indica, sativa, híbridas e o que o rótulo realmente quer dizer — genética, morfologia e zero lorota de marketing.",
-  preparativos:
-    "Antes de plantar de verdade: montar o cantinho, luz, ar e solo como quem prepara estúdio — com carinho e segurança.",
-  processo:
-    "Do broto à floração: germinação, dossel, flora — o ritmo completo do ciclo, como numa seasonal de jogo só que real.",
-  manutencao:
-    "O dia a dia na bancada: rega que não erra o pulso, planta falando com você, e dossel redondo sem drama.",
-  "pos-colheita":
-    "Corte, secagem, cura — onde o capricho vira resultado de verdade (sem atropelar o tempo do processo).",
-  avaliacao: "Boss fight educativo: revisitando o que você aprendeu em toda a trilha — com consciência e método.",
-  consideracoes:
-    "Fechar essa season com cabeça erguida: próximos passos, comunidade, e sede de continuar aprendendo.",
-  certificado:
-    "Camisa de time: requisitos, papelada que importa, e o que vem depois que você cruzar a linha de chegada."
+  fundamentos: "Primeiros passos: o que é a planta, o nome correto e os contextos em que ela aparece na sociedade.",
+  "quimica-sensorial":
+    "O que há dentro da flor além do cheiro bonito — canabinoides e terpenos, sem promessas milagrosas.",
+  "corpo-e-uso":
+    "Como o corpo encontra a cannabis, que conversas existem sobre uso terapêutico, adulto e segurança.",
+  "legal-e-seguranca":
+    "Panorama legal de alto nível e um acordo claro sobre o que este curso pode (e não pode) fazer por si.",
+  encerramento: "De onde sair daqui com rumo: cultivo, extração e medicina canabinoide no campus."
 };
 
 export type Cannabis101StreamChapter = {
@@ -54,7 +42,7 @@ export function getCannabis101StreamChapter(lessonIndex: number): Cannabis101Str
         lessonsInModule: len,
         globalLesson: lessonIndex + 1,
         globalTotal,
-        tagline: MODULE_TAGLINES[mod.id] ?? "Mais um capítulo na sua trilha THCProce."
+        tagline: MODULE_TAGLINES[mod.id] ?? "Mais um capítulo na sua formação THCProce."
       };
     }
     offset += len;

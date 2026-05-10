@@ -1,17 +1,58 @@
 import type { Metadata } from "next";
+
 import { Suspense } from "react";
+
 import { InscricaoExperience } from "@/components/enrollment/InscricaoExperience";
 
+
+
 export const metadata: Metadata = {
-  title: "Entre no Campus THCProce — Oferta de lançamento",
+
+  title: "Matrícula — Escola THCProce",
+
   description:
-    "Fase de lançamento com valores promocionais. Matrícula na universidade digital de cannabis — THCProce."
+
+    "Crie sua conta de aluno no campus digital: escolha o período de acesso, preencha o formulário e siga para o próximo passo."
+
 };
 
-export default function InscreverSePage() {
+
+
+function EnrollmentFallback() {
+
   return (
-    <Suspense fallback={<div className="min-h-[40vh] p-8 text-center text-sm text-white/60">Carregando…</div>}>
-      <InscricaoExperience />
-    </Suspense>
+
+    <div className="flex min-h-[50vh] flex-col items-center justify-center bg-ink-900 px-6 text-center">
+
+      <div
+
+        aria-hidden
+
+        className="h-8 w-8 animate-spin rounded-full border-2 border-canna-400/35 border-t-canna-400"
+
+      />
+
+      <p className="mt-4 text-sm text-white/55">Carregando matrícula…</p>
+
+    </div>
+
   );
+
 }
+
+
+
+export default function InscreverSePage() {
+
+  return (
+
+    <Suspense fallback={<EnrollmentFallback />}>
+
+      <InscricaoExperience />
+
+    </Suspense>
+
+  );
+
+}
+

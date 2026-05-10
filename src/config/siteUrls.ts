@@ -1,7 +1,7 @@
 /**
  * Rotas canónicas do campus (evitar hardcode da escola legada em /escola).
  */
-export const CAMPUS_HOME_PATH = "/" as const;
+export const CAMPUS_HOME_PATH = "/campus" as const;
 
 /** Checkout Lodger ou página de planos quando não há URL absoluta configurada. */
 export function lodgerCheckoutHref(): string {

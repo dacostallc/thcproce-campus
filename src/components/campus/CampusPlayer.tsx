@@ -12,7 +12,12 @@ import type { Transition } from "framer-motion";
 
 import type { CampusUserRole } from "@/config/userRoles";
 
+import { isCampusAdvancedMap } from "@/config/campusMapStability";
+
 import { CampusAvatarIdTag } from "@/components/campus/CampusAvatarIdTag";
+
+import { CampusPlayerAvatar } from "@/components/campus/CampusPlayerAvatar";
+import type { StudentAvatarVariant } from "@/lib/studentGamificationStorage";
 
 import { CampusCinemaEmojiBurst } from "@/components/campus/CampusCinemaEmoji";
 
@@ -30,6 +35,9 @@ type Props = {
 
   memberSinceIso: string | null;
 
+  /** Skin local do mapa simples (localStorage); ignora-se no mapa avançado. */
+  gamificationAvatarVariant?: StudentAvatarVariant | null;
+
 };
 
 
@@ -44,7 +52,9 @@ export function CampusPlayer({
 
   campusRole,
 
-  memberSinceIso
+  memberSinceIso,
+
+  gamificationAvatarVariant = null
 
 }: Props) {
 
@@ -55,6 +65,11 @@ export function CampusPlayer({
   const cinemaOpen = useCampusStore((s) => s.isCineOpen);
 
   const sit = posture === "sit";
+
+  const advancedMap = isCampusAdvancedMap();
+
+  const avatarVariant =
+    gamificationAvatarVariant ?? (campusRole === "free" ? "visitor" : "student");
 
   const lastEmoji = useCampusStore((s) => s.cinemaLastEmoji);
 
@@ -162,31 +177,39 @@ export function CampusPlayer({
 
           <div className="pointer-events-auto flex min-h-[52px] min-w-[52px] items-center justify-center">
 
-            <div
+            {advancedMap ? (
 
-              className={`relative flex h-11 w-11 shrink-0 items-center justify-center rounded-full glass-strong shadow-lg shadow-black/40 ring-2 ${
+              <div
 
-                sit ? "ring-canna-300/40" : "ring-canna-400/60"
+                className={`relative flex h-11 w-11 shrink-0 items-center justify-center rounded-full glass-strong shadow-lg shadow-black/40 ring-2 ${
 
-              }`}
+                  sit ? "ring-canna-300/40" : "ring-canna-400/60"
 
-            >
+                }`}
 
-              <User size={22} className="text-canna-200" />
+              >
 
-              {sit ? (
+                <User size={22} className="text-canna-200" />
 
-                <span
+                {sit ? (
 
-                  aria-hidden
+                  <span
 
-                  className="absolute -bottom-1 left-1/2 h-1.5 w-6 -translate-x-1/2 rounded-full bg-black/45 blur-[2px]"
+                    aria-hidden
 
-                />
+                    className="absolute -bottom-1 left-1/2 h-1.5 w-6 -translate-x-1/2 rounded-full bg-black/45 blur-[2px]"
 
-              ) : null}
+                  />
 
-            </div>
+                ) : null}
+
+              </div>
+
+            ) : (
+
+              <CampusPlayerAvatar variant={avatarVariant} sit={sit} />
+
+            )}
 
           </div>
 

@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+
+import { CAMPUS_HOME_PATH } from "@/config/siteUrls";
 import { GraduationCap, Leaf, MessageCircle, Headphones } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -99,7 +101,7 @@ export function Cannabis101LessonFooter({
 
       <div className="hidden items-center gap-1 sm:flex">
         <Link
-          href="/"
+          href={CAMPUS_HOME_PATH}
           className={cn(
             "rounded-lg p-2 text-white/50 transition hover:bg-white/5",
             F.linkHover

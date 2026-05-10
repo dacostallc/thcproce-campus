@@ -41,12 +41,12 @@ const config: Config = {
           "50%": { transform: "translateY(-6px)" }
         },
         droneFly: {
-          "0%": { transform: "translate3d(-10vw,0,0)" },
-          "100%": { transform: "translate3d(110vw,0,0)" }
+          "0%": { transform: "translate3d(-18%,0,0)" },
+          "100%": { transform: "translate3d(118%,0,0)" }
         },
         droneFly2: {
-          "0%": { transform: "translate3d(110vw,0,0)" },
-          "100%": { transform: "translate3d(-10vw,0,0)" }
+          "0%": { transform: "translate3d(118%,0,0)" },
+          "100%": { transform: "translate3d(-18%,0,0)" }
         },
         firefly: {
           "0%, 100%": { opacity: "0", transform: "translate(0,0) scale(0.6)" },
@@ -59,12 +59,50 @@ const config: Config = {
           "50%": { opacity: "1" }
         },
         carPass: {
-          "0%": { transform: "translateX(-15vw)" },
-          "100%": { transform: "translateX(115vw)" }
+          "0%": { transform: "translateX(-20%)" },
+          "100%": { transform: "translateX(120%)" }
         },
         zoomIn: {
           "0%": { transform: "scale(1.15)", opacity: "0" },
           "100%": { transform: "scale(1)", opacity: "1" }
+        },
+        /** Idle sway for campus map player figurine (respect `motion-reduce:animate-none`). */
+        campusPlayerIdle: {
+          "0%, 100%": { transform: "translateY(0) rotate(-1.35deg)" },
+          "50%": { transform: "translateY(-3px) rotate(1.35deg)" }
+        },
+        campusCineHalo: {
+          "0%, 100%": { opacity: "0.22", transform: "translate3d(-50%, -50%, 0) scale(0.92)" },
+          "50%": { opacity: "0.38", transform: "translate3d(-50%, -50%, 0) scale(1.05)" }
+        },
+        campusCineMist: {
+          "0%, 100%": { opacity: "0.13", transform: "translate(-50%, -47%) rotate(-2deg) scale(1)" },
+          "50%": { opacity: "0.22", transform: "translate(-50%, -49%) rotate(2deg) scale(1.03)" }
+        },
+        campusPlayerFootShadow: {
+          "0%, 100%": { opacity: "0.87" },
+          "50%": { opacity: "1" }
+        },
+        vivoStudentDrift: {
+          "0%, 100%": { transform: "translate3d(0,0,0)" },
+          "33%": { transform: "translate3d(16px,-8px,0)" },
+          "66%": { transform: "translate3d(-11px,6px,0)" }
+        },
+        vivoDroneCrawl: {
+          "0%": { transform: "translate3d(-12%,-4px,0)" },
+          "100%": { transform: "translate3d(112%,3px,0)" }
+        },
+        vivoZonePulse: {
+          "0%, 100%": { opacity: "0.5", transform: "scale(1)" },
+          "50%": { opacity: "0.82", transform: "scale(1.025)" }
+        },
+        vivoTicker: {
+          "0%": { transform: "translateX(4%)" },
+          "100%": { transform: "translateX(-52%)" }
+        },
+        hudToastIn: {
+          "0%": { opacity: "0", transform: "translate3d(6px,4px,0)" },
+          "100%": { opacity: "1", transform: "translate3d(0,0,0)" }
         }
       },
       animation: {
@@ -75,7 +113,16 @@ const config: Config = {
         firefly: "firefly 5s ease-in-out infinite",
         windowFlicker: "windowFlicker 3s ease-in-out infinite",
         carPass: "carPass 14s linear infinite",
-        zoomIn: "zoomIn 1.6s ease-out both"
+        zoomIn: "zoomIn 1.6s ease-out both",
+        campusPlayerIdle: "campusPlayerIdle 2.75s ease-in-out infinite",
+        campusCineHalo: "campusCineHalo 4.2s ease-in-out infinite",
+        campusCineMist: "campusCineMist 24s ease-in-out infinite",
+        campusPlayerFootShadow: "campusPlayerFootShadow 3.15s ease-in-out infinite",
+        vivoStudentDrift: "vivoStudentDrift 32s ease-in-out infinite",
+        vivoDroneCrawl: "vivoDroneCrawl 58s linear infinite",
+        vivoZonePulse: "vivoZonePulse 8.5s ease-in-out infinite",
+        vivoTicker: "vivoTicker 46s linear infinite",
+        hudToastIn: "hudToastIn 380ms ease-out both"
       }
     }
   },

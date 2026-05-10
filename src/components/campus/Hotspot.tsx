@@ -143,7 +143,7 @@ export function Hotspot({
         <div className="relative flex shrink-0 items-center justify-center">
           <span
             className={cn(
-              "absolute rounded-full bg-gradient-to-br opacity-60 blur-xl pointer-events-none",
+              "absolute rounded-full bg-gradient-to-br opacity-35 blur-xl pointer-events-none",
               c.halo,
               "to-transparent"
             )}
@@ -152,7 +152,8 @@ export function Hotspot({
           />
           <span
             className={cn(
-              "absolute inset-0 -m-2 rounded-full animate-ping opacity-35 motion-reduce:animate-none",
+              "absolute inset-0 -m-2 rounded-full motion-reduce:animate-none",
+              "opacity-[0.12] animate-[ping_4.2s_cubic-bezier(0,0,0.2,1)_infinite]",
               c.dot
             )}
             style={{ animationDuration: "2.8s" }}
@@ -165,7 +166,7 @@ export function Hotspot({
               c.ring,
               completed &&
                 cn(
-                  "ring-2 ring-gold-400/90 ring-offset-2 shadow-[0_0_14px_rgba(250,204,21,0.55)]",
+                  "ring-2 ring-amber-200/55 ring-offset-2 shadow-[0_0_10px_rgba(180,155,92,0.22)]",
                   isDay ? "ring-offset-white/85" : "ring-offset-ink-900/80"
                 ),
               active && "scale-125"

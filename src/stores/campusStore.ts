@@ -8,6 +8,7 @@ import { clearCinemaSitTimer } from "@/lib/campusCinemaSitTimer";
 import { isAllowedCinemaReactionEmoji } from "@/lib/campusCinemaSeats";
 import { requestCampusRealtimeFlush } from "@/lib/campusRealtimeFlush";
 import { playCampusAdminBroadcastChime } from "@/lib/campusAdminBroadcastSound";
+import { isCampusAdvancedMap } from "@/config/campusMapStability";
 import { clampToWalkZone } from "@/lib/campusWalkable";
 import { maybePlayCampusWalkSound } from "@/lib/campusWalkSound";
 
@@ -19,6 +20,8 @@ export type AvatarPosture = "stand" | "sit";
 type CampusState = {
   player: PctPos;
   setPlayer: (p: PctPos) => void;
+  /** Modo mapa simples: move sem malha passeável (só limites 1–99 %). */
+  setPlayerLoose: (p: PctPos) => void;
 
   /** Drive-in cinematográfico aberto sobre o campus. */
   isCineOpen: boolean;
@@ -56,15 +59,35 @@ type CampusState = {
 /** Ponto de spawn: praça / chafariz (parte inferior central do mapa). */
 const RAW_SPAWN: PctPos = { x: 42, y: 82 };
 
+function looseClampPct(p: PctPos): PctPos {
+  return {
+    x: Math.min(99, Math.max(1, p.x)),
+    y: Math.min(99, Math.max(1, p.y))
+  };
+}
+
+const initialPlayer = isCampusAdvancedMap()
+  ? clampToWalkZone(RAW_SPAWN)
+  : looseClampPct(RAW_SPAWN);
+
 const liveInitially =
   typeof process !== "undefined" &&
   process.env.NEXT_PUBLIC_CAMPUS_LIVE_ACTIVE === "true";
 
 export const useCampusStore = create<CampusState>((set) => ({
-  player: clampToWalkZone(RAW_SPAWN),
+  player: initialPlayer,
   setPlayer: (p) =>
     set((state) => {
-      const next = clampToWalkZone(p);
+      const next = isCampusAdvancedMap()
+        ? clampToWalkZone(p)
+        : looseClampPct(p);
+      maybePlayCampusWalkSound(state.player, next);
+      return { player: next };
+    }),
+
+  setPlayerLoose: (p) =>
+    set((state) => {
+      const next = looseClampPct(p);
       maybePlayCampusWalkSound(state.player, next);
       return { player: next };
     }),

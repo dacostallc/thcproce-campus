@@ -1,21 +1,24 @@
 "use client";
 
 import type { PointerEventHandler } from "react";
-import { clampToWalkZone, CAMPUS_WALK_RECTS } from "@/lib/campusWalkable";
 import type { PctPos } from "@/stores/campusStore";
 import { useCampusStore } from "@/stores/campusStore";
+import {
+  getNearestWalkablePoint,
+  isPointInWalkableZone
+} from "@/data/walkableZones";
+import { resolveCampusClickTarget } from "@/lib/resolveCampusClickTarget";
 
 type Props = {
   onWalkTo: (pct: PctPos) => void;
 };
 
-/** Camada transparente: cliques no mapa movem o avatar apenas por calçadas / corredores (ver `campusWalkable`). Fica atrás dos hotspots. */
+/**
+ * Camada transparente: cliques na calçada movem o avatar usando `resolveCampusClickTarget`.
+ * Cliques em prédio são tratados pela camada de zonas (acima).
+ */
 export function MapWalkLayer({ onWalkTo }: Props) {
   const cineOpen = useCampusStore((s) => s.isCineOpen);
-
-  const showDebug =
-    typeof process.env.NEXT_PUBLIC_CAMPUS_DEBUG_WALK !== "undefined" &&
-    process.env.NEXT_PUBLIC_CAMPUS_DEBUG_WALK === "1";
 
   const handlePointerDown: PointerEventHandler<HTMLDivElement> = (e) => {
     if (cineOpen) return;
@@ -24,35 +27,25 @@ export function MapWalkLayer({ onWalkTo }: Props) {
     const r = el.getBoundingClientRect();
     const px = Math.min(99, Math.max(1, ((e.clientX - r.left) / r.width) * 100));
     const py = Math.min(99, Math.max(1, ((e.clientY - r.top) / r.height) * 100));
-    const raw: PctPos = { x: px, y: py };
-    onWalkTo(clampToWalkZone(raw));
+
+    const hit = resolveCampusClickTarget(px, py);
+    if (hit.type === "none") return;
+    if (hit.type === "zone") return;
+
+    const dest = isPointInWalkableZone(hit.destination.x, hit.destination.y)
+      ? hit.destination
+      : getNearestWalkablePoint(hit.destination.x, hit.destination.y);
+    onWalkTo(dest);
   };
 
   return (
-    <>
-      <div
-        role="presentation"
-        className={`absolute inset-0 z-[8] touch-none ${
-          cineOpen ? "cursor-default" : "cursor-crosshair"
-        }`}
-        onPointerDown={handlePointerDown}
-        aria-hidden
-      />
-      {showDebug
-        ? CAMPUS_WALK_RECTS.map((rect, i) => (
-            <div
-              key={i}
-              aria-hidden
-              className="pointer-events-none absolute z-[9] rounded-sm border border-canna-400/35 bg-lime-400/10"
-              style={{
-                left: `${rect.minX}%`,
-                top: `${rect.minY}%`,
-                width: `${rect.maxX - rect.minX}%`,
-                height: `${rect.maxY - rect.minY}%`
-              }}
-            />
-          ))
-        : null}
-    </>
+    <div
+      role="presentation"
+      className={`absolute inset-0 z-[8] touch-none ${
+        cineOpen ? "cursor-default" : "cursor-crosshair"
+      }`}
+      onPointerDown={handlePointerDown}
+      aria-hidden
+    />
   );
 }

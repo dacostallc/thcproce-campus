@@ -96,7 +96,7 @@ export function CoursePanel({
             animate={{ x: 0, opacity: 1 }}
             exit={{ x: 480, opacity: 0 }}
             transition={{ type: "spring", stiffness: 220, damping: 26 }}
-            className="fixed right-0 top-0 bottom-0 w-full sm:w-[460px] z-40 flex flex-col glass-strong border-l border-canna-400/25 ring-1 ring-inset ring-white/[0.06]"
+            className="fixed right-0 top-0 bottom-0 w-full sm:w-[460px] z-40 flex flex-col campus-hud-glass border-l border-canna-400/25 ring-1 ring-inset ring-white/[0.06]"
           >
             <header
               className={cn(
@@ -157,7 +157,7 @@ export function CoursePanel({
                 </ul>
               </section>
 
-              <section className="rounded-xl glass-hud p-4 flex items-center gap-3 border-canna-400/35">
+              <section className="rounded-xl glass-hud p-4 flex items-center gap-3">
                 <Award size={22} className="text-gold-400 shrink-0" />
                 <div className="text-sm">
                   <div className="font-semibold">Conquista desbloqueável</div>
@@ -184,7 +184,7 @@ export function CoursePanel({
                           onOpenCampusLesson?.(idx);
                         }
                       }}
-                      className="flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent hover:border-white/10 hover:bg-white/[0.06] hover:shadow-md hover:shadow-black/25 transition-all duration-200 cursor-pointer group outline-none focus-visible:ring-2 focus-visible:ring-canna-400/70"
+                      className="flex items-center gap-3 px-3 py-2.5 rounded-xl border border-transparent hover:border-white/10 hover:bg-white/[0.06] hover:shadow-[0_0_18px_rgba(80,255,160,0.05)] transition-all duration-200 cursor-pointer group outline-none focus-visible:ring-2 focus-visible:ring-canna-400/70"
                     >
                       <span className="w-7 h-7 rounded-full bg-canna-500/20 text-canna-300 flex items-center justify-center text-xs font-bold border border-canna-400/35 group-hover:scale-105 transition-transform">
                         {idx + 1}
@@ -205,7 +205,7 @@ export function CoursePanel({
               </section>
             </div>
 
-            <footer className="border-t border-white/10 px-6 py-4 flex flex-col gap-3 glass-strong">
+            <footer className="border-t border-white/10 px-6 py-4 flex flex-col gap-3 campus-hud-glass">
               <button
                 type="button"
                 onClick={() => onOpenCampusLesson?.()}
@@ -257,7 +257,7 @@ function Stat({
   value: string;
 }) {
   return (
-    <div className="rounded-xl glass-hud px-2.5 py-2 text-center transition-shadow duration-200 hover:shadow-md hover:shadow-black/20">
+    <div className="rounded-xl glass-hud px-2.5 py-2 text-center transition-shadow duration-200 hover:shadow-[0_0_18px_rgba(80,255,160,0.06)]">
       <div className="flex items-center justify-center gap-1 text-canna-300 mb-0.5">
         {icon}
       </div>

@@ -1,6 +1,6 @@
 /**
- * Cannabis 101 — 29 capítulos alinhados à trilha institucional THCProce (ligações para sala oficial exportadas no pacote).
- * Fonte canónica: `@/content/courses/cannabis-101`.
+ * Cannabis 101 — onze aulas introdutórias (fonte canônica: `@/content/courses/cannabis-101`).
+ * Fonte canônica: `@/content/courses/cannabis-101`.
  */
 export {
   CANNABIS101_LESSONS,

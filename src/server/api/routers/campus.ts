@@ -27,20 +27,34 @@ const mockCourses: MoodleCourse[] = areas.map((a, i) => ({
   shortname: a.id
 }));
 
-const CAMPUS_EVENTS_STATIC = [
+/** Eventos exibidos no mural/HUD; `mapHighlight` liga borda animada no mapa. */
+export type CampusEventPublic = {
+  id: string;
+  title: string;
+  when: string;
+  href?: string;
+  mapZoneId?: string;
+  mapHighlight?: boolean;
+};
+
+const CAMPUS_EVENTS_STATIC: CampusEventPublic[] = [
   {
     id: "festival-420",
     title: "Festival 4/20 — Colheita aberta virtual",
     when: "Abril · lives e encontros no campus",
-    href: "https://youtube.com/@thcproce"
+    href: "https://youtube.com/@thcproce",
+    mapZoneId: "entrada-principal",
+    mapHighlight: true
   },
   {
     id: "colheita-anual",
     title: "Colheita anual THCProce",
     when: "Fim do ano · desafios e ranking",
-    href: "/planos"
+    href: "/planos",
+    mapZoneId: "praca-central",
+    mapHighlight: false
   }
-] as const;
+];
 
 function areaProgressZero(): { areas: Record<string, boolean> } {
   const map: Record<string, boolean> = {};

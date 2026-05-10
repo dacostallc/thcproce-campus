@@ -39,13 +39,28 @@ export function CampusCineHotspot() {
 
   return (
     <div className="pointer-events-none absolute inset-0 z-[14]" data-cine-marker>
+      <div
+        aria-hidden
+        className={cn(
+          "pointer-events-none absolute z-0 motion-safe:animate-campusCineMist motion-safe:[will-change:opacity,transform] max-[480px]:scale-[0.92]",
+          "rounded-[42%]",
+          "bg-[radial-gradient(ellipse_68%_58%_at_50%_46%,rgba(110,231,183,0.055),rgba(253,224,71,0.028),transparent_74%)]",
+          "motion-reduce:hidden"
+        )}
+        style={{
+          left: `${CAMPUS_CINE_POSITION.x}%`,
+          top: `${CAMPUS_CINE_POSITION.y}%`,
+          width: "min(40vw, 248px)",
+          height: "min(34vw, 198px)"
+        }}
+      />
       <motion.button
         type="button"
         className={cn(
-          "pointer-events-auto absolute touch-manipulation rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-canna-400 focus-visible:ring-offset-2 focus-visible:ring-offset-ink-900/90",
+          "pointer-events-auto absolute z-[1] touch-manipulation rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-canna-400 focus-visible:ring-offset-2 focus-visible:ring-offset-ink-900/90",
           isLiveActive
             ? "-translate-x-1/2 -translate-y-[55%]"
-            : "-translate-x-1/2 -translate-y-1/2 bg-black/25 ring-2 ring-white/25 hover:bg-black/35"
+            : "-translate-x-1/2 -translate-y-1/2 campus-hud-glass ring-2 ring-white/20 hover:ring-white/28"
         )}
         style={{
           left: `${CAMPUS_CINE_POSITION.x}%`,
@@ -89,13 +104,23 @@ export function CampusCineHotspot() {
         }}
       >
         {isLiveActive ? (
-          <motion.span
-            className="relative block h-full min-h-[100px] w-full overflow-hidden rounded-xl border border-canna-400/80 shadow-[0_0_28px_rgba(74,222,128,0.55)]"
-            animate={{ scale: [1, 1.035, 1], opacity: [0.94, 1, 0.94] }}
-            transition={{ repeat: Infinity, duration: 2.4, ease: "easeInOut" }}
-          >
-            <TelaoLayer />
-          </motion.span>
+          <>
+            <span
+              aria-hidden
+              className={cn(
+                "pointer-events-none absolute -inset-2 z-0 rounded-[1.05rem]",
+                "motion-reduce:animate-none motion-safe:animate-campusCineHalo motion-safe:[will-change:opacity,transform]",
+                "bg-[radial-gradient(ellipse_at_50%_52%,rgba(74,222,128,0.11),rgba(250,204,21,0.035),transparent_72%)] blur-[1px] mix-blend-screen"
+              )}
+            />
+            <motion.span
+              className="relative z-[1] block h-full min-h-[100px] w-full overflow-hidden rounded-xl campus-hud-glass"
+              animate={{ scale: [1, 1.035, 1], opacity: [0.94, 1, 0.94] }}
+              transition={{ repeat: Infinity, duration: 2.4, ease: "easeInOut" }}
+            >
+              <TelaoLayer />
+            </motion.span>
+          </>
         ) : (
           <span className="flex size-full flex-col items-center justify-center rounded-xl px-1">
             <Film className="text-white/50" size={28} aria-hidden />
@@ -129,7 +154,7 @@ function TelaoLayer() {
       ) : (
         <span
           aria-hidden
-          className="absolute inset-0 bg-gradient-to-b from-canna-900/90 via-ink-900 to-black"
+          className="absolute inset-0 bg-gradient-to-b from-canna-900/18 via-ink-900/18 to-[rgba(6,18,12,0.2)] saturate-[0.9]"
         />
       )}
 
@@ -137,7 +162,7 @@ function TelaoLayer() {
         <span className="pointer-events-none absolute inset-0 z-[1] flex items-center justify-center">
           <Film
             size={42}
-            className="text-canna-300 opacity-95 drop-shadow-[0_0_14px_rgba(74,222,128,0.85)]"
+            className="text-canna-300/90 opacity-95 saturate-[0.9] drop-shadow-[0_0_10px_rgba(80,255,160,0.28)]"
             aria-hidden
           />
         </span>
@@ -146,12 +171,12 @@ function TelaoLayer() {
       {showImg ? (
         <span
           aria-hidden
-          className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_20%,transparent_55%,rgba(0,0,0,0.35)_100%)]"
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_20%,transparent_55%,rgba(0,0,0,0.08)_100%)] saturate-[0.9]"
         />
       ) : null}
 
       <span className="pointer-events-none absolute bottom-2 left-0 right-0 z-[2] flex justify-center">
-        <span className="rounded-full border border-red-500/55 bg-red-950/92 px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.18em] text-red-100 shadow-[0_0_14px_rgba(239,68,68,0.45)]">
+        <span className="rounded-full border border-red-400/40 bg-red-950/58 px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.18em] text-red-50 shadow-[0_0_12px_rgba(239,68,68,0.22)] backdrop-blur-sm [text-shadow:0_1px_2px_rgba(0,0,0,0.65),0_0_10px_rgba(0,0,0,0.35)]">
           Live agora
         </span>
       </span>

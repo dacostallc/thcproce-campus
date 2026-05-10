@@ -2,6 +2,11 @@
 
 import { useEffect, useMemo, useRef } from "react";
 import type { RealtimeChannel } from "@supabase/supabase-js";
+import {
+  CAMPUS_PRESENCE_MOVE_FLUSH_MS,
+  CAMPUS_PRESENCE_TTL_MS,
+  nextCampusPresenceHeartbeatDelayMs
+} from "@/config/campusPresence";
 import { createSupabaseBrowser } from "@/lib/supabase/browser";
 import type { CampusRealtimePayload } from "@/lib/campusCinemaSeats";
 import { isAllowedCinemaReactionEmoji } from "@/lib/campusCinemaSeats";
@@ -16,11 +21,15 @@ import {
   registerCampusRealtimeFlush,
   unregisterCampusRealtimeFlush
 } from "@/lib/campusRealtimeFlush";
-import { useCampusHudStore } from "@/stores/campusHudStore";
 import { useCampusPresenceStore } from "@/stores/campusPresenceStore";
 import { useCampusStore } from "@/stores/campusStore";
 
 /** Ative Presence (recom.). Desative só se o projeto ainda só usar broadcast legacy: `NEXT_PUBLIC_SUPABASE_DISABLE_PRESENCE=true`. */
+
+function isFreshPresenceAt(atMs: unknown, now: number): boolean {
+  const at = typeof atMs === "number" ? atMs : Number(atMs);
+  return Number.isFinite(at) && now - at <= CAMPUS_PRESENCE_TTL_MS;
+}
 
 function parseRealtimePayload(row: unknown): CampusRealtimePayload | null {
   if (!row || typeof row !== "object") return null;
@@ -93,7 +102,8 @@ function parseRealtimePayload(row: unknown): CampusRealtimePayload | null {
 
 function peersFromPresenceState(
   uid: string,
-  state: Record<string, unknown>
+  state: Record<string, unknown>,
+  now: number
 ): Record<string, CampusRealtimePayload> {
   const out: Record<string, CampusRealtimePayload> = {};
   for (const metas of Object.values(state)) {
@@ -101,6 +111,7 @@ function peersFromPresenceState(
     for (const row of metas) {
       const p = parseRealtimePayload(row);
       if (!p || p.uid === uid) continue;
+      if (!isFreshPresenceAt(p.at, now)) continue;
       out[p.uid] = p;
     }
   }
@@ -125,6 +136,7 @@ export function CampusPresenceSync({
 }: Props) {
   const supa = useMemo(() => createSupabaseBrowser(), []);
   const uid = useMemo(() => getCampusPresenceUid(), []);
+  const warnedMissingSupabaseRef = useRef(false);
 
   const displayRef = useRef(displayName);
   displayRef.current = displayName;
@@ -156,14 +168,16 @@ export function CampusPresenceSync({
 
   useEffect(() => {
     const setOthers = useCampusPresenceStore.getState().setOthersFromRealtime;
-    const setOnline = useCampusHudStore.getState().setOnlineApprox;
 
     if (!supa || !uid) {
-      const seed =
-        typeof window !== "undefined"
-          ? uid.split("").reduce((acc, ch) => acc + ch.charCodeAt(0), 88)
-          : 140;
-      setOnline(105 + (seed % 45));
+      if (!supa && !warnedMissingSupabaseRef.current) {
+        warnedMissingSupabaseRef.current = true;
+        if (process.env.NODE_ENV === "development") {
+          console.info(
+            "[CampusPresence] Supabase não configurado — presença/desmultiplicação em modo local (mapa continua normal)."
+          );
+        }
+      }
       setOthers({});
       return;
     }
@@ -227,17 +241,22 @@ export function CampusPresenceSync({
       };
     };
 
-    const pushOnlineCount = (nOthers: number) => setOnline(Math.max(1, 1 + nOthers));
-
     if (!disablePresence) {
       let ch: RealtimeChannel;
+      let heartbeatTimeout: number | null = null;
+      let moveThrottleTimeout: number | null = null;
+      let lastMoveFlushWall = 0;
+      let posSig = "";
 
       const flushPresence = () => {
         try {
           const state = ch.presenceState();
-          const others = peersFromPresenceState(uid, state as Record<string, unknown>);
+          const others = peersFromPresenceState(
+            uid,
+            state as Record<string, unknown>,
+            Date.now()
+          );
           setOthers(others);
-          pushOnlineCount(Object.keys(others).length);
         } catch {
           /* noop */
         }
@@ -248,28 +267,68 @@ export function CampusPresenceSync({
       });
 
       const flushImmediate = () => {
-        void ch.track(buildPayload());
+        try {
+          void ch.track(buildPayload());
+        } catch {
+          /* noop */
+        }
+        flushPresence();
       };
 
+      const queueHeartbeat = () => {
+        heartbeatTimeout = window.setTimeout(() => {
+          heartbeatTimeout = null;
+          flushImmediate();
+          queueHeartbeat();
+        }, nextCampusPresenceHeartbeatDelayMs());
+      };
+
+      const maybeFlushOnMove = () => {
+        const p = useCampusStore.getState().player;
+        const nextSig = `${p.x},${p.y}`;
+        if (nextSig === posSig) return;
+        posSig = nextSig;
+        const now = Date.now();
+        const elapsed = now - lastMoveFlushWall;
+
+        const run = () => {
+          moveThrottleTimeout = null;
+          lastMoveFlushWall = Date.now();
+          flushImmediate();
+        };
+
+        if (elapsed >= CAMPUS_PRESENCE_MOVE_FLUSH_MS) {
+          run();
+          return;
+        }
+        const wait = CAMPUS_PRESENCE_MOVE_FLUSH_MS - elapsed;
+        if (moveThrottleTimeout) window.clearTimeout(moveThrottleTimeout);
+        moveThrottleTimeout = window.setTimeout(run, wait);
+      };
+
+      const p0 = useCampusStore.getState().player;
+      posSig = `${p0.x},${p0.y}`;
+
       registerCampusRealtimeFlush(flushImmediate);
+
+      const unsubMoves = useCampusStore.subscribe(maybeFlushOnMove);
 
       ch.on("presence", { event: "sync" }, flushPresence);
       ch.on("presence", { event: "join" }, flushPresence);
       ch.on("presence", { event: "leave" }, flushPresence);
 
-      void ch.subscribe(async (status: string) => {
+      void ch.subscribe((status: string) => {
         if (status === "SUBSCRIBED") {
-          await ch.track(buildPayload());
+          flushImmediate();
+          queueHeartbeat();
         }
       });
 
-      const iv = window.setInterval(() => {
-        void ch.track(buildPayload());
-      }, 400);
-
       return () => {
+        if (heartbeatTimeout) window.clearTimeout(heartbeatTimeout);
+        if (moveThrottleTimeout) window.clearTimeout(moveThrottleTimeout);
+        unsubMoves();
         unregisterCampusRealtimeFlush(flushImmediate);
-        window.clearInterval(iv);
         void supa.removeChannel(ch);
       };
     }
@@ -278,18 +337,27 @@ export function CampusPresenceSync({
     const map = new Map<string, CampusRealtimePayload>();
 
     const flushBroadcastPeers = () => {
+      const nowMs = Date.now();
+      for (const [pid, row] of [...map.entries()]) {
+        if (!isFreshPresenceAt(row.at, nowMs)) map.delete(pid);
+      }
+
       map.delete(uid);
       const peers: Record<string, CampusRealtimePayload> = {};
       for (const [id, val] of map) {
         if (id !== uid) peers[id] = val;
       }
       setOthers(peers);
-      pushOnlineCount(Object.keys(peers).length);
     };
 
     const ch = supa.channel("campus-map", {
       config: { broadcast: { self: false } }
     });
+
+    let heartbeatTimeoutFb: number | null = null;
+    let moveThrottleTimeoutFb: number | null = null;
+    let lastMoveFlushWallFb = 0;
+    let posSigFb = "";
 
     const flushImmediate = () => {
       void ch.send({
@@ -300,7 +368,43 @@ export function CampusPresenceSync({
       flushBroadcastPeers();
     };
 
+    const queueHeartbeatFb = () => {
+      heartbeatTimeoutFb = window.setTimeout(() => {
+        heartbeatTimeoutFb = null;
+        flushImmediate();
+        queueHeartbeatFb();
+      }, nextCampusPresenceHeartbeatDelayMs());
+    };
+
+    const maybeFlushOnMoveFb = () => {
+      const p = useCampusStore.getState().player;
+      const nextSig = `${p.x},${p.y}`;
+      if (nextSig === posSigFb) return;
+      posSigFb = nextSig;
+      const now = Date.now();
+      const elapsed = now - lastMoveFlushWallFb;
+
+      const run = () => {
+        moveThrottleTimeoutFb = null;
+        lastMoveFlushWallFb = Date.now();
+        flushImmediate();
+      };
+
+      if (elapsed >= CAMPUS_PRESENCE_MOVE_FLUSH_MS) {
+        run();
+        return;
+      }
+      const wait = CAMPUS_PRESENCE_MOVE_FLUSH_MS - elapsed;
+      if (moveThrottleTimeoutFb) window.clearTimeout(moveThrottleTimeoutFb);
+      moveThrottleTimeoutFb = window.setTimeout(run, wait);
+    };
+
+    const pFb0 = useCampusStore.getState().player;
+    posSigFb = `${pFb0.x},${pFb0.y}`;
+
     registerCampusRealtimeFlush(flushImmediate);
+
+    const unsubMovesFb = useCampusStore.subscribe(maybeFlushOnMoveFb);
 
     ch.on("broadcast", { event: "pos" }, ({ payload }) => {
       const raw = payload as Record<string, unknown>;
@@ -325,7 +429,7 @@ export function CampusPresenceSync({
       });
       if (!p?.uid || p.uid === uid) return;
 
-      const stale = Date.now() - (p.at || 0) > 14000;
+      const stale = !isFreshPresenceAt(p.at || 0, Date.now());
       if (stale || p.x == null || p.y == null) {
         map.delete(p.uid);
       } else {
@@ -334,15 +438,18 @@ export function CampusPresenceSync({
       flushBroadcastPeers();
     });
 
-    void ch.subscribe();
-
-    const iv = window.setInterval(() => {
-      flushImmediate();
-    }, 380);
+    void ch.subscribe((status: string) => {
+      if (status === "SUBSCRIBED") {
+        flushImmediate();
+        queueHeartbeatFb();
+      }
+    });
 
     return () => {
+      if (heartbeatTimeoutFb) window.clearTimeout(heartbeatTimeoutFb);
+      if (moveThrottleTimeoutFb) window.clearTimeout(moveThrottleTimeoutFb);
+      unsubMovesFb();
       unregisterCampusRealtimeFlush(flushImmediate);
-      window.clearInterval(iv);
       void supa.removeChannel(ch);
     };
   }, [supa, uid]);

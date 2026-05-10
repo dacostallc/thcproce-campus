@@ -120,6 +120,8 @@ type Props = {
   streamAccent?: AreaColor;
   /** Cannabis 101: metadados de capítulo para herói + progressão na sala. */
   streamChapter?: StreamChapterMeta | null;
+  /** Quando já mostrou intro fora das tabs/stream (evita duplicar a secção "Começa assim"). */
+  skipIntroSection?: boolean;
 };
 
 function SectionTitle({
@@ -280,7 +282,8 @@ export function LessonRichTabs({
   variant = "default",
   layout = "tabs",
   streamAccent = "canna",
-  streamChapter = null
+  streamChapter = null,
+  skipIntroSection = false
 }: Props) {
   const [tab, setTab] = useState<TabId>("conteudo");
   const [notes, setNotes] = useState("");
@@ -377,25 +380,27 @@ export function LessonRichTabs({
           </motion.header>
         ) : null}
 
-        <section className={cn("border-b pb-8 sm:pb-11", pal.sectionBorder)}>
-          {c ? (
-            <SectionTitle palette={pal} icon={<BookOpen className="size-3.5 opacity-90" aria-hidden />}>
-              {CAN101_STREAM_SECTION.intro}
-            </SectionTitle>
-          ) : (
-            <h2 className={pal.sectionTitle}>Introdução</h2>
-          )}
-          <div className={cn("space-y-5 sm:space-y-6", bodyProse)}>
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.08 }}
-              className={bodyLead}
-            >
-              {content.intro}
-            </motion.p>
-          </div>
-        </section>
+        {!skipIntroSection ? (
+          <section className={cn("border-b pb-8 sm:pb-11", pal.sectionBorder)}>
+            {c ? (
+              <SectionTitle palette={pal} icon={<BookOpen className="size-3.5 opacity-90" aria-hidden />}>
+                {CAN101_STREAM_SECTION.intro}
+              </SectionTitle>
+            ) : (
+              <h2 className={pal.sectionTitle}>Introdução</h2>
+            )}
+            <div className={cn("space-y-5 sm:space-y-6", bodyProse)}>
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.08 }}
+                className={bodyLead}
+              >
+                {content.intro}
+              </motion.p>
+            </div>
+          </section>
+        ) : null}
 
         <section className={cn("border-b py-8 sm:py-11", pal.sectionBorder)}>
           {c ? (
@@ -431,69 +436,100 @@ export function LessonRichTabs({
           </div>
         </section>
 
-        <section className={cn("border-b py-8 sm:py-11", pal.sectionBorder)}>
-          {c ? (
-            <SectionTitle palette={pal} icon={<Target className="size-3.5 opacity-90" aria-hidden />}>
-              {CAN101_STREAM_SECTION.objectives}
-            </SectionTitle>
-          ) : (
-            <h2 className={pal.sectionTitle}>Objetivos da aula</h2>
-          )}
-          <ul className="grid gap-3 sm:gap-4">
-            {content.objectives.map((o, i) => (
-              <motion.li
-                key={i}
-                initial={{ opacity: 0, x: -8 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.04 * i }}
+        {c ? (
+          <>
+            <section className={cn("border-b py-8 sm:py-11", pal.sectionBorder)}>
+              <SectionTitle palette={pal} icon={<Bookmark className="size-3.5 opacity-90" aria-hidden />}>
+                {CAN101_STREAM_SECTION.summary}
+              </SectionTitle>
+              <div
                 className={cn(
-                  "flex gap-3 rounded-2xl border px-4 py-3.5 sm:px-5 sm:py-4 text-[14px] sm:text-[15px] leading-relaxed text-white/[0.9] transition duration-200",
-                  c
-                    ? "border-amber-500/25 bg-gradient-to-br from-[#0c1610]/95 to-black/50 shadow-lg shadow-black/25 ring-1 ring-amber-500/10 hover:border-amber-400/40 hover:ring-amber-400/15"
-                    : "border-white/10 bg-black/25"
+                  "relative overflow-hidden rounded-2xl border px-5 py-5 sm:px-7 sm:py-6",
+                  "border-amber-400/35 bg-gradient-to-br from-amber-950/45 via-[#050c08] to-black/80 shadow-[0_0_48px_rgba(180,120,50,0.12)]"
                 )}
               >
-                <span
-                  className={cn(
-                    "mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-xl font-bold",
-                    pal.badgeNum
-                  )}
-                >
-                  {i + 1}
-                </span>
-                <span className="min-w-0 pt-0.5">{o}</span>
-              </motion.li>
-            ))}
-          </ul>
-        </section>
+                <div
+                  className="pointer-events-none absolute right-0 top-0 size-32 bg-gradient-to-bl from-amber-400/10 to-transparent blur-2xl"
+                  aria-hidden
+                />
+                <p className="relative text-[14px] sm:text-[16px] leading-relaxed text-amber-50/[0.93]">
+                  {content.summary}
+                </p>
+              </div>
+            </section>
 
-        <section className={cn("border-b py-8 sm:py-11", pal.sectionBorder)}>
-          {c ? (
-            <SectionTitle palette={pal} icon={<Bookmark className="size-3.5 opacity-90" aria-hidden />}>
-              {CAN101_STREAM_SECTION.summary}
-            </SectionTitle>
-          ) : (
-            <h2 className={pal.sectionTitle}>Resumo final</h2>
-          )}
-          <div
-            className={cn(
-              "relative overflow-hidden rounded-2xl border px-5 py-5 sm:px-7 sm:py-6",
-              c
-                ? "border-amber-400/35 bg-gradient-to-br from-amber-950/45 via-[#050c08] to-black/80 shadow-[0_0_48px_rgba(180,120,50,0.12)]"
-                : "border-white/14 bg-black/35"
-            )}
-          >
-            {c ? (
+            <section className={cn("border-b py-8 sm:py-11", pal.sectionBorder)}>
+              <SectionTitle palette={pal} icon={<Target className="size-3.5 opacity-90" aria-hidden />}>
+                {CAN101_STREAM_SECTION.objectives}
+              </SectionTitle>
+              <ul className="grid gap-3 sm:gap-4">
+                {content.objectives.map((o, i) => (
+                  <motion.li
+                    key={i}
+                    initial={{ opacity: 0, x: -8 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.04 * i }}
+                    className={cn(
+                      "flex gap-3 rounded-2xl border px-4 py-3.5 sm:px-5 sm:py-4 text-[14px] sm:text-[15px] leading-relaxed text-white/[0.9] transition duration-200",
+                      "border-amber-500/25 bg-gradient-to-br from-[#0c1610]/95 to-black/50 shadow-lg shadow-black/25 ring-1 ring-amber-500/10 hover:border-amber-400/40 hover:ring-amber-400/15"
+                    )}
+                  >
+                    <span
+                      className={cn(
+                        "mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-xl font-bold",
+                        pal.badgeNum
+                      )}
+                    >
+                      {i + 1}
+                    </span>
+                    <span className="min-w-0 pt-0.5">{o}</span>
+                  </motion.li>
+                ))}
+              </ul>
+            </section>
+          </>
+        ) : (
+          <>
+            <section className={cn("border-b py-8 sm:py-11", pal.sectionBorder)}>
+              <h2 className={pal.sectionTitle}>Objetivos da aula</h2>
+              <ul className="grid gap-3 sm:gap-4">
+                {content.objectives.map((o, i) => (
+                  <motion.li
+                    key={i}
+                    initial={{ opacity: 0, x: -8 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.04 * i }}
+                    className="flex gap-3 rounded-2xl border border-white/10 bg-black/25 px-4 py-3.5 sm:px-5 sm:py-4 text-[14px] sm:text-[15px] leading-relaxed text-white/[0.9] transition duration-200"
+                  >
+                    <span
+                      className={cn(
+                        "mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-xl font-bold",
+                        pal.badgeNum
+                      )}
+                    >
+                      {i + 1}
+                    </span>
+                    <span className="min-w-0 pt-0.5">{o}</span>
+                  </motion.li>
+                ))}
+              </ul>
+            </section>
+
+            <section className={cn("border-b py-8 sm:py-11", pal.sectionBorder)}>
+              <h2 className={pal.sectionTitle}>Resumo final</h2>
               <div
-                className="pointer-events-none absolute right-0 top-0 size-32 bg-gradient-to-bl from-amber-400/10 to-transparent blur-2xl"
-                aria-hidden
-              />
-            ) : null}
-            <p className={cn("relative text-[14px] sm:text-[16px] leading-relaxed", c ? "text-amber-50/[0.93]" : "text-white/[0.9]")}>
-              {content.summary}
-            </p>
-          </div>
-        </section>
+                className={cn(
+                  "relative overflow-hidden rounded-2xl border px-5 py-5 sm:px-7 sm:py-6",
+                  "border-white/14 bg-black/35"
+                )}
+              >
+                <p className="relative text-[14px] sm:text-[16px] leading-relaxed text-white/[0.9]">
+                  {content.summary}
+                </p>
+              </div>
+            </section>
+          </>
+        )}
 
         {content.quiz?.length ? (
           <section className={cn("border-b py-8 sm:py-11", pal.sectionBorder)}>
@@ -659,12 +695,14 @@ export function LessonRichTabs({
         >
           {tab === "conteudo" && (
             <div className="space-y-4 text-sm leading-relaxed">
-              <div>
-                <p className="mb-1 text-[10px] font-bold uppercase tracking-widest text-white/40">
-                  {c ? CAN101_STREAM_SECTION.intro : "Introdução"}
-                </p>
-                <p className="text-white/90">{content.intro}</p>
-              </div>
+              {!skipIntroSection ? (
+                <div>
+                  <p className="mb-1 text-[10px] font-bold uppercase tracking-widest text-white/40">
+                    {c ? CAN101_STREAM_SECTION.intro : "Introdução"}
+                  </p>
+                  <p className="text-white/90">{content.intro}</p>
+                </div>
+              ) : null}
               {bodyParagraphs.length ? (
                 <div>
                   <p className="mb-1 text-[10px] font-bold uppercase tracking-widest text-white/40">

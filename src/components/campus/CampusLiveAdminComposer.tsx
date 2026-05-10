@@ -69,7 +69,7 @@ export function CampusLiveAdminComposer({ isCampusAdmin }: Props) {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 12, scale: 0.96 }}
             transition={{ type: "spring", stiffness: 360, damping: 32 }}
-            className="fixed bottom-6 left-1/2 z-[48] w-[min(94vw,480px)] -translate-x-1/2 rounded-2xl border border-emerald-400/40 bg-black/78 p-3 shadow-[0_18px_56px_rgba(0,0,0,0.55),0_0_28px_rgba(52,211,153,0.14)] pointer-events-auto backdrop-blur-md"
+            className="fixed bottom-6 left-1/2 z-[48] w-[min(94vw,480px)] -translate-x-1/2 rounded-2xl campus-hud-glass border-emerald-400/35 p-3 pointer-events-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="mb-3 flex items-start justify-between gap-2">
@@ -130,7 +130,7 @@ export function CampusLiveAdminComposer({ isCampusAdmin }: Props) {
                 value={youtubeUrl}
                 onChange={(e) => setYoutubeUrl(e.target.value)}
                 placeholder="https://www.youtube.com/watch?v=… ou /live/…"
-                className="mt-1.5 w-full rounded-xl border border-white/12 bg-black/40 px-3 py-2 text-sm text-white placeholder:text-white/35 focus:border-emerald-400/45 focus:outline-none focus:ring-2 focus:ring-emerald-400/25"
+                className="mt-1.5 w-full rounded-xl border border-white/12 bg-[rgba(6,18,12,0.28)] px-3 py-2 text-sm text-white placeholder:text-white/35 focus:border-emerald-400/45 focus:outline-none focus:ring-2 focus:ring-emerald-400/25 backdrop-blur-[12px]"
                 autoComplete="off"
               />
               <p className="mt-1 text-[10px] text-white/45">

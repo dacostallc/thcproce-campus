@@ -1,0 +1,687 @@
+/**
+
+ * Dados colados literalmente do export HTML de image-map.net (maio 2026).
+
+ * Mantém o atributo `coords` **inalterado**. A escala para o SVG é feita em tempo de execução com
+
+ * {@link IMAGE_MAP_COORDS_REFERENCE_PX} — ver `campusMapAreasCatalog.ts`.
+
+ *
+
+ * @see docs/campus-map-areas-authoring.md
+
+ */
+
+
+
+import type { CampusMapInteractiveArea } from "./campusMapAreasInteractive.types";
+
+
+
+/** Re-export type-only use: evita circular em runtime se este ficheiro só importa type. */
+
+export const CAMPUS_MAP_INTERACTIVE_AREAS: CampusMapInteractiveArea[] = [
+
+  {
+
+    id: "matricular",
+
+    title: "Matricular",
+
+    panelTitle: "Inscrição THCProce Campus",
+
+    coords: "328,620,286,789,411,827,468,659,468,658,328,623,384,633",
+
+    shape: "poly",
+
+    type: "action",
+
+    status: "active",
+
+    target: { kind: "route", href: "/inscrever-se" },
+
+    metadata: { imageMapAlt: "matricular" }
+
+  },
+
+  {
+
+    id: "legislacao",
+
+    title: "Legislação",
+
+    panelTitle: "Legislação e regulatório",
+
+    coords: "542,762,512,808,460,789,471,726,495,692,540,711,542,740",
+
+    shape: "poly",
+
+    type: "course",
+
+    status: "active",
+
+    target: { kind: "course", courseId: "legislacao" },
+
+    metadata: { imageMapAlt: "legislacao" }
+
+  },
+
+  {
+
+    id: "historia-da-cannabis",
+
+    title: "História da cannabis",
+
+    panelTitle: "História da planta",
+
+    studentSummary:
+
+      "Uma sala dedicada ao contexto histórico e cultural da planta está a chegar. Por agora pode explorar outros cursos do mapa.",
+
+    coords: "589,797,674,817,718,744,634,714",
+
+    shape: "poly",
+
+    type: "topic",
+
+    status: "coming_soon",
+
+    target: {
+
+      kind: "none",
+
+      reason: "Conteúdo em preparação para integrar quando a trilha estiver disponível no campus."
+
+    },
+
+    metadata: { imageMapAlt: "historia-da-cannabis" }
+
+  },
+
+  {
+
+    id: "cannabis-101",
+
+    title: "Cannabis 101",
+
+    panelTitle: "Cannabis 101 — sala de entrada",
+
+    coords: "340,579,463,650,555,547,456,490",
+
+    shape: "poly",
+
+    type: "course",
+
+    status: "active",
+
+    target: { kind: "course", courseId: "cannabis-101" },
+
+    metadata: { imageMapAlt: "cannabis-101" }
+
+  },
+
+  {
+
+    id: "deixe-seu-recado",
+
+    title: "Deixe seu recado",
+
+    panelTitle: "Mural da turma",
+
+    studentSummary: "Escreva uma mensagem visível para a comunidade do campus — ideias, elogios ou lembretes amigáveis.",
+
+    coords: "806,798,57",
+
+    shape: "circle",
+
+    type: "action",
+
+    status: "active",
+
+    target: { kind: "hud_mural" },
+
+    metadata: { imageMapAlt: "deixe-seu-recado" }
+
+  },
+
+  {
+
+    id: "souvenirs",
+
+    title: "Souvenirs",
+
+    panelTitle: "Loja e brindes",
+
+    studentSummary: "Itens e coleções relacionados ao campus — abrimos o painel da loja para navegar pelo catálogo.",
+
+    coords: "592,682,527,658,638,532,691,556",
+
+    shape: "poly",
+
+    type: "action",
+
+    status: "active",
+
+    target: { kind: "hud_store" },
+
+    metadata: { imageMapAlt: "souvenirs" }
+
+  },
+
+  {
+
+    id: "extracao-de-oleo-de-cannabis",
+
+    title: "Extração de óleo de cannabis",
+
+    panelTitle: "Extração de óleo",
+
+    coords: "676,673,750,560,1042,631,995,749,801,707",
+
+    shape: "poly",
+
+    type: "course",
+
+    status: "active",
+
+    target: { kind: "course", courseId: "extracao-oleo" },
+
+    metadata: { imageMapAlt: "extracao-de-oleo-de-cannabis" }
+
+  },
+
+  {
+
+    id: "culinaria-cannabica",
+
+    title: "Culinária cannábica",
+
+    panelTitle: "Culinária com cannabis",
+
+    coords: "676,490,1133,598,1205,434,781,354",
+
+    shape: "poly",
+
+    type: "course",
+
+    status: "active",
+
+    target: { kind: "course", courseId: "culinaria" },
+
+    metadata: { imageMapAlt: "culinaria-cannabica" }
+
+  },
+
+  {
+
+    id: "emergencia-cannabica",
+
+    title: "Emergência cannábica",
+
+    panelTitle: "Emergência e redução de danos",
+
+    coords: "1268,717,1181,809,1259,844,1345,758",
+
+    shape: "poly",
+
+    type: "course",
+
+    status: "active",
+
+    target: { kind: "course", courseId: "medicina" },
+
+    metadata: { imageMapAlt: "emergencia-cannabica" }
+
+  },
+
+  {
+
+    id: "secagem-e-cura",
+
+    title: "Secagem e cura",
+
+    panelTitle: "Secagem e cura do material",
+
+    coords: "1279,634,1407,707,1488,639,1356,563",
+
+    shape: "poly",
+
+    type: "course",
+
+    status: "active",
+
+    target: { kind: "course", courseId: "secagem-cura" },
+
+    metadata: { imageMapAlt: "secagem-e-cura" }
+
+  },
+
+  {
+
+    id: "vegetativo",
+
+    title: "Vegetativo",
+
+    panelTitle: "Fase vegetativa",
+
+    studentSummary:
+
+      "Crescimento de estrutura e folhas antes da floração: luz, espaço e ambiente estável moldam o resultado final.",
+
+    coords: "1446,488,1601,571,1666,494,1514,414",
+
+    shape: "poly",
+
+    type: "topic",
+
+    status: "active",
+
+    target: { kind: "course", courseId: "cultivo-indoor" },
+
+    metadata: { imageMapAlt: "vegetativo" }
+
+  },
+
+  {
+
+    id: "diagnostico-de-deficiencias",
+
+    title: "Diagnóstico de deficiências",
+
+    panelTitle: "Sintomas na folha",
+
+    studentSummary:
+
+      "Aprenda a ler sinais visuais da planta para corrigir nutrição, luz ou ambiente antes que o problema avance.",
+
+    coords: "1355,463,1453,383,1308,299,1216,349,1220,398",
+
+    shape: "poly",
+
+    type: "topic",
+
+    status: "active",
+
+    target: { kind: "course", courseId: "cultivo-indoor" },
+
+    metadata: { imageMapAlt: "diagnostico-de-deficiencias" }
+
+  },
+
+  {
+
+    id: "dosagem-e-canabinoides",
+
+    title: "Dosagem e canabinoides",
+
+    panelTitle: "Dosagem consciente",
+
+    studentSummary:
+
+      "Como pensar mg, vias de administração e resposta individual — sempre com foco em segurança e informação responsável.",
+
+    coords: "1585,377,1690,282,1687,431",
+
+    shape: "poly",
+
+    type: "topic",
+
+    status: "active",
+
+    target: { kind: "course", courseId: "medicina" },
+
+    metadata: { imageMapAlt: "dosagem-e-canabinoides" }
+
+  },
+
+  {
+
+    id: "extracao-sem-solventes",
+
+    title: "Extração sem solventes",
+
+    panelTitle: "Extração sem solventes",
+
+    coords: "1529,322,1621,240,1408,148,1319,217",
+
+    shape: "poly",
+
+    type: "course",
+
+    status: "active",
+
+    target: { kind: "course", courseId: "extracoes-solventless" },
+
+    metadata: { imageMapAlt: "extracao-sem-solventes" }
+
+  },
+
+  {
+
+    id: "cultivo-indoor",
+
+    title: "Cultivo indoor",
+
+    panelTitle: "Cultivo em ambiente fechado",
+
+    coords: "1130,241,1246,166,1054,87,947,151,949,229,1131,304",
+
+    shape: "poly",
+
+    type: "course",
+
+    status: "active",
+
+    target: { kind: "course", courseId: "cultivo-indoor" },
+
+    metadata: { imageMapAlt: "cultivo-indoor" }
+
+  },
+
+  {
+
+    id: "cultivo-outdoor",
+
+    title: "Cultivo outdoor",
+
+    panelTitle: "Cultivo ao ar livre",
+
+    coords: "904,162,878,290,720,331,500,241,579,105,762,102,893,123",
+
+    shape: "poly",
+
+    type: "course",
+
+    status: "active",
+
+    target: { kind: "course", courseId: "cultivo-outdoor" },
+
+    metadata: { imageMapAlt: "cultivo-outdoor" }
+
+  },
+
+  {
+
+    id: "sementes-feminizadas",
+
+    title: "Sementes feminizadas",
+
+    panelTitle: "Sementes feminizadas",
+
+    studentSummary:
+
+      "Entenda o que torna uma semente feminizada e como isso influencia o planeamento do cultivo e a previsibilidade da colheita.",
+
+    coords: "539,121,497,98,353,161,462,231",
+
+    shape: "poly",
+
+    type: "topic",
+
+    status: "active",
+
+    target: { kind: "course", courseId: "genetica" },
+
+    metadata: { imageMapAlt: "sementes-feminizadas" }
+
+  },
+
+  {
+
+    id: "sementes-e-clones",
+
+    title: "Sementes e clones",
+
+    panelTitle: "Sementes e clones",
+
+    studentSummary:
+
+      "Compare propagar por semente ou clone: prós, riscos sanitários e o que esperar em vigor e uniformidade.",
+
+    coords: "439,226,454,291,379,331,264,258,225,209,317,163,358,181",
+
+    shape: "poly",
+
+    type: "topic",
+
+    status: "active",
+
+    target: { kind: "course", courseId: "genetica" },
+
+    metadata: { imageMapAlt: "sementes-e-clones" }
+
+  },
+
+  {
+
+    id: "controle-de-pragas",
+
+    title: "Controle de pragas",
+
+    panelTitle: "Pragas e manejo",
+
+    studentSummary:
+
+      "Abordagem integrada: identificar cedo, priorizar medidas leves e manter o ecossistema da planta equilibrado.",
+
+    coords: "396,419,516,496,671,369,548,306,507,309,448,337",
+
+    shape: "poly",
+
+    type: "topic",
+
+    status: "active",
+
+    target: { kind: "course", courseId: "cultivo-outdoor" },
+
+    metadata: { imageMapAlt: "controle-de-pragas" }
+
+  },
+
+  {
+
+    id: "green-houses",
+
+    title: "Cultivo em estufa",
+
+    panelTitle: "Estufas e microclima",
+
+    coords: "340,356,325,317,221,247,49,339,41,375,170,455,239,416,286,392,320,368",
+
+    shape: "poly",
+
+    type: "course",
+
+    status: "active",
+
+    target: { kind: "course", courseId: "cultivo-greenhouse" },
+
+    metadata: { imageMapAlt: "green-houses" }
+
+  },
+
+  {
+
+    id: "aplicacoes-terapeuticas",
+
+    title: "Aplicações terapêuticas",
+
+    panelTitle: "Uso terapêutico em contexto educativo",
+
+    studentSummary:
+
+      "Visão geral de como o conteúdo médico do campus organiza evidências, limites e conversa com o cuidador — sem substituir acompanhamento profissional.",
+
+    coords: "189,476,271,422,375,490,290,551",
+
+    shape: "poly",
+
+    type: "topic",
+
+    status: "active",
+
+    target: { kind: "course", courseId: "medicina" },
+
+    metadata: { imageMapAlt: "aplicacoes-terapeuticas" }
+
+  },
+
+  {
+
+    id: "anvisa-e-importacao",
+
+    title: "Anvisa e importação",
+
+    panelTitle: "Anvisa e importação",
+
+    studentSummary:
+
+      "Pontos de atenção regulatórios que o curso de legislação aprofunda: importação, registro e leitura de normas com data.",
+
+    coords: "286,402,353,360,373,380,313,425",
+
+    shape: "poly",
+
+    type: "topic",
+
+    status: "active",
+
+    target: { kind: "course", courseId: "legislacao" },
+
+    metadata: { imageMapAlt: "anvisa-e-importacao" }
+
+  },
+
+  {
+
+    id: "terpenos-e-aromas",
+
+    title: "Terpenos e aromas",
+
+    panelTitle: "Terpenos e aroma",
+
+    studentSummary:
+
+      "Vocabulário olfativo e químico leve: por que cheiros diferem e como isso se liga à experiência sensorial — laboratório e percepção.",
+
+    coords: "141,544,171,517,258,580,224,603",
+
+    shape: "poly",
+
+    type: "topic",
+
+    status: "active",
+
+    target: { kind: "course", courseId: "laboratorio" },
+
+    metadata: { imageMapAlt: "terpenos-e-aromas" }
+
+  },
+
+  {
+
+    id: "nutricao-organica",
+
+    title: "Nutrição orgânica",
+
+    panelTitle: "Nutrição orgânica",
+
+    studentSummary:
+
+      "Matéria orgânica, microbiologia do solo e liberação lenta de nutrientes — encaixe no manejo outdoor com calma e observação.",
+
+    coords: "23,469,50,432,145,496,114,532",
+
+    shape: "poly",
+
+    type: "topic",
+
+    status: "active",
+
+    target: { kind: "course", courseId: "cultivo-outdoor" },
+
+    metadata: { imageMapAlt: "nutricao-organica" }
+
+  },
+
+  {
+
+    id: "nutricao-sais",
+
+    title: "Nutrição com sais minerais",
+
+    panelTitle: "Nutrição mineral (sais)",
+
+    studentSummary:
+
+      "Fertilização em solução e leitura de EC/pH: base para quem acompanha o curso de cultivo indoor com precisão.",
+
+    coords: "1252,481,1166,672,1318,524,1292,496",
+
+    shape: "poly",
+
+    type: "topic",
+
+    status: "active",
+
+    target: { kind: "course", courseId: "cultivo-indoor" },
+
+    metadata: { imageMapAlt: "nutricao-sais" }
+
+  },
+
+  {
+
+    id: "compostagem",
+
+    title: "Compostagem",
+
+    panelTitle: "Compostagem no cultivo",
+
+    studentSummary:
+
+      "Reciclar resíduos vegetais em composto estável melhora a biologia do solo e fecha o ciclo com sustentabilidade.",
+
+    coords: "837,78,836,93,873,102,876,83,884,69,845,60",
+
+    shape: "poly",
+
+    type: "topic",
+
+    status: "active",
+
+    target: { kind: "course", courseId: "cultivo-outdoor" },
+
+    metadata: { imageMapAlt: "compostagem" }
+
+  },
+
+  {
+
+    id: "podas",
+
+    title: "Podas",
+
+    panelTitle: "Podas e estrutura",
+
+    studentSummary:
+
+      "Intervenções de copa para luz, ar e colheita: quando podar, com que higiene e como a planta reage em cada fase.",
+
+    coords: "1053,684,1074,636,1155,675,1117,722,1069,765,1027,758",
+
+    shape: "poly",
+
+    type: "topic",
+
+    status: "active",
+
+    target: { kind: "course", courseId: "cultivo-indoor" },
+
+    metadata: { imageMapAlt: "podas" }
+
+  }
+
+];
+
+

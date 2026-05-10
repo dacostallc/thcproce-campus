@@ -8,8 +8,7 @@ import {
   useRef,
   useState
 } from "react";
-import type { CampusZone } from "@/data/campusZones";
-import { CAMPUS_IMAGE_OBJECT_POSITION } from "@/lib/campusArt";
+import { CAMPUS_MAP_BACKGROUND_IMG_STYLE_CONTAIN } from "@/lib/campusArt";
 import { rectRecordsFromCampusDefinitions } from "@/lib/campusZoneEditorRectsFromData";
 import {
   campusZoneEditorFileSchema,
@@ -143,29 +142,27 @@ function applyResize(
   return { x, y, width: w, height: h };
 }
 
-const AREA_TYPE_OPTIONS: CampusZone["areaType"][] = [
-  "cultivo",
-  "laboratorio",
-  "medicina",
-  "culinaria",
-  "social",
-  "logistica",
-  "entrada"
-];
+const CATEGORY_PRESETS = [
+  "Cultivo",
+  "Laboratório",
+  "Medicina",
+  "Culinária",
+  "Social",
+  "Logística",
+  "Entrada"
+] as const;
 
-/** RGB de pré-visualização no editor (alinhados às cores típicas do mapa). */
-const AREA_TYPE_PREVIEW_RGB: Record<
-  CampusZone["areaType"],
-  { r: number; g: number; b: number }
-> = {
-  cultivo: { r: 124, g: 255, b: 91 },
-  laboratorio: { r: 34, g: 211, b: 238 },
-  medicina: { r: 96, g: 165, b: 250 },
-  culinaria: { r: 234, g: 179, b: 8 },
-  social: { r: 168, g: 85, b: 247 },
-  logistica: { r: 249, g: 115, b: 22 },
-  entrada: { r: 236, g: 72, b: 153 }
-};
+/** RGB de pré-visualização por categoria (editor). */
+const CATEGORY_PREVIEW_RGB: Record<string, { r: number; g: number; b: number }> =
+  {
+    Cultivo: { r: 124, g: 255, b: 91 },
+    Laboratório: { r: 34, g: 211, b: 238 },
+    Medicina: { r: 96, g: 165, b: 250 },
+    Culinária: { r: 234, g: 179, b: 8 },
+    Social: { r: 168, g: 85, b: 247 },
+    Logística: { r: 249, g: 115, b: 22 },
+    Entrada: { r: 236, g: 72, b: 153 }
+  };
 
 const HANDLE_CURSOR: Record<ResizeHandle, string> = {
   nw: "nwse-resize",
@@ -179,11 +176,15 @@ const HANDLE_CURSOR: Record<ResizeHandle, string> = {
 };
 
 function zoneStylePreview(
-  areaType: CampusZone["areaType"],
+  category: string,
   previewOpacity: number,
   glowOn: boolean
 ): CSSProperties {
-  const { r, g, b } = AREA_TYPE_PREVIEW_RGB[areaType];
+  const { r, g, b } = CATEGORY_PREVIEW_RGB[category] ?? {
+    r: 148,
+    g: 163,
+    b: 184
+  };
   const fill = `rgba(${r},${g},${b},${previewOpacity * 0.22})`;
   const stroke = `rgba(${r},${g},${b},${previewOpacity * 0.95 + 0.08})`;
   const glow = glowOn
@@ -376,7 +377,7 @@ export function CampusZoneEditor() {
               y: n.y,
               width: n.width,
               height: n.height,
-              areaType: "cultivo",
+              category: "Cultivo",
               courseIds: []
             };
             setZones((prev) => [...prev, rec]);
@@ -453,7 +454,7 @@ export function CampusZoneEditor() {
       y: 40,
       width: 12,
       height: 10,
-      areaType: "cultivo",
+      category: "Cultivo",
       courseIds: []
     };
     setZones((p) => [...p, rec]);
@@ -590,14 +591,14 @@ export function CampusZoneEditor() {
           <img
             src={bgSrc}
             alt=""
-            className="pointer-events-none absolute inset-0 size-full object-cover brightness-[1.02] contrast-[1.03]"
-            style={{ objectPosition: CAMPUS_IMAGE_OBJECT_POSITION }}
+            className="pointer-events-none opacity-100"
+            style={{ ...CAMPUS_MAP_BACKGROUND_IMG_STYLE_CONTAIN }}
             draggable={false}
           />
 
           {zones.map((z) => {
             const sel = selectedId === z.id;
-            const preview = zoneStylePreview(z.areaType, previewOpacity, glowOn);
+            const preview = zoneStylePreview(z.category, previewOpacity, glowOn);
             return (
               <div
                 key={z.id}
@@ -712,23 +713,21 @@ export function CampusZoneEditor() {
               </label>
               <label className="block">
                 <span className="mb-1 block text-[11px] text-white/50">
-                  Tipo de área
+                  Categoria
                 </span>
-                <select
+                <input
+                  list="campus-zone-editor-categories"
                   className="w-full rounded-lg border border-white/15 bg-black/40 px-2 py-1.5 text-sm"
-                  value={selected.areaType}
+                  value={selected.category}
                   onChange={(e) =>
-                    updateZone(selected.id, {
-                      areaType: e.target.value as CampusZone["areaType"]
-                    })
+                    updateZone(selected.id, { category: e.target.value })
                   }
-                >
-                  {AREA_TYPE_OPTIONS.map((o) => (
-                    <option key={o} value={o}>
-                      {o}
-                    </option>
+                />
+                <datalist id="campus-zone-editor-categories">
+                  {CATEGORY_PRESETS.map((c) => (
+                    <option key={c} value={c} />
                   ))}
-                </select>
+                </datalist>
               </label>
               <label className="block">
                 <span className="mb-1 block text-[11px] text-white/50">

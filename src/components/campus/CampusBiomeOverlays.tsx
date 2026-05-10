@@ -14,7 +14,7 @@ export function CampusBiomeOverlays({ phase }: Props) {
   return (
     <div
       className={cn(
-        "pointer-events-none absolute inset-0 z-[5] transition-opacity duration-700 ease-out",
+        "pointer-events-none absolute inset-0 z-[6] transition-opacity duration-700 ease-out",
         phase === "day" ? "opacity-[0.82]" : "opacity-100"
       )}
       style={{

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowRight,
@@ -24,7 +24,7 @@ import {
   type EnrollmentPlanId
 } from "@/config/enrollmentPlans";
 import { Button } from "@/components/ui/button";
-import { isAbsoluteHttpUrl, lodgerCheckoutHref } from "@/config/siteUrls";
+import { isAbsoluteHttpUrl, lodgerCheckoutHref, CAMPUS_HOME_PATH } from "@/config/siteUrls";
 
 const TERMOS_HREF = "/planos";
 
@@ -48,13 +48,6 @@ export function InscricaoExperience() {
   const [acceptTerms, setAcceptTerms] = useState(false);
 
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-
-  useEffect(() => {
-    const id = window.requestAnimationFrame(() => {
-      plansRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    });
-    return () => window.cancelAnimationFrame(id);
-  }, []);
 
   const selectedPlan = useMemo(
     () => (selectedPlanId ? getPlanById(selectedPlanId) : undefined),
@@ -121,53 +114,77 @@ export function InscricaoExperience() {
         }}
       />
 
-      <header className="relative z-10 px-5 py-5 max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-4">
-        <Link href="/" className="flex items-center gap-2.5 group">
-          <span className="w-10 h-10 rounded-xl bg-canna-500/20 border border-canna-400/40 flex items-center justify-center shadow-lg shadow-canna-500/10">
+      <header className="relative z-10 mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-4 sm:gap-4 sm:px-5 sm:py-5">
+        <Link href="/" className="group flex min-w-0 items-center gap-2.5">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-canna-400/40 bg-canna-500/20 shadow-lg shadow-canna-500/10">
             <Leaf size={22} className="text-canna-300" />
           </span>
-          <div>
-            <div className="text-[10px] uppercase tracking-[0.22em] text-canna-300/90 font-semibold">
+          <div className="min-w-0">
+            <div className="text-[10px] font-semibold uppercase tracking-[0.22em] text-canna-300/90">
               THCProce
             </div>
-            <div className="text-sm font-bold tracking-tight">Matrícula no campus</div>
+            <div className="truncate text-sm font-bold tracking-tight">Matrícula</div>
           </div>
         </Link>
-        <div className="flex items-center gap-2">
+        <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
           <Button variant="glass" size="sm" className="border-white/15" asChild>
-            <Link href="/entrar">Já tenho conta</Link>
+            <Link href={CAMPUS_HOME_PATH}>Campus</Link>
           </Button>
-          <Button size="sm" className="hidden sm:inline-flex" asChild>
-            <Link href="/">
-              Ver campus <ArrowRight className="ml-1 h-4 w-4" />
+          <Button variant="glass" size="sm" className="border-white/15" asChild>
+            <Link href="/entrar">Entrar</Link>
+          </Button>
+          <Button size="sm" className="hidden font-bold text-ink-900 sm:inline-flex" asChild>
+            <Link href={CAMPUS_HOME_PATH}>
+              Mapa vivo <ArrowRight className="ml-1 h-4 w-4" aria-hidden />
             </Link>
           </Button>
         </div>
       </header>
 
-      <section className="relative z-10 px-5 pb-10 max-w-6xl mx-auto">
-        <div className="text-center max-w-3xl mx-auto mb-12">
+      <section className="relative z-10 mx-auto max-w-6xl px-4 pb-12 sm:px-5 sm:pb-14">
+        <div className="mx-auto mb-10 max-w-2xl text-center sm:mb-12">
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass-strong text-xs uppercase tracking-[0.15em] text-canna-300 font-semibold mb-6 border border-canna-400/30"
+            className="mb-5 inline-flex items-center gap-2 rounded-full border border-canna-400/30 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.15em] text-canna-300 glass-strong sm:mb-6"
           >
-            <Sparkles size={14} />
-            <span>Pré-lançamento fundador</span>
+            <Sparkles size={13} aria-hidden />
+            Campus digital
           </motion.div>
-          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-shadow-soft">
-            Escolha o plano e finalize com seus dados
+          <h1 className="text-balance text-3xl font-extrabold tracking-tight sm:text-4xl">
+            Matrícula simples na Escola THCProce
           </h1>
-          <p className="mt-3 text-base sm:text-lg text-white/70 leading-relaxed">
-            Primeiro o tempo de acesso; em seguida você preenche os dados e segue para o pagamento quando o checkout
-            estiver ativo.
+          <p className="mx-auto mt-3 max-w-xl text-pretty text-sm leading-relaxed text-white/72 sm:text-base">
+            Escolha o período de acesso, preencha o formulário e conclua o pagamento quando o checkout estiver
+            configurado. Depois é só entrar para voltar ao <strong className="text-canna-200">mapa do campus</strong>.
           </p>
+        </div>
+
+        <div
+          role="navigation"
+          aria-label="Fluxo rápido"
+          className="mx-auto mb-10 grid max-w-3xl gap-3 sm:mb-11 sm:grid-cols-3"
+        >
+          {[
+            { n: "1", t: "Escolher plano", d: "Tempo de acesso" },
+            { n: "2", t: "Seus dados", d: "Conta e segurança" },
+            { n: "3", t: "Entrar no campus", d: "Após criar conta" }
+          ].map((s) => (
+            <div
+              key={s.n}
+              className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-center text-sm backdrop-blur-sm sm:text-left"
+            >
+              <span className="text-[11px] font-bold text-canna-400">{s.n}</span>
+              <p className="font-semibold text-white">{s.t}</p>
+              <p className="mt-0.5 text-[11px] text-white/50">{s.d}</p>
+            </div>
+          ))}
         </div>
 
         <div
           ref={plansRef}
           id="escolher-plano"
-          className="grid lg:grid-cols-5 gap-4 mb-14 scroll-mt-28"
+          className="mb-11 grid scroll-mt-28 grid-cols-2 gap-3 sm:mb-14 md:grid-cols-3 lg:grid-cols-5 lg:gap-4"
         >
           {ENROLLMENT_PLANS.map((plan, idx) => {
             const active = selectedPlanId === plan.id;
@@ -181,11 +198,11 @@ export function InscricaoExperience() {
                 transition={{ delay: idx * 0.05 }}
                 onClick={() => selectPlan(plan.id)}
                 className={cn(
-                  "relative text-left rounded-2xl border p-5 flex flex-col gap-3 transition-all duration-300",
-                  "hover:border-canna-400/50 hover:shadow-xl hover:shadow-canna-500/10",
+                  "relative flex flex-col gap-2 rounded-2xl border p-4 text-left transition-all duration-200 sm:p-5 sm:gap-3",
+                  "hover:border-canna-400/50 hover:shadow-lg hover:shadow-canna-500/10",
                   active
-                    ? "border-canna-400/80 glass-strong ring-2 ring-canna-400/40 scale-[1.02]"
-                    : "border-white/12 glass",
+                    ? "glass-strong ring-2 ring-canna-400/40 scale-[1.02] border-canna-400/80"
+                    : "glass border-white/12",
                   plan.recommended && "lg:ring-1 lg:ring-amber-400/30"
                 )}
               >
@@ -241,7 +258,7 @@ export function InscricaoExperience() {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
-              className="mb-8 rounded-2xl border border-canna-400/25 glass-strong px-5 py-4 flex flex-wrap items-center justify-between gap-3"
+              className="mb-8 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-canna-400/25 glass-strong px-4 py-4 sm:px-5"
             >
               <div>
                 <p className="text-[10px] uppercase tracking-[0.2em] text-canna-300 font-semibold">
@@ -267,20 +284,20 @@ export function InscricaoExperience() {
           <motion.div
             initial={false}
             className={cn(
-              "rounded-3xl border border-white/10 glass-strong p-6 sm:p-8 shadow-2xl shadow-black/40",
-              !selectedPlanId && "opacity-60 pointer-events-none"
+              "rounded-3xl border border-white/10 glass-strong p-6 shadow-2xl shadow-black/40 sm:p-8",
+              !selectedPlanId && "pointer-events-none opacity-55"
             )}
           >
-            <div className="flex items-center gap-3 mb-8">
-              <div className="w-12 h-12 rounded-2xl bg-canna-500/15 border border-canna-400/30 flex items-center justify-center">
+            <div className="mb-6 flex flex-wrap items-start gap-3 sm:mb-8 sm:gap-4">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-canna-400/30 bg-canna-500/15">
                 <UserPlus className="text-canna-300" />
               </div>
-              <div>
-                <h2 className="text-xl font-bold text-white">Seus dados na comunidade</h2>
-                <p className="text-sm text-white/55">
+              <div className="min-w-0 flex-1">
+                <h2 className="text-lg font-bold text-white sm:text-xl">Formulário de matrícula</h2>
+                <p className="mt-1 text-sm leading-snug text-white/58">
                   {selectedPlanId
-                    ? "Complete para criar sua conta. Em seguida abrimos o checkout ou a página de pagamento."
-                    : "Primeiro escolha um plano acima para liberar o formulário."}
+                    ? "Dados protegidos; após criar a conta você segue para o pagamento quando estiver disponível — ou volta aqui quando quiser."
+                    : "Selecione um plano na grade acima para habilitar os campos."}
                 </p>
               </div>
             </div>
@@ -396,18 +413,49 @@ export function InscricaoExperience() {
                 type="submit"
                 size="lg"
                 disabled={!selectedPlanId || register.isPending}
-                className="w-full sm:w-auto min-w-[220px] font-bold text-ink-900"
+                className="w-full min-w-[220px] font-bold text-ink-900 sm:w-auto"
               >
-                {register.isPending ? "Criando conta…" : "Continuar para pagamento"}
+                {register.isPending ? "Criando conta…" : "Criar conta e seguir"}
               </Button>
+
+              <p className="text-center text-xs leading-relaxed text-white/45 sm:text-left">
+                Quando terminar, acesse{" "}
+                <Link href="/entrar" className="font-semibold text-canna-300 underline-offset-4 hover:underline">
+                  Entrar
+                </Link>{" "}
+                e abra o{" "}
+                <Link href={CAMPUS_HOME_PATH} className="font-semibold text-canna-300 underline-offset-4 hover:underline">
+                  campus interativo
+                </Link>
+                .
+              </p>
             </form>
           </motion.div>
         </div>
 
-        <p className="text-center text-xs text-white/40 mt-10 max-w-xl mx-auto leading-relaxed">
-          Precisa só explorar o mapa primeiro?{" "}
-          <Link href="/" className="text-canna-300 hover:underline font-semibold">
-            Voltar ao campus
+        <div className="mx-auto mt-12 max-w-3xl rounded-2xl border border-canna-400/25 bg-canna-500/[0.08] px-5 py-6 text-center backdrop-blur-sm sm:mt-14 sm:flex sm:flex-wrap sm:items-center sm:justify-between sm:gap-4 sm:text-left">
+          <div className="min-w-0 sm:flex-1">
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-amber-200/90">
+              Depois da matrícula
+            </p>
+            <p className="mt-2 text-sm leading-relaxed text-white/78">
+              Use seu e-mail e senha para entrar; o mapa e as salas respeitam o calendário e o estado da sua conta.
+            </p>
+          </div>
+          <div className="mt-5 flex shrink-0 flex-col gap-2 sm:mt-0 sm:flex-row sm:gap-3">
+            <Button size="lg" className="w-full font-bold text-ink-900 sm:w-auto" asChild>
+              <Link href={CAMPUS_HOME_PATH}>Entrar no campus</Link>
+            </Button>
+            <Button variant="glass" size="lg" className="w-full border-white/15 sm:w-auto" asChild>
+              <Link href="/entrar">Ir para login</Link>
+            </Button>
+          </div>
+        </div>
+
+        <p className="mx-auto mt-8 max-w-lg text-center text-xs leading-relaxed text-white/42">
+          Só quer explorar antes de comprar?{" "}
+          <Link href={CAMPUS_HOME_PATH} className="font-semibold text-canna-300 hover:underline">
+            Abrir o mapa ao vivo
           </Link>
           .
         </p>

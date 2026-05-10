@@ -65,7 +65,7 @@ export function CampusAreaGateModal({ open, kind, area, onClose, sky }: Props) {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 12, scale: 0.98 }}
             transition={{ type: "spring", stiffness: 280, damping: 28 }}
-            className="fixed left-1/2 top-[45%] z-[56] w-[min(96%,440px)] -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-amber-500/35 bg-[#0a1210]/95 p-6 shadow-2xl shadow-black/60"
+            className="fixed left-1/2 top-[45%] z-[56] w-[min(96%,440px)] -translate-x-1/2 -translate-y-1/2 rounded-2xl campus-hud-glass border-amber-500/28 p-6"
           >
             <button
               type="button"
@@ -88,7 +88,7 @@ export function CampusAreaGateModal({ open, kind, area, onClose, sky }: Props) {
               </Button>
               {kind === "enroll" ? (
                 <Button type="button" className="bg-canna-500 font-bold text-ink-900 hover:bg-canna-400" asChild>
-                  <Link href="/inscrever-se">Inscrever-se</Link>
+                  <Link href="/inscrever">Inscrever-se</Link>
                 </Button>
               ) : null}
             </div>

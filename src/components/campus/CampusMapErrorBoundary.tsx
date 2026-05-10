@@ -6,6 +6,8 @@ import { CampusMapCanvasFallback } from "./CampusMapCanvasFallback";
 type Props = React.PropsWithChildren<{
   bgNightSrc: string;
   bgDaySrc: string;
+  /** Igual ao ramo `CampusMap` quando flags de alinhamento / preview activam `object-fit: contain`. */
+  campusMapAlignmentPreview?: boolean;
 }>;
 
 type State = {
@@ -31,13 +33,14 @@ export class CampusMapErrorBoundary extends React.Component<Props, State> {
   };
 
   render(): React.ReactNode {
-    const { children, bgNightSrc, bgDaySrc } = this.props;
+    const { children, bgNightSrc, bgDaySrc, campusMapAlignmentPreview } = this.props;
 
     if (this.state.error) {
       return (
         <CampusMapCanvasFallback
           bgNightSrc={bgNightSrc}
           bgDaySrc={bgDaySrc}
+          campusMapAlignmentPreview={campusMapAlignmentPreview}
           hint="As animações do mapa falharam; o fundo estático continua visível. Recarregar a página ou usar o botão abaixo pode restaurar o modo completo."
           onRetry={this.retry}
         />

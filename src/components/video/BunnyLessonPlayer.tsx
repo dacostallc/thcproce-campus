@@ -5,6 +5,7 @@ import { Loader2 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { trpc } from "@/lib/trpc/react";
 import { Button } from "@/components/ui/button";
+import { CAMPUS_HOME_PATH } from "@/config/siteUrls";
 
 type Props = { videoId: string; courseSlug?: string | null };
 
@@ -50,7 +51,7 @@ export function BunnyLessonPlayer({ videoId, courseSlug }: Props) {
     return (
       <div className="min-h-screen bg-ink-900 text-white flex flex-col">
         <header className="px-6 py-4 border-b border-white/10 glass-strong flex justify-between gap-4">
-          <Link href="/" className="text-sm font-semibold text-canna-300">
+          <Link href={CAMPUS_HOME_PATH} className="text-sm font-semibold text-canna-300">
             ← Voltar ao campus
           </Link>
         </header>
@@ -101,7 +102,7 @@ export function BunnyLessonPlayer({ videoId, courseSlug }: Props) {
           <p className="text-sm text-white/70">{courseSlug ? `Curso: ${courseSlug}` : "Demonstração"}</p>
         </div>
         <Link
-          href="/"
+          href={CAMPUS_HOME_PATH}
           className="text-sm font-semibold text-canna-300 hover:text-canna-200"
         >
           ← Voltar ao campus

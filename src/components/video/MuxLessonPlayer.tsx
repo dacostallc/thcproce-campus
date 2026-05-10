@@ -3,6 +3,8 @@
 import MuxPlayer from "@mux/mux-player-react";
 import Link from "next/link";
 
+import { CAMPUS_HOME_PATH } from "@/config/siteUrls";
+
 type Props = { playbackId: string; courseSlug?: string | null };
 
 export function MuxLessonPlayer({ playbackId, courseSlug }: Props) {
@@ -16,7 +18,7 @@ export function MuxLessonPlayer({ playbackId, courseSlug }: Props) {
           <p className="text-sm text-white/70">{courseSlug ? `Curso: ${courseSlug}` : "Demonstração"}</p>
         </div>
         <Link
-          href="/"
+          href={CAMPUS_HOME_PATH}
           className="text-sm font-semibold text-canna-300 hover:text-canna-200"
         >
           ← Voltar ao campus

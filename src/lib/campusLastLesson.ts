@@ -1,4 +1,16 @@
-const KEY = "thc_campus_last_lesson_v1";
+export const CAMPUS_LAST_LESSON_INDICES_LS_KEY = "thc_campus_last_lesson_v1" as const;
+
+const KEY = CAMPUS_LAST_LESSON_INDICES_LS_KEY;
+
+/** QA / debug: volta os ponteiros «última aula». */
+export function clearCampusLastLessonIndicesStorage(): void {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.removeItem(KEY);
+  } catch {
+    /* noop */
+  }
+}
 
 /** Última aula aberta por curso (areaId) — localStorage para retomar ao reabrir pelo mapa. */
 export function getLastLessonIndex(areaId: string, fallback = 0): number {

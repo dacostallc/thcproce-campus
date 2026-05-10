@@ -1,6 +1,7 @@
-import { redirect } from "next/navigation";
+"use client";
 
-/** Alias: o conteúdo canónico está em `/perfil`. */
-export default function CampusPerfilRedirectPage() {
-  redirect("/perfil");
+import { CampusLocalProfilePanel } from "@/components/campus/CampusLocalProfilePanel";
+
+export default function CampusOfflinePerfilPage() {
+  return <CampusLocalProfilePanel />;
 }

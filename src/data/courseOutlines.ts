@@ -2,7 +2,7 @@ import { CANNABIS101_OUTLINE_TITLES } from "@/content/courses/cannabis-101";
 import { CANNABIS101_AREA_ID } from "@/content/courses/cannabis-101/manifest";
 /**
  * Outline editorial por curso (pré-lançamento fundador).
- * Cannabis 101: trilha canónica de 29 aulas (títulos alinhados à sala oficial THCProce).
+ * Cannabis 101: trilha introdutória de onze aulas (conteúdo canónico em `src/content/courses/cannabis-101`).
  */
 export const COURSE_OUTLINES: Record<string, readonly string[]> = {
   [CANNABIS101_AREA_ID]: CANNABIS101_OUTLINE_TITLES,

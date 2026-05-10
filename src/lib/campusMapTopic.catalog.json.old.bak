@@ -1,0 +1,331 @@
+[
+  {
+    "areaId": "matricular",
+    "topicId": "matricular-campus",
+    "title": "Matricular no campus",
+    "parentCourseId": "cannabis-101",
+    "shortDescription": "Complete a inscrição para desbloquear o acesso aos cursos e continuar a jornada com a turma.",
+    "whatStudentLearns": [
+      "O que muda no acesso depois que a matrícula é confirmada",
+      "Onde retomar se você fechou a página no meio do fluxo",
+      "Como encaixar a inscrição no restante do mapa (cursos e aulas)",
+      "Que tipo de dúvida cabe no suporte oficial, fora do chat da aula"
+    ],
+    "callToActionLabel": "Ir para a página de inscrição",
+    "estimatedMinutes": 8,
+    "status": "active",
+    "explicitNavigation": { "kind": "route", "href": "/inscrever-se" }
+  },
+  {
+    "areaId": "legislacao",
+    "topicId": "legislacao-entrada-campus",
+    "title": "Legislação no Brasil",
+    "parentCourseId": "legislacao",
+    "shortDescription": "Este ponto leva ao curso que organiza habeas corpus, normas da Anvisa e leitura de textos legais com calendário.",
+    "whatStudentLearns": [
+      "Como separar opinião de dispositivo escrito (artigo, RDC, portaria)",
+      "Por que a data da norma importa tanto quanto o título",
+      "O que costuma confundir iniciantes em importação e registro",
+      "Onde buscar atualização sem depender só de print de rede social"
+    ],
+    "callToActionLabel": "Abrir o curso de legislação",
+    "estimatedMinutes": 12,
+    "status": "active"
+  },
+  {
+    "areaId": "historia-da-cannabis",
+    "topicId": "historia-cannabis-visao-campus",
+    "title": "História da cannabis",
+    "parentCourseId": "cannabis-101",
+    "shortDescription": "Trilha em preparação sobre migrações da planta e contexto cultural; por enquanto use o mapa para explorar outras salas.",
+    "whatStudentLearns": [
+      "Por que história ajuda a evitar mito fácil e senso comum vazio",
+      "Como situar usos antigos sem misturar com a legislação vigente",
+      "O que você já pode estudar no Cannabis 101 enquanto esta sala abre",
+      "Como acompanhar novidades do campus sem perder o foco didático"
+    ],
+    "callToActionLabel": "Conteúdo em breve",
+    "estimatedMinutes": 10,
+    "status": "coming_soon"
+  },
+  {
+    "areaId": "deixe-seu-recado",
+    "topicId": "mural-da-turma",
+    "title": "Mural da turma",
+    "parentCourseId": "cooperativismo",
+    "shortDescription": "Deixe uma mensagem curta e respeitosa para a comunidade ou leia o que outros alunos publicaram.",
+    "whatStudentLearns": [
+      "Como participar do mural sem sair da experiência do mapa",
+      "Boas práticas de tom (elogio, ideia, lembrete) que evitam ruído",
+      "Onde sua mensagem aparece depois de enviada",
+      "Que tipo de conteúdo não combina com espaço coletivo aberto"
+    ],
+    "callToActionLabel": "Abrir o mural",
+    "estimatedMinutes": 5,
+    "status": "active",
+    "explicitNavigation": { "kind": "hud_mural" }
+  },
+  {
+    "areaId": "souvenirs",
+    "topicId": "loja-souvenirs-campus",
+    "title": "Loja e souvenirs",
+    "parentCourseId": "cooperativismo",
+    "shortDescription": "Veja itens e coleções do campus no painel da loja, com navegação pensada para quem já está imerso no mapa.",
+    "whatStudentLearns": [
+      "Como abrir o catálogo a partir do polígono, sem perder o contexto",
+      "O que observar em descrição e imagem antes de escolher",
+      "Como combinar brindes com a identidade da comunidade THCProce",
+      "Onde tirar dúvidas de envio ou troca fora da aula"
+    ],
+    "callToActionLabel": "Abrir a loja",
+    "estimatedMinutes": 10,
+    "status": "active",
+    "explicitNavigation": { "kind": "hud_store" }
+  },
+  {
+    "areaId": "emergencia-cannabica",
+    "topicId": "emergencia-reducao-de-danos",
+    "title": "Emergência e redução de danos",
+    "parentCourseId": "medicina",
+    "shortDescription": "Use este atalho para chegar ao conteúdo de medicina com foco em segurança, limites e encaminhamento responsável.",
+    "whatStudentLearns": [
+      "Por que “automedicação sem contexto” costuma piorar o quadro",
+      "Sinais em que buscar ajuda profissional deixa de ser opcional",
+      "Como reduzir risco enquanto você ainda não tem orientação médica",
+      "O que o curso cobre — e o que continua fora do lugar do plantão"
+    ],
+    "callToActionLabel": "Abrir medicina canabinoide",
+    "estimatedMinutes": 15,
+    "status": "active"
+  },
+  {
+    "areaId": "secagem-e-cura",
+    "topicId": "secagem-cura-consistencia-final",
+    "title": "Secagem e cura",
+    "parentCourseId": "secagem-cura",
+    "shortDescription": "A qualidade final depende de ambiente estável, paciência e poucos erros clássicos depois da colheita.",
+    "whatStudentLearns": [
+      "Relação simples entre umidade, temperatura e perda de terpenos",
+      "Erros comuns que transformam flor boa em produto sem aroma",
+      "Como organizar frascos e tempo de cura sem improviso sujo",
+      "Quando vale medir umidade e quando a observação já basta"
+    ],
+    "callToActionLabel": "Abrir o curso de secagem e cura",
+    "estimatedMinutes": 18,
+    "status": "active"
+  },
+  {
+    "areaId": "vegetativo",
+    "topicId": "vegetativo-estrutura-folhar",
+    "title": "Fase vegetativa",
+    "parentCourseId": "cultivo-indoor",
+    "shortDescription": "Antes da flora, a planta constrói estrutura — luz, espaço e ambiente definem o teto útil da colheita.",
+    "whatStudentLearns": [
+      "Como ler crescimento “esticado” versus folha saudável e compacta",
+      "Prioridade entre ambiente, irrigação e nutriente nos primeiros erros",
+      "Por que espaço físico entre nós conta tanto quanto Watt na parede",
+      "Sinais de que está na hora de pensar na transição de fase no curso completo",
+      "Hábito de registro rápido (foto, data) para comparar ciclo seguinte"
+    ],
+    "callToActionLabel": "Ir direto para a aula indicada no indoor",
+    "targetLessonId": 2,
+    "estimatedMinutes": 22,
+    "status": "active"
+  },
+  {
+    "areaId": "diagnostico-de-deficiencias",
+    "topicId": "diag-foliar-indoor-outdoor",
+    "title": "Diagnóstico pela folha",
+    "parentCourseId": "cultivo-indoor",
+    "shortDescription": "Aprenda uma ordem lógica: observar a planta inteira antes de subir drasticamente nutriente ou trocar o recipiente.",
+    "whatStudentLearns": [
+      "Diferença entre sintoma novo na ponta versus velho na base",
+      "Quando o problema é ambiente mesmo parecendo “deficiência”",
+      "Como não confundir respingo de nutriente com doença fúngica à distância",
+      "Checklist curtíssimo antes de mexer na solução A/B pela terceira vez",
+      "Onde o curso indoor aprofunda tabelas e casos típicos"
+    ],
+    "callToActionLabel": "Ir direto para a aula indicada no indoor",
+    "targetLessonId": 4,
+    "estimatedMinutes": 20,
+    "status": "active"
+  },
+  {
+    "areaId": "dosagem-e-canabinoides",
+    "topicId": "dosagem-resposta-individual",
+    "title": "Dosagem e canabinoides",
+    "parentCourseId": "medicina",
+    "shortDescription": "Dosagem não é apenas miligrama no rótulo — via de uso, tempo e perfil individual mudam muito o efeito.",
+    "whatStudentLearns": [
+      "Por que copiar dose de terceiros costuma falhar ou ser inseguro",
+      "Ideia geral de titulação acompanhada por profissional habilitado",
+      "Leitura básica de rótulos sem transformar número em garantia mágica",
+      "Limite ético entre educação formal e incentivo ao automedicamento irresponsável"
+    ],
+    "callToActionLabel": "Abrir medicina canabinoide",
+    "estimatedMinutes": 16,
+    "status": "active"
+  },
+  {
+    "areaId": "sementes-feminizadas",
+    "topicId": "sementes-feminizada-previsibilidade",
+    "title": "Sementes feminizadas",
+    "parentCourseId": "genetica",
+    "shortDescription": "Entenda como a escolha de semente feminizada afeta planejamento, espaço útil na estufa e previsibilidade de colheita.",
+    "whatStudentLearns": [
+      "O que mudou na prática quando a indústria de sementes se padronizou",
+      "Riscos reais quando a genética anunciada não bate com a planta",
+      "Por que segurança sanitária e origem continuam sendo prioridade número um",
+      "Como esse tema dialoga com calendário e escala ao ar livre"
+    ],
+    "callToActionLabel": "Abrir Genética e sementes",
+    "estimatedMinutes": 18,
+    "status": "active"
+  },
+  {
+    "areaId": "sementes-e-clones",
+    "topicId": "semente-vs-clone",
+    "title": "Sementes ou clones",
+    "parentCourseId": "genetica",
+    "shortDescription": "Escolha entre variabilidade nova (semente) e uniformidade mais rápida (clone), sempre com saneamento na frente.",
+    "whatStudentLearns": [
+      "Vantagens de clone para repetir fenótipo vencedor com critério",
+      "Custos ocultos de clone ruim (praga, vírus, enraizamento fraco)",
+      "Quando semente paga o desconto de tempo que clone oferece",
+      "Checklist mínimo ao receber material de terceiros"
+    ],
+    "callToActionLabel": "Abrir Genética e sementes",
+    "estimatedMinutes": 18,
+    "status": "active"
+  },
+  {
+    "areaId": "controle-de-pragas",
+    "topicId": "manejo-integrado-pragas",
+    "title": "Pragas e manejo integrado",
+    "parentCourseId": "cultivo-outdoor",
+    "shortDescription": "No outdoor, vencer a praga é mais observação cedo e menos “guerra total” com químico genérico.",
+    "whatStudentLearns": [
+      "Sinais de infestação antes da explosão visível",
+      "Hierarquia de medidas: cultura, barreira, depois intervenção forte",
+      "Como o clima local e a estação mudam o painel de pragas",
+      "Quando isolar planta infectada evita perder o canteiro inteiro"
+    ],
+    "callToActionLabel": "Abrir cultivo outdoor",
+    "estimatedMinutes": 20,
+    "status": "active"
+  },
+  {
+    "areaId": "aplicacoes-terapeuticas",
+    "topicId": "visao-medica-campus",
+    "title": "Uso terapêutico (visão do curso)",
+    "parentCourseId": "medicina",
+    "shortDescription": "O curso de medicina organiza evidência, limites e linguagem segura sem substituir consulta presencial.",
+    "whatStudentLearns": [
+      "O que significa “contexto clínico” quando se fala de cannabis medicinal",
+      "Como o campus separa divulgação educativa de promessa de cura",
+      "Onde encontrar módulos por condição ao longo da trilha",
+      "Como levar dúvidas objetivas para o profissional que te acompanha"
+    ],
+    "callToActionLabel": "Abrir medicina canabinoide",
+    "estimatedMinutes": 14,
+    "status": "active"
+  },
+  {
+    "areaId": "anvisa-e-importacao",
+    "topicId": "anvisa-importacao-registro",
+    "title": "Anvisa e importação",
+    "parentCourseId": "legislacao",
+    "shortDescription": "Bloco que recorta importação, registro e leitura de norma dentro do curso completo de legislação.",
+    "whatStudentLearns": [
+      "Por que importação costuma vir com prazo, taxa e rastreio específicos",
+      "Onde RDC e portarias se cruzam com pedido de autorização",
+      "Como não confundir “liberado na prática” com “autorizado em qualquer caso”",
+      "Hábito de salvar fonte oficial com data para revisitar depois"
+    ],
+    "callToActionLabel": "Abrir o curso de legislação",
+    "estimatedMinutes": 16,
+    "status": "active"
+  },
+  {
+    "areaId": "terpenos-e-aromas",
+    "topicId": "terpenos-lab-percepcao",
+    "title": "Terpenos e aroma",
+    "parentCourseId": "laboratorio",
+    "shortDescription": "Ligue o que você cheira ao que um laboratório pode medir, sem misturar subjetivo com número de COA.",
+    "whatStudentLearns": [
+      "Conceito simples de terpeno sem virar aula de química orgânica pesada",
+      "Por que dois lotes com mesmo THC podem “bater” diferente",
+      "Como ler um relatório quando terpenos aparecem listados",
+      "Limites do nariz humano como instrumento de precisão"
+    ],
+    "callToActionLabel": "Abrir laboratório de análise",
+    "estimatedMinutes": 17,
+    "status": "active"
+  },
+  {
+    "areaId": "nutricao-organica",
+    "topicId": "nutricao-organica-outdoor-solo-vivo",
+    "title": "Nutrição orgânica no solo",
+    "parentCourseId": "cultivo-outdoor",
+    "shortDescription": "Alimentar a biologia do solo libera nutriente devagar e costuma exigir menos correção nervosa de pH que o sal puro.",
+    "whatStudentLearns": [
+      "Papel de matéria orgânica bem decomposta no outdoor",
+      "Sinais de solo vivo versus solo “inerte” só com fertilizante líquido",
+      "Por que excesso mesmo de orgânico pode saturar ou apodrecer mal",
+      "Como esse caminho converte restos vegetais em ativo fértil com compostagem aliada"
+    ],
+    "callToActionLabel": "Abrir cultivo outdoor",
+    "estimatedMinutes": 19,
+    "status": "active"
+  },
+  {
+    "areaId": "nutricao-sais",
+    "topicId": "nutricao-mineral-ec-ph",
+    "title": "Nutrição mineral (EC / pH)",
+    "parentCourseId": "cultivo-indoor",
+    "shortDescription": "Indoor estável permite medir condutividade e pH como rotina antes de culpar a genética pelo branqueamento foliar.",
+    "whatStudentLearns": [
+      "Ordem prática: dreno bom, depois leitura, depois ajuste fino",
+      "O que EC mede e o que ela não substitui (olho na planta)",
+      "Por que oscillar forte de pH trava nutriente já presente na solução",
+      "Como registrar subida gradual de ppm sem “degrau” abrupto por dia ruim",
+      "Onde o curso fecha a conta com exemplo de ciclo inteiro"
+    ],
+    "callToActionLabel": "Abrir cultivo indoor",
+    "estimatedMinutes": 21,
+    "status": "active"
+  },
+  {
+    "areaId": "compostagem",
+    "topicId": "compostagem-fechamento-ciclo-outdoor",
+    "title": "Compostagem para o cultivo",
+    "parentCourseId": "cultivo-outdoor",
+    "shortDescription": "Transforme resíduos verdes em composto estável e feche parte do ciclo de nutrientes do seu outdoor.",
+    "whatStudentLearns": [
+      "Proporção básica entre material seco (carbono) e úmido (nitrogênio)",
+      "Sinais de pilha muito molhada versus muito seca",
+      "Por que virar e arejar acelera sem virar obrigação diária teatral",
+      "Como saber quando o composto deixa de “queimar” raiz se usado cedo demais"
+    ],
+    "callToActionLabel": "Abrir cultivo outdoor",
+    "estimatedMinutes": 18,
+    "status": "active"
+  },
+  {
+    "areaId": "podas",
+    "topicId": "podas-ar-luz-estrutura",
+    "title": "Podas e treinamento de copa",
+    "parentCourseId": "cultivo-indoor",
+    "shortDescription": "Todo corte deve melhorar luz útil ou ar — tesoura limpa e momento certo reduzem estresse e chance de entrada de patógeno.",
+    "whatStudentLearns": [
+      "Diferenciar desfolha estratégica de “vandalismo vegetal” nervoso",
+      "Higiene de ferramenta e por que vizinho contaminado contagia rápido",
+      "Treinos leves (LST / defoliação pontual) antes de poda grande",
+      "Recuperação esperada alguns dias após cada tipo de corte",
+      "Onde o curso indoor aprofunda calendário de copa ao longo do ciclo"
+    ],
+    "callToActionLabel": "Abrir cultivo indoor",
+    "estimatedMinutes": 20,
+    "status": "active"
+  }
+]

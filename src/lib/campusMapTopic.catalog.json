@@ -1,0 +1,323 @@
+[
+  {
+    "areaId": "curso-aplicacoes-terapeuticas",
+    "topicId": "topic-medicina-aplicacoes",
+    "title": "Aplicações terapêuticas",
+    "parentCourseId": "medicina",
+    "shortDescription": "Como o curso de medicina organiza protocolos, limites e conversa com o profissional de saúde.",
+    "whatStudentLearns": [
+      "O que significa contexto clínico frente a anedota da internet",
+      "Onde encontrar módulos por condição na trilha",
+      "Como levar dúvidas objetivas para o médico",
+      "Limites do que o campus cobre em educação"
+    ],
+    "callToActionLabel": "Abrir medicina canabinoide",
+    "estimatedMinutes": 15,
+    "status": "active"
+  },
+  {
+    "areaId": "curso-sementes-feminizadas",
+    "topicId": "topic-genetica-sementes",
+    "title": "Sementes feminizadas",
+    "parentCourseId": "genetica",
+    "shortDescription": "Planeamento de cultivo com sementes que reduzem surpresas de sexo e melhoram previsibilidade.",
+    "whatStudentLearns": [
+      "Implicações de uniformidade no viveiro",
+      "Riscos quando a genética não corresponde ao anúncio",
+      "Como alinhar calendário com outdoor ou indoor",
+      "Sanidade e origem como prioridade"
+    ],
+    "callToActionLabel": "Abrir Genética e sementes",
+    "estimatedMinutes": 17,
+    "status": "active"
+  },
+  {
+    "areaId": "curso-preparacao-do-solo",
+    "topicId": "topic-outdoor-solo",
+    "title": "Preparação do solo",
+    "parentCourseId": "cultivo-outdoor",
+    "shortDescription": "Bloco introdutório antes de transplantar ao ar livre: estrutura, drenagem e biologia inicial.",
+    "whatStudentLearns": [
+      "Diferenciar solo vivo de solo apenas ‘alimentado’",
+      "Sinais de compactação antes de erro em cascata",
+      "Cronograma típico de preparação antes da estação útil",
+      "Onde aprofunda o curso de outdoor completo"
+    ],
+    "callToActionLabel": "Abrir cultivo outdoor",
+    "estimatedMinutes": 18,
+    "status": "active"
+  },
+  {
+    "areaId": "curso-nutrientes",
+    "topicId": "topic-indoor-nutrients",
+    "title": "Nutrientes dissolvidos",
+    "parentCourseId": "cultivo-indoor",
+    "shortDescription": "Pontos rápidos sobre solução mineral, medição responsável e leitura de planta antes de overdose.",
+    "whatStudentLearns": [
+      "Ordem habitual: medição antes de aumentar ppm",
+      "Relação intuitiva EC e resposta das folhas",
+      "Por que pH alto demais bloqueia apesar de estar ‘no frasco’",
+      "Fluxo até módulos de fertilização no indoor"
+    ],
+    "callToActionLabel": "Abrir cultivo indoor",
+    "estimatedMinutes": 16,
+    "status": "active"
+  },
+  {
+    "areaId": "curso-transicao-floracao",
+    "topicId": "topic-indoor-flip",
+    "title": "Transição para floração",
+    "parentCourseId": "cultivo-indoor",
+    "shortDescription": "Do manejo vegetativo ao interruptor de fotoperíodo com segurança e sem stress desnecessário.",
+    "whatStudentLearns": [
+      "Sinais de que a estrutura aguenta a troca para 12/12",
+      "Como reorganizar espaço antes do engrossamento",
+      "Ajustes esperados nos primeiros dias noturnos",
+      "Erro típico: virar antes da planta estar pronta"
+    ],
+    "callToActionLabel": "Abrir cultivo indoor",
+    "estimatedMinutes": 14,
+    "status": "active"
+  },
+  {
+    "areaId": "curso-vegetativo",
+    "topicId": "topic-indoor-veg",
+    "title": "Fase vegetativa",
+    "parentCourseId": "cultivo-indoor",
+    "shortDescription": "Constrói estrutura foliar e espaço antes da flora com luz estável.",
+    "whatStudentLearns": [
+      "Comparar crescimento saudável com estiolamento oculto",
+      "Ambientação ganha antes de nitrogénio brutal",
+      "Registo simples fotográfico ciclo-a-ciclo",
+      "Ligações com módulos de copa dentro do mesmo curso"
+    ],
+    "callToActionLabel": "Ir para aula sugerida",
+    "targetLessonId": 2,
+    "estimatedMinutes": 20,
+    "status": "active"
+  },
+  {
+    "areaId": "curso-germinacao-clones",
+    "topicId": "topic-genetica-prop",
+    "title": "Germinação e clones",
+    "parentCourseId": "genetica",
+    "shortDescription": "Do embrião inicial ao clone já enraizado: hábitos de higiene antes de repetir ciclo inteiro.",
+    "whatStudentLearns": [
+      "Checklists ao receber material de outros viveiros",
+      "Stress evitável na primeira irrigação após pegar raiz",
+      "Quando semente faz sentido frente ao clone rápido",
+      "Pontos onde o curso de genética aprofunda"
+    ],
+    "callToActionLabel": "Abrir Genética e sementes",
+    "estimatedMinutes": 18,
+    "status": "active"
+  },
+  {
+    "areaId": "leis-normas",
+    "topicId": "topic-legislacao-normas",
+    "title": "Leis e normas brasileiras",
+    "parentCourseId": "legislacao",
+    "shortDescription": "Este recorte liga‑te aos blocos onde Anvisa e habeas aparecem com linguagem factual.",
+    "whatStudentLearns": [
+      "Como ler referências com data atualizada",
+      "Onde importação aparece dentro da trilha",
+      "Mitografia comum desmontada dentro do curso",
+      "O que levar quando falas com advogados ou associações"
+    ],
+    "callToActionLabel": "Abrir Legislação",
+    "estimatedMinutes": 17,
+    "status": "active"
+  },
+  {
+    "areaId": "curso-pragas-e-doencas",
+    "topicId": "topic-outdoor-pragas",
+    "title": "Pragas & doenças",
+    "parentCourseId": "cultivo-outdoor",
+    "shortDescription": "Linha rápida de diagnóstico visual no outdoor antes de pulverizar aleatoriamente.",
+    "whatStudentLearns": [
+      "Ordenação: observar clima antes de produto milagroso",
+      "Sinais de infestação ainda reversible",
+      "Isolar zona infectada antes de perder hectares simbólicos",
+      "Ligações com nutrientes quando o sintoma parece só folha"
+    ],
+    "callToActionLabel": "Abrir cultivo outdoor",
+    "estimatedMinutes": 19,
+    "status": "active"
+  },
+  {
+    "areaId": "curso-podas-e-clones",
+    "topicId": "topic-indoor-podas",
+    "title": "Podas e clones",
+    "parentCourseId": "cultivo-indoor",
+    "shortDescription": "Intervenções de copa combinadas com material genético clonável sem espalhar patógeno.",
+    "whatStudentLearns": [
+      "Higiene de ferramentas que evita dor de cabeça seguinte",
+      "Quando remover folha faz sentido antes de tirar estrutura",
+      "Reposição rápida de clone saudável se o bloco inicial falha",
+      "Sincronização com módulos de treino da mesma sala"
+    ],
+    "callToActionLabel": "Abrir cultivo indoor",
+    "estimatedMinutes": 18,
+    "status": "active"
+  },
+  {
+    "areaId": "como-combate-acaros",
+    "topicId": "tip-indoor-acaros",
+    "title": "Combate suave aos ácaros",
+    "parentCourseId": "cultivo-indoor",
+    "shortDescription": "Fluxo inicial para ler folhas infiltradas e responder sem transformar sala em químico total.",
+    "whatStudentLearns": [
+      "Localizar zonas onde aracnídeos se instalam primeiro",
+      "Ventilação e humidade na equação antes de pulverizar",
+      "Rotina de inspeção de 48h após primeira intervenção",
+      "Saltar ao curso completo para guias aplicados"
+    ],
+    "callToActionLabel": "Abrir cultivo indoor",
+    "estimatedMinutes": 12,
+    "status": "active"
+  },
+  {
+    "areaId": "como-combate-spiders",
+    "topicId": "tip-indoor-spiders",
+    "title": "Quando aparece teia indesejada",
+    "parentCourseId": "cultivo-indoor",
+    "shortDescription": "Checklist rápido para espaços densos onde aranhas sugadoras confundem o diagnóstico.",
+    "whatStudentLearns": [
+      "Diferenciação rápida de preá e excremento fosco",
+      "Intervenções leves primeiro em salas já cheias",
+      "Quando isolar vasos já contamina vizinhança",
+      "Recursos do curso quando o caso passa ao plano médio"
+    ],
+    "callToActionLabel": "Abrir cultivo indoor",
+    "estimatedMinutes": 12,
+    "status": "active"
+  },
+  {
+    "areaId": "como-fazer-um-cha",
+    "topicId": "tip-outdoor-cha",
+    "title": "Fertilização em \"chás\" naturais",
+    "parentCourseId": "cultivo-outdoor",
+    "shortDescription": "Como usar infusões de matéria orgânica ao ar livre com segurança e sem fedor estragando vizinhança.",
+    "whatStudentLearns": [
+      "Dosagem mental por volume ao regar grandes talhões",
+      "Temperatura e tempo aceitável de fermentação",
+      "Combinar complementarmente com mulch existente",
+      "Apontar aos módulos de solo vivo do mesmo curso"
+    ],
+    "callToActionLabel": "Abrir cultivo outdoor",
+    "estimatedMinutes": 13,
+    "status": "active"
+  },
+  {
+    "areaId": "como-usar-melaco-de-cana",
+    "topicId": "tip-outdoor-melaco",
+    "title": "Melado rápido de carbono",
+    "parentCourseId": "cultivo-outdoor",
+    "shortDescription": "Boost leve ferro/composto usando melado quando o solo já tem biologia suficientemente ativa.",
+    "whatStudentLearns": [
+      "Diferença entre açúcar simples como impulso e nutrição completa",
+      "Racionar para não fermentar zona radicular",
+      "Quando pulverizar não substitrega via solo",
+      "Conexões com capítulos sobre nutrição orgânica ao ar livre"
+    ],
+    "callToActionLabel": "Abrir cultivo outdoor",
+    "estimatedMinutes": 13,
+    "status": "active"
+  },
+  {
+    "areaId": "quando-adubar-foliar",
+    "topicId": "tip-indoor-foliar-timing",
+    "title": "Adubo foliar no timing certo",
+    "parentCourseId": "cultivo-indoor",
+    "shortDescription": "Foliar bem feito aparece tardio no ciclo: aprende a não queimar epiderme em excesso lumínico.",
+    "whatStudentLearns": [
+      "Janelas de luz menos agressivas no spray",
+      "Como ler brilho de gota antes de aumentar ppm",
+      "Rotina combinada com rega basal",
+      "Capítulos paralelos dentro do mesmo curso"
+    ],
+    "callToActionLabel": "Abrir cultivo indoor",
+    "estimatedMinutes": 11,
+    "status": "active"
+  },
+  {
+    "areaId": "quando-adubar-solo",
+    "topicId": "tip-outdoor-solo-timing",
+    "title": "Fertilização de solo vivo",
+    "parentCourseId": "cultivo-outdoor",
+    "shortDescription": "Momentos onde o solo já devolve nutriente sem obrigar segunda passada de sintético forte.",
+    "whatStudentLearns": [
+      "Leituras simples antes de segunda aplicação",
+      "Temperatura e humidade modificando uptake",
+      "Intercalar materiais orgânicos com rápido reforço líquido",
+      "Pontos dentro do ciclo ao ar livre do curso maior"
+    ],
+    "callToActionLabel": "Abrir cultivo outdoor",
+    "estimatedMinutes": 11,
+    "status": "active"
+  },
+  {
+    "areaId": "quando-pulverizar-preventivo",
+    "topicId": "tip-outdoor-preventivo",
+    "title": "Pulverização preventiva consciente",
+    "parentCourseId": "cultivo-outdoor",
+    "shortDescription": "Espalhar apenas quando há janelas climatológicas e planta suficientemente hidratada.",
+    "whatStudentLearns": [
+      "Cronologia ideal frente ao calendário de pragas típicas",
+      "Registro de dias sem chuva garantida logo após aplicar",
+      "Evitar combos químicos conflituosos mesmo em prevention",
+      "Recursos dentro do mesmo curso de outdoor"
+    ],
+    "callToActionLabel": "Abrir cultivo outdoor",
+    "estimatedMinutes": 12,
+    "status": "active"
+  },
+  {
+    "areaId": "quando-plantar-outdoor",
+    "topicId": "tip-outdoor-janela-plantio",
+    "title": "Janela de plantio certa",
+    "parentCourseId": "cultivo-outdoor",
+    "shortDescription": "Traduz foto‑periodo BR e fenologia local sem copiar growers de outra latitude.",
+    "whatStudentLearns": [
+      "Comparação rápida com microclimas urbanos próprios",
+      "Como atrasos de chuva modificam entrada em flora",
+      "Checklist antes de mover mudas grandes",
+      "Encaminhar para calendários extensivos do mesmo curso"
+    ],
+    "callToActionLabel": "Abrir cultivo outdoor",
+    "estimatedMinutes": 13,
+    "status": "active"
+  },
+  {
+    "areaId": "qual-tamanho-do-vaso",
+    "topicId": "tip-indoor-pot-size",
+    "title": "Tamanho útil do vaso",
+    "parentCourseId": "cultivo-indoor",
+    "shortDescription": "Vê de relance se estás a ficar sem espaço para as raízes antes de o stress se notar na copa.",
+    "whatStudentLearns": [
+      "Relação útil entre volume do vaso e altura disponível sob as luzes",
+      "Sinais de subdimensionamento já na segunda semana flora",
+      "Quando subir dois degraus de uma vez faz mais mal que bem",
+      "Seções do curso com guias médios recomendados"
+    ],
+    "callToActionLabel": "Abrir cultivo indoor",
+    "estimatedMinutes": 11,
+    "status": "active"
+  },
+  {
+    "areaId": "cannabis-e-proibida",
+    "topicId": "faq-legislacao-mito",
+    "title": "“É proibida… e daí?”",
+    "parentCourseId": "legislacao",
+    "shortDescription": "Desmistifica slogan vazio usando trechos onde o próprio texto legal distingue situações e datas.",
+    "whatStudentLearns": [
+      "Como ler afirmação sensacionalismo vs dispositivo do texto",
+      "Onde aparecem atualizações oficiais resumidas no campus",
+      "Quando há brecha regulatória explicável com equipe jurídica",
+      "O que comunicar tranquilamente dentro do curso inteiro"
+    ],
+    "callToActionLabel": "Abrir Legislação",
+    "estimatedMinutes": 14,
+    "status": "active"
+  }
+]

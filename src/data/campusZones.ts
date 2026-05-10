@@ -1,422 +1,316 @@
-/** localStorage: mostrar ou ocultar zonas / limites no mapa. */
-export const CAMPUS_ZONE_BORDERS_LS_KEY = "thc-campus-zone-borders";
+import { CAMPUS_ART_HEIGHT, CAMPUS_ART_WIDTH } from "@/lib/campusArt";
 
 /**
- * Espaço de coordenadas dos polígonos e `labelPosition` (mesma escala que o mock numerado 01–17).
- * O SVG do mapa usa viewBox 0–100; converter com `pointsToSvg` em `campusZoneUtils`.
+ * Converte vértices da arte de referência (dimensões em `campusArt`) em % do palco
+ * (0–100, igual ao `viewBox` do SVG sobre a imagem).
  */
-export const CAMPUS_ZONE_ART_WIDTH = 1920;
-export const CAMPUS_ZONE_ART_HEIGHT = 1080;
+function p(x: number, y: number): { x: number; y: number } {
+  return {
+    x: Math.round((x / CAMPUS_ART_WIDTH) * 10000) / 100,
+    y: Math.round((y / CAMPUS_ART_HEIGHT) * 10000) / 100
+  };
+}
+
+/** Requisitos para desbloquear a zona no mapa (fog of war). Ausente = sempre visível em cor. */
+export type CampusZoneGate = {
+  requiredCourse?: string;
+  requiredXP?: number;
+};
 
 export type CampusZone = {
-  number: string;
   id: string;
-  label: string;
+  name: string;
   description: string;
-  areaType:
-    | "cultivo"
-    | "laboratorio"
-    | "medicina"
-    | "culinaria"
-    | "social"
-    | "logistica"
-    | "entrada";
+  category: string;
   color: string;
-  glow: string;
-  status: "active" | "locked" | "comingSoon";
-  priority: number;
-  /** IDs de áreas em `src/data/courses.ts` (hotspots / salas). */
-  courseIds: string[];
-  /**
-   * Rota canónica quando não há `courseIds` ou quando `navigationUsesHref` no handler.
-   * Rotas `/cursos/*` inventadas foram substituídas por `/` + painel via `courseIds`.
-   */
-  href: string;
-  icon: string;
-  labelPosition: { x: number; y: number };
-  points: [number, number][];
+  courseSlug?: string;
+  /** Outras salas/cursos na mesma zona (`Area.id` em `data/courses.ts`). */
+  relatedSlugs?: string[];
+  polygon: { x: number; y: number }[];
+  gate?: CampusZoneGate;
+  /** Entrada na calçada (calculado em `mapZones` se omitido). */
+  entryPoint?: { x: number; y: number };
 };
 
 export const CAMPUS_ZONES: CampusZone[] = [
   {
-    number: "01",
     id: "estufas",
-    label: "Estufas",
+    name: "Estufas",
     description: "Estufas principais para cultivo controlado.",
-    areaType: "cultivo",
+    category: "Cultivo",
     color: "#7CFF5B",
-    glow: "rgba(124,255,91,0.55)",
-    status: "active",
-    priority: 1,
-    courseIds: ["cultivo-greenhouse", "cannabis-101"],
-    href: "/",
-    icon: "greenhouse",
-    labelPosition: { x: 410, y: 210 },
-    points: [
-      [180, 80],
-      [660, 40],
-      [780, 250],
-      [520, 330],
-      [190, 280]
+    gate: { requiredCourse: "cannabis-101" },
+    courseSlug: "cultivo-greenhouse",
+    relatedSlugs: ["cannabis-101"],
+    polygon: [
+      p(180, 80),
+      p(660, 40),
+      p(780, 250),
+      p(520, 330),
+      p(190, 280)
     ]
   },
   {
-    number: "02",
     id: "cultivo-outdoor",
-    label: "Cultivo outdoor",
+    name: "Cultivo outdoor",
     description: "Cultivo ao ar livre em ambiente natural.",
-    areaType: "cultivo",
+    category: "Cultivo",
     color: "#3B82F6",
-    glow: "rgba(59,130,246,0.55)",
-    status: "active",
-    priority: 2,
-    courseIds: ["cultivo-outdoor", "cannabis-101"],
-    href: "/",
-    icon: "tree",
-    labelPosition: { x: 820, y: 165 },
-    points: [
-      [760, 70],
-      [1030, 25],
-      [1160, 160],
-      [1080, 300],
-      [790, 275],
-      [700, 170]
+    gate: { requiredCourse: "cannabis-101" },
+    courseSlug: "cultivo-outdoor",
+    relatedSlugs: ["cannabis-101"],
+    polygon: [
+      p(760, 70),
+      p(1030, 25),
+      p(1160, 160),
+      p(1080, 300),
+      p(790, 275),
+      p(700, 170)
     ]
   },
   {
-    number: "03",
     id: "cultivo-indoor",
-    label: "Cultivo indoor",
+    name: "Cultivo indoor",
     description: "Salas de cultivo climatizado.",
-    areaType: "cultivo",
+    category: "Cultivo",
     color: "#C55CFF",
-    glow: "rgba(197,92,255,0.55)",
-    status: "active",
-    priority: 3,
-    courseIds: ["cultivo-indoor"],
-    href: "/",
-    icon: "lamp",
-    labelPosition: { x: 1165, y: 190 },
-    points: [
-      [1120, 75],
-      [1460, 85],
-      [1570, 230],
-      [1500, 330],
-      [1160, 315],
-      [1040, 220]
+    gate: { requiredCourse: "cannabis-101" },
+    courseSlug: "cultivo-indoor",
+    polygon: [
+      p(1120, 75),
+      p(1460, 85),
+      p(1570, 230),
+      p(1500, 330),
+      p(1160, 315),
+      p(1040, 220)
     ]
   },
   {
-    number: "04",
     id: "laboratorio",
-    label: "Laboratório",
+    name: "Laboratório",
     description: "Laboratório de análises, pesquisa e desenvolvimento.",
-    areaType: "laboratorio",
+    category: "Laboratório",
     color: "#22D3EE",
-    glow: "rgba(34,211,238,0.55)",
-    status: "active",
-    priority: 4,
-    courseIds: ["laboratorio"],
-    href: "/",
-    icon: "flask",
-    labelPosition: { x: 1510, y: 190 },
-    points: [
-      [1440, 90],
-      [1740, 80],
-      [1850, 240],
-      [1810, 360],
-      [1530, 330],
-      [1420, 230]
+    gate: { requiredCourse: "cannabis-101", requiredXP: 150 },
+    courseSlug: "laboratorio",
+    polygon: [
+      p(1440, 90),
+      p(1740, 80),
+      p(1850, 240),
+      p(1810, 360),
+      p(1530, 330),
+      p(1420, 230)
     ]
   },
   {
-    number: "05",
     id: "extracao-oleo",
-    label: "Extração óleo",
+    name: "Extração óleo",
     description: "Processamento e extração de óleo.",
-    areaType: "laboratorio",
+    category: "Laboratório",
     color: "#FACC15",
-    glow: "rgba(250,204,21,0.55)",
-    status: "active",
-    priority: 5,
-    courseIds: ["extracao-oleo"],
-    href: "/",
-    icon: "droplet",
-    labelPosition: { x: 1345, y: 260 },
-    points: [
-      [1300, 210],
-      [1390, 195],
-      [1430, 260],
-      [1395, 330],
-      [1305, 315],
-      [1265, 255]
+    gate: { requiredCourse: "cannabis-101" },
+    courseSlug: "extracao-oleo",
+    polygon: [
+      p(1300, 210),
+      p(1390, 195),
+      p(1430, 260),
+      p(1395, 330),
+      p(1305, 315),
+      p(1265, 255)
     ]
   },
   {
-    number: "06",
     id: "instituto-medicinal",
-    label: "Instituto medicinal",
+    name: "Instituto medicinal",
     description: "Pesquisa medicinal e estudos clínicos.",
-    areaType: "medicina",
+    category: "Medicina",
     color: "#60A5FA",
-    glow: "rgba(96,165,250,0.55)",
-    status: "active",
-    priority: 6,
-    courseIds: ["medicina"],
-    href: "/",
-    icon: "cross",
-    labelPosition: { x: 1490, y: 305 },
-    points: [
-      [1435, 245],
-      [1630, 245],
-      [1665, 345],
-      [1600, 400],
-      [1430, 385],
-      [1390, 310]
+    gate: { requiredCourse: "cannabis-101", requiredXP: 280 },
+    courseSlug: "medicina",
+    polygon: [
+      p(1435, 245),
+      p(1630, 245),
+      p(1665, 345),
+      p(1600, 400),
+      p(1430, 385),
+      p(1390, 310)
     ]
   },
   {
-    number: "07",
     id: "sala-aula-cultivo",
-    label: "Sala de aula cultivo",
+    name: "Sala de aula cultivo",
     description: "Ensino de cultivo, técnicas e fundamentos.",
-    areaType: "cultivo",
+    category: "Cultivo",
     color: "#2DD4BF",
-    glow: "rgba(45,212,191,0.55)",
-    status: "active",
-    priority: 7,
-    courseIds: ["cannabis-101"],
-    href: "/",
-    icon: "book-open",
-    labelPosition: { x: 1655, y: 340 },
-    points: [
-      [1630, 300],
-      [1790, 300],
-      [1845, 375],
-      [1770, 440],
-      [1640, 415]
+    courseSlug: "cannabis-101",
+    polygon: [
+      p(1630, 300),
+      p(1790, 300),
+      p(1845, 375),
+      p(1770, 440),
+      p(1640, 415)
     ]
   },
   {
-    number: "08",
     id: "estufas-apoio",
-    label: "Estufas apoio",
+    name: "Estufas apoio",
     description: "Mudas, suporte técnico e preparação.",
-    areaType: "cultivo",
+    category: "Cultivo",
     color: "#F59E0B",
-    glow: "rgba(245,158,11,0.55)",
-    status: "active",
-    priority: 8,
-    courseIds: ["genetica"],
-    href: "/",
-    icon: "sprout",
-    labelPosition: { x: 595, y: 345 },
-    points: [
-      [510, 285],
-      [720, 250],
-      [820, 340],
-      [745, 445],
-      [520, 430],
-      [455, 350]
+    gate: { requiredCourse: "cannabis-101" },
+    courseSlug: "genetica",
+    polygon: [
+      p(510, 285),
+      p(720, 250),
+      p(820, 340),
+      p(745, 445),
+      p(520, 430),
+      p(455, 350)
     ]
   },
   {
-    number: "09",
     id: "almoxarifado",
-    label: "Almoxarifado",
+    name: "Almoxarifado",
     description: "Materiais, insumos e equipamentos.",
-    areaType: "logistica",
+    category: "Logística",
     color: "#F472B6",
-    glow: "rgba(244,114,182,0.55)",
-    status: "active",
-    priority: 9,
-    courseIds: ["extracoes-solventless"],
-    href: "/",
-    icon: "boxes",
-    labelPosition: { x: 470, y: 565 },
-    points: [
-      [260, 470],
-      [610, 405],
-      [790, 540],
-      [620, 690],
-      [250, 600]
+    gate: { requiredCourse: "cannabis-101" },
+    courseSlug: "extracoes-solventless",
+    polygon: [
+      p(260, 470),
+      p(610, 405),
+      p(790, 540),
+      p(620, 690),
+      p(250, 600)
     ]
   },
   {
-    number: "10",
     id: "viveiro-de-mudas",
-    label: "Viveiro de mudas",
+    name: "Viveiro de mudas",
     description: "Produção, seleção e manejo de mudas.",
-    areaType: "cultivo",
+    category: "Cultivo",
     color: "#34D399",
-    glow: "rgba(52,211,153,0.55)",
-    status: "active",
-    priority: 10,
-    courseIds: ["genetica"],
-    href: "/",
-    icon: "leaf",
-    labelPosition: { x: 800, y: 530 },
-    points: [
-      [710, 490],
-      [875, 450],
-      [950, 555],
-      [875, 660],
-      [710, 625],
-      [650, 545]
+    gate: { requiredCourse: "cannabis-101" },
+    courseSlug: "genetica",
+    polygon: [
+      p(710, 490),
+      p(875, 450),
+      p(950, 555),
+      p(875, 660),
+      p(710, 625),
+      p(650, 545)
     ]
   },
   {
-    number: "11",
     id: "escola-culinaria",
-    label: "Escola de culinária",
+    name: "Escola de culinária",
     description: "Gastronomia, infusões e culinária com cannabis.",
-    areaType: "culinaria",
+    category: "Culinária",
     color: "#EAB308",
-    glow: "rgba(234,179,8,0.55)",
-    status: "active",
-    priority: 11,
-    courseIds: ["culinaria"],
-    href: "/",
-    icon: "chef-hat",
-    labelPosition: { x: 1030, y: 500 },
-    points: [
-      [850, 360],
-      [1290, 330],
-      [1490, 510],
-      [1390, 720],
-      [930, 700],
-      [800, 520]
+    gate: { requiredCourse: "cannabis-101" },
+    courseSlug: "culinaria",
+    polygon: [
+      p(850, 360),
+      p(1290, 330),
+      p(1490, 510),
+      p(1390, 720),
+      p(930, 700),
+      p(800, 520)
     ]
   },
   {
-    number: "12",
     id: "sala-secagem",
-    label: "Sala de secagem",
+    name: "Sala de secagem",
     description: "Secagem, cura e processamento pós-colheita.",
-    areaType: "cultivo",
+    category: "Cultivo",
     color: "#FACC15",
-    glow: "rgba(250,204,21,0.55)",
-    status: "active",
-    priority: 12,
-    courseIds: ["secagem-cura"],
-    href: "/",
-    icon: "wind",
-    labelPosition: { x: 1460, y: 470 },
-    points: [
-      [1405, 390],
-      [1665, 405],
-      [1635, 565],
-      [1460, 610],
-      [1365, 500]
+    gate: { requiredCourse: "cannabis-101" },
+    courseSlug: "secagem-cura",
+    polygon: [
+      p(1405, 390),
+      p(1665, 405),
+      p(1635, 565),
+      p(1460, 610),
+      p(1365, 500)
     ]
   },
   {
-    number: "13",
     id: "lounge-social",
-    label: "Lounge social",
+    name: "Lounge social",
     description: "Convivência, comunidade e networking.",
-    areaType: "social",
+    category: "Social",
     color: "#A855F7",
-    glow: "rgba(168,85,247,0.55)",
-    status: "active",
-    priority: 13,
-    courseIds: ["cooperativismo"],
-    href: "/",
-    icon: "users",
-    labelPosition: { x: 1090, y: 640 },
-    points: [
-      [980, 610],
-      [1220, 590],
-      [1260, 720],
-      [1060, 775],
-      [900, 700]
+    gate: { requiredCourse: "cannabis-101" },
+    courseSlug: "cooperativismo",
+    polygon: [
+      p(980, 610),
+      p(1220, 590),
+      p(1260, 720),
+      p(1060, 775),
+      p(900, 700)
     ]
   },
   {
-    number: "14",
     id: "area-de-cultivo",
-    label: "Área de cultivo",
+    name: "Área de cultivo",
     description: "Cultivo experimental, pesquisa e prática.",
-    areaType: "cultivo",
+    category: "Cultivo",
     color: "#A3E635",
-    glow: "rgba(163,230,53,0.55)",
-    status: "active",
-    priority: 14,
-    courseIds: ["cultivo-outdoor"],
-    href: "/",
-    icon: "plant",
-    labelPosition: { x: 1660, y: 510 },
-    points: [
-      [1540, 410],
-      [1835, 440],
-      [1770, 620],
-      [1510, 595]
+    gate: { requiredCourse: "cannabis-101" },
+    courseSlug: "cultivo-outdoor",
+    polygon: [
+      p(1540, 410),
+      p(1835, 440),
+      p(1770, 620),
+      p(1510, 595)
     ]
   },
   {
-    number: "15",
     id: "armazenamento",
-    label: "Armazenamento",
+    name: "Armazenamento",
     description: "Estoque, logística e conservação.",
-    areaType: "logistica",
+    category: "Logística",
     color: "#F97316",
-    glow: "rgba(249,115,22,0.55)",
-    status: "active",
-    priority: 15,
-    courseIds: ["industria"],
-    href: "/",
-    icon: "warehouse",
-    labelPosition: { x: 1565, y: 670 },
-    points: [
-      [1450, 620],
-      [1740, 580],
-      [1815, 760],
-      [1550, 855],
-      [1390, 745]
+    gate: { requiredCourse: "cannabis-101", requiredXP: 450 },
+    courseSlug: "industria",
+    polygon: [
+      p(1450, 620),
+      p(1740, 580),
+      p(1815, 760),
+      p(1550, 855),
+      p(1390, 745)
     ]
   },
   {
-    number: "16",
     id: "praca-central",
-    label: "Praça central",
+    name: "Praça central",
     description: "Área de convivência, eventos e orientação.",
-    areaType: "social",
+    category: "Social",
     color: "#3B82F6",
-    glow: "rgba(59,130,246,0.55)",
-    status: "active",
-    priority: 16,
-    courseIds: ["cooperativismo", "cannabis-101"],
-    href: "/",
-    icon: "map-pin",
-    labelPosition: { x: 950, y: 805 },
-    points: [
-      [850, 750],
-      [1025, 730],
-      [1090, 855],
-      [940, 930],
-      [800, 850]
+    courseSlug: "cooperativismo",
+    relatedSlugs: ["cannabis-101"],
+    polygon: [
+      p(850, 750),
+      p(1025, 730),
+      p(1090, 855),
+      p(940, 930),
+      p(800, 850)
     ]
   },
   {
-    number: "17",
     id: "entrada-principal",
-    label: "Entrada principal",
+    name: "Entrada principal",
     description: "Acesso ao campus e início da jornada.",
-    areaType: "entrada",
+    category: "Entrada",
     color: "#EC4899",
-    glow: "rgba(236,72,153,0.55)",
-    status: "active",
-    priority: 17,
-    courseIds: ["legislacao", "cannabis-101"],
-    href: "/",
-    icon: "gate",
-    labelPosition: { x: 600, y: 780 },
-    points: [
-      [500, 685],
-      [675, 705],
-      [700, 850],
-      [535, 900],
-      [460, 780]
+    courseSlug: "legislacao",
+    relatedSlugs: ["cannabis-101"],
+    polygon: [
+      p(500, 685),
+      p(675, 705),
+      p(700, 850),
+      p(535, 900),
+      p(460, 780)
     ]
   }
 ];

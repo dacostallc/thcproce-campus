@@ -1,88 +1,65 @@
 "use client";
 
-import { useMemo } from "react";
+import { cn } from "@/lib/utils";
 
 type Phase = "day" | "night";
 
 /**
  * Camada de "vida ambiente" CSS-only sobre o mapa do campus.
- * `phase`: de noite, vagalumes e vinheta mais fortes; de dia, efeitos mais leves (sol).
+ * Luzes flutuantes leves ficam em `CampusAmbientSparks`. `phase` atenua vinheta de dia/noite.
+ * Animações horizontais usam a largura do frame (`left` + trilho), nunca `vw`, para não invadir letterbox.
  */
 export function AmbientLife({ phase = "night" }: { phase?: Phase }) {
-  const fireflyCount = phase === "day" ? 10 : 30;
-  const fireflies = useMemo(
-    () =>
-      Array.from({ length: fireflyCount }, (_, i) => ({
-        id: i,
-        left: Math.random() * 100,
-        top: 30 + Math.random() * 60,
-        delay: Math.random() * 5,
-        duration: 4 + Math.random() * 5,
-        size: 1.5 + Math.random() * 2.5
-      })),
-    [phase]
-  );
-
   return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+    <div className="pointer-events-none absolute inset-0 overflow-hidden">
       {/* Drone 1 — alto, da esquerda pra direita */}
-      <div
-        className="absolute top-[6%] animate-droneFly"
-        style={{ animationDuration: "26s" }}
-      >
-        <Drone tint="#a78bfa" />
+      <div className="pointer-events-none absolute left-0 right-0 top-[6%] h-[24px] overflow-hidden">
+        <div className="absolute top-0 h-[22px] w-[44px] motion-reduce:!animate-none campus-map-ambient-drone-a">
+          <Drone tint="#8b9aaf" />
+        </div>
       </div>
 
       {/* Drone 2 — meio, da direita pra esquerda */}
-      <div
-        className="absolute top-[18%] animate-droneFly2"
-        style={{ animationDuration: "34s" }}
-      >
-        <Drone tint="#67e8f9" />
+      <div className="pointer-events-none absolute left-0 right-0 top-[18%] h-[24px] overflow-hidden">
+        <div
+          className={cn(
+            "absolute top-0 h-[22px] w-[44px] motion-reduce:!animate-none campus-map-ambient-drone-b",
+            /* defasagem para não sincronizar com o primeiro */
+            "[animation-delay:-12s]"
+          )}
+        >
+          <Drone tint="#7eb8c8" />
+        </div>
       </div>
 
       {/* Carro na rua de baixo */}
-      <div
-        className="absolute bottom-[6%] left-0 animate-carPass"
-        style={{ animationDuration: "16s", animationDelay: "3s" }}
-      >
-        <CarLights />
+      <div className="pointer-events-none absolute bottom-[6%] left-0 right-0 h-[12px] overflow-hidden">
+        <div
+          className="absolute bottom-0 h-2 w-2 motion-reduce:!animate-none campus-map-ambient-car-a"
+          style={{ animationDelay: "2s" }}
+        >
+          <CarLights />
+        </div>
       </div>
-      <div
-        className="absolute bottom-[8%] left-0 animate-carPass"
-        style={{ animationDuration: "22s", animationDelay: "10s" }}
-      >
-        <CarLights tint="#fde68a" />
+      <div className="pointer-events-none absolute bottom-[8%] left-0 right-0 h-[12px] overflow-hidden">
+        <div
+          className="absolute bottom-0 h-2 w-2 motion-reduce:!animate-none campus-map-ambient-car-b"
+          style={{ animationDelay: "1s" }}
+        >
+          <CarLights tint="#fde68a" />
+        </div>
       </div>
-
-      {/* Vagalumes */}
-      {fireflies.map((f) => (
-        <span
-          key={f.id}
-          className="absolute rounded-full bg-canna-300 animate-firefly"
-          style={{
-            left: `${f.left}%`,
-            top: `${f.top}%`,
-            width: `${f.size}px`,
-            height: `${f.size}px`,
-            animationDelay: `${f.delay}s`,
-            animationDuration: `${f.duration}s`,
-            opacity: phase === "day" ? 0.45 : 1,
-            boxShadow: "0 0 8px 2px rgba(74,222,128,0.7)"
-          }}
-        />
-      ))}
 
       {/* Janelas piscando — sobre os edifícios da imagem real */}
-      <FlickerSpot x={62} y={9} color="#c084fc" size={90} />
-      <FlickerSpot x={87} y={11} color="#67e8f9" size={70} />
-      <FlickerSpot x={92} y={13} color="#67e8f9" size={50} />
-      <FlickerSpot x={42} y={36} color="#fbbf24" size={120} />
-      <FlickerSpot x={72} y={47} color="#fbbf24" size={60} />
-      <FlickerSpot x={78} y={65} color="#fbbf24" size={50} />
-      <FlickerSpot x={14} y={11} color="#86efac" size={80} />
-      <FlickerSpot x={40} y={11} color="#86efac" size={60} />
-      <FlickerSpot x={42} y={82} color="#67e8f9" size={50} />
+      <FlickerSpot x={62} y={9} color="#a894b8" size={56} />
+      <FlickerSpot x={87} y={11} color="#7eb0b8" size={44} />
+      <FlickerSpot x={92} y={13} color="#7aa8b0" size={34} />
+      <FlickerSpot x={42} y={36} color="#c9aa6a" size={72} />
+      <FlickerSpot x={72} y={47} color="#b89a62" size={40} />
+      <FlickerSpot x={78} y={65} color="#a89058" size={34} />
+      <FlickerSpot x={14} y={11} color="#8eb898" size={50} />
+      <FlickerSpot x={40} y={11} color="#8cb090" size={40} />
+      <FlickerSpot x={42} y={82} color="#78a8b0" size={36} />
 
       {/* Vinheta: mais forte à noite, suave durante o dia */}
       <div
@@ -106,7 +83,7 @@ export function AmbientLife({ phase = "night" }: { phase?: Phase }) {
 
 function Drone({ tint }: { tint: string }) {
   return (
-    <svg width="44" height="22" viewBox="0 0 44 22" className="opacity-90">
+    <svg width="44" height="22" viewBox="0 0 44 22" className="opacity-38">
       <defs>
         <radialGradient id={`g-${tint}`} cx="50%" cy="50%" r="50%">
           <stop offset="0%" stopColor={tint} stopOpacity="1" />
@@ -126,11 +103,11 @@ function CarLights({ tint = "#fef3c7" }: { tint?: string }) {
   return (
     <div className="relative">
       <span
-        className="block w-2 h-2 rounded-full"
+        className="block h-2 w-2 rounded-full"
         style={{
           background: tint,
-          boxShadow: `0 0 18px 6px ${tint}`,
-          opacity: 0.95
+          boxShadow: `0 0 6px 1px rgba(255,246,230,0.1)`,
+          opacity: 0.48
         }}
       />
     </div>
@@ -156,8 +133,8 @@ function FlickerSpot({
         top: `${y}%`,
         width: `${size}px`,
         height: `${size}px`,
-        background: `radial-gradient(closest-side, ${color}55, transparent 70%)`,
-        mixBlendMode: "screen"
+        background: `radial-gradient(closest-side, ${color}20, transparent 76%)`,
+        mixBlendMode: "soft-light"
       }}
     />
   );

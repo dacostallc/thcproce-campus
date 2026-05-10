@@ -64,7 +64,7 @@ export function CampusAdminBroadcastComposer({ isCampusAdmin }: Props) {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 12, scale: 0.96 }}
             transition={{ type: "spring", stiffness: 360, damping: 32 }}
-            className="fixed bottom-6 left-1/2 z-[48] w-[min(94vw,440px)] -translate-x-1/2 rounded-2xl border border-amber-400/45 bg-black/75 p-3 shadow-[0_18px_56px_rgba(0,0,0,0.55),0_0_32px_rgba(251,191,36,0.16)] pointer-events-auto backdrop-blur-md"
+            className="fixed bottom-6 left-1/2 z-[48] w-[min(94vw,440px)] -translate-x-1/2 rounded-2xl campus-hud-glass border-amber-400/35 p-3 pointer-events-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="mb-2 flex items-start justify-between gap-2">
@@ -103,7 +103,7 @@ export function CampusAdminBroadcastComposer({ isCampusAdmin }: Props) {
                 type="text"
                 maxLength={CAMPUS_ADMIN_BROADCAST_MAX_LEN}
                 placeholder='Ex.: "Intervalo 5 min"'
-                className="min-w-0 flex-1 rounded-xl border border-amber-400/30 bg-black/40 px-3 py-2 text-sm text-amber-50 outline-none ring-0 placeholder:text-white/35 focus:border-amber-300/55"
+                className="min-w-0 flex-1 rounded-xl border border-amber-400/28 bg-[rgba(6,18,12,0.28)] px-3 py-2 text-sm text-amber-50 outline-none ring-0 placeholder:text-white/35 focus:border-amber-300/55 backdrop-blur-[12px]"
                 aria-label="Texto do aviso"
                 onKeyDown={(e) => {
                   if (e.key === "Escape") setOpen(false);

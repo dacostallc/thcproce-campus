@@ -17,7 +17,7 @@ import {
   Wind
 } from "lucide-react";
 
-/** Mapeamento `CampusZone.icon` → Lucide (painéis e futuros overlays). */
+/** Mapeamento opcional de ícones por id de zona (futuros UI). */
 export const CAMPUS_ZONE_ICON_MAP: Record<string, LucideIcon> = {
   greenhouse: Warehouse,
   tree: Trees,

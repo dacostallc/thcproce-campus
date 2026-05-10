@@ -15,104 +15,78 @@ export type Cannabis101Module = {
 };
 
 /**
- * Trilha canónica Cannabis 101 (29 folhas) — ordenação alinhada à sala oficial de formação THCProce.
- * Cada `id` de folha é estável para futuras migrações e integrações.
+ * Cannabis 101 — trilha introdutória em português: conceitos, corpo, uso responsável,
+ * panorama legal de alto nível e encaminhamento às trilhas avançadas do campus.
  */
 export const CANNABIS101_MODULES: readonly Cannabis101Module[] = [
   {
-    id: "intro",
-    title: "Introdução",
+    id: "fundamentos",
+    title: "Fundamentos",
     lessons: [
-      { id: "c101-intro-p1", activityLabel: "Boas-vindas e estrutura do curso" },
-      { id: "c101-intro-p2", activityLabel: "Como estudar no campus e sala oficial" }
+      { id: "c101-l01-boas-vindas", activityLabel: "Boas-vindas ao Cannabis 101" },
+      { id: "c101-l02-o-que-e-cannabis", activityLabel: "O que é cannabis" },
+      {
+        id: "c101-l03-canhamo-maconha-medicinal",
+        activityLabel: "Cânhamo, maconha e cannabis medicinal"
+      }
     ]
   },
   {
-    id: "live",
-    title: "Aulas ao Vivo",
-    lessons: [{ id: "c101-live-resources", activityLabel: "Recursos, links e calendário" }]
-  },
-  {
-    id: "cultivo-intro",
-    title: "Introdução ao Cultivo de Cannabis",
+    id: "quimica-sensorial",
+    title: "Química e aroma",
     lessons: [
-      { id: "c101-cultivo-intro-p1", activityLabel: "Botânica e ciclo de vida" },
-      { id: "c101-cultivo-intro-p2", activityLabel: "Sexagem, fotoperíodo e enquadramento legal" },
-      { id: "c101-cultivo-intro-quiz", activityLabel: "Questionário do módulo" }
+      {
+        id: "c101-l04-canabinoides",
+        activityLabel: "Canabinoides principais: THC, CBD, CBG e CBN"
+      },
+      { id: "c101-l05-terpenos", activityLabel: "Terpenos e aroma" }
     ]
   },
   {
-    id: "variedades",
-    title: "Compreensão das variedades de Cannabis",
+    id: "corpo-e-uso",
+    title: "Corpo, contextos e consumo",
     lessons: [
-      { id: "c101-variedades-p1", activityLabel: "Morfo-tipos e escolha de genética" },
-      { id: "c101-variedades-p2", activityLabel: "Canabinoides, terpenos e laudos" },
-      { id: "c101-variedades-quiz", activityLabel: "Questionário do módulo" }
+      {
+        id: "c101-l06-sistema-endocanabinoide",
+        activityLabel: "Sistema endocanabinoide, em linguagem simples"
+      },
+      {
+        id: "c101-l07-usos-e-reducao-de-danos",
+        activityLabel: "Uso medicinal, adulto e redução de danos"
+      },
+      {
+        id: "c101-l08-formas-consumo",
+        activityLabel: "Formas de consumo e início de efeito (uso responsável)"
+      }
     ]
   },
   {
-    id: "preparativos",
-    title: "Preparativos para o Cultivo de Cannabis",
+    id: "legal-e-seguranca",
+    title: "Legalidade e responsabilidade",
     lessons: [
-      { id: "c101-preparativos-p1", activityLabel: "Espaço, segurança e checklist" },
-      { id: "c101-preparativos-p2", activityLabel: "Iluminação e ventilação" },
-      { id: "c101-preparativos-p3", activityLabel: "Substrato, vasos e água" },
-      { id: "c101-preparativos-quiz", activityLabel: "Questionário do módulo" }
+      {
+        id: "c101-l09-legalidade-br-eua",
+        activityLabel: "Legalidade: panoramas Brasil e EUA (visão geral)"
+      },
+      {
+        id: "c101-l10-seguranca-limites",
+        activityLabel: "Segurança, responsabilidade e limites deste curso"
+      }
     ]
   },
   {
-    id: "processo",
-    title: "Processo de Cultivo de Cannabis",
+    id: "encerramento",
+    title: "Continuando a jornada",
     lessons: [
-      { id: "c101-processo-p1", activityLabel: "Germinação e plântulas" },
-      { id: "c101-processo-p2", activityLabel: "Fase vegetativa e dossel" },
-      { id: "c101-processo-p3", activityLabel: "Floração e ambiente floral" },
-      { id: "c101-processo-quiz", activityLabel: "Questionário do módulo" }
-    ]
-  },
-  {
-    id: "manutencao",
-    title: "Manutenção e cuidado da planta de Cannabis",
-    lessons: [
-      { id: "c101-manutencao-p1", activityLabel: "Rega, pH e condutividade (noções)" },
-      { id: "c101-manutencao-p2", activityLabel: "Nutrição e diagnóstico visual prudente" },
-      { id: "c101-manutencao-p3", activityLabel: "Pragas e técnicas avançadas introdutórias" },
-      { id: "c101-manutencao-quiz", activityLabel: "Questionário do módulo" }
-    ]
-  },
-  {
-    id: "pos-colheita",
-    title: "Pós-colheita e Processamento de Cannabis",
-    lessons: [
-      { id: "c101-pos-p1", activityLabel: "Colheita e maturação" },
-      { id: "c101-pos-p2", activityLabel: "Secagem e cura" },
-      { id: "c101-pos-quiz", activityLabel: "Questionário do módulo" }
-    ]
-  },
-  {
-    id: "avaliacao",
-    title: "Avaliação do curso",
-    lessons: [{ id: "c101-avaliacao-final", activityLabel: "Prova final integrada" }]
-  },
-  {
-    id: "consideracoes",
-    title: "Considerações Finais",
-    lessons: [
-      { id: "c101-consideracoes-p1", activityLabel: "Próximos passos e estudo contínuo" },
-      { id: "c101-consideracoes-p2", activityLabel: "Mensagem de encerramento" }
-    ]
-  },
-  {
-    id: "certificado",
-    title: "Certificado",
-    lessons: [
-      { id: "c101-cert-requisitos", activityLabel: "Requisitos e emissão" },
-      { id: "c101-cert-encerramento", activityLabel: "Encerramento do curso" }
+      {
+        id: "c101-l11-proximas-trilhas",
+        activityLabel: "Próximos passos: cultivo, extração e medicina canabinoide"
+      }
     ]
   }
 ] as const;
 
-const EXPECTED_LESSON_COUNT = 29;
+const EXPECTED_LESSON_COUNT = 11;
 
 function countLeaves(mods: readonly Cannabis101Module[]): number {
   return mods.reduce((acc, m) => acc + m.lessons.length, 0);
@@ -132,40 +106,41 @@ export const CANNABIS101_MANIFEST = {
   areaId: CANNABIS101_AREA_ID,
   displayName: "Cannabis 101",
   marketing: {
-    short: "Cultivo com respeito · cultura THCProce · sala oficial com arquivo e certificado",
+    short:
+      "Introdução acolhedora à planta, ao corpo e ao contexto legal — com responsabilidade e método THCProce",
     category: "Anfiteatro" as const,
     level: "Iniciante" as const,
     color: "amber" as AreaColor,
     mapPosition: { x: 86, y: 36 } as const,
     description:
-      "O Cannabis 101 é a porta de entrada THCProce com a vibe certa: cultura da planta, ciência sem arrogância, um toque de lifestyle consciente e cultivo responsável. É pra quem curte a cena mas quer método — sem parecer aula de hospital, sem papo de guru na internet, e com a comunidade junto. A formação séria fica onde a escola publica o oficial; aqui no campus você vive a jornada.",
+      "O Cannabis 101 é o seu primeiro contato organizado com a cannabis no campus: o que é a planta, como ela conversa com o organismo, que diferenças existem entre cânhamo industrial, uso informal de flores e caminhos medicinais regulados, e como pensar consumo com redução de danos. O tom é didático, sem sensacionalismo, sem prometer curas e sem incentivar condutas ilegais. Aprofundamentos técnicos (cultivo, extrações, medicina avançada) ficam nas trilhas seguintes; materiais oficiais e certificação, quando aplicáveis, continuam na sala digital THCProce.",
     highlights: [
-      "29 momentos como episódios de uma série: intro, lives, blocos de cultivo, pós-colheita, prova final e encerramento com certificado",
-      "Quando o conteúdo pede PDF, texto longo ou prova formal, a ponte leva direto à sala digital oficial THCProce",
-      "Quizzes ao longo do caminho pra fixar sem trauma — e fechamento com avaliação que amarra tudo o que você viu",
-      "Campus THCProce = vibe gamer/streaming + progressão gostosa; o arquivo chancelado continua na sala onde a equipa manda"
+      "Onze aulas em português: fundamentos, canabinoides, terpenos, sistema endocanabinoide, usos, consumo responsável, panorama legal Brasil/EUA e limites do curso",
+      "Cada aula traz ideias centrais, reflexão breve e um quiz de três questões para fixar no seu ritmo",
+      "Ponte clara para as salas de cultivo, extrações e medicina canabinoide quando você quiser ir além do básico",
+      "Conteúdo educativo: não substitui orientação médica, jurídica ou agronómica para o seu caso concreto"
     ] as const,
-    professor: "Prof THC"
+    professor: "Equipa THCProce"
   },
   stats: {
     lessonCount: EXPECTED_LESSON_COUNT,
-    hoursLabel: "≈24h (referência sala oficial THCProce)"
+    hoursLabel: "≈6h (estimativa de estudo + materiais na sala oficial)"
   },
-  /** Ordem canónica da árvore (módulos → aulas). */
+  /** Ordem canônica da árvore (módulos → aulas). */
   modules: CANNABIS101_MODULES,
   /**
    * Prévia do painel do curso (equivalente ao modelo genérico do CoursePanel para esta área).
    * Etapa futura: CoursePanel lê isto por `areaId`.
    */
   previewLessonTitles: [
-    "Introdução · Boas-vindas e estrutura do curso",
-    "Introdução · Como estudar no campus e sala oficial",
-    "Aulas ao Vivo · Recursos, links e calendário",
-    "Introdução ao Cultivo de Cannabis · Botânica e ciclo de vida"
+    "Fundamentos · Boas-vindas ao Cannabis 101",
+    "Fundamentos · O que é cannabis",
+    "Fundamentos · Cânhamo, maconha e cannabis medicinal",
+    "Química e aroma · Canabinoides principais: THC, CBD, CBG e CBN"
   ] as const,
   /** Textos do HUD até haver cálculo dinâmico por progresso. */
   hud: {
-    nextLessonFallbackLabel: "Próxima parada · Boas-vindas e estrutura do curso"
+    nextLessonFallbackLabel: "Próxima parada · Boas-vindas ao Cannabis 101"
   },
   moodle: {
     defaultBaseUrl: "https://thcproce.com.br/escola",

@@ -14,7 +14,7 @@ export const metadata = {
 export default function PreviewCampusPage() {
   return (
     <main className="relative">
-      <CampusMap internalPreview showCourseLabels />
+      <CampusMap internalPreview />
     </main>
   );
 }
