@@ -115,6 +115,7 @@ Na [Vercel](https://vercel.com): projeto ligado ao **GitHub** deste repo → **P
 | `NEXT_PUBLIC_CAMPUS_CDN_BASE_URL` | Recomendada em prod | Base HTTPS da Pull Zone Bunny para MP4 grandes (`getCampusMediaUrl`). |
 | `NEXT_PUBLIC_CANNABIS101_OPENING_VIDEO_SRC` | Opcional | URL absoluta ou nome do ficheiro na CDN; `""` = só poster. |
 | `NEXT_PUBLIC_CAMPUS_CINEMA_VIDEO_SRC` | Opcional | Mesmo padrão para o cartão «Cinema e ao vivo» no mapa. |
+| `NEXT_PUBLIC_CAMPUS_ZONE_ENTRY_PROMPT` | Opcional | `true` = toast «Quase lá» ao aproximar do edifício; omitido = desligado (recomendado em prod). |
 
 **Opcionais:** Bunny Stream (embed), **Bunny Storage + Pull Zone** para MP4 grandes, Mux, Supabase, Sentry, Moodle WS/OAuth, demos YouTube/Mux — ver `.env.example`.
 

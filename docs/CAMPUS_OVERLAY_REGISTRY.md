@@ -58,7 +58,7 @@ Serve para **não misturar** semanticamente: cinema ao vivo, player de media amb
 |------------|------|------------------|-----------------|---------|----------------|--------------|--------|
 | **`HUD`** (`HUD.tsx`) | HUD · compositor | Header fixo, menus, modais loja/perfil/missions, chat shortcut | `campusHudStore`, `campusSkyStore`, `campusStore`, sessão | Header **z-20**; dropdowns **z-[60]**; nav móvel **z-[40]**; vários modais **55–60** | Misto `pointer-events-none` + filhos **auto** | Variado (TRPC, LS perfil local) | **fixed** |
 | **`CampusHudAmbientMusic`** | (ver secção A) | — | — | **51** | — | — | — |
-| **`ProximityBanner`** | HUD · toast | Sugestão “quase no hotspot” | Props locais `CampusMap` | **z-[35]** | **auto** | — | **fixed** |
+| **`ProximityBanner`** | HUD · toast (opcional) | «Quase lá» só se `NEXT_PUBLIC_CAMPUS_ZONE_ENTRY_PROMPT=true`; por defeito **desligado**. Abrir sala pelo mapa = **clique** no hotspot. | `CampusMap` + `sessionStorage` dismiss por `Area.id` | **fixed z-[35]** | Misto: wrapper **none**, cartão **auto** | **session** `thcproce.campus.zoneEntryPrompt.dismissed.v1` | **fixed** |
 | **`CampusVivoLayer`** | HUD · chip | Chip “Campus vivo” totais | Props presence breakdown | Dentro **z-[7]** | **none** | — | absolute sobre arte |
 | **`StudentRewardToast`** | HUD · toast | Recompensas XP | — | **z-[70]** | **none** | — | **fixed** |
 | **`MissionRewardToast`** | HUD · toast | Missões | — | **z-[72]** | **none** | — | **fixed** |

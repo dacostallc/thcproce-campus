@@ -30,6 +30,11 @@ import { InternalPreviewBanner } from "./InternalPreviewBanner";
 import { useCampusSkyStore } from "@/stores/campusSkyStore";
 import { useCampusStore } from "@/stores/campusStore";
 import { nearestArea } from "@/lib/campusProximity";
+import { isCampusZoneEntryPromptEnabled } from "@/lib/campusZonePromptEnv";
+import {
+  dismissZoneEntryPromptForArea,
+  readDismissedZoneEntryPromptIds
+} from "@/lib/campusZonePromptDismiss";
 import {
   CAMPUS_ART_HEIGHT,
   CAMPUS_ART_WIDTH,
@@ -189,6 +194,13 @@ export function CampusMap({
   const [nightOk, setNightOk] = useState(true);
   const [dayOk, setDayOk] = useState(true);
   const [dismissNearId, setDismissNearId] = useState<string | null>(null);
+  const [zonePromptDismissTick, setZonePromptDismissTick] = useState(0);
+  const [zoneProximityHydrated, setZoneProximityHydrated] = useState(false);
+
+  useEffect(() => {
+    setZoneProximityHydrated(true);
+  }, []);
+
   const [gateOpen, setGateOpen] = useState<{
     kind: CampusGateKind;
     area: Area;
@@ -557,6 +569,8 @@ export function CampusMap({
     setCampusLesson({ area: c101Area, idx: 0 });
   }, [canEnterCourses, c101Area, isCampusAdmin, setPlayerLoose]);
 
+  const zoneEntryPromptEnabled = useMemo(() => isCampusZoneEntryPromptEnabled(), []);
+
   const nearResult = useMemo(
     () => nearestArea(player, 10),
     [player.x, player.y]
@@ -566,12 +580,32 @@ export function CampusMap({
     setDismissNearId(null);
   }, [nearResult?.area.id]);
 
-  const proximityName =
-    nearResult &&
-    dismissNearId !== nearResult.area.id &&
-    selected?.id !== nearResult.area.id
-      ? nearResult.area.mapLabel ?? nearResult.area.name
-      : null;
+  const proximityName = useMemo(() => {
+    if (!zoneEntryPromptEnabled || !zoneProximityHydrated) return null;
+    if (
+      !nearResult ||
+      dismissNearId === nearResult.area.id ||
+      selected?.id === nearResult.area.id
+    ) {
+      return null;
+    }
+    if (readDismissedZoneEntryPromptIds().has(nearResult.area.id)) return null;
+    return nearResult.area.mapLabel ?? nearResult.area.name;
+  }, [
+    zoneEntryPromptEnabled,
+    zoneProximityHydrated,
+    nearResult,
+    dismissNearId,
+    selected?.id,
+    zonePromptDismissTick
+  ]);
+
+  const dismissProximityPrompt = useCallback(() => {
+    if (!nearResult) return;
+    dismissZoneEntryPromptForArea(nearResult.area.id);
+    setDismissNearId(nearResult.area.id);
+    setZonePromptDismissTick((t) => t + 1);
+  }, [nearResult]);
 
   const authLabel =
     session?.user?.name?.trim() ||
@@ -1073,9 +1107,7 @@ export function CampusMap({
         onOpen={() => {
           if (nearResult) handleSelectArea(nearResult.area);
         }}
-        onDismiss={() => {
-          if (nearResult) setDismissNearId(nearResult.area.id);
-        }}
+        onDismiss={dismissProximityPrompt}
       />
 
       <CineDriveIn liveBroadcast={liveBroadcast} />
