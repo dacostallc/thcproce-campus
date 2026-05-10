@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion, useDragControls, useMotionValue } from "framer-motion";
 import { ChevronLeft, ChevronRight, Clapperboard, GripHorizontal, MessageCircle, X } from "lucide-react";
 import { useCampusHudStore } from "@/stores/campusHudStore";
@@ -11,6 +11,8 @@ import {
   readCampusCinemaLiveFramePosition,
   writeCampusCinemaLiveFramePosition
 } from "@/lib/campusCinemaLiveFramePositionStorage";
+import { resolveCampusCinemaVideoSrc } from "@/lib/campus/campusMediaUrl";
+import { CampusCinemaHudPreview } from "@/components/campus/CampusCinemaHudPreview";
 
 type Props = {
   sky: "day" | "night";
@@ -122,6 +124,7 @@ function CampusMapCinemaLiveFloatingFrame({
   setCinemaExpanded: (v: boolean) => void;
   setCinemaOpen: (v: boolean) => void;
 }) {
+  const cinemaHudStaticSrc = useMemo(() => resolveCampusCinemaVideoSrc(), []);
   const shellRef = useRef<HTMLDivElement>(null);
   const dragControls = useDragControls();
   const xMv = useMotionValue(0);
@@ -257,9 +260,21 @@ function CampusMapCinemaLiveFloatingFrame({
         <div className="thin-scrollbar flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto p-3 text-[13px] text-white/82">
           <div className="space-y-2 rounded-2xl border border-white/10 bg-black/25 p-3">
             <p className="text-[10px] font-bold uppercase tracking-widest text-teal-200/75">Player</p>
-            <div className="flex aspect-video items-center justify-center rounded-xl bg-gradient-to-br from-slate-900/90 to-black/80 text-xs text-white/42">
-              Vídeo ou transmissão — em breve
-            </div>
+            {cinemaHudStaticSrc ? (
+              <CampusCinemaHudPreview src={cinemaHudStaticSrc} />
+            ) : (
+              <div className="flex aspect-video items-center justify-center rounded-xl bg-gradient-to-br from-slate-900/90 to-black/80 px-4 text-center text-xs text-white/42">
+                Configura{" "}
+                <code className="mx-1 rounded bg-white/10 px-1 font-mono text-[10px]">
+                  NEXT_PUBLIC_CAMPUS_CDN_BASE_URL
+                </code>{" "}
+                ou{" "}
+                <code className="mx-1 rounded bg-white/10 px-1 font-mono text-[10px]">
+                  NEXT_PUBLIC_CAMPUS_CINEMA_VIDEO_SRC
+                </code>{" "}
+                para pré-visualização via CDN (ou ficheiro local em dev).
+              </div>
+            )}
           </div>
           <div className="rounded-2xl border border-amber-400/15 bg-amber-950/20 p-3">
             <p className="text-[10px] font-bold uppercase tracking-widest text-amber-200/70">Ao vivo</p>

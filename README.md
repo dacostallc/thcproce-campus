@@ -112,8 +112,20 @@ Na [Vercel](https://vercel.com): projeto ligado ao **GitHub** deste repo → **P
 | `NEXTAUTH_URL` | Sim | URL pública (ex. `https://campus.thcproce.com.br`). |
 | `NEXTAUTH_SECRET` | Sim | Ex.: `openssl rand -base64 32`. |
 | `NEXT_PUBLIC_MOODLE_BASE_URL` | Recomendada | Base Moodle da escola. |
+| `NEXT_PUBLIC_CAMPUS_CDN_BASE_URL` | Recomendada em prod | Base HTTPS da Pull Zone Bunny para MP4 grandes (`getCampusMediaUrl`). |
+| `NEXT_PUBLIC_CANNABIS101_OPENING_VIDEO_SRC` | Opcional | URL absoluta ou nome do ficheiro na CDN; `""` = só poster. |
+| `NEXT_PUBLIC_CAMPUS_CINEMA_VIDEO_SRC` | Opcional | Mesmo padrão para o cartão «Cinema e ao vivo» no mapa. |
 
-**Opcionais:** Bunny, Mux, Supabase, Sentry, Moodle WS/OAuth, demos YouTube/Mux — ver `.env.example` quando existir.
+**Opcionais:** Bunny Stream (embed), **Bunny Storage + Pull Zone** para MP4 grandes, Mux, Supabase, Sentry, Moodle WS/OAuth, demos YouTube/Mux — ver `.env.example`.
+
+### Vídeos grandes (Bunny Storage + Pull Zone)
+
+1. Criar **Storage Zone** na Bunny e fazer **upload** do MP4 (ex. `cannabis-sem-mito.mp4`).
+2. Associar uma **Pull Zone** ao storage e usar o hostname HTTPS público.
+3. Na Vercel: `NEXT_PUBLIC_CAMPUS_CDN_BASE_URL` = URL base **sem barra final** (ex. `https://meu-zone.b-cdn.net/pasta`). O código concatena o nome do ficheiro (`src/lib/campus/campusMediaUrl.ts`).
+4. Opcional: `NEXT_PUBLIC_CANNABIS101_OPENING_VIDEO_SRC` ou `NEXT_PUBLIC_CAMPUS_CINEMA_VIDEO_SRC` com URL absoluta. Sem CDN em produção, não há pedidos a `/video/...` quebrados — só poster ou mensagem no HUD.
+
+Detalhes extra no próprio `.env.example` (secção vídeos grandes).
 
 ### Vercel CLI (secundário)
 

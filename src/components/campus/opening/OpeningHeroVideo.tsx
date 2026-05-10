@@ -90,7 +90,6 @@ export const OpeningHeroVideo = forwardRef<OpeningHeroVideoHandle, Props>(
       if (!shouldLoad || !src || usePosterOnly) return;
       const v = videoRef.current;
       if (!v) return;
-      v.preload = "auto";
       void v.play().catch(() => {
         /* política do browser */
       });
@@ -159,7 +158,7 @@ export const OpeningHeroVideo = forwardRef<OpeningHeroVideoHandle, Props>(
               playsInline
               loop
               autoPlay={shouldLoad}
-              preload={shouldLoad ? "auto" : "metadata"}
+              preload={shouldLoad ? "metadata" : "none"}
               aria-hidden
               onLoadedData={() => setFadeReady(true)}
               onPlay={() => setPausedUi(false)}

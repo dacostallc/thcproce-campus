@@ -1,4 +1,5 @@
 import type { LessonMediaHints } from "@/data/lessonContent/types";
+import { resolveCannabis101OpeningVideoSrc } from "@/lib/campus/campusMediaUrl";
 
 /**
  * Chaves de ambiente usadas pelo player / trailer deste curso (documentação + tipagem implícita).
@@ -9,6 +10,8 @@ export const CANNABIS101_MEDIA_ENV = {
   trailerYoutube: "NEXT_PUBLIC_CANNABIS101_TRAILER_YOUTUBE_ID",
   /** Vídeo YouTube público incorporado na sala quando o Mux principal não está definido. */
   lessonYoutube: "NEXT_PUBLIC_CANNABIS101_LESSON_YOUTUBE_ID",
+  /** Prefixo CDN (Bunny Pull Zone) para vídeos grandes — ver README / `.env.example`. */
+  campusCdnBase: "NEXT_PUBLIC_CAMPUS_CDN_BASE_URL",
   /** Abertura cinematográfica (MP4/WebM ou URL Bunny/CDN). String vazia = só poster. */
   openingVideo: "NEXT_PUBLIC_CANNABIS101_OPENING_VIDEO_SRC",
   openingPoster: "NEXT_PUBLIC_CANNABIS101_OPENING_POSTER_SRC"
@@ -76,18 +79,11 @@ export function getCannabis101LessonEmbedYoutubeId(): string {
 
 /**
  * Vídeo da abertura cinematográfica (primeira aula).
- * Prioridade: env → `/video/cannabis-sem-mito.mp4`.
- * `NEXT_PUBLIC_CANNABIS101_OPENING_VIDEO_SRC=""` desativa o vídeo (só poster).
+ * CDN via {@link resolveCannabis101OpeningVideoSrc}; fallback `/video/…` só em dev ou com
+ * `NEXT_PUBLIC_CAMPUS_MEDIA_ALLOW_LOCAL=true`. String vazia em `OPENING_VIDEO_SRC` = só poster.
  */
 export function getCannabis101OpeningVideoSrc(): string | null {
-  const raw = process.env.NEXT_PUBLIC_CANNABIS101_OPENING_VIDEO_SRC;
-  if (raw === "") return null;
-  const trimmed =
-    typeof raw === "string"
-      ? raw.trim()
-      : "";
-  if (trimmed.length > 0) return trimmed;
-  return "/video/cannabis-sem-mito.mp4";
+  return resolveCannabis101OpeningVideoSrc();
 }
 
 export function getCannabis101OpeningPosterSrc(): string {
