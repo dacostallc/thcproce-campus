@@ -116,12 +116,18 @@ function coerceRows(raw: unknown): HudAmbientTrackRow[] {
 /**
  * Ambiente / rádio / cinema — overlay flutuante draggable com lazy-load de áudio.
  */
+/** Falhas consecutivas ao carregar/reproduzir faixas — evita ciclo infinito se tudo falhar. */
+function maxAmbientErrorSkips(trackCount: number): number {
+  return Math.max(6, trackCount * 3 + 2);
+}
+
 export function CampusHudAmbientMusic() {
   const shellRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const errorSkipRef = useRef(0);
   const playingRef = useRef(false);
   const resumeAttemptedRef = useRef(false);
+  const tracksRef = useRef<HudAmbientResolvedTrack[]>([]);
   const dragControls = useDragControls();
 
   const xMv = useMotionValue(0);
@@ -141,6 +147,7 @@ export function CampusHudAmbientMusic() {
   const [playing, setPlaying] = useState(false);
 
   playingRef.current = playing;
+  tracksRef.current = tracks;
 
   useEffect(() => {
     const ac = new AbortController();
@@ -256,58 +263,143 @@ export function CampusHudAmbientMusic() {
   useEffect(() => {
     const el = audioRef.current;
     if (!el || !current) return;
+
+    let cancelled = false;
+
+    const applyVol = () => {
+      el.volume = volume;
+      el.muted = muted;
+    };
+
     let abs: string;
     try {
       abs = new URL(current.src, window.location.origin).href;
     } catch {
       abs = current.src;
     }
-    const prevSrc = el.src;
-    if (prevSrc !== abs) {
-      el.src = current.src;
-      errorSkipRef.current = 0;
+
+    let prevAbs = "";
+    try {
+      prevAbs =
+        el.src && el.src.trim() !== ""
+          ? new URL(el.src, window.location.origin).href
+          : "";
+    } catch {
+      prevAbs = el.src ?? "";
     }
-    el.volume = volume;
-    el.muted = muted;
-    if (playingRef.current) {
+
+    const tryResumePlayback = () => {
+      if (cancelled) return;
+      if (!playingRef.current || !readHudAmbientAutoplayIntent()) return;
       void el.play().catch(() => {
-        setPlaying(false);
-        writeHudAmbientAutoplayIntent(false);
+        if (!cancelled) {
+          setPlaying(false);
+          writeHudAmbientAutoplayIntent(false);
+        }
       });
+    };
+
+    applyVol();
+
+    if (prevAbs === abs && prevAbs !== "") {
+      if (el.paused && !el.ended) {
+        tryResumePlayback();
+      }
+      return () => {
+        cancelled = true;
+      };
     }
-  }, [current, muted, volume]);
+
+    const onCanPlayOnce = () => {
+      if (cancelled) return;
+      applyVol();
+      tryResumePlayback();
+    };
+
+    el.addEventListener("canplay", onCanPlayOnce, { once: true });
+    el.src = current.src;
+
+    const raf = requestAnimationFrame(() => {
+      if (cancelled) return;
+      if (el.readyState >= HTMLMediaElement.HAVE_FUTURE_DATA) {
+        el.removeEventListener("canplay", onCanPlayOnce);
+        onCanPlayOnce();
+      }
+    });
+
+    return () => {
+      cancelled = true;
+      cancelAnimationFrame(raf);
+      el.removeEventListener("canplay", onCanPlayOnce);
+    };
+  }, [current?.src, muted, volume]);
 
   useEffect(() => {
     const el = audioRef.current;
-    if (!el || !current || tracks.length === 0) return;
+    if (!el || tracks.length === 0) return;
+
+    const advanceToNextTrack = () => {
+      startTransition(() => {
+        setTrackIndex((i) => {
+          const len = tracksRef.current.length;
+          if (len <= 0) return i;
+          const next = (i + 1) % len;
+          writeHudAmbientTrackIndex(next);
+          return next;
+        });
+      });
+    };
 
     const onPlay = () => {
+      errorSkipRef.current = 0;
       setPlaying(true);
     };
-    const onPause = () => setPlaying(false);
-    const onEnded = () => {
-      startTransition(() => {
-        setTrackIndex((i) => {
-          const next = (i + 1) % tracks.length;
-          writeHudAmbientTrackIndex(next);
-          return next;
-        });
-      });
+
+    const onPause = () => {
+      if (el.ended) return;
+      if (el.error != null) return;
+      setPlaying(false);
     };
-    const onError = () => {
-      errorSkipRef.current += 1;
-      if (errorSkipRef.current > tracks.length + 2) {
+
+    const onEnded = () => {
+      if (!readHudAmbientAutoplayIntent()) {
         setPlaying(false);
-        writeHudAmbientAutoplayIntent(false);
         return;
       }
-      startTransition(() => {
-        setTrackIndex((i) => {
-          const next = (i + 1) % tracks.length;
-          writeHudAmbientTrackIndex(next);
-          return next;
+
+      const list = tracksRef.current;
+      if (list.length === 0) return;
+
+      if (list.length === 1) {
+        errorSkipRef.current = 0;
+        el.currentTime = 0;
+        requestAnimationFrame(() => {
+          void el.play().catch(() => {
+            setPlaying(false);
+            writeHudAmbientAutoplayIntent(false);
+          });
         });
-      });
+        return;
+      }
+
+      advanceToNextTrack();
+    };
+
+    const onError = () => {
+      const list = tracksRef.current;
+      const cap = maxAmbientErrorSkips(list.length);
+      errorSkipRef.current += 1;
+      if (errorSkipRef.current > cap || list.length === 0) {
+        setPlaying(false);
+        writeHudAmbientAutoplayIntent(false);
+        errorSkipRef.current = 0;
+        return;
+      }
+      if (!readHudAmbientAutoplayIntent()) {
+        setPlaying(false);
+        return;
+      }
+      advanceToNextTrack();
     };
 
     el.addEventListener("play", onPlay);
@@ -321,7 +413,7 @@ export function CampusHudAmbientMusic() {
       el.removeEventListener("ended", onEnded);
       el.removeEventListener("error", onError);
     };
-  }, [current, tracks.length]);
+  }, [tracks.length]);
 
   useEffect(() => {
     if (tracks.length === 0) return;
@@ -660,7 +752,7 @@ export function CampusHudAmbientMusic() {
   return (
     <>
       {showAudio ? (
-        <audio ref={audioRef} preload="none" playsInline className="hidden" aria-hidden />
+        <audio ref={audioRef} preload="metadata" playsInline className="hidden" aria-hidden />
       ) : null}
       <motion.div
         ref={shellRef}
