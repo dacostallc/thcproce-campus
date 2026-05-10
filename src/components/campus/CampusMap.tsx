@@ -51,6 +51,7 @@ import {
   markCannabis101FirstLessonBegun
 } from "@/lib/campusCannabis101Hint";
 import { CANNABIS101_AREA_ID } from "@/content/courses/cannabis-101/manifest";
+import { cannabis101StableIdToLessonIndex } from "@/content/courses/cannabis-101/lessons";
 import { trpc } from "@/lib/trpc/react";
 import { CampusAreaGateModal, type CampusGateKind } from "./CampusAreaGateModal";
 import { isCampusAdminEmail } from "@/lib/campusAdmin";
@@ -68,6 +69,10 @@ import { CampusWalkableLayer } from "./CampusWalkableLayer";
 import { CampusFogZonesLayer } from "./CampusFogZonesLayer";
 import { CampusSimpleMapLayer } from "./CampusSimpleMapLayer";
 import { CampusMapInteractiveLayer } from "./CampusMapInteractiveLayer";
+import {
+  CampusSemanticMapOverlay,
+  ENABLE_SEMANTIC_MAP_OVERLAY
+} from "./CampusSemanticMapOverlay";
 import { CampusMapInteractiveMapPanels } from "./CampusMapInteractiveMapPanels";
 import { Cannabis101StartBeacon } from "./Cannabis101StartBeacon";
 import { CampusResumeChip } from "./CampusResumeChip";
@@ -709,6 +714,19 @@ export function CampusMap({
                 imageObjectFit={CAMPUS_IMAGE_OBJECT_FIT_SIMPLE}
                 svgPreserveAspectRatio={interactiveMapSvgPar}
               />
+              {ENABLE_SEMANTIC_MAP_OVERLAY ? (
+                <CampusSemanticMapOverlay
+                  areas={areas}
+                  onSelectCourseArea={handleSelectArea}
+                  onTryOpenCannabis101LessonByStableId={(stableId) => {
+                    if (!c101Area) return false;
+                    const idx = cannabis101StableIdToLessonIndex(stableId);
+                    if (idx === null) return false;
+                    openCampusLessonFromMap(c101Area, idx);
+                    return true;
+                  }}
+                />
+              ) : null}
             </div>
           )}
           {showHotspots ? (
