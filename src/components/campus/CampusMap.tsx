@@ -96,6 +96,7 @@ import { markMissionStoreEntered } from "@/lib/studentMissionsTelemetry";
 import { ShoppingBag } from "lucide-react";
 import {
   isCampusAdvancedMap,
+  isCampusAutoOnboardingUxEnabled,
   isCampusMapAreasPolygonOverlayEnabled,
   isCampusMapDebugOutline,
   isCampusMapInteractiveDebugEnabled,
@@ -120,7 +121,7 @@ const PLACEHOLDER_DAY = `
 type Props = {
   bgNightSrc?: string;
   bgDaySrc?: string;
-  /** Bolinhas/ícones por curso (legacy). Por defeito desligado. */
+  /** Bolinhas por curso no mapa (legacy). No mapa principal mostramos só âncoras editoriais (Cannabis 101 + Cine já tem camada própria). */
   showHotspots?: boolean;
   showCourseLabels?: boolean;
   internalPreview?: boolean;
@@ -129,7 +130,7 @@ type Props = {
 export function CampusMap({
   bgNightSrc = "/campus/campus.png",
   bgDaySrc = "/campus/campus-day.png",
-  showHotspots = false,
+  showHotspots = true,
   showCourseLabels = false,
   internalPreview = false
 }: Props) {
@@ -294,6 +295,10 @@ export function CampusMap({
 
   const computeC101StartBeacon = useCallback(() => {
     if (typeof window === "undefined") return;
+    if (!isCampusAutoOnboardingUxEnabled()) {
+      setC101BeaconVisible(false);
+      return;
+    }
     if (!c101Area || !canEnterCourses) {
       setC101BeaconVisible(false);
       return;
@@ -464,6 +469,13 @@ export function CampusMap({
     () => campusMapInteractiveSvgPreserveAspectRatio(CAMPUS_IMAGE_OBJECT_FIT_SIMPLE),
     []
   );
+
+  /** Hotspots flutuantes legacy: no `/campus` principal só Cannabis 101; preview interno mantém todas as áreas. */
+  const mapLegacyHotspotAreas = useMemo(() => {
+    if (!showHotspots) return [];
+    if (internalPreview) return areas;
+    return areas.filter((a) => a.id === CANNABIS101_AREA_ID);
+  }, [showHotspots, internalPreview]);
 
   const setCampusMapUnlockPct = useCampusHudStore((s) => s.setCampusMapUnlockPct);
 
@@ -729,9 +741,9 @@ export function CampusMap({
               ) : null}
             </div>
           )}
-          {showHotspots ? (
+          {mapLegacyHotspotAreas.length > 0 ? (
             <div className="absolute inset-0 z-10">
-              {areas.map((area) => (
+              {mapLegacyHotspotAreas.map((area) => (
                 <Hotspot
                   key={area.id}
                   area={area}

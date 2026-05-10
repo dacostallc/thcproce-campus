@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Compass } from "lucide-react";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
+import { isCampusAutoOnboardingUxEnabled } from "@/config/campusMapStability";
 import { CAMPUS_WELCOME_MODAL_SEEN_LS_KEY } from "@/lib/campusOnboardingLs";
 
 type Props = {
@@ -32,6 +33,10 @@ export function CampusWelcomeModal({ advancedMap, onStartTour }: Props) {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
+    if (!isCampusAutoOnboardingUxEnabled()) {
+      setOpen(false);
+      return;
+    }
     if (advancedMap || typeof window === "undefined") {
       setOpen(false);
       return;

@@ -20,6 +20,7 @@ import { getMergedLiveBroadcast } from "@/server/campusLiveSettings";
 import { areaUsesMoodleLessonSnippet } from "@/content/courses";
 import { resolveCampusLessonDbContent } from "@/lib/campus/resolveCampusLessonDbContent";
 import { getPublishedQuizWithAnswers } from "@/lib/quiz/playable";
+import { loadCampusMapPointReaderPayload } from "@/lib/campus/loadCampusMapPointContent";
 
 const mockCourses: MoodleCourse[] = areas.map((a, i) => ({
   id: 100 + i,
@@ -104,6 +105,13 @@ function parseLessonMap(raw: unknown): Record<string, number[]> {
 
 export const campusRouter = router({
   health: publicProcedure.query(() => ({ ok: true as const, ts: Date.now() })),
+
+  /**
+   * Conteúdo textual do hotspot (`overview.md` + frontmatter) gerado em `src/content/campus/map-points/`.
+   */
+  mapPointReaderContent: publicProcedure
+    .input(z.object({ mapPointId: z.string().min(1).max(140) }))
+    .query(({ input }) => loadCampusMapPointReaderPayload(input.mapPointId)),
 
   /** Live + URL do Cine — só variáveis públicas de ambiente (sem Prisma). */
   liveBroadcast: publicProcedure.query(async () => {

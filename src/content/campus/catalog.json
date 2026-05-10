@@ -1,0 +1,431 @@
+{
+  "generatedAt": "2026-05-10T03:41:26.061Z",
+  "locale": "pt-BR",
+  "mapPointCount": 31,
+  "note": "31 pontos = todos os hotspots do campusMapAreasCatalog.seed.ts exceto bem-vindo e entrada principal.",
+  "points": [
+    {
+      "id": "curso-cultivo-101",
+      "title": "Cannabis 101",
+      "linkedCourseId": "cannabis-101",
+      "difficulty": "Iniciante",
+      "category": "Fundamentos",
+      "tags": [
+        "botanica",
+        "canabinoides",
+        "legalidade",
+        "ECS",
+        "reducao-de-danos"
+      ],
+      "path": "map-points/curso-cultivo-101/"
+    },
+    {
+      "id": "curso-hashmaker",
+      "title": "Hashmaker · solventless",
+      "linkedCourseId": "extracoes-solventless",
+      "difficulty": "Avançado",
+      "category": "Extrações",
+      "tags": [
+        "bubble-hash",
+        "rosin",
+        "piatella",
+        "agua-gelada",
+        "seguranca"
+      ],
+      "path": "map-points/curso-hashmaker/"
+    },
+    {
+      "id": "curso-extracao-de-oleo",
+      "title": "Extração de óleo",
+      "linkedCourseId": "extracao-oleo",
+      "difficulty": "Avançado",
+      "category": "Laboratório",
+      "tags": [
+        "oleos",
+        "tinturas",
+        "lipideos",
+        "padronizacao",
+        "higiene"
+      ],
+      "path": "map-points/curso-extracao-de-oleo/"
+    },
+    {
+      "id": "curso-culinaria-cannabica",
+      "title": "Culinária cannábica",
+      "linkedCourseId": "culinaria",
+      "difficulty": "Intermediário",
+      "category": "Gastronomia",
+      "tags": [
+        "edibles",
+        "decarboxilacao",
+        "porcoes",
+        "seguranca-alimentar"
+      ],
+      "path": "map-points/curso-culinaria-cannabica/"
+    },
+    {
+      "id": "curso-aplicacoes-terapeuticas",
+      "title": "Aplicações terapêuticas",
+      "linkedCourseId": "medicina",
+      "difficulty": "Todos os níveis",
+      "category": "Medicina canabinoide",
+      "tags": [
+        "ECS",
+        "evidencia",
+        "titulacao",
+        "encaminhamento"
+      ],
+      "path": "map-points/curso-aplicacoes-terapeuticas/"
+    },
+    {
+      "id": "curso-sementes-feminizadas",
+      "title": "Sementes feminizadas",
+      "linkedCourseId": "genetica",
+      "difficulty": "Avançado",
+      "category": "Genética",
+      "tags": [
+        "sementes",
+        "fenotipos",
+        "uniformidade",
+        "viveiro"
+      ],
+      "path": "map-points/curso-sementes-feminizadas/"
+    },
+    {
+      "id": "curso-preparacao-do-solo",
+      "title": "Preparação do solo",
+      "linkedCourseId": "cultivo-outdoor",
+      "difficulty": "Iniciante",
+      "category": "Cultivo outdoor",
+      "tags": [
+        "solo",
+        "composto",
+        "drenagem",
+        "microbiota"
+      ],
+      "path": "map-points/curso-preparacao-do-solo/"
+    },
+    {
+      "id": "curso-nutrientes",
+      "title": "Nutrientes & soluções",
+      "linkedCourseId": "cultivo-indoor",
+      "difficulty": "Intermediário",
+      "category": "Cultivo indoor",
+      "tags": [
+        "nutricao",
+        "EC",
+        "pH",
+        "transpiracao"
+      ],
+      "path": "map-points/curso-nutrientes/"
+    },
+    {
+      "id": "curso-transicao-floracao",
+      "title": "Transição floração",
+      "linkedCourseId": "cultivo-indoor",
+      "difficulty": "Intermediário",
+      "category": "Cultivo indoor",
+      "tags": [
+        "fotoperiodo",
+        "stretch",
+        "temperatura",
+        "UR"
+      ],
+      "path": "map-points/curso-transicao-floracao/"
+    },
+    {
+      "id": "curso-vegetativo",
+      "title": "Fase vegetativa",
+      "linkedCourseId": "cultivo-indoor",
+      "difficulty": "Intermediário",
+      "category": "Cultivo indoor",
+      "tags": [
+        "vegetativo",
+        "PPFD",
+        "VAS",
+        "estrutura"
+      ],
+      "path": "map-points/curso-vegetativo/"
+    },
+    {
+      "id": "curso-germinacao-clones",
+      "title": "Germinação & clones",
+      "linkedCourseId": "genetica",
+      "difficulty": "Intermediário",
+      "category": "Genética",
+      "tags": [
+        "clonagem",
+        "sementes",
+        "sanidade",
+        "ummidade"
+      ],
+      "path": "map-points/curso-germinacao-clones/"
+    },
+    {
+      "id": "curso-cultivo-outdoor",
+      "title": "Cultivo outdoor",
+      "linkedCourseId": "cultivo-outdoor",
+      "difficulty": "Iniciante",
+      "category": "Cultivo outdoor",
+      "tags": [
+        "sol",
+        "solo",
+        "calendario",
+        "clima"
+      ],
+      "path": "map-points/curso-cultivo-outdoor/"
+    },
+    {
+      "id": "curso-cultivo-greenhouse",
+      "title": "Cultivo em estufa",
+      "linkedCourseId": "cultivo-greenhouse",
+      "difficulty": "Intermediário",
+      "category": "Cultivo estufa",
+      "tags": [
+        "microclima",
+        "ventilacao",
+        "CO2",
+        "sombreamento"
+      ],
+      "path": "map-points/curso-cultivo-greenhouse/"
+    },
+    {
+      "id": "curso-cultivo-indoor",
+      "title": "Cultivo indoor",
+      "linkedCourseId": "cultivo-indoor",
+      "difficulty": "Intermediário",
+      "category": "Cultivo indoor",
+      "tags": [
+        "LED",
+        "clima",
+        "seguranca-eletrica",
+        "fluxo"
+      ],
+      "path": "map-points/curso-cultivo-indoor/"
+    },
+    {
+      "id": "souvenirs",
+      "title": "Souvenirs & loja",
+      "linkedCourseId": null,
+      "difficulty": "Iniciante",
+      "category": "Campus",
+      "tags": [
+        "loja",
+        "comunidade",
+        "suporte"
+      ],
+      "path": "map-points/souvenirs/"
+    },
+    {
+      "id": "leis-normas",
+      "title": "Leis e normas",
+      "linkedCourseId": "legislacao",
+      "difficulty": "Todos os níveis",
+      "category": "Legislação",
+      "tags": [
+        "BR",
+        "normas",
+        "pesquisa",
+        "autorizacao"
+      ],
+      "path": "map-points/leis-normas/"
+    },
+    {
+      "id": "curso-pragas-e-doencas",
+      "title": "Pragas & biosegurança",
+      "linkedCourseId": "cultivo-outdoor",
+      "difficulty": "Intermediário",
+      "category": "Sanidade vegetal",
+      "tags": [
+        "IPM",
+        "fungo",
+        "insetos",
+        "prevencao"
+      ],
+      "path": "map-points/curso-pragas-e-doencas/"
+    },
+    {
+      "id": "curso-podas-e-clones",
+      "title": "Podas & clones",
+      "linkedCourseId": "cultivo-indoor",
+      "difficulty": "Intermediário",
+      "category": "Cultivo indoor",
+      "tags": [
+        "poda",
+        "LST",
+        "clone",
+        "sanidade"
+      ],
+      "path": "map-points/curso-podas-e-clones/"
+    },
+    {
+      "id": "como-combate-acaros",
+      "title": "Combate aos ácaros",
+      "linkedCourseId": "cultivo-indoor",
+      "difficulty": "Intermediário",
+      "category": "Sanidade indoor",
+      "tags": [
+        "acaro",
+        "IPM",
+        "ventilacao"
+      ],
+      "path": "map-points/como-combate-acaros/"
+    },
+    {
+      "id": "como-combate-spiders",
+      "title": "Combate a aracnídeos indesejados",
+      "linkedCourseId": "cultivo-indoor",
+      "difficulty": "Intermediário",
+      "category": "Sanidade indoor",
+      "tags": [
+        "teia",
+        "preventivo",
+        "higiene"
+      ],
+      "path": "map-points/como-combate-spiders/"
+    },
+    {
+      "id": "como-fazer-um-cha",
+      "title": "Como preparar fertilizantes em chá",
+      "linkedCourseId": "cultivo-outdoor",
+      "difficulty": "Iniciante",
+      "category": "Nutrição outdoor",
+      "tags": [
+        "composto",
+        "extrato",
+        "solo-vivo"
+      ],
+      "path": "map-points/como-fazer-um-cha/"
+    },
+    {
+      "id": "como-usar-melaco-de-cana",
+      "title": "Melado & carbo rápido",
+      "linkedCourseId": "cultivo-outdoor",
+      "difficulty": "Iniciante",
+      "category": "Nutrição outdoor",
+      "tags": [
+        "carboidratos",
+        "solo",
+        "moderacao"
+      ],
+      "path": "map-points/como-usar-melaco-de-cana/"
+    },
+    {
+      "id": "quando-adubar-foliar",
+      "title": "Quando usar adubo foliar",
+      "linkedCourseId": "cultivo-indoor",
+      "difficulty": "Intermediário",
+      "category": "Nutrição indoor",
+      "tags": [
+        "foliar",
+        "stomata",
+        "spray"
+      ],
+      "path": "map-points/quando-adubar-foliar/"
+    },
+    {
+      "id": "quando-adubar-solo",
+      "title": "Quando fertilizar solo vivo",
+      "linkedCourseId": "cultivo-outdoor",
+      "difficulty": "Iniciante",
+      "category": "Nutrição outdoor",
+      "tags": [
+        "solo",
+        "mineralizacao",
+        "calendario"
+      ],
+      "path": "map-points/quando-adubar-solo/"
+    },
+    {
+      "id": "quando-pulverizar-preventivo",
+      "title": "Pulverização preventiva",
+      "linkedCourseId": "cultivo-outdoor",
+      "difficulty": "Intermediário",
+      "category": "Sanidade outdoor",
+      "tags": [
+        "preventivo",
+        "calendario",
+        "EPI"
+      ],
+      "path": "map-points/quando-pulverizar-preventivo/"
+    },
+    {
+      "id": "quando-plantar-outdoor",
+      "title": "Quando plantar outdoor",
+      "linkedCourseId": "cultivo-outdoor",
+      "difficulty": "Iniciante",
+      "category": "Planeamento outdoor",
+      "tags": [
+        "calendario",
+        "latitude",
+        "fenologia"
+      ],
+      "path": "map-points/quando-plantar-outdoor/"
+    },
+    {
+      "id": "qual-tamanho-do-vaso",
+      "title": "Tamanho correto do vaso",
+      "linkedCourseId": "cultivo-indoor",
+      "difficulty": "Iniciante",
+      "category": "Cultivo indoor",
+      "tags": [
+        "vaso",
+        "raizes",
+        "substrato"
+      ],
+      "path": "map-points/qual-tamanho-do-vaso/"
+    },
+    {
+      "id": "cannabis-e-proibida",
+      "title": "\"Cannabis é proibida… e agora?\"",
+      "linkedCourseId": "legislacao",
+      "difficulty": "Todos os níveis",
+      "category": "Legislação",
+      "tags": [
+        "BR",
+        "debate",
+        "fontes"
+      ],
+      "path": "map-points/cannabis-e-proibida/"
+    },
+    {
+      "id": "deixa-seu-recado",
+      "title": "Mural dos alunos",
+      "linkedCourseId": null,
+      "difficulty": "Iniciante",
+      "category": "Comunidade",
+      "tags": [
+        "mural",
+        "etiqueta",
+        "moderacao"
+      ],
+      "path": "map-points/deixa-seu-recado/"
+    },
+    {
+      "id": "programacao-do-dia",
+      "title": "Programação do dia",
+      "linkedCourseId": null,
+      "difficulty": "Iniciante",
+      "category": "Eventos",
+      "tags": [
+        "agenda",
+        "lives",
+        "horarios"
+      ],
+      "path": "map-points/programacao-do-dia/"
+    },
+    {
+      "id": "campus-live-cinema",
+      "title": "Cinema & ao vivo",
+      "linkedCourseId": null,
+      "difficulty": "Iniciante",
+      "category": "Eventos",
+      "tags": [
+        "cinema",
+        "streaming",
+        "experiencia"
+      ],
+      "path": "map-points/campus-live-cinema/"
+    }
+  ]
+}

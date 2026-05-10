@@ -13,6 +13,7 @@ import { CAMPUS_CINE_POSITION } from "@/config/campusCinema";
 import { useCampusHudStore } from "@/stores/campusHudStore";
 import { useCampusGuidedTourStore } from "@/stores/campusGuidedTourStore";
 import { cn } from "@/lib/utils";
+import { isCampusAutoOnboardingUxEnabled } from "@/config/campusMapStability";
 import {
   grantTourOfflineRewardsIfNeeded,
 } from "@/lib/studentGamificationStorage";
@@ -189,6 +190,11 @@ export function CampusMapTour({ advancedMap, cannabisPosition }: Props) {
 
   /** Chip de lembrete: só depois que o bem-vindo foi tratado para não sobrecarregar. */
   useEffect(() => {
+    if (!isCampusAutoOnboardingUxEnabled()) {
+      setOfferVisible(false);
+      setActive(false);
+      return;
+    }
     if (advancedMap) {
       setOfferVisible(false);
       setActive(false);

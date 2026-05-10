@@ -32,3 +32,12 @@ export function isCampusMapAreasPolygonOverlayEnabled(): boolean {
 export function isCampusMapInteractiveDebugEnabled(): boolean {
   return process.env.NEXT_PUBLIC_CAMPUS_MAP_INTERACTIVE_DEBUG === "true";
 }
+
+/**
+ * Modal bem-vindo, chip «Novo por aqui?», beacon inicial do Cannabis 101 e cartão «Comece aqui» ao carregar `/campus`.
+ * Por omissão **desligado** (mapa limpo); tour manual pelo HUD continua disponível.
+ * Ativar: `NEXT_PUBLIC_CAMPUS_AUTO_ONBOARDING_UX=true`.
+ */
+export function isCampusAutoOnboardingUxEnabled(): boolean {
+  return process.env.NEXT_PUBLIC_CAMPUS_AUTO_ONBOARDING_UX === "true";
+}

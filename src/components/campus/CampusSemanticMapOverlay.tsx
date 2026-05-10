@@ -11,8 +11,8 @@ import { CANNABIS101_AREA_ID } from "@/content/courses/cannabis-101/manifest";
 import { useCampusStore } from "@/stores/campusStore";
 import { useCampusHudStore } from "@/stores/campusHudStore";
 
-/** Ative/desative o overlay semântico sobre o mapa simples. */
-export const ENABLE_SEMANTIC_MAP_OVERLAY = true;
+/** Pins do registry (coords ainda por calibrar) — desligado até alinhamento visual. */
+export const ENABLE_SEMANTIC_MAP_OVERLAY = false;
 
 type Props = {
   areas: readonly Area[];

@@ -11,6 +11,7 @@ import {
 import { CAMPUS_PROGRESS_UPDATED_EVENT } from "@/lib/campusProgressStorage";
 import { CANNABIS101_START_HINT_EVENT } from "@/lib/campusCannabis101Hint";
 import { STUDENT_GAMIFICATION_UPDATED_EVENT } from "@/lib/studentGamificationStorage";
+import { isCampusAutoOnboardingUxEnabled } from "@/config/campusMapStability";
 import {
   type CampusStartHereKind,
   getCampusStartHereRecommendation
@@ -127,6 +128,7 @@ export function CampusStartHereCard({
 
   const hiddenReason =
     advancedMap ||
+    !isCampusAutoOnboardingUxEnabled() ||
     tourActive ||
     !mounted ||
     !welcomeDone ||
