@@ -24,7 +24,7 @@ export type CampusMapInteractiveTarget =
   | { kind: "campus_mural_feed" }
   /** Painel lateral «Programação do dia» (mapa simples). */
   | { kind: "schedule_day" }
-  /** Doc cinematográfico / ao vivo preso à direita do palco do mapa. */
+  /** Cinema / live no mapa — abre o frame flutuante (HUD), independente do alinhamento no ecrã. */
   | { kind: "cinema_live_rail" }
   /** Painel especial de boas‑vindas / frase (sem destino HUD). */
   | { kind: "welcome_intro" }

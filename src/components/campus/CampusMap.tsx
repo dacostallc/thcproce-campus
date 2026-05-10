@@ -118,6 +118,10 @@ import {
 } from "@/lib/campusAvatarPositionStorage";
 import { mergeCampusMapMemory } from "@/lib/campusMapMemoryStorage";
 import { recordCampusZoneVisit } from "@/lib/campusVisitedZonesStorage";
+import {
+  readCampusDebugZonesQuery,
+  shouldShowCampusMapZonesPolygonDebug
+} from "@/lib/campusMapZonesDebug";
 
 const PLACEHOLDER_NIGHT = `
   radial-gradient(ellipse at 20% 30%, rgba(34, 197, 94, 0.20), transparent 45%),
@@ -271,6 +275,11 @@ export function CampusMap({
   useEffect(() => {
     useCampusStore.getState().setLiveActive(livePulse);
   }, [livePulse]);
+
+  const mapZonesPolygonDebug = useMemo(() => {
+    const q = readCampusDebugZonesQuery(searchParams);
+    return shouldShowCampusMapZonesPolygonDebug(q);
+  }, [searchParams]);
 
   const isCampusAdmin = useMemo(
     () => isCampusAdminEmail(session?.user?.email ?? null),
@@ -670,9 +679,10 @@ export function CampusMap({
     () =>
       !advancedMap ||
       internalPreview ||
+      mapZonesPolygonDebug ||
       isCampusMapInteractiveDebugEnabled() ||
       isCampusMapAreasPolygonOverlayEnabled(),
-    [advancedMap, internalPreview]
+    [advancedMap, internalPreview, mapZonesPolygonDebug]
   );
 
   const useSimpleArtFrame = !advancedMap;
@@ -900,8 +910,12 @@ export function CampusMap({
               aria-hidden
             />
 
-            {process.env.NODE_ENV === "development" || isCampusMapAreasPolygonOverlayEnabled() ? (
-              <CampusMapAreasDebugOverlay />
+            {mapZonesPolygonDebug || isCampusMapAreasPolygonOverlayEnabled() ? (
+              <CampusMapAreasDebugOverlay
+                catalogMergeEnabled={
+                  mapZonesPolygonDebug || isCampusMapAreasPolygonOverlayEnabled()
+                }
+              />
             ) : null}
 
             {advancedMap ? <CampusWalkableLayer /> : null}
@@ -962,6 +976,8 @@ export function CampusMap({
                 svgPreserveAspectRatio={interactiveMapSvgPar}
                 hitZoneStates={campusWorld?.hitZoneStates}
                 onPersistInteractiveActivation={persistInteractiveActivation}
+                zonesDebugChrome={mapZonesPolygonDebug}
+                cinemaLiveActive={livePulse}
                 onOpenCampusCourse={(courseId, legacyHitId) => {
                   const area = areas.find((a) => a.id === courseId);
                   if (area) handleSelectArea(area, { legacyHitId: legacyHitId ?? null });
@@ -1071,12 +1087,7 @@ export function CampusMap({
       <HUD />
 
       {!advancedMap ? (
-        <CampusMapInteractiveMapPanels
-          sky={phase}
-          showHotspotTechStripe={
-            (typeof process !== "undefined" && isCampusMapInteractiveDebugEnabled()) || isCampusAdmin
-          }
-        />
+        <CampusMapInteractiveMapPanels sky={phase} showHotspotTechStripe={mapZonesPolygonDebug} />
       ) : null}
 
       <div

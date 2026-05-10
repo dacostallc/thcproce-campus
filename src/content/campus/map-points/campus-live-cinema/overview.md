@@ -1,11 +1,11 @@
 ---
-mapPointId: "campus-live-cinema"
-title: "Cinema & ao vivo"
-panelTitle: "Cinema & ao vivo"
+mapPointId: "campus-cinema"
+title: "Cinema THCProce"
+panelTitle: "Cinema THCProce"
 linkedCourseId: ""
-shortDescription: "Cinema & ao vivo"
+shortDescription: "Cinema THCProce — telão flutuante, transmissões e estado ao vivo."
 longDescription: "experiência audiovisual longa no campus. Trilha textual preparada para LMS, portal web e futuras peças audiovisuais — prioriza método, segurança e clareza jurídico‑sanitária."
-introduction: "Este espaço do campus (Cinema & ao vivo) organiza experiência e comunidade. Mantemos tom profissional: respeito, pontualidade em eventos e orientação clara quando houver transmissão ao vivo."
+introduction: "Este espaço do campus (Cinema THCProce) organiza experiência e comunidade. Mantemos tom profissional: respeito, pontualidade em eventos e orientação clara quando houver transmissão ao vivo."
 objectives:
   - "Compreender fundamentos e limites do tema em linguagem acessível."
   - "Aplicar checklist práticos sem improvisação perigosa."

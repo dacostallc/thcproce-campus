@@ -17,18 +17,29 @@ type Props = {
    * Só uso da página `/preview/campus-map-areas`: só estes vértices, sem ler catálogo/LS nem exigir flags de ambiente.
    */
   isolatedPreviewAreas?: CampusMapArea[] | null;
+  /**
+   * No `/campus`, quando passado por `CampusMap`, substitui a heurística `NODE_ENV === development`
+   * (ex.: em produção só com `?debugZones=1` ou flag `NEXT_PUBLIC_CAMPUS_MAP_AREAS_DEBUG`).
+   */
+  catalogMergeEnabled?: boolean;
 };
 
 /**
  * Desenha polígonos sobre o palco do mapa (viewBox 0 0 100 100, mesmo sistema que hit-boxes simples).
- * No `/campus`, só aparece em desenvolvimento ou com NEXT_PUBLIC_CAMPUS_MAP_AREAS_DEBUG.
+ * Montagem no `/campus` é decidida por `CampusMap` (debug de zonas / env).
  */
-export function CampusMapAreasDebugOverlay({ className, isolatedPreviewAreas }: Props) {
+export function CampusMapAreasDebugOverlay({
+  className,
+  isolatedPreviewAreas,
+  catalogMergeEnabled
+}: Props) {
   const [lsJson, setLsJson] = useState<string | null>(null);
 
   const envAllowsOverlayOnCampus =
-    typeof process !== "undefined" &&
-    (process.env.NODE_ENV === "development" || isCampusMapAreasPolygonOverlayEnabled());
+    typeof catalogMergeEnabled === "boolean"
+      ? catalogMergeEnabled
+      : typeof process !== "undefined" &&
+        (process.env.NODE_ENV === "development" || isCampusMapAreasPolygonOverlayEnabled());
 
   useEffect(() => {
     if (typeof window === "undefined" || isolatedPreviewAreas !== undefined) return;

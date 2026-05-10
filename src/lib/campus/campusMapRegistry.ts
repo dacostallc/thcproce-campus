@@ -370,7 +370,7 @@ export const CAMPUS_MAP_REGISTRY_TO_LEGACY_HIT_ID: Partial<Record<string, string
   "viveiro-genetica": "curso-sementes-feminizadas",
   "clinica-cannabis-medicinal": "curso-aplicacoes-terapeuticas",
   "biblioteca-legislacao": "cannabis-e-proibida",
-  "cinema-thcproce": "campus-live-cinema",
+  "cinema-thcproce": "campus-cinema",
   "arena-live": "programacao-do-dia",
   "pragas-e-doencas": "curso-pragas-e-doencas",
   "bubble-hash": "curso-hashmaker",

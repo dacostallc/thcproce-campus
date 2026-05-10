@@ -367,15 +367,25 @@ export const CAMPUS_MAP_INTERACTIVE_AREAS: CampusMapInteractiveArea[] = [
     metadata: { imageMapAlt: "programacao-do-dia" }
   },
   {
-    id: "campus-live-cinema",
-    title: "Cinema & ao vivo",
-    panelTitle: "Cinema & ao vivo",
-    coords: "1180,833,1310,899,1151,1006,1064,970",
+    id: "campus-cinema",
+    title: "Cinema THCProce",
+    label: "Cinema THCProce",
+    panelTitle: "Cinema THCProce",
+    shortDescription:
+      "Cinema e transmissões ao vivo no campus — instala-te, vê o estado da sala e entra quando quiseres.",
+    studentSummary:
+      "Espaço de cinema e live THCProce: abre o telão flutuante para acompanhar transmissões e estado «ao vivo» quando disponível.",
+    ctaLabel: "Entrar no cinema",
+    coords: "1040,795,1365,905,1195,1035,1015,985",
     shape: "poly",
     type: "event",
     status: "open",
     target: { kind: "cinema_live_rail" },
-    metadata: { imageMapAlt: "campus-live-cinema" },
-    live: true
+    metadata: {
+      imageMapAlt: "campus-cinema",
+      zoneId: "campus-cinema",
+      zoneKind: "cinema_live"
+    },
+    live: false
   }
 ];

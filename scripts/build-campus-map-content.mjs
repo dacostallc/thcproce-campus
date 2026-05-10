@@ -875,9 +875,9 @@ const POINTS = [
     lessons: ["Fuso horário BR", "Check-in antes da live", "Perguntas objetivas", "Respeitar monitores", "Salvar links oficiais"]
   },
   {
-    id: "campus-live-cinema",
-    title: "Cinema & ao vivo",
-    panelTitle: "Cinema & ao vivo",
+    id: "campus-cinema",
+    title: "Cinema THCProce",
+    panelTitle: "Cinema THCProce",
     linkedCourseId: null,
     difficulty: "Iniciante",
     category: "Eventos",
