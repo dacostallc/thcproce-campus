@@ -1,0 +1,14 @@
+# CLI uplink — evitar ultrapassar limite de 100 MB (node/.next são gerados na build remota).
+node_modules
+.next
+out
+coverage
+.git
+.turbo
+dist
+build
+*.log
+*.tsbuildinfo
+prisma/dev.db
+prisma/dev.db-journal
+.vercel
