@@ -227,26 +227,30 @@ html, body {
 }
 
 /**
- * Letterbox — mais translúcido e menos “modal”; o mapa ganha protagonismo.
+ * Zonas laterais do palco (mapa em `contain`): vinhetas desfocadas — não “colunas”, só ambiente em torno da arte.
  */
 .campus-map-letterbox-gutter {
-  background-color: rgb(8 14 12 / 0.52);
+  background-color: rgb(8 14 12 / 0.42);
   background-image:
-    radial-gradient(ellipse 78% 62% at 48% 22%, rgba(34, 211, 238, 0.032), transparent 58%),
-    radial-gradient(ellipse 54% 46% at 82% 74%, rgba(167, 139, 250, 0.045), transparent 55%),
-    linear-gradient(180deg, rgba(5, 10, 7, 0.88) 0%, rgba(10, 22, 16, 0.92) 52%, rgba(5, 10, 7, 0.88) 100%);
-  -webkit-backdrop-filter: blur(10px) saturate(118%);
-  backdrop-filter: blur(10px) saturate(118%);
+    radial-gradient(ellipse 52% 115% at 0% 48%, rgb(5 10 7 / 0.82), transparent 58%),
+    radial-gradient(ellipse 52% 115% at 100% 48%, rgb(5 10 7 / 0.82), transparent 58%),
+    radial-gradient(ellipse 78% 62% at 48% 22%, rgba(34, 211, 238, 0.038), transparent 58%),
+    radial-gradient(ellipse 54% 46% at 82% 74%, rgba(167, 139, 250, 0.048), transparent 55%),
+    linear-gradient(180deg, rgba(5, 10, 7, 0.82) 0%, rgba(10, 22, 16, 0.88) 52%, rgba(5, 10, 7, 0.82) 100%);
+  -webkit-backdrop-filter: blur(14px) saturate(118%);
+  backdrop-filter: blur(14px) saturate(118%);
 }
 
 [data-sky="day"] .campus-map-letterbox-gutter {
-  background-color: rgb(224 242 254 / 0.22);
+  background-color: rgb(224 242 254 / 0.18);
   background-image:
-    radial-gradient(ellipse 72% 54% at 44% 18%, rgba(56, 189, 248, 0.09), transparent 56%),
-    radial-gradient(ellipse 50% 42% at 78% 78%, rgba(250, 204, 21, 0.05), transparent 54%),
-    linear-gradient(180deg, rgba(224, 242, 254, 0.42) 0%, rgba(254, 249, 195, 0.22) 55%, rgba(220, 252, 231, 0.34) 100%);
-  -webkit-backdrop-filter: blur(12px) saturate(124%);
-  backdrop-filter: blur(12px) saturate(124%);
+    radial-gradient(ellipse 50% 115% at 0% 50%, rgb(224 242 254 / 0.58), transparent 58%),
+    radial-gradient(ellipse 50% 115% at 100% 50%, rgb(224 242 254 / 0.58), transparent 58%),
+    radial-gradient(ellipse 72% 54% at 44% 18%, rgba(56, 189, 248, 0.11), transparent 56%),
+    radial-gradient(ellipse 50% 42% at 78% 78%, rgba(250, 204, 21, 0.06), transparent 54%),
+    linear-gradient(180deg, rgba(224, 242, 254, 0.38) 0%, rgba(254, 249, 195, 0.2) 55%, rgba(220, 252, 231, 0.32) 100%);
+  -webkit-backdrop-filter: blur(14px) saturate(124%);
+  backdrop-filter: blur(14px) saturate(124%);
 }
 
 .campus-map-zone {
@@ -340,6 +344,43 @@ html, body {
   isolation: isolate;
   border-radius: inherit;
   pointer-events: none;
+}
+
+/**
+ * Vinhetas discretas topo/base da arte — mesma linguagem das laterais (radiais suaves, sem “barra” nem linha de UI).
+ * Altura só define zona de mistura; o gradiente desvanece cedo para não comer o mapa.
+ */
+.campus-map-cinematic-ledge-top,
+.campus-map-cinematic-ledge-bottom {
+  height: clamp(18px, 2.6vw, 36px);
+}
+
+[data-sky="night"] .campus-map-cinematic-ledge-top {
+  background-image:
+    radial-gradient(ellipse 98% 130% at 50% 0%, rgb(5 10 7 / 0.34), transparent 58%),
+    radial-gradient(ellipse 62% 48% at 18% 8%, rgba(34, 211, 238, 0.028), transparent 55%),
+    linear-gradient(to bottom, rgb(5 10 7 / 0.12), transparent 85%);
+}
+
+[data-sky="night"] .campus-map-cinematic-ledge-bottom {
+  background-image:
+    radial-gradient(ellipse 98% 130% at 50% 100%, rgb(5 10 7 / 0.32), transparent 58%),
+    radial-gradient(ellipse 58% 46% at 78% 94%, rgba(167, 139, 250, 0.038), transparent 56%),
+    linear-gradient(to top, rgb(8 14 12 / 0.1), transparent 88%);
+}
+
+[data-sky="day"] .campus-map-cinematic-ledge-top {
+  background-image:
+    radial-gradient(ellipse 96% 125% at 50% 0%, rgb(224 242 254 / 0.22), transparent 58%),
+    radial-gradient(ellipse 58% 46% at 22% 10%, rgba(56, 189, 248, 0.06), transparent 54%),
+    linear-gradient(to bottom, rgb(254 249 195 / 0.08), transparent 85%);
+}
+
+[data-sky="day"] .campus-map-cinematic-ledge-bottom {
+  background-image:
+    radial-gradient(ellipse 96% 125% at 50% 100%, rgb(224 242 254 / 0.24), transparent 58%),
+    radial-gradient(ellipse 56% 44% at 76% 92%, rgba(250, 204, 21, 0.045), transparent 55%),
+    linear-gradient(to top, rgb(220 252 231 / 0.09), transparent 88%);
 }
 
 /* Ambiente: tráfego/drones ao longo da largura do frame (não `vw`, para não invadir gutters). */

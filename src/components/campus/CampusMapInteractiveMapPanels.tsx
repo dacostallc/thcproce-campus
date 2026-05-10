@@ -1,19 +1,16 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronLeft, ChevronRight, Clapperboard, MessageCircle, X } from "lucide-react";
 import { useCampusHudStore } from "@/stores/campusHudStore";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import type { Area } from "@/data/courses";
 import { CampusMapHotspotPanel } from "@/components/campus/CampusMapHotspotPanel";
 
 type Props = {
   sky: "day" | "night";
   showHotspotTechStripe: boolean;
-  onHotspotEnterCourse: (area: Area) => void;
-  onHotspotOpenLesson: (area: Area, lessonIndex: number) => void;
 };
 
 type MockRow = { id: string; label: string; meta: string };
@@ -59,9 +56,7 @@ function SectionBlock({
 
 export function CampusMapInteractiveMapPanels({
   sky,
-  showHotspotTechStripe,
-  onHotspotEnterCourse,
-  onHotspotOpenLesson
+  showHotspotTechStripe
 }: Props) {
   const scheduleOpen = useCampusHudStore((s) => s.campusMapScheduleDayOpen);
   const setScheduleOpen = useCampusHudStore((s) => s.setCampusMapScheduleDayOpen);
@@ -100,12 +95,7 @@ export function CampusMapInteractiveMapPanels({
 
   return (
     <>
-      <CampusMapHotspotPanel
-        sky={sky}
-        showTechStripe={showHotspotTechStripe}
-        onEnterCourse={onHotspotEnterCourse}
-        onOpenLesson={onHotspotOpenLesson}
-      />
+      <CampusMapHotspotPanel sky={sky} showTechStripe={showHotspotTechStripe} />
       <AnimatePresence>
         {scheduleOpen ? (
           <>
@@ -296,9 +286,8 @@ export function CampusMapInteractiveMapPanels({
                   </div>
                 </div>
               ) : (
-                <div className="flex flex-1 flex-col items-center gap-3 py-4">
-                  <Clapperboard size={18} className="text-amber-200/70" aria-hidden />
-                </div>
+                /* Recolhido: só a faixa fina com chevron no header — evita mancha âmbar no limite do ecrã. */
+                <div className="flex flex-1" aria-hidden />
               )}
             </motion.div>
           </>

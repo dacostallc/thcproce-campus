@@ -2,13 +2,14 @@
 
 import { useCallback, useEffect, useState } from "react";
 import {
+  campusProgressHydrationSeed,
   CAMPUS_PROGRESS_UPDATED_EVENT,
   loadCampusProgress,
   type CampusProgress
 } from "@/lib/campusProgressStorage";
 
 export function useCampusProgressClient(): CampusProgress {
-  const [snap, setSnap] = useState<CampusProgress>(() => loadCampusProgress());
+  const [snap, setSnap] = useState<CampusProgress>(() => campusProgressHydrationSeed());
   const refresh = useCallback(() => setSnap(loadCampusProgress()), []);
 
   useEffect(() => {

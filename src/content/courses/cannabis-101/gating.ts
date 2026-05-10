@@ -1,4 +1,5 @@
-export type LessonGateStatus = "seen" | "available" | "locked" | "soon";
+/** `completed` = marcada concluída · `visited` = painel aberto pelo menos uma vez (local) · `available` = ainda não visitada */
+export type LessonGateStatus = "completed" | "visited" | "available" | "locked" | "soon";
 
 export const CANNABIS101_GATING_ENV = {
   publishedLessons: "NEXT_PUBLIC_CANNABIS101_PUBLISHED_LESSONS",
@@ -22,17 +23,19 @@ export function isSequentialLockEnabled(): boolean {
 }
 
 /**
- * seen = marcada vista · available = pode abrir · locked = sequência · soon = fora do calendário
+ * completed = concluída · visited = visitada sem concluir · available · locked (sequência pela anterior **concluída**) · soon
  */
 export function getCannabis101LessonGate(
   index: number,
   total: number,
-  doneSet: Set<number>
+  doneSet: Set<number>,
+  visitedSet: Set<number> = new Set()
 ): LessonGateStatus {
   const published = getPublishedLessonCount(total);
   if (index >= published) return "soon";
   const sequential = isSequentialLockEnabled();
   if (sequential && index > 0 && !doneSet.has(index - 1)) return "locked";
-  if (doneSet.has(index)) return "seen";
+  if (doneSet.has(index)) return "completed";
+  if (visitedSet.has(index)) return "visited";
   return "available";
 }

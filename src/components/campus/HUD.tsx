@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import {
   Leaf,
   MessageCircle,
@@ -37,7 +37,8 @@ import { CAMPUS_HOME_PATH } from "@/config/siteUrls";
 import { cannabis101HudNextLessonCue } from "@/content/courses";
 import { isCampusAdvancedMap } from "@/config/campusMapStability";
 import { CampusStudentGamificationHudChip } from "@/components/campus/CampusStudentGamificationHudChip";
-import { CampusProfileForm } from "@/components/campus/CampusProfileForm";
+import { CampusLocalGamificationHudPill } from "@/components/campus/CampusLocalGamificationHudPill";
+import { CampusLocalProfileModalBody } from "@/components/campus/CampusLocalProfileModalBody";
 import { CampusStoreModal } from "@/components/campus/CampusStoreModal";
 import { CreditBalanceChip } from "@/components/campus/CreditBalanceChip";
 import { StudentRewardToast } from "@/components/campus/StudentRewardToast";
@@ -51,6 +52,7 @@ import {
   markMissionPanelOpened,
   markMissionStoreEntered
 } from "@/lib/studentMissionsTelemetry";
+import { completeCampusMissionPhase2IfNeeded } from "@/lib/campusMissionsPhase2Storage";
 import { useCampusPresenceBreakdown } from "@/hooks/useCampusPresenceBreakdown";
 import { useLiveCampusHudFeedStore } from "@/stores/liveCampusHudFeedStore";
 import { useCampusStore } from "@/stores/campusStore";
@@ -83,7 +85,6 @@ function campusProfileInitials(name: string | null | undefined, email: string | 
 
 export function HUD() {
   const pathname = usePathname();
-  const router = useRouter();
   const campusNavActive =
     pathname === CAMPUS_HOME_PATH || pathname.startsWith(`${CAMPUS_HOME_PATH}/`);
   const sky = useCampusSkyStore((s) => s.sky);
@@ -95,6 +96,7 @@ export function HUD() {
   const setMuralOpen = useCampusHudStore((s) => s.setMuralOpen);
   const eventsOpen = useCampusHudStore((s) => s.eventsOpen);
   const muralOpen = useCampusHudStore((s) => s.muralOpen);
+  const cinemaDockOpen = useCampusHudStore((s) => s.campusMapCinemaLiveOpen);
   const setCampusLiveComposerOpen = useCampusHudStore(
     (s) => s.setCampusLiveComposerOpen
   );
@@ -138,6 +140,7 @@ export function HUD() {
   });
   const tickStreak = trpc.campus.tickStreak.useMutation();
   const streakOnceRef = useRef(false);
+  const isCineOpen = useCampusStore((s) => s.isCineOpen);
   const profileOpenNonceHandled = useRef(0);
   const [leaderboardOpen, setLeaderboardOpen] = useState(false);
   const presenceBreakdown = useCampusPresenceBreakdown();
@@ -201,7 +204,23 @@ export function HUD() {
   useEffect(() => {
     if (!campusNavActive) return;
     markMissionCampusEntered();
+    completeCampusMissionPhase2IfNeeded("campus-p2-enter");
   }, [campusNavActive]);
+
+  useEffect(() => {
+    if (!muralOpen) return;
+    completeCampusMissionPhase2IfNeeded("campus-p2-mural");
+  }, [muralOpen]);
+
+  useEffect(() => {
+    if (!campusProfileOpen) return;
+    completeCampusMissionPhase2IfNeeded("campus-p2-profile");
+  }, [campusProfileOpen]);
+
+  useEffect(() => {
+    if (!campusNavActive) return;
+    if (cinemaDockOpen || isCineOpen) completeCampusMissionPhase2IfNeeded("campus-p2-cinema");
+  }, [campusNavActive, cinemaDockOpen, isCineOpen]);
 
   useEffect(() => {
     if (campusProfileOpenNonce <= profileOpenNonceHandled.current) return;
@@ -234,7 +253,7 @@ export function HUD() {
             transition={{ duration: 0.45, delay: 0.1 }}
             className="pointer-events-none fixed left-0 right-0 top-0 z-20 px-3 pt-[max(0.75rem,env(safe-area-inset-top))] sm:px-4 [&_a]:pointer-events-auto [&_button]:pointer-events-auto"
           >
-            <div className="flex items-start justify-between gap-2">
+            <div className="flex w-full items-start gap-2">
               <div className="pointer-events-auto flex items-center gap-1.5">
                 <Link
                   href="/"
@@ -250,7 +269,11 @@ export function HUD() {
                 </Link>
               </div>
 
-              <div className="flex items-center gap-1 sm:gap-1.5">
+              <div className="pointer-events-auto hidden min-w-0 min-[380px]:flex flex-1 justify-center px-1 pt-0.5 min-[480px]:pt-0">
+                <CampusLocalGamificationHudPill onOpenProfile={() => setCampusProfileOpen(true)} />
+              </div>
+
+              <div className="pointer-events-auto ml-auto flex shrink-0 items-center gap-1 sm:gap-1.5">
                 <CampusHudAmbientMusic />
                 <div className="pointer-events-auto relative" ref={campusMoreWrapRef}>
                   <button
@@ -378,7 +401,13 @@ export function HUD() {
                             <CreditBalanceChip compact className="border-white/12" />
                           </div>
                           <div className="mt-2">
-                            <CampusStudentGamificationHudChip className="max-w-none border-emerald-400/25" />
+                            <CampusStudentGamificationHudChip
+                              className="max-w-none border-emerald-400/25"
+                              onOpenProfile={() => {
+                                setCampusProfileOpen(true);
+                                setCampusMoreOpen(false);
+                              }}
+                            />
                           </div>
                         </div>
                         {status === "authenticated" ? (
@@ -555,9 +584,7 @@ export function HUD() {
               type="button"
               className="flex flex-col items-center gap-0.5 rounded-lg px-2 py-1 text-[9px] font-semibold text-white/80 transition hover:bg-white/10 hover:text-white"
               aria-label="Perfil"
-              onClick={() =>
-                status === "authenticated" ? setCampusProfileOpen(true) : router.push("/login")
-              }
+              onClick={() => setCampusProfileOpen(true)}
             >
               <User2 size={18} className="text-amber-200/90" />
               Perfil
@@ -819,8 +846,8 @@ export function HUD() {
                       Meu perfil
                     </h2>
                     <p className="mt-1 text-[11px] leading-relaxed text-white/52 max-sm:text-xs">
-                      Perfil neste navegador: nível XP, nome, cosméticos e inventário salvos apenas aqui neste
-                      computador ou telemóvel.
+                      Progresso local (nome, XP, nível, créditos, última aula). Ligar conta mantém o servidor à parte —
+                      vê «Nome, avatar e inventário» para editar detalhes.
                     </p>
                   </div>
                   <Button type="button" variant="glass" size="sm" onClick={() => setCampusProfileOpen(false)}>
@@ -847,7 +874,12 @@ export function HUD() {
                   </p>
                 ) : null}
                 <div className="min-h-0 flex-1 overflow-y-auto scrollbar-thin p-4 pb-5 sm:p-5">
-                  <CampusProfileForm density="modal" />
+                  <CampusLocalProfileModalBody
+                    onContinueLastLesson={() => {
+                      requestCampusResumeLesson();
+                      setCampusProfileOpen(false);
+                    }}
+                  />
                 </div>
               </div>
             </motion.div>

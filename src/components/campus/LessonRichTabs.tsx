@@ -22,6 +22,15 @@ import type { LessonQuizItem } from "@/data/lessonRichTypes";
 import type { LessonMediaHints } from "@/data/lessonRichTypes";
 import type { AreaColor } from "@/data/courses";
 import { cn } from "@/lib/utils";
+import {
+  buildInlineLessonQuizQuestionId,
+  lessonQuizAttemptStorageKey,
+  persistLessonQuizAttempt,
+  readLessonQuizAttempt
+} from "@/lib/lessonAcademicPersistence";
+import { adjustCreditsByWithApplied } from "@/lib/studentGamificationStorage";
+import { completeCampusMissionPhase2IfNeeded } from "@/lib/campusMissionsPhase2Storage";
+import { bumpAcademicQuizAnswered } from "@/lib/campusAcademicHistoryStorage";
 
 type StreamPal = {
   articleBorder: string;
@@ -112,6 +121,11 @@ type StreamChapterMeta = {
   tagline: string;
 };
 
+export type LessonQuizAcademicContext = {
+  areaId: string;
+  lessonIndex: number;
+};
+
 type Props = {
   storageKey: string;
   content: LessonRichContent;
@@ -122,6 +136,8 @@ type Props = {
   streamChapter?: StreamChapterMeta | null;
   /** Quando já mostrou intro fora das tabs/stream (evita duplicar a secção "Começa assim"). */
   skipIntroSection?: boolean;
+  /** Quiz inline: pontuação local (+/- créditos) e persistência de tentativas. */
+  lessonQuizContext?: LessonQuizAcademicContext | null;
 };
 
 function SectionTitle({
@@ -166,24 +182,39 @@ const CAN101_STREAM_SECTION = {
   notes: "Suas anotações"
 } as const;
 
+function formatLessonQuizScoreLine(creditsDeltaApplied: number, correct: boolean): string {
+  if (correct) return creditsDeltaApplied > 0 ? `Resposta correta: +${creditsDeltaApplied}` : "Resposta correta";
+  if (creditsDeltaApplied === 0) return "Resposta incorreta — penalização não aplicada (saldo já era 0)";
+  return `Resposta incorreta: ${creditsDeltaApplied}`;
+}
+
 type StreamQuizQuestionProps = {
   q: LessonQuizItem;
   index: number;
   /** Cannabis 101: feedback textual mais “premium” e menos jargon de sala de aula. */
   cinematicHints?: boolean;
+  quizContext?: LessonQuizAcademicContext | null;
 };
 
 function StreamQuizBlock({
   items,
-  cinematicHints
+  cinematicHints,
+  quizContext
 }: {
   items: LessonQuizItem[];
   cinematicHints?: boolean;
+  quizContext?: LessonQuizAcademicContext | null;
 }) {
   return (
     <div className="space-y-5">
       {items.map((q, qi) => (
-        <StreamQuizQuestion key={qi} q={q} index={qi} cinematicHints={cinematicHints} />
+        <StreamQuizQuestion
+          key={qi}
+          q={q}
+          index={qi}
+          cinematicHints={cinematicHints}
+          quizContext={quizContext}
+        />
       ))}
     </div>
   );
@@ -192,10 +223,48 @@ function StreamQuizBlock({
 function StreamQuizQuestion({
   q,
   index,
-  cinematicHints
+  cinematicHints,
+  quizContext
 }: StreamQuizQuestionProps) {
+  const questionId = useMemo(() => buildInlineLessonQuizQuestionId(index, q.question), [index, q.question]);
+  const compositeKey =
+    quizContext != null
+      ? lessonQuizAttemptStorageKey(quizContext.areaId, quizContext.lessonIndex, questionId)
+      : null;
+
   const [picked, setPicked] = useState<number | null>(null);
+  const [scoreLine, setScoreLine] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!compositeKey) return;
+    const prev = readLessonQuizAttempt(compositeKey);
+    if (!prev) return;
+    setPicked(prev.pickedIndex);
+    const correct = prev.pickedIndex === q.correctIndex;
+    setScoreLine(formatLessonQuizScoreLine(prev.creditsDeltaApplied, correct));
+  }, [compositeKey, q.correctIndex]);
+
   const done = picked !== null;
+
+  function handlePick(oi: number) {
+    if (picked !== null) return;
+    setPicked(oi);
+    if (!quizContext || !compositeKey) return;
+    const existing = readLessonQuizAttempt(compositeKey);
+    if (existing) return;
+    const correct = oi === q.correctIndex;
+    const attemptedDelta = correct ? 2 : -2;
+    const { appliedDelta } = adjustCreditsByWithApplied(attemptedDelta, "lesson_quiz_inline");
+    persistLessonQuizAttempt(compositeKey, {
+      pickedIndex: oi,
+      creditsDeltaApplied: appliedDelta,
+      recordedAtMs: Date.now()
+    });
+    bumpAcademicQuizAnswered(quizContext.areaId);
+    setScoreLine(formatLessonQuizScoreLine(appliedDelta, correct));
+    if (correct) completeCampusMissionPhase2IfNeeded("campus-p2-first-quiz-correct");
+  }
+
   return (
     <div className="rounded-xl border border-white/14 bg-black/40 px-4 py-3.5 transition duration-200 hover:-translate-y-px hover:border-amber-500/20 hover:shadow-md hover:shadow-black/30">
       <p className="mb-2 text-sm font-semibold leading-snug text-white/90">
@@ -213,7 +282,7 @@ function StreamQuizQuestion({
               key={oi}
               type="button"
               disabled={done}
-              onClick={() => setPicked(oi)}
+              onClick={() => handlePick(oi)}
               className={cn(
                 "rounded-md border px-3 py-2.5 text-left text-[13px] leading-snug transition-colors",
                 !done && "border-white/15 bg-black/30 text-white/85 hover:bg-white/8",
@@ -227,15 +296,27 @@ function StreamQuizQuestion({
         })}
       </div>
       {done ? (
-        <p className="mt-2 text-xs text-white/50">
-          {picked === q.correctIndex
-            ? cinematicHints
-              ? "Isso aí — combina com o que a gente destacou mais acima nesta sessão."
-              : "Correto — fecha com o texto principal da aula."
-            : cinematicHints
-              ? "Quase! Dá uma olhada de novo na abertura e nos objetivos; a resposta que a THCProce considera certa está no roteiro desta aula."
-              : "Revise o miolo da aula e os objetivos; a alternativa certa segue o texto-base desta edição."}
-        </p>
+        <div className="mt-2 space-y-1">
+          {scoreLine ? (
+            <p
+              className={cn(
+                "text-xs font-semibold",
+                scoreLine.startsWith("Resposta correta") ? "text-emerald-200/95" : "text-rose-200/90"
+              )}
+            >
+              {scoreLine}
+            </p>
+          ) : null}
+          <p className="text-xs text-white/50">
+            {picked === q.correctIndex
+              ? cinematicHints
+                ? "Isso aí — combina com o que a gente destacou mais acima nesta sessão."
+                : "Correto — fecha com o texto principal da aula."
+              : cinematicHints
+                ? "Quase! Dá uma olhada de novo na abertura e nos objetivos; a resposta que a THCProce considera certa está no roteiro desta aula."
+                : "Revise o miolo da aula e os objetivos; a alternativa certa segue o texto-base desta edição."}
+          </p>
+        </div>
       ) : null}
     </div>
   );
@@ -283,7 +364,8 @@ export function LessonRichTabs({
   layout = "tabs",
   streamAccent = "canna",
   streamChapter = null,
-  skipIntroSection = false
+  skipIntroSection = false,
+  lessonQuizContext = null
 }: Props) {
   const [tab, setTab] = useState<TabId>("conteudo");
   const [notes, setNotes] = useState("");
@@ -540,7 +622,11 @@ export function LessonRichTabs({
             ) : (
               <h2 className={pal.sectionTitle}>Quiz rápido</h2>
             )}
-            <StreamQuizBlock items={content.quiz} cinematicHints={c} />
+            <StreamQuizBlock
+              items={content.quiz}
+              cinematicHints={c}
+              quizContext={lessonQuizContext}
+            />
           </section>
         ) : null}
 
@@ -728,7 +814,11 @@ export function LessonRichTabs({
                   <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-white/40">
                     {c ? CAN101_STREAM_SECTION.quiz : "Quiz rápido"}
                   </p>
-                  <StreamQuizBlock items={content.quiz} cinematicHints={c} />
+                  <StreamQuizBlock
+                    items={content.quiz}
+                    cinematicHints={c}
+                    quizContext={lessonQuizContext}
+                  />
                 </div>
               ) : null}
               {content.media ? (

@@ -153,6 +153,14 @@ export function CampusMap({
     area: Area;
     idx: number;
   } | null>(null);
+
+  useEffect(() => {
+    useCampusHudStore.getState().setCampusLessonPanelOpen(campusLesson != null);
+    return () => {
+      useCampusHudStore.getState().setCampusLessonPanelOpen(false);
+    };
+  }, [campusLesson]);
+
   const [nightOk, setNightOk] = useState(true);
   const [dayOk, setDayOk] = useState(true);
   const [dismissNearId, setDismissNearId] = useState<string | null>(null);
@@ -259,8 +267,6 @@ export function CampusMap({
 
   const hotspotDebugConsumedRef = useRef<string | null>(null);
   useEffect(() => {
-    if (process.env.NODE_ENV === "production") return;
-
     const raw = searchParams.get("hotspot")?.trim();
     if (!raw) {
       hotspotDebugConsumedRef.current = null;
@@ -280,9 +286,33 @@ export function CampusMap({
         useCampusHudStore.getState().setCampusMapHotspotPanelHitId(null);
         openCampusLessonFromMap(c101Area, action.lessonIndex);
       }
-      router.replace(pathname || "/campus", { scroll: false });
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete("hotspot");
+      const qs = params.toString();
+      const base = pathname || "/campus";
+      router.replace(qs ? `${base}?${qs}` : base, { scroll: false });
     });
   }, [pathname, searchParams, router, openCampusLessonFromMap, c101Area]);
+
+  const cinemaParamConsumedRef = useRef<string | null>(null);
+  useEffect(() => {
+    const raw = searchParams.get("cinema")?.trim().toLowerCase();
+    if (!raw || (raw !== "1" && raw !== "open")) {
+      cinemaParamConsumedRef.current = null;
+      return;
+    }
+    if (cinemaParamConsumedRef.current === raw) return;
+    cinemaParamConsumedRef.current = raw;
+
+    queueMicrotask(() => {
+      useCampusHudStore.getState().setCampusMapCinemaLiveOpen(true);
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete("cinema");
+      const qs = params.toString();
+      const base = pathname || "/campus";
+      router.replace(qs ? `${base}?${qs}` : base, { scroll: false });
+    });
+  }, [pathname, searchParams, router]);
 
   const serverHasCannabis101LessonProgress = useMemo(() => {
     if (status !== "authenticated") return false;
@@ -448,7 +478,10 @@ export function CampusMap({
 
   const advancedMap = isCampusAdvancedMap();
 
-  /** `contain` quando o palco deve mostrar a arte 1536×1024 sem crop (mapa simples, debug/preview). */
+  /**
+   * Mapa simples: sempre `contain` (arte inteira, sem corte nem distorção). Debug/preview/overlays seguem o mesmo alinhamento.
+   * Mapa avançado: `cover` no palco cheio (exceto quando flags de debug pedem contain).
+   */
   const campusMapUsesContainLayout = useMemo(
     () =>
       !advancedMap ||
@@ -470,11 +503,14 @@ export function CampusMap({
     []
   );
 
-  /** Hotspots flutuantes legacy: no `/campus` principal só Cannabis 101; preview interno mantém todas as áreas. */
+  /**
+   * Hotspots flutuantes legacy (pino + label HTML): só em preview interno.
+   * No `/campus` público o `CampusMapInteractiveLayer` cobre cliques — pins âmbar duplicavam o polo Cannabis 101.
+   */
   const mapLegacyHotspotAreas = useMemo(() => {
     if (!showHotspots) return [];
     if (internalPreview) return areas;
-    return areas.filter((a) => a.id === CANNABIS101_AREA_ID);
+    return [];
   }, [showHotspots, internalPreview]);
 
   const setCampusMapUnlockPct = useCampusHudStore((s) => s.setCampusMapUnlockPct);
@@ -591,9 +627,7 @@ export function CampusMap({
                 : "absolute inset-0 overflow-hidden"
             )}
             style={
-              useSimpleArtFrame
-                ? { aspectRatio: `${CAMPUS_ART_WIDTH} / ${CAMPUS_ART_HEIGHT}` }
-                : undefined
+              useSimpleArtFrame ? { aspectRatio: `${CAMPUS_ART_WIDTH} / ${CAMPUS_ART_HEIGHT}` } : undefined
             }
           >
             <CampusMapErrorBoundary
@@ -696,6 +730,15 @@ export function CampusMap({
               <CampusVivoLayer phase={phase} presence={presenceBreakdown} />
               {isCampusPixiLayerEnabled() ? <AmbientPixi phase={phase} /> : null}
             </div>
+
+            <div
+              className="campus-map-cinematic-ledge-top pointer-events-none absolute inset-x-0 top-0 z-[7]"
+              aria-hidden
+            />
+            <div
+              className="campus-map-cinematic-ledge-bottom pointer-events-none absolute inset-x-0 bottom-0 z-[7]"
+              aria-hidden
+            />
           </CampusMapErrorBoundary>
 
           {advancedMap ? (
@@ -725,6 +768,14 @@ export function CampusMap({
                 setPlayerLoose={setPlayerLoose}
                 imageObjectFit={CAMPUS_IMAGE_OBJECT_FIT_SIMPLE}
                 svgPreserveAspectRatio={interactiveMapSvgPar}
+                onOpenCampusCourse={(courseId) => {
+                  const area = areas.find((a) => a.id === courseId);
+                  if (area) handleSelectArea(area);
+                }}
+                onOpenCampusLesson={(courseId, lessonIndex) => {
+                  const area = areas.find((a) => a.id === courseId);
+                  if (area) openCampusLessonFromMap(area, lessonIndex);
+                }}
               />
               {ENABLE_SEMANTIC_MAP_OVERLAY ? (
                 <CampusSemanticMapOverlay
@@ -742,7 +793,8 @@ export function CampusMap({
             </div>
           )}
           {mapLegacyHotspotAreas.length > 0 ? (
-            <div className="absolute inset-0 z-10">
+            // Sem isto, o rect fullscreen intercepta cliques antes do SVG (`CampusMapInteractiveLayer`, z-8).
+            <div className="pointer-events-none absolute inset-0 z-10">
               {mapLegacyHotspotAreas.map((area) => (
                 <Hotspot
                   key={area.id}
@@ -808,7 +860,7 @@ export function CampusMap({
         }}
       />
 
-      <CineDriveIn youtubeUrl={liveBroadcast?.youtubeUrl} />
+      <CineDriveIn liveBroadcast={liveBroadcast} />
 
       <CampusAdminBroadcastLayer isCampusAdmin={isCampusAdmin} />
       <CampusAdminBroadcastComposer isCampusAdmin={isCampusAdmin} />
@@ -822,8 +874,6 @@ export function CampusMap({
           showHotspotTechStripe={
             (typeof process !== "undefined" && isCampusMapInteractiveDebugEnabled()) || isCampusAdmin
           }
-          onHotspotEnterCourse={handleSelectArea}
-          onHotspotOpenLesson={openCampusLessonFromMap}
         />
       ) : null}
 

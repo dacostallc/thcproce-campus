@@ -14,6 +14,8 @@ export type CampusStorePurchasableMeta = {
   costCredits: number;
   /** Ao equipar, define o preset do avatar simples no mapa. */
   mapsToAvatarVariant?: StudentAvatarVariant;
+  /** Predefinição `true`. Posters/sementes Fase 3 são só coleccionáveis. */
+  equippable?: boolean;
 };
 
 /** IDs prefix `store-mock-` para distinguir de bonus/souvenir. */
@@ -69,6 +71,22 @@ export const CAMPUS_STORE_PURCHASABLE_MOCK_CATALOG: Record<string, CampusStorePu
     subtitle: "Variante comprável do pin.",
     category: "campus_items",
     costCredits: 11
+  },
+  "store-mock-poster-aura-palm": {
+    id: "store-mock-poster-aura-palm",
+    title: "Poster · Palm Green Session",
+    subtitle: "Coleccionável visual — sem pagamento real.",
+    category: "posters",
+    costCredits: 8,
+    equippable: false
+  },
+  "store-mock-seed-genetics-kit": {
+    id: "store-mock-seed-genetics-kit",
+    title: "Caixa «Genética em foco»",
+    subtitle: "Sementes fictícias para arquivo pedagógico.",
+    category: "special_seeds",
+    costCredits: 11,
+    equippable: false
   }
 };
 
@@ -78,6 +96,8 @@ export const CAMPUS_STORE_TAB_ORDER = [
   "accessories",
   "course_souvenirs",
   "special_items",
+  "posters",
+  "special_seeds",
   "certificates"
 ] as const satisfies readonly InventoryCategory[];
 
@@ -89,6 +109,8 @@ export const CAMPUS_STORE_TAB_LABELS: Record<CampusStoreTabId, string> = {
   accessories: "Acessórios",
   course_souvenirs: "Souvenirs de curso",
   special_items: "Itens especiais",
+  posters: "Posters",
+  special_seeds: "Sementes",
   certificates: "Certificados e medalhas"
 };
 

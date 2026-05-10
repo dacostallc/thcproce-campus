@@ -7,7 +7,8 @@ import {
   Clock,
   Lock,
   Search,
-  Circle
+  Circle,
+  Eye
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -21,7 +22,7 @@ import {
 import type { AreaColor } from "@/data/courses";
 import { getLessonListAccent } from "@/lib/campusAccent";
 
-export type LessonFilter = "all" | "available" | "seen" | "soon";
+export type LessonFilter = "all" | "available" | "visited" | "completed" | "soon";
 
 type Props = {
   areaId: string;
@@ -29,6 +30,8 @@ type Props = {
   titles: string[];
   activeIndex: number;
   doneSet: Set<number>;
+  /** Painéis de aula já abertos (localStorage), independente de conclusão. */
+  visitedSet: Set<number>;
   onSelectLesson: (idx: number) => void;
   className?: string;
   /** Rodapé: módulo atual + avançar aula */
@@ -37,7 +40,8 @@ type Props = {
 };
 
 const STATUS_LABEL: Record<LessonGateStatus, string> = {
-  seen: "Vista",
+  completed: "Concluída",
+  visited: "Visitada",
   available: "Disponível",
   locked: "Bloqueada",
   soon: "Em breve"
@@ -46,7 +50,8 @@ const STATUS_LABEL: Record<LessonGateStatus, string> = {
 const FILTER_CHIPS: { id: LessonFilter; label: string }[] = [
   { id: "all", label: "Todas" },
   { id: "available", label: "Disponíveis" },
-  { id: "seen", label: "Vistas" },
+  { id: "visited", label: "Visitadas" },
+  { id: "completed", label: "Concluídas" },
   { id: "soon", label: "Em breve" }
 ];
 
@@ -56,6 +61,7 @@ export function CampusLessonSidebar({
   titles,
   activeIndex,
   doneSet,
+  visitedSet,
   onSelectLesson,
   className,
   onNextLesson,
@@ -67,10 +73,10 @@ export function CampusLessonSidebar({
 
   const rows = useMemo(() => {
     return titles.map((title, idx) => {
-      const gate = getCampusLessonGate(areaId, idx, titles.length, doneSet);
+      const gate = getCampusLessonGate(areaId, idx, titles.length, doneSet, visitedSet);
       return { idx, title, gate };
     });
-  }, [titles, doneSet, areaId]);
+  }, [titles, doneSet, visitedSet, areaId]);
 
   const filtered = useMemo(() => {
     const needle = q.trim().toLowerCase();
@@ -82,7 +88,8 @@ export function CampusLessonSidebar({
         `aula ${idx + 1}`.includes(needle);
       if (!matchSearch) return false;
       if (filter === "all") return true;
-      if (filter === "seen") return gate === "seen";
+      if (filter === "completed") return gate === "completed";
+      if (filter === "visited") return gate === "visited";
       if (filter === "soon") return gate === "soon";
       if (filter === "available") return gate === "available";
       return true;
@@ -119,15 +126,15 @@ export function CampusLessonSidebar({
           {areaId === CANNABIS101_AREA_ID ? (
             <>
               <span className="font-semibold text-white/55">Disponível</span> — entra na hora.{" "}
-              <span className="font-semibold text-white/55">Vista</span> — você já marcou que estudou.{" "}
-              <span className="font-semibold text-white/55">Bloqueada</span> — fecha a anterior primeiro (modo
-              sequência ligado). <span className="font-semibold text-white/55">Em breve</span> — ainda não entrou no
-              calendário publicado.
+              <span className="font-semibold text-white/55">Visitada</span> — já abriu o painel desta aula.{" "}
+              <span className="font-semibold text-white/55">Concluída</span> — marcou como feita (sequência usa esta).{" "}
+              <span className="font-semibold text-white/55">Bloqueada</span> — conclua a anterior primeiro (sequência).{" "}
+              <span className="font-semibold text-white/55">Em breve</span> — fora do calendário publicado.
             </>
           ) : (
             <>
-              Disponível: pode abrir. Vista: já marcou conclusão. Bloqueada: complete a aula anterior (sequência
-              ativa). Em breve: fora do calendário publicado.
+              Disponível: pode abrir. Visitada: painel aberto (sem concluir). Concluída: marcou feito (desbloqueio em
+              sequência). Bloqueada: complete a aula anterior. Em breve: fora do calendário publicado.
             </>
           )}
         </p>
@@ -191,7 +198,8 @@ export function CampusLessonSidebar({
                   active ? A.lessonOn : A.lessonOff,
                   disabled && "cursor-not-allowed opacity-[0.58]",
                   gate === "locked" && "border-dashed border-white/12",
-                  gate === "seen" && !active && "border-emerald-500/15 bg-emerald-950/10",
+                  gate === "completed" && !active && "border-emerald-500/15 bg-emerald-950/10",
+                  gate === "visited" && !active && "border-sky-500/15 bg-sky-950/10",
                   !disabled && !active && "hover:-translate-y-px"
                 )}
               >
@@ -273,21 +281,25 @@ export function CampusLessonSidebar({
 function StatusPill({ gate }: { gate: LessonGateStatus }) {
   const label = STATUS_LABEL[gate];
   const Icon =
-    gate === "seen"
+    gate === "completed"
       ? CheckCircle2
-      : gate === "locked"
-        ? Lock
-        : gate === "soon"
-          ? Clock
-          : Circle;
-  const cls =
-    gate === "seen"
-      ? "border-emerald-500/35 bg-emerald-500/15 text-emerald-200"
-      : gate === "soon"
-        ? "border-amber-500/30 bg-amber-500/10 text-amber-200/90"
+      : gate === "visited"
+        ? Eye
         : gate === "locked"
-          ? "border-white/15 bg-white/5 text-white/45"
-          : "border-canna-500/25 bg-canna-500/10 text-canna-200";
+          ? Lock
+          : gate === "soon"
+            ? Clock
+            : Circle;
+  const cls =
+    gate === "completed"
+      ? "border-emerald-500/35 bg-emerald-500/15 text-emerald-200"
+      : gate === "visited"
+        ? "border-sky-500/35 bg-sky-500/12 text-sky-200"
+        : gate === "soon"
+          ? "border-amber-500/30 bg-amber-500/10 text-amber-200/90"
+          : gate === "locked"
+            ? "border-white/15 bg-white/5 text-white/45"
+            : "border-canna-500/25 bg-canna-500/10 text-canna-200";
 
   return (
     <span

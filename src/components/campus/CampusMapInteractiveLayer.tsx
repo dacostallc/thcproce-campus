@@ -7,6 +7,8 @@ import { useSession } from "next-auth/react";
 import { AnimatePresence, motion } from "framer-motion";
 import { X } from "lucide-react";
 import { areas, type Area } from "@/data/courses";
+import { CANNABIS101_AREA_ID } from "@/content/courses/cannabis-101/manifest";
+import { cannabis101StableIdToLessonIndex } from "@/content/courses/cannabis-101/lessons";
 import {
   CAMPUS_MAP_INTERACTIVE_AREAS,
   imageMapCoordsToSvgPrimitiveArt,
@@ -42,6 +44,10 @@ type Props = {
   imageObjectFit: "cover" | "contain";
   /** Opcional; por defeito deriva de {@link imageObjectFit}. */
   svgPreserveAspectRatio?: "xMidYMid meet" | "xMidYMid slice";
+  /** Salas principais do mapa → abre `CoursePanel` via seleção do curso. */
+  onOpenCampusCourse: (courseId: string) => void;
+  /** Abertura directa de aula no campus (ex.: slug Cannabis 101). */
+  onOpenCampusLesson: (courseId: string, lessonIndex: number) => void;
 };
 
 type MsgTone = "coming_soon" | "inactive" | "missing_course" | "missing_topic";
@@ -193,7 +199,9 @@ export function CampusMapInteractiveLayer({
   setPlayerLoose,
   sky,
   imageObjectFit,
-  svgPreserveAspectRatio
+  svgPreserveAspectRatio,
+  onOpenCampusCourse,
+  onOpenCampusLesson
 }: Props) {
   const router = useRouter();
   const { data: session } = useSession();
@@ -366,13 +374,14 @@ export function CampusMapInteractiveLayer({
         return;
       }
 
-      if (isCampusMapPrimaryCourseArea(hit.id)) {
+      if (isCampusMapPrimaryCourseArea(hit.id) && t.kind === "course") {
         const related = resolveCourseArea(hit);
         if (!related) {
           setDialog({ variant: "message", hit, messageTone: "missing_course" });
           return;
         }
-        useCampusHudStore.getState().setCampusMapHotspotPanelHitId(hit.id);
+        useCampusHudStore.getState().setCampusMapHotspotPanelHitId(null);
+        onOpenCampusCourse(t.courseId);
         return;
       }
       const topic = getCampusMapTopicByAreaId(hit.id);
@@ -386,12 +395,24 @@ export function CampusMapInteractiveLayer({
           setDialog({ variant: "message", hit, messageTone: "missing_course" });
           return;
         }
+        if (
+          hit.lessonSlug?.trim() &&
+          hit.target.kind === "course" &&
+          hit.target.courseId === CANNABIS101_AREA_ID
+        ) {
+          const lessonIdx = cannabis101StableIdToLessonIndex(hit.lessonSlug.trim());
+          if (lessonIdx !== null) {
+            useCampusHudStore.getState().setCampusMapHotspotPanelHitId(null);
+            onOpenCampusLesson(hit.target.courseId, lessonIdx);
+            return;
+          }
+        }
         useCampusHudStore.getState().setCampusMapHotspotPanelHitId(hit.id);
         return;
       }
       setDialog({ variant: "message", hit, messageTone: "missing_topic" });
     },
-    [router, setPlayerLoose, triggerHitFlash]
+    [router, setPlayerLoose, triggerHitFlash, onOpenCampusCourse, onOpenCampusLesson]
   );
 
   const handleHitFaceKeyDown = useCallback(
@@ -490,6 +511,9 @@ export function CampusMapInteractiveLayer({
 
             const hitFaceA11y = !mapDebugChrome && !mapInteractionsSuppressed;
             const hitTooltipTitle = hotspotDisplayLabel(hit);
+            /** Sala Cannabis 101: sem marcador SVG persistente — clique fica no polígono (visual cinematográfico). */
+            const suppressFloatingSvgMarker =
+              hit.target.kind === "course" && hit.target.courseId === CANNABIS101_AREA_ID;
 
             return primitiveArt.kind === "polygon" ? (
               <g
@@ -530,7 +554,7 @@ export function CampusMapInteractiveLayer({
                 >
                   {hitFaceA11y ? <title>{hitTooltipTitle}</title> : null}
                 </polygon>
-                {!mapDebugChrome ? (
+                {!mapDebugChrome && !suppressFloatingSvgMarker ? (
                   <CampusInteractiveHotspotMarker
                     cx={anchorArt.cx}
                     cy={Math.max(16, anchorArt.cy - 21)}
@@ -605,7 +629,7 @@ export function CampusMapInteractiveLayer({
                 >
                   {hitFaceA11y ? <title>{hitTooltipTitle}</title> : null}
                 </circle>
-                {!mapDebugChrome ? (
+                {!mapDebugChrome && !suppressFloatingSvgMarker ? (
                   <CampusInteractiveHotspotMarker
                     cx={primitiveArt.cx}
                     cy={Math.max(16, primitiveArt.cy - primitiveArt.r - 17)}

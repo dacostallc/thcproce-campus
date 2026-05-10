@@ -17,7 +17,7 @@ export const CAMPUS_IMAGE_OBJECT_POSITION = "center center";
 /** Mapa avançado (polígonos walk): preenche o palco — crop possível; overlays seguem o mesmo enquadramento. */
 export const CAMPUS_IMAGE_OBJECT_FIT = "cover";
 
-/** Mapa simples (`/campus` interactivo): arte 1536×1024 sempre visível, centrada (`object-fit: contain`). */
+/** Mapa simples interactivo: `contain` obrigatório — arte completa visível; mesmo encaixe que o SVG de hotspots. */
 export const CAMPUS_IMAGE_OBJECT_FIT_SIMPLE = "contain" as const;
 
 /** `viewBox` SVG alinhado à arte-base (user space = pixéis de referência da image-map). */

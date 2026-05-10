@@ -1,6 +1,6 @@
 /**
  * Música ambiente do campus — MP3 (ou WAV legacy) em `/public/audio/`.
- * Ficheiros em falta são ignorados após probe; playlist vazia = UI não renderiza crash.
+ * Ficheiros em falta são ignorados após probe (GET parcial + validação); playlist vazia = botão desactivado.
  */
 
 export type CampusHudAmbientTrack = {
@@ -26,21 +26,50 @@ const LS_LEGACY_MUTED = "thc-campus-ambient-muted";
 /** Volume reprodução (0–1), baixo por defeito. */
 export const CAMPUS_HUD_AMBIENT_DEFAULT_VOLUME = 0.12;
 
+function bufferLooksLikeHtml(buf: ArrayBuffer): boolean {
+  const v = new Uint8Array(buf);
+  let i = 0;
+  while (i < v.length && (v[i] === 9 || v[i] === 10 || v[i] === 13 || v[i] === 32)) i++;
+  if (i >= v.length) return false;
+  return v[i] === 0x3c; // '<' — páginas de erro Next/HTML
+}
+
+function asciiPrefix(v: Uint8Array, n: number): string {
+  let s = "";
+  for (let j = 0; j < Math.min(n, v.length); j++) s += String.fromCharCode(v[j]!);
+  return s;
+}
+
+function bufferLooksLikeBinaryAudio(buf: ArrayBuffer): boolean {
+  const v = new Uint8Array(buf);
+  if (v.length < 2) return false;
+  if (v[0] === 0xff && (v[1]! & 0xe0) === 0xe0) return true;
+  if (v.length >= 3 && v[0] === 0x49 && v[1] === 0x44 && v[2] === 0x33) return true;
+  if (v.length >= 12 && asciiPrefix(v, 4) === "RIFF") return true;
+  return false;
+}
+
+/**
+ * Verifica se o asset existe e parece áudio — um único GET parcial (menos 404 duplicados que HEAD+GET).
+ * Rejeita HTML de erro mesmo com status ambíguo.
+ */
 export async function campusHudAmbientProbeSrc(src: string): Promise<boolean> {
+  if (typeof window === "undefined") return false;
   try {
-    const head = await fetch(src, {
-      method: "HEAD",
-      cache: "force-cache",
-      referrerPolicy: "no-referrer"
-    });
-    if (head.ok) return true;
-    const get = await fetch(src, {
+    const url = new URL(src, window.location.origin).href;
+    const res = await fetch(url, {
       method: "GET",
-      cache: "force-cache",
       referrerPolicy: "no-referrer",
-      headers: { Range: "bytes=0-0" }
+      headers: { Range: "bytes=0-511" },
+      cache: "force-cache"
     });
-    return get.ok || get.status === 206;
+    if (!(res.ok || res.status === 206)) return false;
+    const buf = await res.arrayBuffer();
+    if (buf.byteLength === 0) return false;
+    if (bufferLooksLikeHtml(buf)) return false;
+    const ct = (res.headers.get("Content-Type") ?? "").split(";")[0].trim().toLowerCase();
+    if (ct.startsWith("audio/") || ct === "application/octet-stream") return true;
+    return bufferLooksLikeBinaryAudio(buf);
   } catch {
     return false;
   }

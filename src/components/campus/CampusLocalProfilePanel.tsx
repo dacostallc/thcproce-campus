@@ -1,11 +1,17 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect } from "react";
 import { CampusProfileForm } from "@/components/campus/CampusProfileForm";
 import { MissionRewardToast } from "@/components/campus/missions/MissionRewardToast";
 import { CAMPUS_HOME_PATH } from "@/config/siteUrls";
+import { completeCampusMissionPhase2IfNeeded } from "@/lib/campusMissionsPhase2Storage";
 
 export function CampusLocalProfilePanel() {
+  useEffect(() => {
+    completeCampusMissionPhase2IfNeeded("campus-p2-profile");
+  }, []);
+
   return (
     <main className="relative min-h-screen px-4 py-24 sm:px-6">
       <MissionRewardToast />

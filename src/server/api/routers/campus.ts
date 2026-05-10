@@ -16,7 +16,10 @@ import { moodleCourseIdForArea } from "@/lib/moodle/courseMap";
 import { signedBunnyStreamEmbedUrl } from "@/lib/bunny/signedEmbed";
 import { canOpenCampusCoursesWithPulse } from "@/lib/campusAccess";
 import { isCampusAdminEmail } from "@/lib/campusAdmin";
-import { getMergedLiveBroadcast } from "@/server/campusLiveSettings";
+import {
+  getMergedLiveBroadcast,
+  type MergedLiveBroadcast
+} from "@/server/campusLiveSettings";
 import { areaUsesMoodleLessonSnippet } from "@/content/courses";
 import { resolveCampusLessonDbContent } from "@/lib/campus/resolveCampusLessonDbContent";
 import { getPublishedQuizWithAnswers } from "@/lib/quiz/playable";
@@ -114,13 +117,12 @@ export const campusRouter = router({
     .query(({ input }) => loadCampusMapPointReaderPayload(input.mapPointId)),
 
   /** Live + URL do Cine — só variáveis públicas de ambiente (sem Prisma). */
-  liveBroadcast: publicProcedure.query(async () => {
+  liveBroadcast: publicProcedure.query(async (): Promise<MergedLiveBroadcast> => {
     try {
       return await getMergedLiveBroadcast();
     } catch (e) {
       console.warn("[campus] liveBroadcast: fallback", e);
-      const envUrl = (process.env.NEXT_PUBLIC_CAMPUS_LIVE_YOUTUBE_URL ?? "").trim();
-      return { liveActive: false, youtubeUrl: envUrl };
+      return await getMergedLiveBroadcast();
     }
   }),
 
@@ -144,11 +146,13 @@ export const campusRouter = router({
           message: "O link deve começar com http:// ou https://"
         });
       }
-      const envUrl = (process.env.NEXT_PUBLIC_CAMPUS_LIVE_YOUTUBE_URL ?? "").trim();
+      const merged = await getMergedLiveBroadcast();
+      const envUrl = merged.youtubeUrl;
       return {
+        ...merged,
         liveActive: input.liveActive,
         youtubeUrl: url || envUrl
-      };
+      } satisfies MergedLiveBroadcast;
     }),
 
   /** Lista cursos (Moodle se token + userId; senão mock da grade local). */

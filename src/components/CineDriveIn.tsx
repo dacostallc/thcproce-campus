@@ -2,9 +2,16 @@
 
 import dynamic from "next/dynamic";
 import { AnimatePresence, motion } from "framer-motion";
-import { X } from "lucide-react";
+import { Radio, Users, X } from "lucide-react";
+import { useMemo } from "react";
 import { useCampusStore } from "@/stores/campusStore";
-import { campusCineYoutubeUrlFromEnv } from "@/config/campusCinema";
+import { useCampusPresenceStore } from "@/stores/campusPresenceStore";
+import type { MergedLiveBroadcast } from "@/lib/campusLiveBroadcast";
+import {
+  deriveEffectiveCampusStreamState,
+  readMergedLiveBroadcastFromEnv,
+  resolveCampusPrimaryPlaybackUrl
+} from "@/lib/campusLiveBroadcast";
 
 const ReactPlayer = dynamic(() => import("react-player"), {
   ssr: false,
@@ -16,20 +23,81 @@ const ReactPlayer = dynamic(() => import("react-player"), {
 });
 
 type Props = {
-  youtubeUrl?: string;
+  /** Preferência: dados fundidos do tRPC `campus.liveBroadcast`; senão env público. */
+  liveBroadcast?: MergedLiveBroadcast | null;
 };
 
+function streamStateBadgePt(state: ReturnType<typeof deriveEffectiveCampusStreamState>): {
+  label: string;
+  className: string;
+} {
+  if (state === "live") {
+    return {
+      label: "Ao vivo",
+      className: "border-emerald-400/45 bg-emerald-950/55 text-emerald-100"
+    };
+  }
+  if (state === "scheduled") {
+    return {
+      label: "Programado",
+      className: "border-sky-400/40 bg-sky-950/45 text-sky-100"
+    };
+  }
+  return {
+    label: "Offline",
+    className: "border-white/15 bg-black/40 text-white/65"
+  };
+}
+
 /**
- * Cine THCProce: player grande ao topo para a live ocupar bem o ecrã; auditório permanece visível por baixo.
+ * Cine THCProce — player preparado para YouTube Live, HLS/Bunny e Mux;
+ * estados editoriais, chat placeholder e contagem aproximada de espectadores (presence).
  */
-export function CineDriveIn({ youtubeUrl }: Props) {
-  const url = youtubeUrl?.trim() || campusCineYoutubeUrlFromEnv();
+export function CineDriveIn({ liveBroadcast }: Props) {
+  const merged = useMemo(
+    () => liveBroadcast ?? readMergedLiveBroadcastFromEnv(),
+    [liveBroadcast]
+  );
+
+  const playbackUrl = resolveCampusPrimaryPlaybackUrl(merged);
+  const streamState = deriveEffectiveCampusStreamState(merged);
+  const badge = streamStateBadgePt(streamState);
+
   const isOpen = useCampusStore((s) => s.isCineOpen);
   const closeCineDriveIn = useCampusStore((s) => s.closeCineDriveIn);
   const auditoriumFull = useCampusStore((s) => s.cinemaAuditoriumFull);
   const cinemaSeatIndex = useCampusStore((s) => s.cinemaSeatIndex);
 
+  const peersObj = useCampusPresenceStore((s) => s.othersByUid);
+
+  const viewerApprox = useMemo(() => {
+    let n = 0;
+    for (const p of Object.values(peersObj)) {
+      if (p.inCinema) n++;
+    }
+    if (isOpen) n += 1;
+    return n;
+  }, [peersObj, isOpen]);
+
   const showStandingBanner = auditoriumFull && cinemaSeatIndex === null;
+
+  const scheduledLabel = useMemo(() => {
+    if (!merged.scheduledStartIso) return null;
+    try {
+      const d = new Date(merged.scheduledStartIso);
+      if (Number.isNaN(d.getTime())) return merged.scheduledStartIso;
+      return new Intl.DateTimeFormat("pt-BR", {
+        dateStyle: "medium",
+        timeStyle: "short"
+      }).format(d);
+    } catch {
+      return merged.scheduledStartIso;
+    }
+  }, [merged.scheduledStartIso]);
+
+  const useIframeEmbed =
+    typeof playbackUrl === "string" &&
+    playbackUrl.includes("iframe.mediadelivery.net/embed");
 
   return (
     <AnimatePresence>
@@ -55,7 +123,6 @@ export function CineDriveIn({ youtubeUrl }: Props) {
             onClick={() => closeCineDriveIn()}
           />
 
-          {/* Camada principal: verde / branco pulsando (simula variações do telão) */}
           <motion.div
             className="pointer-events-none fixed left-1/2 top-[6%] z-[25] block h-[min(58vh,620px)] w-[min(99vw,1420px)] -translate-x-1/2 md:h-[min(62vh,700px)]"
             aria-hidden
@@ -180,34 +247,92 @@ export function CineDriveIn({ youtubeUrl }: Props) {
                 Cine THCProce — transmissão ao vivo
               </h2>
 
-              <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-white/12 bg-black/18">
-                {url ? (
-                  <div className="relative flex min-h-[min(48vh,460px)] flex-1 flex-col overflow-hidden [&_.react-player]:!absolute [&_.react-player]:!left-0 [&_.react-player]:!top-0 [&_.react-player]:!h-full [&_.react-player]:!w-full [&_iframe]:!h-full [&_iframe]:!w-full">
-                    <ReactPlayer
-                      url={url}
-                      width="100%"
-                      height="100%"
-                      controls
-                      playing={isOpen}
-                      config={{
-                        youtube: {
-                          playerVars: { autoplay: 1, modestbranding: 1 }
-                        }
-                      }}
+              <div className="mb-2 flex flex-wrap items-center justify-between gap-2 pr-10">
+                <span
+                  className={`inline-flex items-center gap-1 rounded-lg border px-2 py-1 text-[10px] font-bold uppercase tracking-[0.14em] ${badge.className}`}
+                >
+                  <Radio size={12} aria-hidden />
+                  {badge.label}
+                </span>
+                <span className="inline-flex items-center gap-1 rounded-lg border border-white/12 bg-black/35 px-2 py-1 text-[10px] font-semibold text-white/75">
+                  <Users size={12} className="text-canna-200/90" aria-hidden />
+                  ~{viewerApprox} espectadores
+                </span>
+              </div>
+              {scheduledLabel && streamState !== "live" ? (
+                <p className="mb-2 text-center text-[10px] text-white/55">
+                  Próxima janela anunciada: <span className="text-canna-100/90">{scheduledLabel}</span>
+                </p>
+              ) : null}
+
+              <div className="relative grid min-h-0 flex-1 grid-cols-1 gap-2 overflow-hidden md:grid-cols-[1fr_min(28%,240px)]">
+                <div className="relative flex min-h-0 flex-col overflow-hidden rounded-xl border border-white/12 bg-black/18">
+                  {playbackUrl ? (
+                    useIframeEmbed ? (
+                      <iframe
+                        title="Transmissão Bunny Stream"
+                        src={playbackUrl}
+                        className="min-h-[min(48vh,460px)] w-full flex-1 rounded-lg border-0 bg-black"
+                        allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;"
+                        allowFullScreen
+                      />
+                    ) : (
+                      <div className="relative flex min-h-[min(48vh,460px)] flex-1 flex-col overflow-hidden [&_.react-player]:!absolute [&_.react-player]:!left-0 [&_.react-player]:!top-0 [&_.react-player]:!h-full [&_.react-player]:!w-full [&_iframe]:!h-full [&_iframe]:!w-full">
+                        <ReactPlayer
+                          url={playbackUrl}
+                          width="100%"
+                          height="100%"
+                          controls
+                          playing={isOpen && streamState === "live"}
+                          config={{
+                            youtube: {
+                              playerVars: { autoplay: 1, modestbranding: 1 }
+                            },
+                            file: { attributes: { controlsList: "nodownload" } }
+                          }}
+                        />
+                      </div>
+                    )
+                  ) : (
+                    <div className="flex flex-1 flex-col items-center justify-center gap-2 px-4 py-10 text-center">
+                      <p className="text-sm font-semibold text-canna-200">
+                        Nenhuma transmissão configurada
+                      </p>
+                      <p className="max-w-sm text-xs text-white/65">
+                        Configure{" "}
+                        <code className="rounded bg-white/10 px-1 py-px font-mono text-[10px]">
+                          NEXT_PUBLIC_CAMPUS_LIVE_YOUTUBE_URL
+                        </code>
+                        ,{" "}
+                        <code className="rounded bg-white/10 px-1 py-px font-mono text-[10px]">
+                          NEXT_PUBLIC_CAMPUS_STREAM_HLS_URL
+                        </code>{" "}
+                        ou embed Bunny/Mux nas variáveis públicas do deploy.
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                <div className="pointer-events-auto flex max-h-[220px] min-h-[140px] flex-col rounded-xl border border-white/10 bg-black/25 md:max-h-none">
+                  <p className="border-b border-white/[0.07] px-2 py-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-white/45">
+                    Chat ao vivo (placeholder)
+                  </p>
+                  <div className="flex flex-1 flex-col gap-2 p-2">
+                    <div className="flex-1 overflow-hidden rounded-lg bg-black/30 px-2 py-2 text-[10px] leading-relaxed text-white/40">
+                      Mensagens em tempo real ligam ao backend depois — canal único por sala/live.
+                    </div>
+                    <label className="sr-only" htmlFor="cine-chat-placeholder">
+                      Mensagem
+                    </label>
+                    <textarea
+                      id="cine-chat-placeholder"
+                      rows={2}
+                      disabled
+                      placeholder="Em breve: enviar mensagem…"
+                      className="resize-none rounded-lg border border-white/10 bg-black/35 px-2 py-1.5 text-[11px] text-white/55 placeholder:text-white/30"
                     />
                   </div>
-                ) : (
-                  <div className="flex flex-1 flex-col items-center justify-center gap-2 px-4 py-10 text-center">
-                    <p className="text-sm font-semibold text-canna-200">
-                      Nenhuma transmissão configurada
-                    </p>
-                    <p className="max-w-sm text-xs text-white/65">
-                      Um administrador pode configurar o link no campus (ícone{" "}
-                      <span className="text-canna-200">Live</span> na barra) ou no deploy com a variável
-                      pública do YouTube.
-                    </p>
-                  </div>
-                )}
+                </div>
               </div>
 
               {showStandingBanner ? (
@@ -223,8 +348,7 @@ export function CineDriveIn({ youtubeUrl }: Props) {
                 Assentos e avatares abaixo continuam sincronizados
               </p>
               <p className="mt-1 text-center text-[10px] text-white/42">
-                Reações (mapa ou aqui):{" "}
-                <span className="text-white/62">1</span>
+                Reações (mapa ou aqui): <span className="text-white/62">1</span>
                 {" · "}
                 <span aria-hidden className="text-white/82">
                   🔥{" "}

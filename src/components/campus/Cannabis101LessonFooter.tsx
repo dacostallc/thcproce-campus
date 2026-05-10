@@ -1,9 +1,6 @@
 "use client";
 
-import Link from "next/link";
-
-import { CAMPUS_HOME_PATH } from "@/config/siteUrls";
-import { GraduationCap, Leaf, MessageCircle, Headphones } from "lucide-react";
+import { Leaf } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 import type { AreaColor } from "@/data/courses";
@@ -99,37 +96,8 @@ export function Cannabis101LessonFooter({
         </div>
       </div>
 
-      <div className="hidden items-center gap-1 sm:flex">
-        <Link
-          href={CAMPUS_HOME_PATH}
-          className={cn(
-            "rounded-lg p-2 text-white/50 transition hover:bg-white/5",
-            F.linkHover
-          )}
-          aria-label="Campus"
-        >
-          <MessageCircle className="size-4" />
-        </Link>
-        <a
-          href="mailto:procbd@icloud.com"
-          className={cn(
-            "rounded-lg p-2 text-white/50 transition hover:bg-white/5",
-            F.linkHover
-          )}
-          aria-label="Suporte por e-mail"
-        >
-          <Headphones className="size-4" />
-        </a>
-        <Link
-          href="/planos"
-          className={cn(
-            "rounded-lg p-2 text-white/50 transition hover:bg-white/5",
-            F.linkHover
-          )}
-          aria-label="Planos e certificação"
-        >
-          <GraduationCap className="size-4" />
-        </Link>
+      <div className="hidden text-[10px] text-white/38 sm:block">
+        Modo leitura no campus — sem links externos neste rodapé.
       </div>
 
       <div className="text-right leading-tight">

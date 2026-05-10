@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef } from "react";
+import { usePathname } from "next/navigation";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 import {
   CAMPUS_PRESENCE_MOVE_FLUSH_MS,
@@ -18,10 +19,16 @@ import {
 } from "@/lib/campusAdminBroadcast";
 import { getCampusPresenceUid } from "@/lib/campusPresenceId";
 import {
+  deriveLocalCampusActivity,
+  coerceCampusActivityKind,
+  inferCampusActivityFromLegacyPayload
+} from "@/lib/campusPresenceActivity";
+import {
   registerCampusRealtimeFlush,
   unregisterCampusRealtimeFlush
 } from "@/lib/campusRealtimeFlush";
 import { useCampusPresenceStore } from "@/stores/campusPresenceStore";
+import { useCampusHudStore } from "@/stores/campusHudStore";
 import { useCampusStore } from "@/stores/campusStore";
 
 /** Ative Presence (recom.). Desative só se o projeto ainda só usar broadcast legacy: `NEXT_PUBLIC_SUPABASE_DISABLE_PRESENCE=true`. */
@@ -79,6 +86,11 @@ function parseRealtimePayload(row: unknown): CampusRealtimePayload | null {
     adminBroadcastAt = Math.round(abAt);
   }
 
+  const inCinema = Boolean(o.inCinema);
+  const campusActivity =
+    coerceCampusActivityKind(o.campusActivity) ??
+    inferCampusActivityFromLegacyPayload(inCinema);
+
   return {
     uid,
     x: Number(o.x) || 0,
@@ -88,7 +100,7 @@ function parseRealtimePayload(row: unknown): CampusRealtimePayload | null {
     levelLabel,
     xpTotal,
     at: Number(o.at) || 0,
-    inCinema: Boolean(o.inCinema),
+    inCinema,
     cinemaSeatIndex: seatOk ? Math.floor(ci) : null,
     avatarPosture: o.avatarPosture === "sit" ? "sit" : "stand",
     lastEmoji,
@@ -96,7 +108,8 @@ function parseRealtimePayload(row: unknown): CampusRealtimePayload | null {
     campusRole,
     memberSinceIso,
     adminBroadcastText,
-    adminBroadcastAt
+    adminBroadcastAt,
+    campusActivity
   };
 }
 
@@ -134,6 +147,10 @@ export function CampusPresenceSync({
   campusRole,
   memberSinceIso
 }: Props) {
+  const pathname = usePathname() ?? "";
+  const pathnameRef = useRef(pathname);
+  pathnameRef.current = pathname;
+
   const supa = useMemo(() => createSupabaseBrowser(), []);
   const uid = useMemo(() => getCampusPresenceUid(), []);
   const warnedMissingSupabaseRef = useRef(false);
@@ -204,6 +221,16 @@ export function CampusPresenceSync({
           : null;
 
       const role = campusRoleRef.current;
+      const hud = useCampusHudStore.getState();
+      const campusActivity = deriveLocalCampusActivity({
+        pathname: pathnameRef.current,
+        isCineOpen: cinemaOpenRef.current,
+        lessonPanelOpen: hud.campusLessonPanelOpen,
+        muralOpen: hud.muralOpen,
+        muralFeedOpen: hud.campusMapMuralFeedOpen,
+        campusStoreOpen: hud.campusStoreOpen
+      });
+
       const localAb = cx.adminBroadcast;
       let adminBroadcastText: string | null = null;
       let adminBroadcastAt = 0;
@@ -237,7 +264,8 @@ export function CampusPresenceSync({
         campusRole: role,
         memberSinceIso: ms,
         adminBroadcastText,
-        adminBroadcastAt
+        adminBroadcastAt,
+        campusActivity
       };
     };
 
@@ -425,7 +453,8 @@ export function CampusPresenceSync({
         campusRole: raw?.campusRole,
         memberSinceIso: raw?.memberSinceIso,
         adminBroadcastText: raw?.adminBroadcastText,
-        adminBroadcastAt: raw?.adminBroadcastAt
+        adminBroadcastAt: raw?.adminBroadcastAt,
+        campusActivity: raw?.campusActivity
       });
       if (!p?.uid || p.uid === uid) return;
 

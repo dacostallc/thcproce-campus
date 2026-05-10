@@ -4,12 +4,15 @@ import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { AvatarSelector } from "@/components/campus/AvatarSelector";
-import { StudentInventory } from "@/components/campus/StudentInventory";
+import { CampusMissionsPhase2Panel } from "@/components/campus/missions/CampusMissionsPhase2Panel";
+import { CampusProfileAcademicTab } from "@/components/campus/CampusProfileAcademicTab";
+import { CampusProfileInventoryTab } from "@/components/campus/CampusProfileInventoryTab";
 import { StudentMissionsPanel } from "@/components/campus/missions/StudentMissionsPanel";
 import { StudentProfileCard } from "@/components/campus/StudentProfileCard";
 import { Button } from "@/components/ui/button";
 import { areas } from "@/data/courses";
 import { useCampusProgressClient } from "@/hooks/useCampusProgressClient";
+import { useClientHydrated } from "@/hooks/useClientHydrated";
 import { cn } from "@/lib/utils";
 import {
   computeLocalCoursePctFromMarks,
@@ -29,14 +32,17 @@ import {
   type AvatarVisualRarity
 } from "@/lib/studentAvatarVisualMockCatalog";
 import { getStudentTitleForProfile } from "@/lib/studentTitleCatalog";
-import { loadStudentProfile, saveStudentProfile } from "@/lib/studentGamificationStorage";
+import {
+  loadStudentProfile,
+  saveStudentProfile,
+  DEFAULT_LOCAL_STUDENT_DISPLAY_NAME,
+  studentProfilePerfilHydrationPlaceholder
+} from "@/lib/studentGamificationStorage";
 
-const BADGE_LABELS: Record<string, string> = {
-  first_lesson: "Primeira aula concluída",
-  tour_guide: "Tour do campus completo"
-};
+/** Nomes locais ainda «genéricos» — permitem herdar o nome da conta ao iniciar sessão. */
+const PROFILE_NAME_SESSION_MERGE_DEFAULTS = new Set(["Visitante campus", DEFAULT_LOCAL_STUDENT_DISPLAY_NAME]);
 
-const DEFAULT_DISPLAY = "Visitante campus";
+const DEFAULT_DISPLAY = DEFAULT_LOCAL_STUDENT_DISPLAY_NAME;
 
 export type CampusProfileFormDensity = "page" | "modal";
 
@@ -46,14 +52,16 @@ type CampusProfileFormProps = {
   afterSections?: React.ReactNode;
 };
 
-function courseRowsForProfile(campus: CampusProgress) {
+function courseRowsForProfile(campus: CampusProgress, hydrated: boolean) {
   const seen = new Map<string, number>();
   for (const [id, row] of Object.entries(campus.courseProgressPct)) {
     seen.set(id, row.pct);
   }
   const fromMarks = [...areas].map((a) => {
     const cached = seen.get(a.id);
-    const pct = cached != null ? cached : computeLocalCoursePctFromMarks(a.id);
+    if (cached != null) return { id: a.id, name: a.name, pct: cached };
+    if (!hydrated) return { id: a.id, name: a.name, pct: 0 };
+    const pct = computeLocalCoursePctFromMarks(a.id);
     return { id: a.id, name: a.name, pct };
   });
   return fromMarks.sort((x, y) => y.pct - x.pct);
@@ -65,12 +73,20 @@ export function CampusProfileForm({
 }: CampusProfileFormProps) {
   const { data: session, status } = useSession();
   const g = useStudentGamification();
+  const hydrated = useClientHydrated();
+  const gUi = useMemo(
+    () => (hydrated ? g : studentProfilePerfilHydrationPlaceholder()),
+    [hydrated, g]
+  );
   const campus = useCampusProgressClient();
   const [nameDraft, setNameDraft] = useState(g.displayName);
   const showCampusLocalResetTools = isCampusLocalProgressResetAllowed(
     isCampusAdminEmail(session?.user?.email ?? null)
   );
   const isModal = density === "modal";
+  const [profileMainTab, setProfileMainTab] = useState<"overview" | "inventory" | "academic">(
+    "overview"
+  );
 
   useEffect(() => {
     setNameDraft(g.displayName);
@@ -80,7 +96,7 @@ export function CampusProfileForm({
     const n = session?.user?.name?.trim();
     if (!n) return;
     const cur = loadStudentProfile();
-    if (cur.displayName !== DEFAULT_DISPLAY) return;
+    if (!PROFILE_NAME_SESSION_MERGE_DEFAULTS.has(cur.displayName)) return;
     saveStudentProfile({ displayName: n.slice(0, 80) });
   }, [session?.user?.name]);
 
@@ -90,10 +106,13 @@ export function CampusProfileForm({
     saveStudentProfile({ displayName: trimmed });
   }, [nameDraft]);
 
-  const displayNameResolved = g.displayName.trim() || DEFAULT_DISPLAY;
-  const studentTitle = useMemo(() => getStudentTitleForProfile(g).label, [g.xp]);
+  const displayNameResolved = gUi.displayName.trim() || DEFAULT_DISPLAY;
+  const studentTitle = useMemo(() => getStudentTitleForProfile(gUi).label, [gUi.xp]);
   const email = session?.user?.email?.trim() ?? null;
-  const courseRows = useMemo(() => courseRowsForProfile(campus), [campus]);
+  const emailForCard = hydrated ? email : null;
+  const accountHintForCard =
+    hydrated && status === "authenticated" ? ("authenticated" as const) : ("guest" as const);
+  const courseRows = useMemo(() => courseRowsForProfile(campus, hydrated), [campus, hydrated]);
 
   const cardShell = isModal
     ? "rounded-xl campus-hud-glass border-white/12 bg-white/[0.03] p-4"
@@ -109,20 +128,78 @@ export function CampusProfileForm({
             compact={isModal}
             displayName={displayNameResolved}
             studentTitle={studentTitle}
-            email={email}
-            accountHint={status === "authenticated" ? "authenticated" : "guest"}
-            avatarVariant={g.avatarVariant}
-            visualCosmetics={g.visualCosmeticsV1}
-            xp={g.xp}
-            credits={g.credits}
-            badgeCount={g.badges.length}
-            souvenirUnlockedCount={g.unlockedSouvenirs.length}
-            bonusInventoryCount={g.bonusInventoryIds.length}
-            helpfulPoints={g.helpfulPoints}
-            communityRank={g.communityRank}
-            mentorLevel={g.mentorLevel}
+            email={emailForCard}
+            accountHint={accountHintForCard}
+            avatarVariant={gUi.avatarVariant}
+            visualCosmetics={gUi.visualCosmeticsV1}
+            xp={gUi.xp}
+            credits={gUi.credits}
+            badgeCount={gUi.badges.length}
+            souvenirUnlockedCount={gUi.unlockedSouvenirs.length}
+            bonusInventoryCount={gUi.bonusInventoryIds.length}
+            helpfulPoints={gUi.helpfulPoints}
+            communityRank={gUi.communityRank}
+            mentorLevel={gUi.mentorLevel}
           />
 
+          <div
+            className={cn(
+              "flex gap-1 rounded-xl border border-white/12 bg-black/20 p-1",
+              isModal && "rounded-lg"
+            )}
+            role="tablist"
+            aria-label="Secções do perfil local"
+          >
+            <button
+              type="button"
+              role="tab"
+              aria-selected={profileMainTab === "overview"}
+              onClick={() => setProfileMainTab("overview")}
+              className={cn(
+                "flex-1 rounded-lg px-2 py-2 text-[11px] font-semibold transition sm:text-xs",
+                profileMainTab === "overview"
+                  ? "bg-canna-500/25 text-canna-50"
+                  : "text-white/55 hover:bg-white/[0.06] hover:text-white/85"
+              )}
+            >
+              Perfil
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={profileMainTab === "inventory"}
+              onClick={() => setProfileMainTab("inventory")}
+              className={cn(
+                "flex-1 rounded-lg px-2 py-2 text-[11px] font-semibold transition sm:text-xs",
+                profileMainTab === "inventory"
+                  ? "bg-emerald-500/22 text-emerald-50"
+                  : "text-white/55 hover:bg-white/[0.06] hover:text-white/85"
+              )}
+            >
+              Inventário
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={profileMainTab === "academic"}
+              onClick={() => setProfileMainTab("academic")}
+              className={cn(
+                "flex-1 rounded-lg px-2 py-2 text-[11px] font-semibold transition sm:text-xs",
+                profileMainTab === "academic"
+                  ? "bg-sky-500/22 text-sky-50"
+                  : "text-white/55 hover:bg-white/[0.06] hover:text-white/85"
+              )}
+            >
+              Histórico
+            </button>
+          </div>
+
+          {profileMainTab === "inventory" ? (
+            <CampusProfileInventoryTab density={isModal ? "modal" : "page"} hydrated={hydrated} />
+          ) : profileMainTab === "academic" ? (
+            <CampusProfileAcademicTab density={isModal ? "modal" : "page"} hydrated={hydrated} />
+          ) : (
+            <>
           <div className={cn(cardShell)}>
             {!isModal ? (
               <>
@@ -159,12 +236,15 @@ export function CampusProfileForm({
                 Guardar
               </Button>
             </div>
-            <div className="mt-6">
-              <AvatarSelector compact={isModal} value={g.avatarVariant} />
+            <div
+              className={cn("mt-6", !hydrated && "pointer-events-none opacity-90")}
+              aria-busy={!hydrated}
+            >
+              <AvatarSelector compact={isModal} value={gUi.avatarVariant} />
             </div>
           </div>
 
-          {showCampusLocalResetTools ? (
+          {showCampusLocalResetTools && hydrated ? (
             <div className={cn(cardShell)}>
               <h2 className="text-sm font-semibold text-white">Ajustes avançados do avatar (campo de testes)</h2>
               <p className="mt-1 text-xs text-white/45">
@@ -270,7 +350,7 @@ export function CampusProfileForm({
             </div>
           ) : null}
 
-          {showCampusLocalResetTools ? (
+          {showCampusLocalResetTools && hydrated ? (
             <div className={cn(cardShell)}>
               <h2 className="text-sm font-semibold text-white">Reputação (campos de pré-visualização)</h2>
             <p className="mt-1 text-xs text-white/45">
@@ -356,37 +436,12 @@ export function CampusProfileForm({
           </div>
 
           <div className={cn(cardShell)}>
-            <h2 className="text-sm font-semibold text-white">Insígnias no campus</h2>
-            <p className="mt-1 text-xs text-white/45">Atribuídas por eventos no campus (neste dispositivo).</p>
-            <div className="mt-4 flex flex-wrap gap-2">
-              {g.badges.length === 0 ? (
-                <p className="text-sm leading-relaxed text-white/56">
-                  Ainda sem conquistas aqui — completa uma primeira aula, abre missões ou finaliza o tour para
-                  aparecerem as primeiras insígnias.
-                </p>
-              ) : (
-                g.badges.map((id) => (
-                  <div
-                    key={id}
-                    className="rounded-lg border border-canna-400/20 bg-canna-500/[0.06] px-3 py-2 text-left"
-                  >
-                    {showCampusLocalResetTools ? (
-                      <span className="font-mono text-[9px] text-white/35">{id}</span>
-                    ) : null}
-                    <p className="text-sm text-white/90">{BADGE_LABELS[id] ?? id}</p>
-                  </div>
-                ))
-              )}
-            </div>
-            <p className="mt-4 text-[10px] text-white/35">
-              No futuro, insígnias da escola podem sincronizar com a conta — por agora ficam apenas neste
-              navegador.
-            </p>
+            <CampusMissionsPhase2Panel variant={isModal ? "compact" : "default"} title="Missões do campus · Fase 2" />
           </div>
 
-          <div className={cn(cardShell)}>
-            <StudentInventory density={density} />
-          </div>
+            </>
+          )}
+
         </div>
       </div>
 

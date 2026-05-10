@@ -31,6 +31,10 @@ const config: Config = {
         sans: ["Inter", "ui-sans-serif", "system-ui", "sans-serif"],
         display: ["Inter", "ui-sans-serif", "system-ui", "sans-serif"]
       },
+      transitionTimingFunction: {
+        "campus-out": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "campus-in-out": "cubic-bezier(0.45, 0, 0.55, 1)"
+      },
       keyframes: {
         pulseGlow: {
           "0%, 100%": { boxShadow: "0 0 0 0 rgba(74,222,128,0.6)" },
@@ -103,6 +107,14 @@ const config: Config = {
         hudToastIn: {
           "0%": { opacity: "0", transform: "translate3d(6px,4px,0)" },
           "100%": { opacity: "1", transform: "translate3d(0,0,0)" }
+        },
+        campusSkeletonPulse: {
+          "0%, 100%": { opacity: "0.38" },
+          "50%": { opacity: "0.62" }
+        },
+        campusToastShimmer: {
+          "0%": { transform: "translateX(-120%)" },
+          "100%": { transform: "translateX(120%)" }
         }
       },
       animation: {
@@ -122,7 +134,9 @@ const config: Config = {
         vivoDroneCrawl: "vivoDroneCrawl 58s linear infinite",
         vivoZonePulse: "vivoZonePulse 8.5s ease-in-out infinite",
         vivoTicker: "vivoTicker 46s linear infinite",
-        hudToastIn: "hudToastIn 380ms ease-out both"
+        hudToastIn: "hudToastIn 380ms ease-out both",
+        campusSkeletonPulse: "campusSkeletonPulse 1.8s ease-in-out infinite",
+        campusToastShimmer: "campusToastShimmer 2.8s ease-in-out infinite"
       }
     }
   },

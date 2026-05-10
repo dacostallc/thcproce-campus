@@ -86,6 +86,14 @@ export function CampusHudAmbientMusic() {
     setMuted(mu);
   }, [ready, tracks.length]);
 
+  /** Sem faixas válidas: não restaurar autoplay nem manter intent que dispara `<audio>`. */
+  useEffect(() => {
+    if (!ready || tracks.length > 0) return;
+    resumeAttemptedRef.current = false;
+    writeCampusHudAmbientPlayingIntent(false);
+    setPlaying(false);
+  }, [ready, tracks.length]);
+
   useEffect(() => {
     if (!panelOpen) return;
     const onDown = (e: MouseEvent) => {
@@ -175,7 +183,7 @@ export function CampusHudAmbientMusic() {
     writeCampusHudAmbientTrackIndex(trackIndex);
   }, [trackIndex, tracks.length]);
 
-  /** Uma tentativa ao ficar pronto: restaurar sessão se LS indicar reprodução e o browser permitir. */
+  /** Uma tentativa ao ficar pronto: só se existir faixa verificada + intent guardado. */
   useEffect(() => {
     if (!ready || tracks.length === 0 || !current) return;
     if (!readCampusHudAmbientPlayingIntent()) return;
@@ -186,6 +194,7 @@ export function CampusHudAmbientMusic() {
     const id = window.requestAnimationFrame(() => {
       void el.play().catch(() => {
         writeCampusHudAmbientPlayingIntent(false);
+        setPlaying(false);
       });
     });
     return () => cancelAnimationFrame(id);
@@ -266,7 +275,7 @@ export function CampusHudAmbientMusic() {
 
   return (
     <>
-      <audio ref={audioRef} preload="metadata" playsInline className="hidden" aria-hidden />
+      <audio ref={audioRef} preload="none" playsInline className="hidden" aria-hidden />
       <div className="pointer-events-auto relative" ref={wrapRef}>
         <button
           type="button"

@@ -86,7 +86,7 @@ export function CampusStoreItemCard({
     compactLayout || layout.density === "compact" ? "text-[13px]" : "text-sm";
 
   const showPurchase = layout.showPurchase && !owned && canPurchaseWithCredits;
-  const showEquip = owned && !equipped;
+  const showEquip = owned && !equipped && Boolean(onEquip);
   const inventoryUnequip = layout.showUnequip && equipped && Boolean(onUnequip);
 
   return (

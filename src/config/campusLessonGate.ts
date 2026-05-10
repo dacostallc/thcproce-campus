@@ -52,11 +52,12 @@ export function getCampusLessonGate(
   areaId: string,
   index: number,
   total: number,
-  doneSet: Set<number>
+  doneSet: Set<number>,
+  visitedSet: Set<number> = new Set()
 ): LessonGateStatus {
   const courseGate = getCourseGate(areaId);
   if (courseGate) {
-    return courseGate.getLessonGate(index, total, doneSet);
+    return courseGate.getLessonGate(index, total, doneSet, visitedSet);
   }
   const published = getPublishedLessonCountForCourse(areaId, total);
   if (index >= published) return "soon";
@@ -64,6 +65,7 @@ export function getCampusLessonGate(
   const sequential = isSequentialLockGlobal();
 
   if (sequential && index > 0 && !doneSet.has(index - 1)) return "locked";
-  if (doneSet.has(index)) return "seen";
+  if (doneSet.has(index)) return "completed";
+  if (visitedSet.has(index)) return "visited";
   return "available";
 }

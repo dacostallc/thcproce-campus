@@ -55,6 +55,9 @@ type HudState = {
   /** Pedido vindo do HUD móvel para retomar a última aula (consumido por `CampusMap`). */
   campusResumeLessonNonce: number;
   requestCampusResumeLesson: () => void;
+  /** Painel de aula aberto no mapa — sincronizado por `CampusMap` para presença realtime. */
+  campusLessonPanelOpen: boolean;
+  setCampusLessonPanelOpen: (v: boolean) => void;
 };
 
 export const useCampusHudStore = create<HudState>((set) => ({
@@ -107,5 +110,7 @@ export const useCampusHudStore = create<HudState>((set) => ({
   setCampusMissionsOpen: (campusMissionsOpen) => set({ campusMissionsOpen }),
   campusResumeLessonNonce: 0,
   requestCampusResumeLesson: () =>
-    set((s) => ({ campusResumeLessonNonce: s.campusResumeLessonNonce + 1 }))
+    set((s) => ({ campusResumeLessonNonce: s.campusResumeLessonNonce + 1 })),
+  campusLessonPanelOpen: false,
+  setCampusLessonPanelOpen: (campusLessonPanelOpen) => set({ campusLessonPanelOpen })
 }));

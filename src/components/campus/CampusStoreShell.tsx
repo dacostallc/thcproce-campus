@@ -14,6 +14,7 @@ import {
 import {
   equipCampusInventoryItem,
   equipErrorMessagePt,
+  isCampusInventoryItemEquippable,
   isCampusStoreItemEquipped,
   isCampusStoreItemOwned,
   isSouvenirEarnedOrOwned,
@@ -168,7 +169,9 @@ export function CampusStoreShell({ density = "page", className }: CampusStoreShe
                     ? undefined
                     : "Itens extra — podem surgir quando o teu progresso estiver sincronizado com a escola."
                 }
-                onEquip={() => tryEquip(meta.id)}
+                onEquip={
+                  isCampusInventoryItemEquippable(meta.id) ? () => tryEquip(meta.id) : undefined
+                }
               />
             );
           })}
@@ -192,11 +195,17 @@ export function CampusStoreShell({ density = "page", className }: CampusStoreShe
                 statusHint={
                   meta.mapsToAvatarVariant
                     ? "Equipar altera o teu visual no campus neste dispositivo."
-                    : undefined
+                    : meta.equippable === false
+                      ? "Colecção — compra com créditos locais."
+                      : undefined
                 }
                 presentation={cardPresentation}
                 onBuy={() => tryBuy(meta.id)}
-                onEquip={() => tryEquip(meta.id)}
+                onEquip={
+                  owned && isCampusInventoryItemEquippable(meta.id)
+                    ? () => tryEquip(meta.id)
+                    : undefined
+                }
               />
             );
           })}

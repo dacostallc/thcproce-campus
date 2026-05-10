@@ -12,6 +12,7 @@ import {
 import {
   equipCampusInventoryItem,
   equipErrorMessagePt,
+  isCampusInventoryItemEquippable,
   isCampusStoreItemEquipped,
   isSouvenirEarnedOrOwned,
   unequipCampusInventoryItem
@@ -24,13 +25,20 @@ import {
   type InventoryCategory
 } from "@/lib/studentGamificationMockCatalog";
 import { cn } from "@/lib/utils";
-import { SOUVENIR_CATALOG, type SouvenirMeta, type StudentProfile } from "@/lib/studentGamificationStorage";
+import {
+  SOUVENIR_CATALOG,
+  studentProfilePerfilHydrationPlaceholder,
+  type SouvenirMeta,
+  type StudentProfile
+} from "@/lib/studentGamificationStorage";
 import { useStudentGamification } from "@/hooks/useStudentGamification";
 
 type Density = "modal" | "page";
 
 type StudentInventoryProps = {
   density?: Density;
+  /** Predefinição `true`. Em `/campus/perfil` usar `useClientHydrated()`. */
+  hydrated?: boolean;
 };
 
 type InvRow =
@@ -69,6 +77,9 @@ function collectOwnedInventoryByCategory(profile: StudentProfile): Map<Inventory
 }
 
 function originForRow(row: InvRow): string {
+  const id = rowId(row);
+  if (id.startsWith("p3-drop-")) return "Missão / evento do campus";
+  if (id.startsWith("p3-cert-")) return "Curso completo (progresso local)";
   switch (row.kind) {
     case "souvenir":
       return "Ganhou no curso (neste navegador)";
@@ -88,8 +99,12 @@ function rowId(row: InvRow): string {
 /**
  * Inventário do perfil — só **itens já possuídos**; mesmo `campusStoreClient` da Loja para equip/desequip.
  */
-export function StudentInventory({ density = "page" }: StudentInventoryProps) {
-  const g = useStudentGamification();
+export function StudentInventory({ density = "page", hydrated = true }: StudentInventoryProps) {
+  const gLive = useStudentGamification();
+  const snapshot = useMemo(
+    () => (hydrated ? gLive : studentProfilePerfilHydrationPlaceholder()),
+    [hydrated, gLive]
+  );
   const compact = density === "modal";
   const [banner, setBanner] = useState<string | null>(null);
 
@@ -98,7 +113,7 @@ export function StudentInventory({ density = "page" }: StudentInventoryProps) {
     window.setTimeout(() => setBanner(null), 3800);
   }, []);
 
-  const byCategory = useMemo(() => collectOwnedInventoryByCategory(g), [g]);
+  const byCategory = useMemo(() => collectOwnedInventoryByCategory(snapshot), [snapshot]);
   const totalOwned = useMemo(
     () => [...byCategory.values()].reduce((acc, rows) => acc + rows.length, 0),
     [byCategory]
@@ -116,7 +131,8 @@ export function StudentInventory({ density = "page" }: StudentInventoryProps) {
 
   const renderRow = (row: InvRow) => {
     const id = rowId(row);
-    const equipped = isCampusStoreItemEquipped(g, id);
+    const equippable = row.kind === "souvenir" ? true : isCampusInventoryItemEquippable(id);
+    const equipped = equippable && isCampusStoreItemEquipped(snapshot, id);
     const origin = originForRow(row);
 
     return (
@@ -134,8 +150,9 @@ export function StudentInventory({ density = "page" }: StudentInventoryProps) {
         insufficientCredits={false}
         presentation="inventory"
         compactLayout={compact}
-        onEquip={() => tryEquip(id)}
-        onUnequip={equipped ? () => tryUnequip(id) : undefined}
+        statusHint={equippable ? undefined : "Colecção — só visual neste inventário."}
+        onEquip={equippable ? () => tryEquip(id) : undefined}
+        onUnequip={equippable && equipped ? () => tryUnequip(id) : undefined}
       />
     );
   };
@@ -147,7 +164,11 @@ export function StudentInventory({ density = "page" }: StudentInventoryProps) {
           <p className="text-[11px] font-semibold uppercase tracking-wide text-white/55">
             Saldo (local)
           </p>
-          <CreditBalanceChip compact className="mt-1" />
+          <CreditBalanceChip
+            compact
+            className="mt-1"
+            displayCredits={hydrated ? undefined : snapshot.credits}
+          />
         </div>
         <Link
           href="/campus/loja"

@@ -7,6 +7,12 @@ import {
 import type { PctPos } from "@/stores/campusStore";
 import type { CampusUserRole } from "@/config/userRoles";
 import { coerceCampusUserRole } from "@/config/userRoles";
+import type { CampusActivityKind } from "@/lib/campusPresenceActivity";
+import {
+  inferCampusActivityFromLegacyPayload,
+  coerceCampusActivityKind
+} from "@/lib/campusPresenceActivity";
+import { CAMPUS_PRESENCE_HOTSPOT_ANCHORS } from "@/lib/campusPresenceAnchors";
 
 export const CINEMA_REACTION_EMOJIS = ["🔥", "👏", "🌱"] as const;
 
@@ -36,6 +42,8 @@ export type CampusRealtimePayload = {
   /** Aviso em destaque do admin (balão). Só honrado se campusRole === admin e TTL válido. */
   adminBroadcastText: string | null;
   adminBroadcastAt: number;
+  /** Fase 4 — contexto pedagógico / UX (realtime). */
+  campusActivity: CampusActivityKind;
 };
 
 export function isAllowedCinemaReactionEmoji(s: string): s is (typeof CINEMA_REACTION_EMOJIS)[number] {
@@ -62,7 +70,25 @@ export function normalizeCampusPeerIdentity(p: CampusRealtimePayload) {
   const memberSinceIso =
     typeof msRaw === "string" && msRaw.length >= 10 ? msRaw.slice(0, 40) : null;
 
-  return { displayName, levelLabel, xpTotal, campusRole, memberSinceIso };
+  const act = coerceCampusActivityKind(p.campusActivity);
+  const campusActivity =
+    act ?? inferCampusActivityFromLegacyPayload(Boolean(p.inCinema));
+
+  return { displayName, levelLabel, xpTotal, campusRole, memberSinceIso, campusActivity };
+}
+
+function peerPresenceJitter(uid: string, pt: MapPctPoint): MapPctPoint {
+  let h = 2166136261;
+  for (let i = 0; i < uid.length; i++) {
+    h ^= uid.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  const dx = (((h >>> 0) % 11) - 5) * 0.35;
+  const dy = ((((h >>> 8) % 11) - 5) * 0.35);
+  return {
+    x: Math.min(99, Math.max(1, pt.x + dx)),
+    y: Math.min(99, Math.max(1, pt.y + dy))
+  };
 }
 
 function shuffleInPlace(xs: number[]) {
@@ -122,6 +148,21 @@ export function getPeerMapPixelsFromPayload(p: CampusRealtimePayload): MapPctPoi
   ) {
     return getSeatPositionForIndex(p.cinemaSeatIndex);
   }
+
+  const act =
+    coerceCampusActivityKind(p.campusActivity) ??
+    inferCampusActivityFromLegacyPayload(Boolean(p.inCinema));
+
+  if (act === "mural") {
+    return peerPresenceJitter(p.uid, CAMPUS_PRESENCE_HOTSPOT_ANCHORS.mural);
+  }
+  if (act === "shop") {
+    return peerPresenceJitter(p.uid, CAMPUS_PRESENCE_HOTSPOT_ANCHORS.shop);
+  }
+  if (act === "cinema") {
+    return peerPresenceJitter(p.uid, CAMPUS_PRESENCE_HOTSPOT_ANCHORS.cinema);
+  }
+
   return { x: p.x, y: p.y };
 }
 

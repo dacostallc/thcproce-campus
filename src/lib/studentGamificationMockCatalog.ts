@@ -11,13 +11,19 @@ export type InventoryCategory =
   | "certificates"
   | "campus_items"
   | "special_items"
-  | "course_souvenirs";
+  | "course_souvenirs"
+  /** Fase 3 — coleccionáveis (sem slot de equipamento por defeito). */
+  | "posters"
+  /** Fase 3 — sementes fictícias / coleccionáveis educativos. */
+  | "special_seeds";
 
 export type BonusInventoryMeta = {
   id: string;
   title: string;
   subtitle?: string;
   category: InventoryCategory;
+  /** Se `false`, só aparece no inventário (sem equipar slot). Predefinição: equipável. */
+  equippable?: boolean;
 };
 
 /**
@@ -59,6 +65,28 @@ export const BONUS_INVENTORY_MOCK_CATALOG: Record<string, BonusInventoryMeta> = 
     title: "Medalha semente (demo)",
     subtitle: "Reconhecimento simbólico offline.",
     category: "certificates"
+  },
+  /** Fase 3 — drops de missão (IDs estáveis para migração Prisma). */
+  "p3-drop-campus-map-mini": {
+    id: "p3-drop-campus-map-mini",
+    title: "Mini mapa do campus",
+    subtitle: "Recompensa de missão — primeira visita.",
+    category: "posters",
+    equippable: false
+  },
+  "p3-drop-seed-starter-pack": {
+    id: "p3-drop-seed-starter-pack",
+    title: "Pack sementes THCProce · demo",
+    subtitle: "Recompensa de missão — três aulas completas.",
+    category: "special_seeds",
+    equippable: false
+  },
+  /** Certificado local ao marcar todas as aulas de uma área (Cannabis 101). */
+  "p3-cert-cannabis101-complete": {
+    id: "p3-cert-cannabis101-complete",
+    title: "Certificado · Cannabis 101 (local)",
+    subtitle: "Todos os episódios marcados neste dispositivo.",
+    category: "certificates"
   }
 };
 
@@ -77,7 +105,9 @@ export const CATEGORY_LABELS: Record<InventoryCategory, string> = {
   certificates: "Certificados e medalhas",
   campus_items: "Itens de campus",
   special_items: "Itens especiais",
-  course_souvenirs: "Souvenirs de curso"
+  course_souvenirs: "Souvenirs de curso",
+  posters: "Posters",
+  special_seeds: "Sementes especiais"
 };
 
 export const CATEGORY_ORDER: InventoryCategory[] = [
@@ -86,6 +116,8 @@ export const CATEGORY_ORDER: InventoryCategory[] = [
   "accessories",
   "course_souvenirs",
   "special_items",
+  "posters",
+  "special_seeds",
   "certificates",
   "campus_items"
 ];

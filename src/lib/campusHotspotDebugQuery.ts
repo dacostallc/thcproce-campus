@@ -25,22 +25,23 @@ function resolveCannabis101LessonIndexFromSlug(slug: string): number | null {
 }
 
 /**
- * Interpreta `?hotspot=` apenas em não-produção (bundle ignora em produção).
+ * Interpreta `?hotspot=` para abrir painéis do mapa (produção incluída).
+ * Deep-links por slug de aula (`aula-*`) ficam restritos a ambientes não-produção.
  */
 export function resolveCampusHotspotDebugParam(raw: string): CampusHotspotDebugAction | null {
-  if (process.env.NODE_ENV === "production") return null;
-
   const trimmedRaw = raw.trim();
   if (!trimmedRaw) return null;
 
-  const aulaMatch = trimmedRaw.match(/^aula-(.+)$/i);
-  if (aulaMatch) {
-    const slug = aulaMatch[1]?.trim() ?? "";
-    const idx = resolveCannabis101LessonIndexFromSlug(slug);
-    if (idx !== null) {
-      return { kind: "lesson", courseId: CANNABIS101_AREA_ID, lessonIndex: idx };
+  if (process.env.NODE_ENV !== "production") {
+    const aulaMatch = trimmedRaw.match(/^aula-(.+)$/i);
+    if (aulaMatch) {
+      const slug = aulaMatch[1]?.trim() ?? "";
+      const idx = resolveCannabis101LessonIndexFromSlug(slug);
+      if (idx !== null) {
+        return { kind: "lesson", courseId: CANNABIS101_AREA_ID, lessonIndex: idx };
+      }
+      return null;
     }
-    return null;
   }
 
   const v = trimmedRaw.toLowerCase();

@@ -1,5 +1,5 @@
-import Link from "next/link";
 import type { Metadata } from "next";
+import Link from "next/link";
 import {
   Leaf,
   ArrowRight,
@@ -14,13 +14,13 @@ import {
   UserPlus,
   MapPin,
   BookOpen,
-  ArrowDown
+  ArrowDown,
+  Film
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button-variants";
 import { cn } from "@/lib/utils";
 import { CAMPUS_HOME_PATH } from "@/config/siteUrls";
 import { areas, type AreaId } from "@/data/courses";
-import { CAMPUS_MAP_BACKGROUND_IMG_STYLE } from "@/lib/campusArt";
 
 export const metadata: Metadata = {
   title: "THCProce Escola Aberta",
@@ -33,7 +33,12 @@ const demoJourneySteps = [
   { n: 2, title: "Planos", href: "/planos", icon: ClipboardList },
   { n: 3, title: "Inscrever-se", href: "/inscrever-se", icon: UserPlus },
   { n: 4, title: "Campus", href: CAMPUS_HOME_PATH, icon: MapPin },
-  { n: 5, title: "Cannabis 101", href: CAMPUS_HOME_PATH, icon: BookOpen }
+  {
+    n: 5,
+    title: "Cannabis 101",
+    href: `${CAMPUS_HOME_PATH}?hotspot=cannabis-101`,
+    icon: BookOpen
+  }
 ] as const;
 
 const steps = [
@@ -88,9 +93,9 @@ const trilhas = LANDING_TRILHA_AREAS.map(({ id, cardTitle }) => {
 
 function LandingNav() {
   return (
-    <header className="fixed top-0 left-0 right-0 z-30 px-4 sm:px-6 pt-4">
+    <header className="fixed top-0 left-0 right-0 z-[100] px-4 sm:px-6 pt-4">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 rounded-2xl glass-hud px-4 py-3 sm:px-5">
-        <Link
+        <Link prefetch={false}
           href="/"
           className="flex shrink-0 items-center gap-2.5 rounded-xl transition-transform hover:scale-[1.02]"
           aria-label="THCProce Escola Aberta — início"
@@ -116,15 +121,30 @@ function LandingNav() {
         </nav>
 
         <div className="flex shrink-0 flex-wrap items-center justify-end gap-1.5">
-          <Button variant="glass" size="sm" className="hidden border-white/15 min-[380px]:inline-flex sm:hidden" asChild>
-            <Link href={CAMPUS_HOME_PATH}>Campus</Link>
-          </Button>
-          <Button variant="glass" size="sm" className="border-white/15" asChild>
-            <Link href="/planos">Planos</Link>
-          </Button>
-          <Button size="sm" className="font-bold text-ink-900 shadow-lg shadow-canna-500/20" asChild>
-            <Link href="/login">Entrar</Link>
-          </Button>
+          <Link prefetch={false}
+            href={CAMPUS_HOME_PATH}
+            className={cn(
+              buttonVariants({ variant: "glass", size: "sm" }),
+              "hidden border-white/15 min-[380px]:inline-flex sm:hidden"
+            )}
+          >
+            Campus
+          </Link>
+          <Link prefetch={false}
+            href="/planos"
+            className={cn(buttonVariants({ variant: "glass", size: "sm" }), "border-white/15")}
+          >
+            Planos
+          </Link>
+          <Link prefetch={false}
+            href="/login"
+            className={cn(
+              buttonVariants({ size: "sm" }),
+              "font-bold text-ink-900 shadow-lg shadow-canna-500/20"
+            )}
+          >
+            Entrar
+          </Link>
         </div>
       </div>
     </header>
@@ -133,12 +153,12 @@ function LandingNav() {
 
 function NavPill({ href, children }: { href: string; children: React.ReactNode }) {
   return (
-    <a
+    <Link prefetch={false}
       href={href}
       className="rounded-lg px-2.5 py-1.5 text-xs font-medium text-white/70 transition hover:bg-white/5 hover:text-white md:px-3"
     >
       {children}
-    </a>
+    </Link>
   );
 }
 
@@ -160,40 +180,44 @@ export default function MarketingHomePage() {
       <LandingNav />
 
       {/* hero — campus art + HUD-style overlay (paths match CampusMap defaults) */}
-      <main className="relative z-10 pb-24">
+      <main className="relative z-10 pb-24" style={{ pointerEvents: "auto" }}>
         <section
           aria-label="Apresentação"
           className="relative flex min-h-[70svh] w-full flex-col justify-center overflow-hidden pt-28 pb-16 sm:pt-32 sm:pb-20"
         >
-          <picture className="pointer-events-none absolute inset-0 block select-none">
-            <source media="(prefers-color-scheme: light)" srcSet="/campus/campus-day.png" />
-            <img
-              alt=""
-              src="/campus/campus.png"
-              className="pointer-events-none opacity-100"
-              style={{ ...CAMPUS_MAP_BACKGROUND_IMG_STYLE }}
-              loading="eager"
-              fetchPriority="high"
-              decoding="async"
-              aria-hidden
+          {/*
+            Fundo só com CSS (sem <img>) para não haver camada “replaced element” a interferir com cliques.
+            Dia/noite: prefers-color-scheme.
+          */}
+          <div
+            className={cn(
+              "pointer-events-none absolute inset-0 z-0 bg-cover bg-center bg-no-repeat",
+              "bg-[url('/campus/campus.png')]",
+              "[@media(prefers-color-scheme:light)]:bg-[url('/campus/campus-day.png')]"
+            )}
+            aria-hidden
+          />
+          <div
+            className="pointer-events-none absolute inset-0 z-[1] overflow-hidden select-none"
+            aria-hidden
+          >
+            <div
+              className={cn(
+                "pointer-events-none absolute inset-0 bg-gradient-to-b",
+                "from-ink-900/85 via-canna-950/70 to-canna-950/88"
+              )}
             />
-          </picture>
-          {/* Legibility overlay: deep green graded wash + vignette */}
+            <div
+              className={cn(
+                "pointer-events-none absolute inset-0",
+                "[background-image:radial-gradient(ellipse_at_50%_18%,rgba(34,197,94,0.18),transparent_56%),radial-gradient(ellipse_at_0%_100%,rgba(20,83,45,0.35),transparent_48%),radial-gradient(ellipse_at_100%_0%,rgba(15,118,110,0.22),transparent_42%)]"
+              )}
+            />
+          </div>
           <div
-            className={cn(
-              "pointer-events-none absolute inset-0 bg-gradient-to-b",
-              "from-ink-900/85 via-canna-950/70 to-canna-950/88"
-            )}
-            aria-hidden
-          />
-          <div
-            className={cn(
-              "pointer-events-none absolute inset-0",
-              "[background-image:radial-gradient(ellipse_at_50%_18%,rgba(34,197,94,0.18),transparent_56%),radial-gradient(ellipse_at_0%_100%,rgba(20,83,45,0.35),transparent_48%),radial-gradient(ellipse_at_100%_0%,rgba(15,118,110,0.22),transparent_42%)]"
-            )}
-            aria-hidden
-          />
-          <div className="relative z-10 mx-auto w-full max-w-6xl px-4 sm:px-6">
+            className="relative z-[60] mx-auto w-full max-w-6xl px-4 py-1 sm:px-6"
+            style={{ pointerEvents: "auto", isolation: "isolate" }}
+          >
             <div className="mx-auto max-w-3xl text-center">
               <p className="mb-4 inline-flex items-center gap-2 rounded-full border border-amber-400/25 bg-white/[0.03] px-4 py-1.5 text-[10px] font-semibold uppercase tracking-[0.2em] text-amber-200/90">
                 Escola aberta
@@ -205,23 +229,70 @@ export default function MarketingHomePage() {
                 Educação, cultura e cultivo em um campus digital interativo.
               </p>
 
-              <div className="mt-10 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center sm:justify-center">
-                <Button
-                  size="lg"
-                  className="min-h-12 font-bold text-ink-900 shadow-lg shadow-canna-500/30"
-                  asChild
-                >
-                  <Link href={CAMPUS_HOME_PATH} className="gap-2">
+              <div className="mt-10 flex flex-col items-stretch justify-center gap-4 sm:items-center">
+                <div className="flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center sm:justify-center">
+                  <Link prefetch={false}
+                    href={CAMPUS_HOME_PATH}
+                    className={cn(
+                      buttonVariants({ size: "lg" }),
+                      "min-h-12 font-bold text-ink-900 shadow-lg shadow-canna-500/30"
+                    )}
+                  >
                     Entrar no Campus
                     <MapIcon className="size-4" aria-hidden />
                   </Link>
-                </Button>
-                <Button size="lg" variant="glass" className="min-h-12 border border-white/15 bg-white/5" asChild>
-                  <Link href="/planos" className="gap-2">
+                  <Link prefetch={false}
+                    href="/planos"
+                    className={cn(
+                      buttonVariants({ size: "lg", variant: "glass" }),
+                      "min-h-12 border border-white/15 bg-white/5"
+                    )}
+                  >
                     Ver Planos
                     <ArrowRight className="size-4" aria-hidden />
                   </Link>
-                </Button>
+                </div>
+
+                <nav
+                  aria-label="Explorar o campus sem cadastro"
+                  className="flex flex-col gap-2.5 rounded-2xl border border-amber-400/15 bg-black/25 px-3 py-3 backdrop-blur-sm sm:px-4"
+                >
+                  <p className="text-center text-[9px] font-semibold uppercase tracking-[0.2em] text-amber-200/80">
+                    Acesso rápido ao mapa
+                  </p>
+                  <div className="flex flex-wrap items-center justify-center gap-2">
+                    <Link prefetch={false}
+                      href={`${CAMPUS_HOME_PATH}?hotspot=cannabis-101`}
+                      className={cn(
+                        buttonVariants({ size: "sm", variant: "glass" }),
+                        "border border-canna-400/25 bg-canna-500/[0.07] text-white hover:border-amber-400/35"
+                      )}
+                    >
+                      <BookOpen className="size-3.5 text-amber-200/90" aria-hidden />
+                      Cannabis 101
+                    </Link>
+                    <Link prefetch={false}
+                      href="#trilhas"
+                      className={cn(
+                        buttonVariants({ size: "sm", variant: "glass" }),
+                        "border border-white/12 bg-white/[0.04]"
+                      )}
+                    >
+                      <GraduationCap className="size-3.5 text-canna-200/90" aria-hidden />
+                      Cursos e trilhas
+                    </Link>
+                    <Link prefetch={false}
+                      href={`${CAMPUS_HOME_PATH}?cinema=1`}
+                      className={cn(
+                        buttonVariants({ size: "sm", variant: "glass" }),
+                        "border border-white/12 bg-white/[0.04]"
+                      )}
+                    >
+                      <Film className="size-3.5 text-amber-200/90" aria-hidden />
+                      Cinema
+                    </Link>
+                  </div>
+                </nav>
               </div>
 
               <nav
@@ -236,8 +307,8 @@ export default function MarketingHomePage() {
                     const Ico = step.icon;
                     const isLast = idx === demoJourneySteps.length - 1;
                     return (
-                      <li key={step.n} className="contents">
-                        <Link
+                      <li key={step.n} className="flex shrink-0 items-center gap-x-2">
+                        <Link prefetch={false}
                           href={step.href}
                           className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-amber-400/15 bg-amber-500/[0.05] px-2 py-1.5 transition hover:border-amber-400/30 hover:bg-amber-500/10 sm:gap-2 sm:px-2.5"
                         >
@@ -261,14 +332,15 @@ export default function MarketingHomePage() {
               </nav>
 
               <div className="mt-6 flex justify-center px-4 sm:mt-7">
-                <Button
-                  size="sm"
-                  variant="glass"
-                  className="h-auto min-h-8 border border-white/12 bg-transparent py-2 text-[11px] font-medium text-white/58 hover:bg-white/[0.04] hover:text-amber-100/92"
-                  asChild
+                <Link prefetch={false}
+                  href={CAMPUS_HOME_PATH}
+                  className={cn(
+                    buttonVariants({ size: "sm", variant: "glass" }),
+                    "h-auto min-h-8 border border-white/12 bg-transparent py-2 text-[11px] font-medium text-white/58 hover:bg-white/[0.04] hover:text-amber-100/92"
+                  )}
                 >
-                  <Link href={CAMPUS_HOME_PATH}>Ver demonstração do campus</Link>
-                </Button>
+                  Ver demonstração do campus
+                </Link>
               </div>
             </div>
           </div>
@@ -320,12 +392,16 @@ export default function MarketingHomePage() {
                 Trilhas pensadas para explorar no campus; matrícula e planos em um só lugar.
               </p>
             </div>
-            <Button variant="glass" size="sm" className="mx-auto shrink-0 border-white/15 sm:mx-0" asChild>
-              <Link href="/planos">
-                Planos e matrícula
-                <ArrowRight className="size-4" />
-              </Link>
-            </Button>
+            <Link prefetch={false}
+              href="/planos"
+              className={cn(
+                buttonVariants({ variant: "glass", size: "sm" }),
+                "mx-auto shrink-0 border-white/15 sm:mx-0"
+              )}
+            >
+              Planos e matrícula
+              <ArrowRight className="size-4" />
+            </Link>
           </div>
 
           <ul className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -340,12 +416,18 @@ export default function MarketingHomePage() {
                   <h3 className="text-base font-bold text-white">{t.title}</h3>
                   <p className="mt-2 flex-1 text-sm leading-relaxed text-white/65">{t.desc}</p>
                   <div className="mt-4 flex flex-wrap gap-2">
-                    <Button size="sm" variant="glass" className="border-white/12" asChild>
-                      <Link href={CAMPUS_HOME_PATH}>Explorar no mapa</Link>
-                    </Button>
-                    <Button size="sm" className="font-bold text-ink-900" asChild>
-                      <Link href="/planos">Planos</Link>
-                    </Button>
+                    <Link prefetch={false}
+                      href={CAMPUS_HOME_PATH}
+                      className={cn(buttonVariants({ size: "sm", variant: "glass" }), "border-white/12")}
+                    >
+                      Explorar no mapa
+                    </Link>
+                    <Link prefetch={false}
+                      href="/planos"
+                      className={cn(buttonVariants({ size: "sm" }), "font-bold text-ink-900")}
+                    >
+                      Planos
+                    </Link>
                   </div>
                 </div>
               </li>
@@ -379,12 +461,26 @@ export default function MarketingHomePage() {
                 comunidade em um só lugar.
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
-                <Button size="lg" className="font-bold text-ink-900 shadow-lg shadow-canna-500/25" asChild>
-                  <Link href={CAMPUS_HOME_PATH} className="gap-2">
-                    Abrir o campus
-                    <MapIcon className="size-4" aria-hidden />
-                  </Link>
-                </Button>
+                <Link prefetch={false}
+                  href={CAMPUS_HOME_PATH}
+                  className={cn(
+                    buttonVariants({ size: "lg" }),
+                    "font-bold text-ink-900 shadow-lg shadow-canna-500/25"
+                  )}
+                >
+                  Abrir o campus
+                  <MapIcon className="size-4" aria-hidden />
+                </Link>
+                <Link prefetch={false}
+                  href={`${CAMPUS_HOME_PATH}?cinema=1`}
+                  className={cn(
+                    buttonVariants({ size: "lg", variant: "glass" }),
+                    "border border-amber-400/25 bg-amber-500/[0.06]"
+                  )}
+                >
+                  Abrir o Cinema
+                  <Film className="size-4 text-amber-200/90" aria-hidden />
+                </Link>
               </div>
             </div>
           </div>
@@ -404,17 +500,24 @@ export default function MarketingHomePage() {
               Crie sua conta ou acesse com o e-mail já cadastrado e continue no campus.
             </p>
             <div className="mt-8 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:flex-wrap">
-              <Button size="lg" className="min-w-[200px] font-bold text-ink-900 shadow-lg shadow-canna-500/25" asChild>
-                <Link href="/inscrever">Inscrever-se</Link>
-              </Button>
-              <Button
-                size="lg"
-                variant="glass"
-                className="min-w-[200px] border border-amber-400/25 bg-amber-500/[0.06]"
-                asChild
+              <Link prefetch={false}
+                href="/inscrever"
+                className={cn(
+                  buttonVariants({ size: "lg" }),
+                  "min-w-[200px] font-bold text-ink-900 shadow-lg shadow-canna-500/25"
+                )}
               >
-                <Link href="/login">Entrar</Link>
-              </Button>
+                Inscrever-se
+              </Link>
+              <Link prefetch={false}
+                href="/login"
+                className={cn(
+                  buttonVariants({ size: "lg", variant: "glass" }),
+                  "min-w-[200px] border border-amber-400/25 bg-amber-500/[0.06]"
+                )}
+              >
+                Entrar
+              </Link>
             </div>
           </div>
         </section>

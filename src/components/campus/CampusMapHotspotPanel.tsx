@@ -2,63 +2,33 @@
 
 import { useEffect, useMemo, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { useRouter } from "next/navigation";
-import { BookOpen, DoorOpen, Layers, ListOrdered, Sparkles, X } from "lucide-react";
-import { areas, type Area } from "@/data/courses";
+import Link from "next/link";
+import { Layers, ListOrdered, Sparkles, X } from "lucide-react";
+import { areas } from "@/data/courses";
 import { CAMPUS_MAP_INTERACTIVE_AREAS } from "@/lib/campusMapAreasCatalog";
 import type { CampusMapInteractiveArea } from "@/lib/campusMapAreasInteractive.types";
 import {
   hotspotEffectiveCourseId,
   hotspotPanelHeading,
-  hotspotPrimaryCtaLabel,
-  hotspotResolvedLessonIndex,
-  hotspotSecondaryCtaLabel,
   hotspotShortDescription
 } from "@/lib/campusMapHotspotResolve";
 import { summarizeInteractiveTarget } from "@/lib/campusMapInteractiveTargetSummary";
-import {
-  getCampusMapTopicByAreaId,
-  resolveTopicPrimaryNavigation
-} from "@/lib/campusMapTopicCatalog";
+import { getCampusMapTopicByAreaId } from "@/lib/campusMapTopicCatalog";
 import { useCampusHudStore } from "@/stores/campusHudStore";
 import { trpc } from "@/lib/trpc/react";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { CampusMapPointMarkdown } from "@/components/campus/CampusMapPointMarkdown";
+import { buttonVariants } from "@/components/ui/button-variants";
 
 type Props = {
   sky: "day" | "night";
   showTechStripe: boolean;
-  onEnterCourse: (area: Area) => void;
-  onOpenLesson: (area: Area, lessonIndex: number) => void;
 };
 
-function runTopicExplicitNavigation(
-  topic: NonNullable<ReturnType<typeof getCampusMapTopicByAreaId>>,
-  router: ReturnType<typeof useRouter>
-) {
-  const en = topic.explicitNavigation;
-  if (!en) return;
-  if (en.kind === "route") {
-    router.push(en.href);
-    return;
-  }
-  if (en.kind === "hud_store") {
-    useCampusHudStore.getState().setCampusStoreOpen(true);
-    return;
-  }
-  if (en.kind === "hud_mural") {
-    useCampusHudStore.getState().setMuralOpen(true);
-  }
-}
-
-export function CampusMapHotspotPanel({
-  sky,
-  showTechStripe,
-  onEnterCourse,
-  onOpenLesson
-}: Props) {
-  const router = useRouter();
+/**
+ * Painel do mapa — leitura local (`overview.md`); inclui links internos para planos e URL partilhável do hotspot.
+ */
+export function CampusMapHotspotPanel({ sky, showTechStripe }: Props) {
   const hitId = useCampusHudStore((s) => s.campusMapHotspotPanelHitId);
   const setHitId = useCampusHudStore((s) => s.setCampusMapHotspotPanelHitId);
   const closeBtnRef = useRef<HTMLButtonElement>(null);
@@ -68,7 +38,6 @@ export function CampusMapHotspotPanel({
     return CAMPUS_MAP_INTERACTIVE_AREAS.find((a) => a.id === hitId) ?? null;
   }, [hitId]);
 
-  const { data: progress } = trpc.campus.areaProgress.useQuery({}, { staleTime: 120_000 });
   const reader = trpc.campus.mapPointReaderContent.useQuery(
     { mapPointId: hit?.id ?? "_" },
     { enabled: Boolean(hit?.id), staleTime: 300_000 }
@@ -100,63 +69,10 @@ export function CampusMapHotspotPanel({
         ? `${hit.type} · mapa`
         : "";
 
-  const primaryLabel = topic?.explicitNavigation
-    ? topic.callToActionLabel
-    : hit
-      ? hotspotPrimaryCtaLabel(hit)
-      : "Entrar";
-
-  const secondaryLabel = hit ? hotspotSecondaryCtaLabel(hit) : "Ver aulas";
-
-  const primaryDisabled = topicComingSoon || (!topic?.explicitNavigation && !course);
-
-  const showSecondary = Boolean(course) && !topicComingSoon && !topic?.explicitNavigation;
-
   const close = () => setHitId(null);
 
-  const handlePrimary = () => {
-    if (!hit) return;
-    if (topicComingSoon) return;
-    if (topic?.explicitNavigation) {
-      runTopicExplicitNavigation(topic, router);
-      close();
-      return;
-    }
-    if (!course) return;
-    const slugIdx = hotspotResolvedLessonIndex(hit, course);
-    if (slugIdx !== null) {
-      onOpenLesson(course, slugIdx);
-      close();
-      return;
-    }
-    if (topic) {
-      const nav = resolveTopicPrimaryNavigation(topic);
-      if (nav.destination === "lesson" && typeof nav.lessonIndex === "number") {
-        onOpenLesson(course, nav.lessonIndex);
-        close();
-        return;
-      }
-    }
-    onEnterCourse(course);
-    close();
-  };
-
-  const handleSecondary = () => {
-    if (!hit || topicComingSoon || !course) return;
-    onEnterCourse(course);
-    close();
-  };
-
   const progressLine =
-    course && progress?.areas
-      ? progress.areas[course.id]
-        ? "Sala marcada como concluída no teu progresso sincronizado."
-        : "Ainda em exploração — avança ao teu ritmo."
-      : "Progresso detalhado disponível quando estiveres inscrito e sincronizado.";
-
-  const progressHint = payload
-    ? " Texto completo deste ponto já está disponível abaixo — registo por módulo/aula virá com o LMS."
-    : "";
+    "Para abrir o Cannabis 101 em modo aula dentro deste campus, usa o cartão «Comece aqui» ou o balão no mapa — este painel é só leitura do ponto.";
 
   const backdropTint =
     sky === "day" ? "bg-sky-950/[0.22] backdrop-blur-[12px]" : "bg-black/[0.32] backdrop-blur-[12px]";
@@ -381,19 +297,45 @@ export function CampusMapHotspotPanel({
 
                 {course ? (
                   <div className="relative mt-4 rounded-2xl border border-white/[0.1] bg-white/[0.05] px-3 py-3">
-                    <p className="text-[11px] font-semibold uppercase tracking-wide text-white/55">Curso ligado</p>
+                    <p className="text-[11px] font-semibold uppercase tracking-wide text-white/55">
+                      Etiqueta no mapa
+                    </p>
                     <p className="mt-1 text-sm font-medium text-white/92">{course.mapLabel ?? course.name}</p>
                     {topic ? (
                       <p className="mt-1 text-[12px] text-white/58">
-                        ~{topic.estimatedMinutes} min de leitura estimada
+                        ~{topic.estimatedMinutes} min de leitura estimada (referência)
                       </p>
                     ) : null}
                   </div>
                 ) : null}
 
+                {course ? (
+                  <div className="relative mt-4 flex flex-wrap gap-2">
+                    <Link
+                      prefetch={false}
+                      href="/planos"
+                      className={cn(
+                        buttonVariants({ size: "sm" }),
+                        "font-bold text-ink-900 shadow-md shadow-canna-500/15"
+                      )}
+                    >
+                      Planos e matrícula
+                    </Link>
+                    <Link
+                      prefetch={false}
+                      href={`/campus?hotspot=${encodeURIComponent(hit.id)}`}
+                      className={cn(
+                        buttonVariants({ variant: "glass", size: "sm" }),
+                        "border-white/14 bg-white/[0.06] text-white"
+                      )}
+                    >
+                      Link para esta área
+                    </Link>
+                  </div>
+                ) : null}
+
                 <div className="relative mt-4 rounded-2xl border border-white/[0.08] bg-black/20 px-3 py-2.5 text-[12px] leading-snug text-white/65">
                   {progressLine}
-                  {progressHint}
                 </div>
 
                 {topicComingSoon ? (
@@ -401,24 +343,6 @@ export function CampusMapHotspotPanel({
                     Este tópico está marcado como brevemente no catálogo — volta em breve.
                   </p>
                 ) : null}
-
-                <div className="relative mt-6 flex flex-col gap-2">
-                  <Button
-                    type="button"
-                    className="w-full gap-2"
-                    disabled={primaryDisabled}
-                    onClick={handlePrimary}
-                  >
-                    <DoorOpen size={17} strokeWidth={2} aria-hidden />
-                    {primaryLabel}
-                  </Button>
-                  {showSecondary ? (
-                    <Button type="button" variant="glass" className="w-full gap-2" onClick={handleSecondary}>
-                      <BookOpen size={17} strokeWidth={2} aria-hidden />
-                      {secondaryLabel}
-                    </Button>
-                  ) : null}
-                </div>
 
                 {showTechStripe ? (
                   <div className="relative mt-6 rounded-xl border border-white/10 bg-black/35 px-3 py-2 font-mono text-[10px] leading-relaxed text-emerald-200/82">
@@ -429,7 +353,9 @@ export function CampusMapHotspotPanel({
                     {hit.lessonSlug ? (
                       <p className="mt-1 break-all text-teal-200/95">lessonSlug: {hit.lessonSlug}</p>
                     ) : null}
-                    {payload ? <p className="mt-1 break-all text-teal-200/95">campusContent: map-points/{hit.id}</p> : null}
+                    {payload ? (
+                      <p className="mt-1 break-all text-teal-200/95">campusContent: map-points/{hit.id}</p>
+                    ) : null}
                   </div>
                 ) : null}
               </div>

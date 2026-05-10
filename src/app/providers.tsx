@@ -14,12 +14,17 @@ function getBaseUrl() {
   return `http://localhost:${process.env.PORT ?? 3030}`;
 }
 
+const trpcDebugLogs =
+  process.env.NODE_ENV === "development" &&
+  process.env.NEXT_PUBLIC_TRPC_DEBUG === "true";
+
 export function Providers({ children }: { children: React.ReactNode }) {
   const [qc] = useState(() => new QueryClient());
   const [client] = useState(() =>
     trpc.createClient({
       links: [
-        loggerLink({ enabled: () => process.env.NODE_ENV === "development" }),
+        /** Logs «query #…» só quando `NEXT_PUBLIC_TRPC_DEBUG=true` — sem `loggerLink` no bundle por defeito. */
+        ...(trpcDebugLogs ? [loggerLink({ enabled: () => true })] : []),
         httpBatchLink({
           url: `${getBaseUrl()}/api/trpc`,
           transformer: superjson

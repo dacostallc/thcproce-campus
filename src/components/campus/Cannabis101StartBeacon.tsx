@@ -73,27 +73,6 @@ export function Cannabis101StartBeacon({ area, sky, visible, onActivate }: Props
             strokeWidth={2.35}
             aria-hidden
           />
-
-          <span className="relative z-[1] mt-1 flex size-10 items-center justify-center">
-            <span
-              className={cn(
-                "pointer-events-none absolute inset-[-0.75rem] rounded-full motion-reduce:animate-none motion-reduce:opacity-50 motion-safe:animate-[beaconGlow_3.95s_ease-in-out_infinite]",
-                isDay
-                  ? "bg-[radial-gradient(circle,rgba(251,191,36,0.21)_0%,rgba(251,191,36,0.06)_42%,transparent_74%)]"
-                  : "bg-[radial-gradient(circle,rgba(252,211,77,0.17)_0%,rgba(251,191,36,0.045)_46%,transparent_76%)]"
-              )}
-              aria-hidden
-            />
-            <span
-              className={cn(
-                "relative size-2.5 shrink-0 rounded-full ring-[0.5px]",
-                isDay
-                  ? "bg-amber-400/94 ring-amber-800/28 shadow-[0_0_10px_rgba(217,119,6,0.38)]"
-                  : "bg-amber-100/93 ring-amber-50/30 shadow-[0_0_12px_rgba(251,191,36,0.42)]"
-              )}
-              aria-hidden
-            />
-          </span>
         </span>
       </button>
     </motion.div>

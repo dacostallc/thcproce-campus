@@ -1,19 +1,26 @@
 "use client";
 
 import { useEffect } from "react";
-import { AnimatePresence, motion } from "framer-motion";
-import { CheckCircle2, Coins, Gift, Sparkles } from "lucide-react";
+import {
+  AnimatePresence,
+  motion,
+  useReducedMotion
+} from "framer-motion";
+import { CheckCircle2, Coins, Gift, Sparkles, X } from "lucide-react";
 import { useMissionRewardToastStore } from "@/stores/missionRewardToastStore";
+import { playCampusMissionCompleteChime } from "@/lib/campusUiSounds";
 import { cn } from "@/lib/utils";
 
-const DISMISS_MS = 5200;
+const DISMISS_MS = 5600;
 
 export function MissionRewardToast({ className }: { className?: string }) {
   const toast = useMissionRewardToastStore((s) => s.toast);
   const dismiss = useMissionRewardToastStore((s) => s.dismissMissionRewardToast);
+  const reduceMotion = useReducedMotion();
 
   useEffect(() => {
     if (!toast) return;
+    playCampusMissionCompleteChime();
     const t = window.setTimeout(() => dismiss(), DISMISS_MS);
     return () => window.clearTimeout(t);
   }, [toast, dismiss]);
@@ -25,26 +32,94 @@ export function MissionRewardToast({ className }: { className?: string }) {
         className
       )}
     >
-      <AnimatePresence>
+      <AnimatePresence mode="wait">
         {toast ? (
           <motion.div
             key="mission-reward"
             role="status"
             aria-live="polite"
-            initial={{ y: -16, opacity: 0, scale: 0.96 }}
-            animate={{ y: 0, opacity: 1, scale: 1 }}
-            exit={{ y: -18, opacity: 0, scale: 0.96 }}
-            transition={{ type: "spring", stiffness: 420, damping: 32 }}
-            className="pointer-events-auto w-full max-w-sm rounded-2xl border border-amber-400/28 bg-gradient-to-br from-amber-500/18 via-emerald-950/38 to-black/50 p-4 shadow-[0_0_42px_rgba(251,191,36,0.12)] backdrop-blur-md"
+            layout
+            initial={{ y: -18, opacity: 0, scale: 0.94, filter: "blur(4px)" }}
+            animate={{ y: 0, opacity: 1, scale: 1, filter: "blur(0px)" }}
+            exit={{ y: -14, opacity: 0, scale: 0.96, transition: { duration: 0.22, ease: [0.16, 1, 0.3, 1] } }}
+            transition={{
+              type: "spring",
+              stiffness: 380,
+              damping: 34,
+              mass: 0.85
+            }}
+            className="pointer-events-auto relative w-full max-w-sm overflow-hidden rounded-2xl border border-amber-400/26 bg-gradient-to-br from-amber-500/16 via-emerald-950/36 to-black/52 p-4 shadow-[0_12px_48px_rgba(251,191,36,0.14)] backdrop-blur-md"
           >
-            <div className="flex items-start gap-3">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-amber-300/35 bg-amber-500/12">
+            {!reduceMotion ? (
+              <motion.div
+                aria-hidden
+                className="pointer-events-none absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.07] to-transparent"
+                initial={{ x: "-55%", skewX: -14 }}
+                animate={{ x: "155%", skewX: -14 }}
+                transition={{
+                  duration: 2.6,
+                  repeat: Infinity,
+                  repeatDelay: 2.4,
+                  ease: "easeInOut"
+                }}
+              />
+            ) : null}
+
+            <button
+              type="button"
+              onClick={() => dismiss()}
+              className="pointer-events-auto absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-lg border border-white/12 bg-black/35 text-white/75 transition hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/70"
+              aria-label="Fechar notificação"
+            >
+              <X size={15} strokeWidth={2.4} />
+            </button>
+
+            <motion.div
+              className="relative flex items-start gap-3 pr-8"
+              initial="hidden"
+              animate="show"
+              variants={{
+                hidden: {},
+                show: {
+                  transition: { staggerChildren: reduceMotion ? 0 : 0.06, delayChildren: 0.04 }
+                }
+              }}
+            >
+              <motion.div
+                variants={{
+                  hidden: { opacity: 0, scale: 0.85 },
+                  show: { opacity: 1, scale: 1 }
+                }}
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-amber-300/38 bg-amber-500/14 shadow-[0_0_20px_rgba(251,191,36,0.12)]"
+              >
                 <CheckCircle2 size={22} className="text-amber-100" />
-              </div>
+              </motion.div>
               <div className="min-w-0 flex-1 space-y-2">
-                <p className="text-sm font-bold text-white">Missão resgatada</p>
-                <p className="text-[11px] font-medium text-white/70">{toast.missionTitle}</p>
-                <div className="space-y-1.5 text-[12px] text-white/85">
+                <motion.p
+                  variants={{
+                    hidden: { opacity: 0, y: 6 },
+                    show: { opacity: 1, y: 0 }
+                  }}
+                  className="text-sm font-bold tracking-tight text-white"
+                >
+                  Missão resgatada
+                </motion.p>
+                <motion.p
+                  variants={{
+                    hidden: { opacity: 0, y: 6 },
+                    show: { opacity: 1, y: 0 }
+                  }}
+                  className="text-[11px] font-medium leading-snug text-white/72"
+                >
+                  {toast.missionTitle}
+                </motion.p>
+                <motion.div
+                  variants={{
+                    hidden: { opacity: 0 },
+                    show: { opacity: 1 }
+                  }}
+                  className="space-y-1.5 text-[12px] text-white/85"
+                >
                   {toast.credits > 0 ? (
                     <p className="flex items-center gap-2">
                       <Coins size={14} className="shrink-0 text-sky-200/95" aria-hidden />+
@@ -64,9 +139,9 @@ export function MissionRewardToast({ className }: { className?: string }) {
                       <span className="text-white/90">{toast.itemLabel}</span>
                     </p>
                   ) : null}
-                </div>
+                </motion.div>
               </div>
-            </div>
+            </motion.div>
           </motion.div>
         ) : null}
       </AnimatePresence>

@@ -90,7 +90,7 @@ export function Hotspot({
         onSelect(area);
       }}
       className={cn(
-        "absolute -translate-x-1/2 -translate-y-1/2 group focus:outline-none rounded-2xl",
+        "pointer-events-auto absolute -translate-x-1/2 -translate-y-1/2 group focus:outline-none rounded-2xl",
         isDay
           ? "focus-visible:ring-2 focus-visible:ring-sky-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white/55"
           : "focus-visible:ring-2 focus-visible:ring-emerald-400/75 focus-visible:ring-offset-2 focus-visible:ring-offset-ink-900"

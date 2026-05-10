@@ -1,10 +1,10 @@
 "use client";
 
-import Link from "next/link";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   X,
+  ArrowLeft,
   GraduationCap,
   Clock,
   PlayCircle,
@@ -13,6 +13,8 @@ import {
 } from "lucide-react";
 import type { Area } from "@/data/courses";
 import { coursePreviewLessonTitlesForArea } from "@/content/courses";
+import { CANNABIS101_AREA_ID } from "@/content/courses/cannabis-101/manifest";
+import { completeCampusMissionPhase2IfNeeded } from "@/lib/campusMissionsPhase2Storage";
 import { cn } from "@/lib/utils";
 import { useCampusSkyStore } from "@/stores/campusSkyStore";
 
@@ -39,19 +41,6 @@ type Props = {
   onOpenCampusLesson?: (lessonIndex?: number) => void;
 };
 
-const MUX_DEMO =
-  typeof process.env.NEXT_PUBLIC_MUX_DEMO_PLAYBACK_ID === "string"
-    ? process.env.NEXT_PUBLIC_MUX_DEMO_PLAYBACK_ID.trim()
-    : "";
-const BUNNY_LIB =
-  typeof process.env.NEXT_PUBLIC_BUNNY_LIBRARY_ID === "string"
-    ? process.env.NEXT_PUBLIC_BUNNY_LIBRARY_ID.trim()
-    : "";
-const BUNNY_DEMO_VIDEO =
-  typeof process.env.NEXT_PUBLIC_BUNNY_DEMO_VIDEO_ID === "string"
-    ? process.env.NEXT_PUBLIC_BUNNY_DEMO_VIDEO_ID.trim()
-    : "";
-
 export function CoursePanel({
   area,
   onClose,
@@ -73,6 +62,22 @@ export function CoursePanel({
     ];
   }, [area]);
 
+  useEffect(() => {
+    if (!area || area.id !== CANNABIS101_AREA_ID) return;
+    completeCampusMissionPhase2IfNeeded("campus-p2-cannabis101");
+  }, [area]);
+
+  useEffect(() => {
+    if (!area) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      e.preventDefault();
+      onClose();
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [area, onClose]);
+
   return (
     <AnimatePresence>
       {area && (
@@ -81,22 +86,32 @@ export function CoursePanel({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            onClick={onClose}
+            transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+            role="presentation"
+            aria-hidden
             className={cn(
-              "fixed inset-0 z-30 backdrop-blur-[2px]",
+              "fixed inset-0 z-30 cursor-pointer pointer-events-auto backdrop-blur-[2px]",
               sky === "day"
                 ? "bg-sky-950/20"
                 : "bg-black/35"
             )}
+            onClick={onClose}
+            onPointerDown={(e) => {
+              e.stopPropagation();
+            }}
           />
 
           <motion.aside
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="course-panel-title"
             initial={{ x: 480, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             exit={{ x: 480, opacity: 0 }}
-            transition={{ type: "spring", stiffness: 220, damping: 26 }}
-            className="fixed right-0 top-0 bottom-0 w-full sm:w-[460px] z-40 flex flex-col campus-hud-glass border-l border-canna-400/25 ring-1 ring-inset ring-white/[0.06]"
+            transition={{ type: "spring", stiffness: 200, damping: 30 }}
+            className="fixed right-0 top-0 bottom-0 z-40 flex w-full flex-col campus-hud-glass border-l border-canna-400/25 ring-1 ring-inset ring-white/[0.06] pointer-events-auto sm:w-[460px]"
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={(e) => e.stopPropagation()}
           >
             <header
               className={cn(
@@ -104,13 +119,35 @@ export function CoursePanel({
                 colorAccent[area.color]
               )}
             >
-              <button
-                onClick={onClose}
-                className="absolute top-4 right-4 w-9 h-9 rounded-full glass-hud flex items-center justify-center hover:scale-105 active:scale-95 transition-transform"
-                aria-label="Fechar"
-              >
-                <X size={18} />
-              </button>
+              <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
+                <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+                  <button
+                    type="button"
+                    onClick={onClose}
+                    className="inline-flex w-fit max-w-full items-center gap-2 rounded-xl border border-white/25 bg-black/25 px-3 py-2 text-left text-[13px] font-semibold text-white shadow-sm backdrop-blur-md transition hover:border-emerald-300/40 hover:bg-white/12 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70"
+                  >
+                    <ArrowLeft size={17} className="shrink-0 text-emerald-200/95" aria-hidden />
+                    <span className="leading-tight">
+                      Voltar ao mapa
+                      <span className="mt-0.5 block text-[10px] font-normal text-white/60">
+                        Fechar painel do curso
+                      </span>
+                    </span>
+                  </button>
+                  <p className="text-[10px] leading-snug text-white/58">
+                    Feche este painel para acessar o mapa e o cinema.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="shrink-0 flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-black/30 text-white shadow-md backdrop-blur-md transition hover:border-emerald-300/45 hover:bg-white/12 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70"
+                  aria-label="Fechar painel do curso"
+                  title="Fechar (Esc)"
+                >
+                  <X size={18} aria-hidden />
+                </button>
+              </div>
 
               <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.18em] text-white/70">
                 <span className={cn("px-2 py-0.5 rounded-full border text-[10px]", colorBadge[area.color])}>
@@ -120,7 +157,10 @@ export function CoursePanel({
                 <span>{area.level}</span>
               </div>
 
-              <h2 className="mt-3 text-3xl font-bold text-white text-shadow-soft leading-tight">
+              <h2
+                id="course-panel-title"
+                className="mt-3 text-3xl font-bold text-white text-shadow-soft leading-tight"
+              >
                 {area.name}
               </h2>
               <p className="mt-1.5 text-white/80 text-sm">{area.short}</p>
@@ -213,32 +253,6 @@ export function CoursePanel({
               >
                 Entrar na sala virtual
               </button>
-              <div className="flex flex-col sm:flex-row gap-3">
-              <Link
-                href="/planos"
-                className="flex-1 px-4 py-3 rounded-xl glass hover:bg-white/10 transition-colors text-sm font-semibold text-center"
-              >
-                Planos e matrícula
-              </Link>
-              {MUX_DEMO ? (
-                <Link
-                  href={`/aula/${encodeURIComponent(MUX_DEMO)}?course=${encodeURIComponent(area.id)}`}
-                  className="flex-1 px-4 py-3 rounded-xl glass hover:bg-white/10 transition-colors text-sm font-semibold text-center border border-white/10"
-                  onClick={onClose}
-                >
-                  Player Mux (página)
-                </Link>
-              ) : null}
-              {BUNNY_LIB && BUNNY_DEMO_VIDEO ? (
-                <Link
-                  href={`/aula/${encodeURIComponent(BUNNY_DEMO_VIDEO)}?course=${encodeURIComponent(area.id)}&provider=bunny`}
-                  className="flex-1 px-4 py-3 rounded-xl glass hover:bg-white/10 transition-colors text-sm font-semibold text-center border border-sky-400/25 text-sky-100"
-                  onClick={onClose}
-                >
-                  Bunny (página)
-                </Link>
-              ) : null}
-              </div>
             </footer>
           </motion.aside>
         </>

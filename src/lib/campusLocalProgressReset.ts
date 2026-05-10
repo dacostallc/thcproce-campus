@@ -14,6 +14,9 @@ import {
   clearCampusLessonMarksStorage,
   clearCampusProgress
 } from "@/lib/campusProgressStorage";
+import { clearLessonAcademicLocalStorage } from "@/lib/lessonAcademicPersistence";
+import { clearCampusAcademicHistoryStorage } from "@/lib/campusAcademicHistoryStorage";
+import { clearCampusMissionsPhase2Storage } from "@/lib/campusMissionsPhase2Storage";
 import {
   CANNABIS101_START_HINT_LS_KEY,
   notifyCannabis101StartHintListeners
@@ -65,6 +68,7 @@ export function resetCampusLocalProgressAll(): void {
   clearAllCampusLessonWatchAwardFlags();
   clearCampusLastLessonIndicesStorage();
   clearCampusProgress();
+  clearLessonAcademicLocalStorage();
 
   try {
     window.sessionStorage.removeItem(CAMPUS_START_HERE_SESSION_HIDE_KEY);
@@ -73,6 +77,8 @@ export function resetCampusLocalProgressAll(): void {
   }
 
   resetStudentProfile();
+  clearCampusMissionsPhase2Storage();
+  clearCampusAcademicHistoryStorage();
   try {
     notifyCannabis101StartHintListeners();
   } catch {

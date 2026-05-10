@@ -54,6 +54,15 @@ export function isCampusStoreItemOwned(profile: StudentProfile, itemId: string):
   return false;
 }
 
+/** Posters/sementes Fase 3 são coleccionáveis sem slot de equipamento. */
+export function isCampusInventoryItemEquippable(itemId: string): boolean {
+  const storeMeta = CAMPUS_STORE_PURCHASABLE_MOCK_CATALOG[itemId];
+  const bonusMeta = BONUS_INVENTORY_MOCK_CATALOG[itemId];
+  if (storeMeta && storeMeta.equippable === false) return false;
+  if (bonusMeta && bonusMeta.equippable === false) return false;
+  return true;
+}
+
 function slotFieldForCategory(
   category: InventoryCategory
 ): keyof EquippedCampusStoreSlots | "souvenir" {
@@ -110,6 +119,10 @@ export function equipCampusInventoryItem(itemId: string): CampusStoreEquipResult
   const bonusMeta = BONUS_INVENTORY_MOCK_CATALOG[itemId];
   if (!storeMeta && !bonusMeta) {
     return { ok: false, error: "unknown_item" };
+  }
+
+  if (!isCampusInventoryItemEquippable(itemId)) {
+    return { ok: false, error: "collectible_only" };
   }
 
   if (!isCampusStoreItemOwned(p, itemId)) {
@@ -171,6 +184,7 @@ export function isCampusStoreItemEquipped(profile: StudentProfile, itemId: strin
   if (SOUVENIR_CATALOG[itemId]) {
     return profile.equippedSouvenir === itemId;
   }
+  if (!isCampusInventoryItemEquippable(itemId)) return false;
   const storeMeta = CAMPUS_STORE_PURCHASABLE_MOCK_CATALOG[itemId];
   const bonusMeta = BONUS_INVENTORY_MOCK_CATALOG[itemId];
   if (!storeMeta && !bonusMeta) return false;
@@ -184,6 +198,8 @@ export function equipErrorMessagePt(code: string | undefined): string {
   switch (code) {
     case "not_owned":
       return "Item ainda não desbloqueado.";
+    case "collectible_only":
+      return "Item de coleção — não equipável.";
     case "unknown_item":
       return "Item não reconhecido.";
     case "wrong_kind":

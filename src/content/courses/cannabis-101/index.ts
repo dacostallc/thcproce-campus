@@ -42,3 +42,7 @@ export {
   getCannabis101StreamChapter,
   type Cannabis101StreamChapter
 } from "./streamChapter";
+export {
+  CANNABIS101_LESSON_ESTIMATED_MINUTES,
+  getCannabis101LessonEstimatedMinutes
+} from "./estimatedMinutes";

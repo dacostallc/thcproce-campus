@@ -20,6 +20,9 @@ import type { AvatarVisualRarity } from "@/lib/studentAvatarVisualMockCatalog";
 
 export const STUDENT_GAMIFICATION_LS_KEY = "thc_student_gamification_v1" as const;
 
+/** Nome inicial do perfil local (Fase 1 gamificação) — migrável para servidor. */
+export const DEFAULT_LOCAL_STUDENT_DISPLAY_NAME = "Aluno THC" as const;
+
 export const STUDENT_GAMIFICATION_UPDATED_EVENT =
   "thc-student-gamification-v1-changed" as const;
 
@@ -242,9 +245,9 @@ const DEFAULT_VISUAL_COSMETICS_V1: StudentVisualCosmeticsV1 = {
 };
 
 const DEFAULT_PROFILE: StudentProfile = {
-  displayName: "Visitante campus",
-  avatarVariant: "visitor",
-  avatarState: { baseVariant: "visitor", cosmeticLayerIds: [] },
+  displayName: DEFAULT_LOCAL_STUDENT_DISPLAY_NAME,
+  avatarVariant: "student",
+  avatarState: { baseVariant: "student", cosmeticLayerIds: [] },
   visualCosmeticsV1: { ...DEFAULT_VISUAL_COSMETICS_V1 },
   level: 1,
   xp: 0,
@@ -471,8 +474,41 @@ function applyFreeSouvenirsForLevel(unlocked: string[], level: number): string[]
   return [...set];
 }
 
+/**
+ * Estado inicial alinhado com `loadStudentProfile()` quando `window` está indisponível (SSR).
+ * Usar como `useState` inicial no cliente para a primeira pintura coincidir com o HTML do servidor.
+ */
+export function studentProfileHydrationSeed(): StudentProfile {
+  return { ...DEFAULT_PROFILE };
+}
+
+/**
+ * Placeholder estável para `/campus/perfil` (e inventário no modal) antes de `useClientHydrated`.
+ * Sem XP/créditos/itens/badges persistidos — evita mismatch com SSR quando o cliente lê LS indirectamente
+ * (ex.: `computeLocalCoursePctFromMarks` na lista de cursos).
+ */
+export function studentProfilePerfilHydrationPlaceholder(): StudentProfile {
+  const seed = studentProfileHydrationSeed();
+  return {
+    ...seed,
+    xp: 0,
+    credits: 0,
+    level: 1,
+    badges: [],
+    unlockedSouvenirs: [],
+    equippedSouvenir: null,
+    bonusInventoryIds: [],
+    purchasedStoreItemIds: [],
+    /** Slots só aparecem após ler LS — placeholder igual ao seed SSR para texto estável. */
+    equippedStoreSlots: { ...seed.equippedStoreSlots },
+    helpfulPoints: 0,
+    communityRank: 0,
+    mentorLevel: 0
+  };
+}
+
 export function loadStudentProfile(): StudentProfile {
-  if (typeof window === "undefined") return { ...DEFAULT_PROFILE };
+  if (typeof window === "undefined") return studentProfileHydrationSeed();
   try {
     const raw = JSON.parse(window.localStorage.getItem(STUDENT_GAMIFICATION_LS_KEY) ?? "null") as unknown;
     if (!raw || typeof raw !== "object") return normalizeProfile({ ...DEFAULT_PROFILE });
@@ -564,7 +600,13 @@ export function awardXp(amount: number, _reason?: string): StudentProfile {
     unlocked.push("bone-thcproce");
   }
   unlocked = applyFreeSouvenirsForLevel(unlocked, level);
-  return saveStudentProfile({ xp, level, unlockedSouvenirs: unlocked });
+  const next = saveStudentProfile({ xp, level, unlockedSouvenirs: unlocked });
+  if (typeof window !== "undefined" && next.xp >= 20) {
+    void import("@/lib/campusMissionsPhase2Storage").then(({ completeCampusMissionPhase2IfNeeded }) => {
+      completeCampusMissionPhase2IfNeeded("campus-p2-xp-twenty");
+    });
+  }
+  return next;
 }
 
 export function awardCredits(amount: number, _reason?: string): StudentProfile {
@@ -573,10 +615,38 @@ export function awardCredits(amount: number, _reason?: string): StudentProfile {
   return saveStudentProfile({ credits });
 }
 
+/** Ajusta créditos por delta (positivo ou negativo), sem saldo negativo — ex.: quiz na aula. */
+export function adjustCreditsByWithApplied(
+  delta: number,
+  _reason?: string
+): { profile: StudentProfile; appliedDelta: number } {
+  const p = loadStudentProfile();
+  const truncated = Math.trunc(delta);
+  const next = Math.max(0, p.credits + truncated);
+  const appliedDelta = next - p.credits;
+  return { profile: saveStudentProfile({ credits: next }), appliedDelta };
+}
+
+export function adjustCreditsBy(delta: number, reason?: string): StudentProfile {
+  return adjustCreditsByWithApplied(delta, reason).profile;
+}
+
 export function grantBadge(id: string): StudentProfile {
   const p = loadStudentProfile();
   if (p.badges.includes(id)) return p;
   return saveStudentProfile({ badges: [...p.badges, id] });
+}
+
+/**
+ * Inventário MOCK (`bonusInventoryIds`) — uma vez por `itemId`; migrável para Prisma `StudentCollectible`.
+ */
+export function grantBonusInventoryItemIfNeeded(itemId: string): boolean {
+  if (typeof window === "undefined") return false;
+  if (!BONUS_INVENTORY_MOCK_CATALOG[itemId]) return false;
+  const p = loadStudentProfile();
+  if (p.bonusInventoryIds.includes(itemId)) return false;
+  saveStudentProfile({ bonusInventoryIds: [...p.bonusInventoryIds, itemId] });
+  return true;
 }
 
 export function unlockSouvenir(id: string): StudentProfile {

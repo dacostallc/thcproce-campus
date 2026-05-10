@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 type FeedMsg = {
@@ -24,7 +25,7 @@ function pickMessage(): string {
 }
 
 /**
- * Canal social mock — atualiza pouco freq. (throttle cliente) para evitar churn de render.
+ * Canal social mock — entradas suaves e throttle mais calmo (menos ruído).
  */
 export function LiveCampusFeed({ className }: { className?: string }) {
   const [rows, setRows] = useState<FeedMsg[]>(() => []);
@@ -45,34 +46,20 @@ export function LiveCampusFeed({ className }: { className?: string }) {
   }, [pushRow]);
 
   useEffect(() => {
-    const throttleMs = 11_500;
+    const throttleMs = 14_000;
     const id = window.setInterval(() => {
       const now = Date.now();
       if (now - lastEmitAt.current < throttleMs) return;
       lastEmitAt.current = now;
       pushRow(pickMessage());
-    }, 14_800);
+    }, 19_000);
     return () => window.clearInterval(id);
   }, [pushRow]);
-
-  const body = useMemo(
-    () =>
-      rows.map((r) => (
-        <div
-          key={r.id}
-          className="truncate border-l border-emerald-300/38 pl-2 text-emerald-100/88"
-          title={r.text}
-        >
-          {r.text}
-        </div>
-      )),
-    [rows]
-  );
 
   return (
     <aside
       className={cn(
-        "rounded-xl border border-white/14 bg-black/38 px-3 py-2 backdrop-blur-sm",
+        "rounded-xl border border-white/14 bg-black/38 px-3 py-2 backdrop-blur-sm transition-[border-color,background-color] duration-300 ease-campus-out hover:border-white/[0.18]",
         className
       )}
       aria-live="polite"
@@ -81,8 +68,23 @@ export function LiveCampusFeed({ className }: { className?: string }) {
       <p className="mb-2 text-[9px] font-bold uppercase tracking-[0.18em] text-white/56">
         Atividade ao vivo (demonstração)
       </p>
-      <div className="max-h-[7.75rem] space-y-1.5 overflow-y-auto text-[11px] leading-snug scrollbar-thin pr-1 text-white/80">
-        {body}
+      <div className="max-h-[7.75rem] space-y-1 overflow-y-auto pr-1 text-[11px] leading-snug scrollbar-thin text-white/80">
+        <AnimatePresence initial={false}>
+          {rows.map((r) => (
+            <motion.div
+              key={r.id}
+              layout
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, height: 0, marginBottom: 0 }}
+              transition={{ duration: 0.34, ease: [0.16, 1, 0.3, 1] }}
+              className="truncate border-l border-emerald-300/35 pl-2 text-emerald-100/88 transition-colors duration-200 hover:text-white/92"
+              title={r.text}
+            >
+              {r.text}
+            </motion.div>
+          ))}
+        </AnimatePresence>
       </div>
     </aside>
   );

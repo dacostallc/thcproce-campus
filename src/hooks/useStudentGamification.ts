@@ -3,12 +3,13 @@
 import { useCallback, useEffect, useState } from "react";
 import {
   loadStudentProfile,
+  studentProfileHydrationSeed,
   STUDENT_GAMIFICATION_UPDATED_EVENT,
   type StudentProfile
 } from "@/lib/studentGamificationStorage";
 
 export function useStudentGamification(): StudentProfile {
-  const [profile, setProfile] = useState<StudentProfile>(() => loadStudentProfile());
+  const [profile, setProfile] = useState<StudentProfile>(() => studentProfileHydrationSeed());
   const refresh = useCallback(() => setProfile(loadStudentProfile()), []);
 
   useEffect(() => {

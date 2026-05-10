@@ -47,7 +47,8 @@ export type CourseGateDelegates = {
   getLessonGate: (
     index: number,
     total: number,
-    doneSet: Set<number>
+    doneSet: Set<number>,
+    visitedSet?: Set<number>
   ) => LessonGateStatus;
 };
 

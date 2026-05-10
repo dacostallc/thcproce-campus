@@ -1,7 +1,6 @@
 "use client";
 
-import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   X,
@@ -10,7 +9,6 @@ import {
   CheckCircle2,
   Sparkles,
   HardHat,
-  Loader2,
   MapPin
 } from "lucide-react";
 import { useSession } from "next-auth/react";
@@ -27,21 +25,45 @@ import { CourseMicroBrandBar } from "./CourseMicroBrandBar";
 import { getLessonTitlesForArea } from "@/data/lessonOutline";
 import { getLessonRichContent } from "@/data/lessonRichContent";
 import { setLastLessonIndex } from "@/lib/campusLastLesson";
-import { persistLessonMarkUpdate, persistLessonPanelVisit, CAMPUS_LESSON_MARKS_LS_KEY } from "@/lib/campusProgressStorage";
+import {
+  persistLessonMarkUpdate,
+  persistLessonPanelVisit,
+  CAMPUS_LESSON_MARKS_LS_KEY,
+  sumDistinctLocalLessonMarksAcrossAreas,
+  computeLocalCoursePctFromMarks
+} from "@/lib/campusProgressStorage";
 import { markCannabis101FirstLessonBegun, notifyCannabis101StartHintListeners } from "@/lib/campusCannabis101Hint";
 import { trpc } from "@/lib/trpc/react";
 import { Button } from "@/components/ui/button";
 import { getCampusPanelAccent, getRailAccent } from "@/lib/campusAccent";
 import { awardXp, watchAwardStorageKey } from "@/lib/studentGamificationStorage";
 import { grantLessonCompletionReward } from "@/lib/studentLessonCompletionRewards";
+import { grantCampusAreaCompletionCollectibleIfNeeded } from "@/lib/campusModuleCertificateRewards";
 import { useRewardToastStore } from "@/stores/rewardToastStore";
 import { isCampusAreaConstruction } from "@/config/campusAreaRollout";
 import { isCampusAdminEmail } from "@/lib/campusAdmin";
-import {
-  areaUsesMoodleLessonSnippet,
-  lessonRichTabsVariantForArea
-} from "@/content/courses";
+import { lessonRichTabsVariantForArea } from "@/content/courses";
 import { CANNABIS101_AREA_ID, getCannabis101StreamChapter } from "@/content/courses/cannabis-101";
+import {
+  persistLessonDwellAccumulatedMs,
+  readLessonDwellAccumulatedMs,
+  persistLessonVisit,
+  readLessonVisitedIndices
+} from "@/lib/lessonAcademicPersistence";
+import { recordAcademicStudyMsDelta } from "@/lib/campusAcademicHistoryStorage";
+import {
+  computeLessonMinimumDwellMs,
+  getLessonEstimatedMinutesForArea
+} from "@/lib/lessonAcademicRules";
+import { completeCampusMissionPhase2IfNeeded } from "@/lib/campusMissionsPhase2Storage";
+
+function formatDwellRemaining(ms: number): string {
+  const s = Math.max(0, Math.ceil(ms / 1000));
+  const m = Math.floor(s / 60);
+  const r = s % 60;
+  if (m <= 0) return `${r}s`;
+  return `${m}:${String(r).padStart(2, "0")}`;
+}
 
 type LsShape = Record<string, number[]>;
 
@@ -74,26 +96,6 @@ function mergeLs(areaId: string, lessonIdx: number): number[] {
   return m[areaId]!;
 }
 
-function getMuxDemoId(): string {
-  return (
-    (typeof process.env.NEXT_PUBLIC_MUX_DEMO_PLAYBACK_ID === "string"
-      ? process.env.NEXT_PUBLIC_MUX_DEMO_PLAYBACK_ID.trim()
-      : "") || ""
-  );
-}
-
-function getBunnyIds(): { lib: string; vid: string } {
-  const lib =
-    (typeof process.env.NEXT_PUBLIC_BUNNY_LIBRARY_ID === "string"
-      ? process.env.NEXT_PUBLIC_BUNNY_LIBRARY_ID.trim()
-      : "") || "";
-  const vid =
-    (typeof process.env.NEXT_PUBLIC_BUNNY_DEMO_VIDEO_ID === "string"
-      ? process.env.NEXT_PUBLIC_BUNNY_DEMO_VIDEO_ID.trim()
-      : "") || "";
-  return { lib, vid };
-}
-
 const C101_OPENING_SESSION_KEY = "thc-c101-opening-dismissed";
 
 type Props = {
@@ -119,9 +121,6 @@ export function LessonPanel({
   const campusAdmin = isCampusAdminEmail(session?.user?.email ?? null);
   const utils = trpc.useUtils();
 
-  const MUX_DEMO = getMuxDemoId();
-  const BUNNY_DEMO = getBunnyIds();
-
   const { data: serverLp } = trpc.campus.lessonProgressMine.useQuery(undefined, {
     enabled: open && status === "authenticated",
     staleTime: 30_000
@@ -139,6 +138,7 @@ export function LessonPanel({
   });
 
   const [localTick, setLocalTick] = useState(0);
+  const [visitTick, setVisitTick] = useState(0);
   const [mobileDrawer, setMobileDrawer] = useState<null | "lessons" | "progress">(null);
   const [markCelebration, setMarkCelebration] = useState(false);
   const [c101OpeningDismissed, setC101OpeningDismissed] = useState(() => {
@@ -175,6 +175,11 @@ export function LessonPanel({
     return new Set(a);
   }, [area, serverDone, localDoneAll, localTick, status]);
 
+  const visitedSet = useMemo(() => {
+    if (!area) return new Set<number>();
+    return readLessonVisitedIndices(area.id);
+  }, [area?.id, visitTick, localTick]);
+
   const clampedLesson = titles.length ? Math.min(Math.max(0, lessonIndex), titles.length - 1) : 0;
 
   useEffect(() => {
@@ -194,7 +199,16 @@ export function LessonPanel({
   useEffect(() => {
     if (!open || !area) return;
     persistLessonPanelVisit(area.id, clampedLesson);
+    persistLessonVisit(area.id, clampedLesson);
+    setVisitTick((t) => t + 1);
   }, [open, area?.id, clampedLesson]);
+
+  useEffect(() => {
+    if (!open || !area) return;
+    if (area.id === CANNABIS101_AREA_ID) {
+      completeCampusMissionPhase2IfNeeded("campus-p2-cannabis101");
+    }
+  }, [open, area]);
 
   useEffect(() => {
     if (!open || !area || area.id !== CANNABIS101_AREA_ID) return;
@@ -221,6 +235,53 @@ export function LessonPanel({
     awardXp(10, "lesson_panel_open");
   }, [open, area?.id, clampedLesson]);
 
+  const dwellRef = useRef(0);
+  const [dwellLiveMs, setDwellLiveMs] = useState(0);
+
+  const lessonEstimatedMinutes = useMemo(
+    () => (area ? getLessonEstimatedMinutesForArea(area.id, clampedLesson) : null),
+    [area, clampedLesson]
+  );
+
+  const requiredDwellMs = useMemo(
+    () => computeLessonMinimumDwellMs(lessonEstimatedMinutes),
+    [lessonEstimatedMinutes]
+  );
+
+  useEffect(() => {
+    if (!area || typeof window === "undefined") return;
+    const initial = readLessonDwellAccumulatedMs(area.id, clampedLesson);
+    dwellRef.current = initial;
+    setDwellLiveMs(initial);
+  }, [area, clampedLesson]);
+
+  useEffect(() => {
+    if (!open || !area) return;
+    let last = Date.now();
+    const id = window.setInterval(() => {
+      const now = Date.now();
+      const delta = now - last;
+      last = now;
+      if (typeof document !== "undefined" && document.visibilityState !== "visible") return;
+      const prevAcc = dwellRef.current;
+      dwellRef.current += delta;
+      recordAcademicStudyMsDelta(area.id, clampedLesson, prevAcc, dwellRef.current);
+      persistLessonDwellAccumulatedMs(area.id, clampedLesson, dwellRef.current);
+      setDwellLiveMs(dwellRef.current);
+    }, 1000);
+    return () => {
+      window.clearInterval(id);
+      const now = Date.now();
+      const delta = now - last;
+      if (typeof document !== "undefined" && document.visibilityState === "visible") {
+        const prevAcc = dwellRef.current;
+        dwellRef.current += delta;
+        recordAcademicStudyMsDelta(area.id, clampedLesson, prevAcc, dwellRef.current);
+        persistLessonDwellAccumulatedMs(area.id, clampedLesson, dwellRef.current);
+      }
+    };
+  }, [open, area, clampedLesson]);
+
   const areaIdx = useMemo(() => {
     if (!area) return -1;
     return allAreas.findIndex((x) => x.id === area.id);
@@ -240,6 +301,12 @@ export function LessonPanel({
     if (!doneSet.has(clampedLesson)) setMarkCelebration(true);
     const mergedMarks = mergeLs(area.id, clampedLesson);
     persistLessonMarkUpdate(area.id);
+    if (titles.length > 0 && computeLocalCoursePctFromMarks(area.id) >= 100) {
+      grantCampusAreaCompletionCollectibleIfNeeded(area.id);
+    }
+    const distinctMarkedTotal = sumDistinctLocalLessonMarksAcrossAreas();
+    if (distinctMarkedTotal >= 1) completeCampusMissionPhase2IfNeeded("campus-p2-first-lesson-complete");
+    if (distinctMarkedTotal >= 3) completeCampusMissionPhase2IfNeeded("campus-p2-three-lessons");
     setLocalTick((t) => t + 1);
     if (wasNewLocalMark) {
       const reward = grantLessonCompletionReward({
@@ -253,6 +320,9 @@ export function LessonPanel({
           xp: reward.xpAdded,
           progressPercent: reward.coursePercentApprox
         });
+        void import("@/stores/liveCampusHudFeedStore").then(({ pushLiveCampusHudNotification }) => {
+          pushLiveCampusHudNotification("Aula concluída");
+        });
       }
     }
     if (area.id === CANNABIS101_AREA_ID) notifyCannabis101StartHintListeners();
@@ -264,18 +334,6 @@ export function LessonPanel({
   const already = doneSet.has(clampedLesson);
 
   const lessonTitle = titles[clampedLesson] ?? "Conteúdo";
-
-  const moodleSnippet = trpc.campus.moodleLessonSnippet.useQuery(
-    {
-      areaId: area?.id ?? "",
-      lessonIndex: clampedLesson,
-      lessonTitle
-    },
-    {
-      enabled: Boolean(open && areaUsesMoodleLessonSnippet(area?.id) && titles.length > 0),
-      staleTime: 120_000
-    }
-  );
 
   const richContent = useMemo(
     () => (area ? getLessonRichContent(area, clampedLesson, lessonTitle) : null),
@@ -346,70 +404,93 @@ export function LessonPanel({
     nextLessonDisabled: titles.length === 0 || clampedLesson >= titles.length - 1
   };
 
-  const renderMarkLessonToolbar = (courseArea: Area) => (
-    <div className="flex flex-wrap gap-2 border-b border-white/10 pb-3">
-      <motion.div
-        animate={
-          markCelebration
-            ? { scale: [1, 1.06, 1], boxShadow: ["0 0 0 0 rgba(245, 158, 11, 0)", "0 0 0 8px rgba(245, 158, 11, 0.12)", "0 0 0 0 rgba(245, 158, 11, 0)"] }
-            : { scale: 1 }
-        }
-        transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-        className="inline-flex"
-      >
-        <Button
-          type="button"
-          size="sm"
-          disabled={already || markSeen.isPending}
-          onClick={markCurrent}
-          className={cn(
-            "font-bold transition-all",
-            already ? "opacity-80" : "",
-            isCannabis101Room &&
-              !already &&
-              "shadow-md shadow-amber-950/40 ring-1 ring-amber-500/30 hover:ring-amber-400/50"
-          )}
-          title={
-            already
-              ? isCannabis101Room
-                ? "Este episódio já conta no seu progresso."
-                : "Esta aula já está registada no seu progresso."
-              : isCannabis101Room
-                ? "Registra que você passou por aqui e soma XP no campus."
-                : "Regista conclusão e ganha XP no campus."
-          }
-        >
-          {already ? (
-            <>
-              <CheckCircle2 size={16} />{" "}
-              {isCannabis101Room ? "Episódio registrado" : "Aula registada"}
-            </>
-          ) : (
-            <>
-              <Sparkles size={16} />{" "}
-              {isCannabis101Room ? "Marcar episódio (+8 XP)" : "Marcar como vista (+8 XP)"}
-            </>
-          )}
-        </Button>
-      </motion.div>
-      {MUX_DEMO ? (
-        <Button type="button" variant="glass" size="sm" asChild>
-          <Link href={`/aula/${encodeURIComponent(MUX_DEMO)}?course=${encodeURIComponent(courseArea.id)}`}>
-            Mux (página)
-          </Link>
-        </Button>
-      ) : null}
-      {BUNNY_DEMO.lib && BUNNY_DEMO.vid ? (
-        <Button type="button" variant="glass" size="sm" asChild>
-          <Link
-            href={`/aula/${encodeURIComponent(BUNNY_DEMO.vid)}?course=${encodeURIComponent(courseArea.id)}&provider=bunny`}
+  const renderMarkLessonToolbar = (_courseArea: Area) => {
+    const dwellMet = dwellLiveMs >= requiredDwellMs;
+    const remainingMs = Math.max(0, requiredDwellMs - dwellLiveMs);
+    const dwellPct = requiredDwellMs > 0 ? Math.min(100, (dwellLiveMs / requiredDwellMs) * 100) : 100;
+    const completeBlocked = !already && !dwellMet;
+
+    return (
+      <div className="flex flex-col gap-2 border-b border-white/10 pb-3">
+        {!already && !dwellMet ? (
+          <div
+            className={cn(
+              "space-y-2 rounded-xl border px-3 py-2.5",
+              isCannabis101Room
+                ? "border-amber-500/25 bg-amber-950/15"
+                : "border-white/12 bg-black/30"
+            )}
+            role="status"
           >
-            Bunny (página)
-          </Link>
-        </Button>
-      ) : null}
-    </div>
-  );
+            <p className="text-[11px] leading-snug text-white/70">
+              Continue estudando para liberar a conclusão.
+            </p>
+            <div className="h-2 overflow-hidden rounded-full bg-black/45">
+              <div
+                className={cn(
+                  "h-full rounded-full transition-[width] duration-300",
+                  isCannabis101Room ? "bg-amber-500/85" : "bg-emerald-500/85"
+                )}
+                style={{ width: `${dwellPct}%` }}
+              />
+            </div>
+            <p className="text-[10px] tabular-nums text-white/45">
+              Faltam{" "}
+              <span className="font-semibold text-white/65">{formatDwellRemaining(remainingMs)}</span>
+              {" "}· o tempo acumula se você sair e voltar
+            </p>
+          </div>
+        ) : null}
+
+        <p className="text-[10px] text-white/40">
+          Ao abrir a aula: +10 XP de visita (uma vez por aula).
+          {" "}Concluir vale recompensa separada ao clicar no botão.
+        </p>
+
+        <motion.div
+          animate={
+            markCelebration
+              ? { scale: [1, 1.06, 1], boxShadow: ["0 0 0 0 rgba(245, 158, 11, 0)", "0 0 0 8px rgba(245, 158, 11, 0.12)", "0 0 0 0 rgba(245, 158, 11, 0)"] }
+              : { scale: 1 }
+          }
+          transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+          className="inline-flex flex-wrap gap-2"
+        >
+          <Button
+            type="button"
+            size="sm"
+            disabled={already || markSeen.isPending || completeBlocked}
+            onClick={markCurrent}
+            className={cn(
+              "font-bold transition-all",
+              already ? "opacity-80" : "",
+              isCannabis101Room &&
+                !already &&
+                dwellMet &&
+                "shadow-md shadow-amber-950/40 ring-1 ring-amber-500/30 hover:ring-amber-400/50"
+            )}
+            title={
+              already
+                ? "Esta aula já está concluída no seu progresso."
+                : completeBlocked
+                  ? `Permanência mínima na aula antes de concluir (faltam ${formatDwellRemaining(remainingMs)}).`
+                  : "Regista a conclusão da aula e recebe a recompensa de fecho (uma vez)."
+            }
+          >
+            {already ? (
+              <>
+                <CheckCircle2 size={16} /> Aula concluída
+              </>
+            ) : (
+              <>
+                <Sparkles size={16} /> Marcar como concluída
+              </>
+            )}
+          </Button>
+        </motion.div>
+      </div>
+    );
+  };
 
   const cannabisIntroSnippet = richContent?.intro?.trim();
   const skipCannabisTabsIntro =
@@ -548,13 +629,22 @@ export function LessonPanel({
                     areaId={area.id}
                     accent={accent}
                     {...lessonListProps}
+                    visitedSet={visitedSet}
                     className="h-full min-h-0"
                   />
                 </aside>
 
                 <main
                   data-lesson-scroll-root
-                  className="relative order-first min-h-0 min-w-0 flex-1 overflow-y-auto scrollbar-thin px-4 py-4 sm:px-7 sm:py-5 md:order-none"
+                  className={cn(
+                    "relative order-first min-h-0 min-w-0 flex-1 overflow-y-auto scrollbar-thin px-4 py-4 sm:px-7 sm:py-5 md:order-none",
+                    /**
+                     * Cannabis 101 · mobile: a barra «Voltar ao campus / Próxima aula» é sticky no fundo
+                     * do mesmo scrollport — sem este espaço o quiz fica por baixo e os cliques caem na barra.
+                     */
+                    isCannabis101Room &&
+                      "max-md:pb-[calc(12.5rem+env(safe-area-inset-bottom,0px))]"
+                  )}
                 >
                   <div
                     aria-hidden
@@ -628,14 +718,14 @@ export function LessonPanel({
                         {titles.length ? (
                           <div
                             className="rounded-xl border border-amber-500/20 bg-amber-950/20 px-3 py-2.5"
-                            aria-label={`Progresso: ${doneSet.size} de ${titles.length} aulas`}
+                            aria-label={`Progresso: ${doneSet.size} de ${titles.length} aulas concluídas`}
                           >
                             <div className="flex items-center justify-between text-[11px] text-white/55">
                               <span className="font-semibold uppercase tracking-wide text-white/60">
                                 Progresso
                               </span>
                               <span className="tabular-nums font-bold text-white/80">
-                                {doneSet.size}/{titles.length} vistas
+                                {doneSet.size}/{titles.length} concluídas
                               </span>
                             </div>
                             <div className="mt-2 h-2 overflow-hidden rounded-full bg-black/40">
@@ -660,70 +750,6 @@ export function LessonPanel({
                         />
                       </>
                     )}
-
-                    {areaUsesMoodleLessonSnippet(area.id) ? (
-                      <div
-                        className="rounded-xl border border-white/10 bg-black/30 px-4 py-3"
-                      >
-                        {moodleSnippet.isFetching ? (
-                          <p className="flex items-center gap-2 text-xs text-white/55">
-                            <Loader2 className="size-3.5 shrink-0 animate-spin" aria-hidden />
-                            A sincronizar o resumo desta aula com a sala oficial THCProce…
-                          </p>
-                        ) : moodleSnippet.data?.ok ? (
-                          <>
-                            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-emerald-200/85">
-                              Sala oficial — resumo da aula
-                            </p>
-                            <p className="mt-1 text-[11px] text-white/45">
-                              {moodleSnippet.data.sectionTitle} · {moodleSnippet.data.moduleName}
-                            </p>
-                            {moodleSnippet.data.summaryText ? (
-                              <p className="mt-3 whitespace-pre-wrap text-[14px] leading-relaxed text-white/[0.88]">
-                                {moodleSnippet.data.summaryText}
-                              </p>
-                            ) : (
-                              <p className="mt-3 text-sm text-white/55">
-                                Ainda não há resumo curto indexado para esta aula na sala oficial — abra o link para
-                                ler a ficha completa, anexos e instruções de entrega.
-                              </p>
-                            )}
-                            {moodleSnippet.data.moodleUrl ? (
-                              <Button type="button" variant="glass" size="sm" className="mt-3 font-semibold" asChild>
-                                <a
-                                  href={moodleSnippet.data.moodleUrl}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                >
-                                  Abrir esta aula na sala oficial THCProce
-                                </a>
-                              </Button>
-                            ) : null}
-                          </>
-                        ) : campusAdmin ? (
-                          <p className="text-xs leading-relaxed text-amber-200/85">
-                            <span className="font-semibold text-amber-100">Admin:</span> sem ligação à sala oficial (
-                            {moodleSnippet.data && "reason" in moodleSnippet.data
-                              ? moodleSnippet.data.reason
-                              : "—"}
-                            ). Ative{" "}
-                            <code className="rounded bg-black/40 px-1 text-[10px]">
-                              core_course_get_contents
-                            </code>{" "}
-                            no serviço WS,{" "}
-                            <code className="rounded bg-black/40 px-1 text-[10px]">MOODLE_WS_TOKEN</code> e{" "}
-                            <code className="rounded bg-black/40 px-1 text-[10px]">MOODLE_COURSE_MAP</code> com o
-                            id do Cannabis 101.
-                          </p>
-                        ) : (
-                          <p className="text-xs leading-relaxed text-white/55">
-                            O arquivo completo desta aula (texto longo, PDFs, entregas) está na sala digital oficial
-                            THCProce. Desça até “Materiais” e “Referências” neste painel ou peça apoio à equipa se
-                            precisar de acesso.
-                          </p>
-                        )}
-                      </div>
-                    ) : null}
 
                     {dbLessonQ.isFetching ? (
                       <p className="text-xs text-white/45">A sincronizar conteúdo da aula…</p>
@@ -754,6 +780,7 @@ export function LessonPanel({
                         streamAccent={accent}
                         streamChapter={streamChapter}
                         skipIntroSection={skipCannabisTabsIntro}
+                        lessonQuizContext={{ areaId: area.id, lessonIndex: clampedLesson }}
                       />
                     ) : null}
 
@@ -933,6 +960,7 @@ export function LessonPanel({
                     areaId={area.id}
                     accent={accent}
                     {...lessonListProps}
+                    visitedSet={visitedSet}
                     onSelectLesson={(i) => {
                       onSelectLesson(i);
                       setMobileDrawer(null);

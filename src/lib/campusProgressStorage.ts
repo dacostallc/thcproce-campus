@@ -125,8 +125,24 @@ export function parseCampusProgressStored(raw: string | null): Partial<CampusPro
 }
 
 /** Merge persisted JSON + authoritative keys + recomputed caches. */
+/**
+ * Igual ao resultado de `loadCampusProgress()` sem `window` — sem ler `localStorage`.
+ * Primeira pintura no cliente deve usar isto para hidratação estável.
+ */
+export function campusProgressHydrationSeed(): CampusProgress {
+  return {
+    version: SNAP_VERSION,
+    lastAreaId: null,
+    lastLessonIndex: null,
+    courseProgressPct: {},
+    cannabis101Started: false,
+    tourCompleted: false,
+    resumeBannerDismissed: false
+  };
+}
+
 export function loadCampusProgress(): CampusProgress {
-  if (typeof window === "undefined") return defaultCampusProgress();
+  if (typeof window === "undefined") return campusProgressHydrationSeed();
 
   let base = defaultCampusProgress();
   try {

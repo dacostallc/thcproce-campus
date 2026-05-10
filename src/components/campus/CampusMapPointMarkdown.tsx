@@ -13,18 +13,17 @@ export function CampusMapPointMarkdown({ markdown, sky }: Props) {
   const isDay = sky === "day";
 
   const components: Components = {
-    a: ({ href, children }) => (
-      <a
-        href={href}
-        target="_blank"
-        rel="noopener noreferrer"
+    /** Modo leitura no campus: sem navegação (Moodle, externos ou outras rotas). */
+    a: ({ children }) => (
+      <span
         className={cn(
-          "font-medium underline underline-offset-2 decoration-white/25 hover:decoration-canna-400/80",
-          isDay ? "text-emerald-800" : "text-canna-300"
+          "font-medium border-b border-dotted border-white/25",
+          isDay ? "text-emerald-900/95" : "text-canna-200/95"
         )}
+        title="Referência — links desativados na leitura do mapa"
       >
         {children}
-      </a>
+      </span>
     ),
     blockquote: ({ children }) => (
       <blockquote

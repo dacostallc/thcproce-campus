@@ -8,11 +8,17 @@ type Props = {
   className?: string;
   /** Compacto para barras do HUD. */
   compact?: boolean;
+  /**
+   * Valor mostrado à força (ex.: 0 antes de hidratar em `/campus/perfil`).
+   * Omite para usar o perfil em memória.
+   */
+  displayCredits?: number;
 };
 
 /** Saldo de créditos ganhos no campus (neste navegador). */
-export function CreditBalanceChip({ className, compact }: Props) {  const g = useStudentGamification();
-  const n = g.credits;
+export function CreditBalanceChip({ className, compact, displayCredits }: Props) {
+  const g = useStudentGamification();
+  const n = displayCredits !== undefined ? displayCredits : g.credits;
 
   return (
     <span

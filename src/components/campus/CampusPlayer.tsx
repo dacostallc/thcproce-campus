@@ -17,7 +17,11 @@ import { isCampusAdvancedMap } from "@/config/campusMapStability";
 import { CampusAvatarIdTag } from "@/components/campus/CampusAvatarIdTag";
 
 import { CampusPlayerAvatar } from "@/components/campus/CampusPlayerAvatar";
-import type { StudentAvatarVariant } from "@/lib/studentGamificationStorage";
+import { useClientHydrated } from "@/hooks/useClientHydrated";
+import {
+  studentProfileHydrationSeed,
+  type StudentAvatarVariant
+} from "@/lib/studentGamificationStorage";
 
 import { CampusCinemaEmojiBurst } from "@/components/campus/CampusCinemaEmoji";
 
@@ -68,8 +72,11 @@ export function CampusPlayer({
 
   const advancedMap = isCampusAdvancedMap();
 
-  const avatarVariant =
-    gamificationAvatarVariant ?? (campusRole === "free" ? "visitor" : "student");
+  const hydrated = useClientHydrated();
+  /** Até hidratar: igual ao `useStudentGamification` inicial (`studentProfileHydrationSeed`). Evita mismatch visitor/student com LS/props. */
+  const avatarVariant = hydrated
+    ? gamificationAvatarVariant ?? (campusRole === "free" ? "visitor" : "student")
+    : studentProfileHydrationSeed().avatarVariant;
 
   const lastEmoji = useCampusStore((s) => s.cinemaLastEmoji);
 
