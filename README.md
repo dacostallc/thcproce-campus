@@ -21,6 +21,25 @@ Abre em `http://localhost:3030`.
 
 **Terminal integrado**: se o cwd for outra pasta (ex.: `~\.cursor\plans`), faz primeiro `cd` até **este** repositório antes de `npm install` / `npm run dev`. No PowerShell, **não** uses `cd %USERPROFILE%\...` — esse `%VAR%` é sintaxe `cmd`; em PS usa por exemplo `Set-Location ~\thcproce-campus`. Se mantiveres shim no workspace Cursor (ficheiros `campus-dev-launcher.*` + `scripts/run-next-dev.cjs` em `plans`), podes definir `TH_CAMPUS_ROOT` com o caminho absoluto deste clone.
 
+### Fluxo oficial de deploy (Git → Vercel)
+
+1. **Fonte da verdade:** commits na branch principal (**`main`**) no GitHub.
+2. **Produção:** push para `origin/main` → a Vercel faz **deploy automático** do projeto ligado ao repo (não uses o CLI como fluxo principal).
+3. **Domínio:** confirma no dashboard Vercel que **`campus.thcproce.com.br`** está associado **a este projeto** e que **Production Branch** = `main` + **Auto-deploy** activo.
+4. **`vercel.json`** neste repo fixa **Next.js** e região **`gru1`** — não alteres sem alinhamento com infra.
+
+### Checklist obrigatório antes de push / produção
+
+```bash
+npm run typecheck
+npm run build
+git status   # working tree limpo (sem ficheiros que deviam estar no .gitignore)
+git commit …
+git push origin main
+```
+
+Depois: abre o deployment na Vercel → **Ready** → valida `campus.thcproce.com.br` (ou preview).
+
 ### Mensagens em destaque no mapa / Cine THC (Prof THC · admin)
 
 Só admins (e-mails configurados em `NEXT_PUBLIC_CAMPUS_ADMIN_EMAILS`) podem enviar um **balão dourado (~5 s)** acima do avatar, **acima do overlay do cinema** mas **abaixo do painel do chat**:
@@ -75,41 +94,29 @@ src/
 
 Plano completo em `c:\Users\sdelv\.cursor\plans\campus-interativo-thcproce_*.plan.md`.
 
-## Publicar na Vercel
+## Deploy na Vercel (primeira vez ou revisão)
 
-O Prisma está em **PostgreSQL** (SQLite `file:` não funciona em produção serverless). Antes do primeiro deploy, cria uma base (ex.: [Neon](https://neon.tech)) e aplica o schema:
+O Prisma em produção usa **PostgreSQL** (SQLite local não serve em serverless). Primeira base: ex. [Neon](https://neon.tech), depois:
 
 ```bash
-# com DATABASE_URL da Neon no .env ou na shell
 npx prisma db push
 ```
 
-Repositório Git: se ainda não existir, na pasta do projeto:
+Na [Vercel](https://vercel.com): projeto ligado ao **GitHub** deste repo → **Production Branch** `main` → deploy automático em cada push.
 
-```bash
-git init
-git add .
-git commit -m "Campus THCProce — deploy"
-```
-
-Cria o repositório no GitHub/GitLab e `git remote add origin ...` + `git push -u origin main`.
-
-Na [Vercel](https://vercel.com): **Add New Project** → importa o repo → Framework Next.js (detetado). O ficheiro `vercel.json` fixa região `gru1` (São Paulo).
-
-**Variáveis de ambiente na Vercel (mínimo para não quebrar auth + API):**
+### Variáveis de ambiente (resumo)
 
 | Variável | Obrigatória? | Notas |
 |----------|--------------|--------|
-| `DATABASE_URL` | Sim | Connection string PostgreSQL (Neon pooled ou direct; com SSL se o host exigir). |
-| `NEXTAUTH_URL` | Sim | URL pública do site, ex. `https://teu-projeto.vercel.app` ou domínio custom. |
-| `NEXTAUTH_SECRET` | Sim | Segredo forte, ex. `openssl rand -base64 32`. |
-| `NEXT_PUBLIC_MOODLE_BASE_URL` | Recomendada | URL base da escola Moodle (links e WS). |
+| `DATABASE_URL` | Sim | PostgreSQL (Neon, etc.). |
+| `NEXTAUTH_URL` | Sim | URL pública (ex. `https://campus.thcproce.com.br`). |
+| `NEXTAUTH_SECRET` | Sim | Ex.: `openssl rand -base64 32`. |
+| `NEXT_PUBLIC_MOODLE_BASE_URL` | Recomendada | Base Moodle da escola. |
 
-**Opcionais** (podes deixar vazio): Bunny (`BUNNY_*`, `NEXT_PUBLIC_BUNNY_*`), Mux, Supabase, Sentry, tokens Moodle (`MOODLE_WS_TOKEN`, etc.), OAuth Moodle, `NEXT_PUBLIC_MUX_DEMO_PLAYBACK_ID`, `NEXT_PUBLIC_DEFAULT_DEMO_YOUTUBE_VIDEO_ID`. O campus **reproduz aulas** com fallback YouTube público se nada de Mux/Bunny estiver definido.
+**Opcionais:** Bunny, Mux, Supabase, Sentry, Moodle WS/OAuth, demos YouTube/Mux — ver `.env.example` quando existir.
 
-**Comando seguro para publicar:** depois de `npm run build` local passar e de teres colocado as env na Vercel + `prisma db push` na base remota:
+### Vercel CLI (secundário)
 
-- Se o projeto já está ligado ao Git: **faz push da branch** → a Vercel faz deploy sozinha.
-- Ou, com [Vercel CLI](https://vercel.com/docs/cli): `npx vercel` (preview) e `npx vercel --prod` (produção), na pasta do projeto e autenticado (`npx vercel login`).
+Reserva **`npx vercel` / `npx vercel --prod`** para previews pontuais ou troubleshooting. O repo inclui **`.vercelignore`** para não enviar `node_modules` nem caches no uplink; mesmo assim o fluxo **oficial** é **Git push** (evita limites de tamanho e divergência com o que está em produção).
 
-**Postgres local (opcional):** com Docker instalado, `docker compose up -d` e o `DATABASE_URL` de `.env.example`.
+**Postgres local (opcional):** `docker compose up -d` + `DATABASE_URL` conforme `.env.example`.

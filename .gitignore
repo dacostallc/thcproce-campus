@@ -1,11 +1,58 @@
-node_modules
-.next
-out
-.env*
-!.env.example
-.DS_Store
+# --- Dependencies & framework outputs ---
+node_modules/
+.next/
+out/
+.turbo/
+dist/
+build/
+
+# --- Tests & coverage ---
+coverage/
+
+# --- Logs ---
+logs/
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# --- Env & secrets (mantém exemplo commitável) ---
+.env
+.env.*
+!.env.example
+
+# --- OS / editor ---
+.DS_Store
+Thumbs.db
+
+# --- Toolchain ---
 *.tsbuildinfo
+
+# --- SQLite local (Prisma dev) ---
 prisma/dev.db
 prisma/dev.db-journal
+
+# --- Cache & artefactos temporários ---
+.cache/
+.parcel-cache/
+.eslintcache
+*.tmp
+*.temp
+
+# --- Assets grandes só locais (evitar commits pesados) ---
 public/video/*.mp4
+
+# --- Debug local / relatórios de UI ---
+screenshots/
+playwright-report/
+test-results/
+*.dump
+
+# --- Backups & cópias ---
+*.bak
+*.backup
+*~
+
+# --- Vercel CLI (metadata local; deploy oficial via Git) ---
+.vercel
