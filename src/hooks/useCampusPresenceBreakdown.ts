@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import { useCampusHudStore } from "@/stores/campusHudStore";
+import { useCampusGuestVisitor } from "@/hooks/useCampusGuestVisitor";
 import { useCampusPresenceStore } from "@/stores/campusPresenceStore";
 import { useCampusStore } from "@/stores/campusStore";
 import type { CampusActivityKind } from "@/lib/campusPresenceActivity";
@@ -94,9 +96,11 @@ const ZERO_ACTIVITY: Record<CampusActivityKind, number> = {
 
 /**
  * Presença rica: contagem global (`campusVisitorCount`) + histograma e lista a partir dos peers do mapa.
- * Sem hacks de servidor — quando não há Supabase, a lista fica vazia mas o overlay mantém ruído demo legível.
+ * A linha «Você» usa sessão quando autenticado; visitantes mostram «Você — visitante» ou «Você (nick) — visitante» (só UI local).
  */
 export function useCampusPresenceBreakdown(): CampusPresenceBreakdown {
+  const { status, data: session } = useSession();
+  const { guestNickname, guestHydrated } = useCampusGuestVisitor(status);
   const total = useCampusHudStore((s) => s.campusVisitorCount);
   const othersByUid = useCampusPresenceStore((s) => s.othersByUid);
   const pathname = usePathname() ?? "";
@@ -143,6 +147,21 @@ export function useCampusPresenceBreakdown(): CampusPresenceBreakdown {
     ]
   );
 
+  const localSelfLabel = useMemo(() => {
+    if (status === "authenticated") {
+      const n = (
+        session?.user?.name ??
+        session?.user?.email?.split("@")[0] ??
+        "Aluno"
+      ).trim();
+      return `Você — ${n.slice(0, 28)}`;
+    }
+    if (guestHydrated && guestNickname?.trim()) {
+      return `Você (${guestNickname.trim()}) — visitante`;
+    }
+    return "Você — visitante";
+  }, [status, session?.user?.name, session?.user?.email, guestHydrated, guestNickname]);
+
   return useMemo(() => {
     const ambient = deriveAmbientBreakdown(total, tick);
     const peers = Object.values(othersByUid);
@@ -154,7 +173,7 @@ export function useCampusPresenceBreakdown(): CampusPresenceBreakdown {
         visitors: [],
         localVisitorRow: {
           uid: "__local__",
-          displayName: "Tu (esta sessão)",
+          displayName: localSelfLabel,
           activity: localActivity,
           activityLabel: campusActivityLabelPt(localActivity)
         }
@@ -193,10 +212,10 @@ export function useCampusPresenceBreakdown(): CampusPresenceBreakdown {
       visitors,
       localVisitorRow: {
         uid: "__local__",
-        displayName: "Tu (esta sessão)",
+        displayName: localSelfLabel,
         activity: localActivity,
         activityLabel: campusActivityLabelPt(localActivity)
       }
     };
-  }, [othersByUid, total, tick, localActivity]);
+  }, [othersByUid, total, tick, localActivity, localSelfLabel]);
 }

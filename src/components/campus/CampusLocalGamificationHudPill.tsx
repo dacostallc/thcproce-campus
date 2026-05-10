@@ -20,7 +20,7 @@ export function CampusLocalGamificationHudPill({ className, onOpenProfile }: Pro
       onClick={onOpenProfile}
       title="Meu perfil (neste dispositivo)"
       className={cn(
-        "pointer-events-auto flex max-w-[min(52vw,13.5rem)] items-center gap-1.5 rounded-xl border border-white/[0.14] bg-black/[0.18] px-2 py-1 text-left shadow-[0_4px_20px_rgba(0,0,0,0.15)] backdrop-blur-2xl transition hover:border-emerald-300/35 hover:bg-white/[0.08] sm:max-w-[15rem] sm:gap-2 sm:px-2.5 sm:py-1.5",
+        "pointer-events-auto flex max-w-[min(52vw,13.5rem)] cursor-pointer items-center gap-1.5 rounded-xl border border-white/[0.14] bg-black/[0.18] px-2 py-1 text-left shadow-[0_4px_20px_rgba(0,0,0,0.15)] backdrop-blur-2xl transition hover:border-emerald-300/35 hover:bg-white/[0.08] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/45 focus-visible:ring-offset-2 focus-visible:ring-offset-black/55 sm:max-w-[15rem] sm:gap-2 sm:px-2.5 sm:py-1.5",
         className
       )}
     >

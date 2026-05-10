@@ -7,6 +7,7 @@ import {
 import type { PctPos } from "@/stores/campusStore";
 import type { CampusUserRole } from "@/config/userRoles";
 import { coerceCampusUserRole } from "@/config/userRoles";
+import type { CampusSelfPresenceStatus } from "@/lib/campusWalkEstimate";
 import type { CampusActivityKind } from "@/lib/campusPresenceActivity";
 import {
   inferCampusActivityFromLegacyPayload,
@@ -44,6 +45,8 @@ export type CampusRealtimePayload = {
   adminBroadcastAt: number;
   /** Fase 4 — contexto pedagógico / UX (realtime). */
   campusActivity: CampusActivityKind;
+  /** Presença fina (idle / walking / cinema / lesson / exploring) — opcional para peers antigos. */
+  campusPresenceStatus?: CampusSelfPresenceStatus;
 };
 
 export function isAllowedCinemaReactionEmoji(s: string): s is (typeof CINEMA_REACTION_EMOJIS)[number] {

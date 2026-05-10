@@ -44,14 +44,6 @@ const config: Config = {
           "0%, 100%": { transform: "translateY(0)" },
           "50%": { transform: "translateY(-6px)" }
         },
-        droneFly: {
-          "0%": { transform: "translate3d(-18%,0,0)" },
-          "100%": { transform: "translate3d(118%,0,0)" }
-        },
-        droneFly2: {
-          "0%": { transform: "translate3d(118%,0,0)" },
-          "100%": { transform: "translate3d(-18%,0,0)" }
-        },
         firefly: {
           "0%, 100%": { opacity: "0", transform: "translate(0,0) scale(0.6)" },
           "20%": { opacity: "1" },
@@ -92,10 +84,6 @@ const config: Config = {
           "33%": { transform: "translate3d(16px,-8px,0)" },
           "66%": { transform: "translate3d(-11px,6px,0)" }
         },
-        vivoDroneCrawl: {
-          "0%": { transform: "translate3d(-12%,-4px,0)" },
-          "100%": { transform: "translate3d(112%,3px,0)" }
-        },
         vivoZonePulse: {
           "0%, 100%": { opacity: "0.5", transform: "scale(1)" },
           "50%": { opacity: "0.82", transform: "scale(1.025)" }
@@ -120,8 +108,6 @@ const config: Config = {
       animation: {
         pulseGlow: "pulseGlow 2.4s ease-in-out infinite",
         floatY: "floatY 4s ease-in-out infinite",
-        droneFly: "droneFly 22s linear infinite",
-        droneFly2: "droneFly2 28s linear infinite",
         firefly: "firefly 5s ease-in-out infinite",
         windowFlicker: "windowFlicker 3s ease-in-out infinite",
         carPass: "carPass 14s linear infinite",
@@ -131,7 +117,6 @@ const config: Config = {
         campusCineMist: "campusCineMist 24s ease-in-out infinite",
         campusPlayerFootShadow: "campusPlayerFootShadow 3.15s ease-in-out infinite",
         vivoStudentDrift: "vivoStudentDrift 32s ease-in-out infinite",
-        vivoDroneCrawl: "vivoDroneCrawl 58s linear infinite",
         vivoZonePulse: "vivoZonePulse 8.5s ease-in-out infinite",
         vivoTicker: "vivoTicker 46s linear infinite",
         hudToastIn: "hudToastIn 380ms ease-out both",

@@ -31,6 +31,7 @@ import { cn } from "@/lib/utils";
 import { useCampusSkyStore } from "@/stores/campusSkyStore";
 import { useCampusHudStore } from "@/stores/campusHudStore";
 import { trpc } from "@/lib/trpc/react";
+import { campusGuestPublicReadEnabled } from "@/lib/campusGuestVisitor";
 import { Button } from "@/components/ui/button";
 import { isCampusAdminEmail } from "@/lib/campusAdmin";
 import { CAMPUS_HOME_PATH } from "@/config/siteUrls";
@@ -54,20 +55,35 @@ import {
 } from "@/lib/studentMissionsTelemetry";
 import { completeCampusMissionPhase2IfNeeded } from "@/lib/campusMissionsPhase2Storage";
 import { useCampusPresenceBreakdown } from "@/hooks/useCampusPresenceBreakdown";
+import { useCampusSocialZoneStore } from "@/stores/campusSocialZoneStore";
 import { useLiveCampusHudFeedStore } from "@/stores/liveCampusHudFeedStore";
 import { useCampusStore } from "@/stores/campusStore";
+import { campusSelfPresenceStatusToSocialLight } from "@/lib/campusSelfPresenceSocialHeartbeat";
+import { useCampusSelfPresenceStore } from "@/stores/campusSelfPresenceStore";
 import { CampusHudAmbientMusic } from "@/components/campus/CampusHudAmbientMusic";
+import { CampusGuestNicknameModal } from "@/components/campus/CampusGuestNicknameModal";
+import { useCampusGuestVisitor } from "@/hooks/useCampusGuestVisitor";
 
 const CampusLeaderboardLazy = lazy(async () => {
   const m = await import("@/components/campus/leaderboard/CampusLeaderboard");
   return { default: m.CampusLeaderboard };
 });
 
+/** Foco visível consistente no HUD do mapa (teclado / leitores). */
+const campusMapHudFocus =
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/45 focus-visible:ring-offset-2 focus-visible:ring-offset-black/55";
+
 const mapHudGlassBtn =
-  "flex h-8 w-8 items-center justify-center rounded-full border border-white/[0.14] bg-black/[0.16] text-white/90 shadow-[0_4px_24px_rgba(0,0,0,0.18)] backdrop-blur-2xl transition hover:border-emerald-300/35 hover:bg-white/[0.12] hover:text-white sm:h-9 sm:w-9";
+  cn(
+    "flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-white/[0.14] bg-black/[0.16] text-white/90 shadow-[0_4px_24px_rgba(0,0,0,0.18)] backdrop-blur-2xl transition hover:border-emerald-300/35 hover:bg-white/[0.12] hover:text-white active:scale-[0.98] sm:h-9 sm:w-9",
+    campusMapHudFocus
+  );
 
 const mapHudGlassPill =
-  "inline-flex items-center gap-1 rounded-full border border-white/[0.12] bg-black/[0.18] px-2.5 py-1 text-[10px] font-semibold text-white/90 shadow-[0_4px_20px_rgba(0,0,0,0.15)] backdrop-blur-2xl transition hover:border-emerald-300/28 hover:bg-white/[0.1] sm:text-[11px]";
+  cn(
+    "inline-flex min-h-8 cursor-pointer select-none items-center justify-center gap-1 rounded-full border border-white/[0.12] bg-black/[0.18] px-3 py-1.5 text-[10px] font-semibold text-white/90 shadow-[0_4px_20px_rgba(0,0,0,0.15)] backdrop-blur-2xl transition hover:border-emerald-300/28 hover:bg-white/[0.1] active:scale-[0.98] sm:min-h-9 sm:px-2.5 sm:py-1.5 sm:text-[11px]",
+    campusMapHudFocus
+  );
 
 function campusProfileInitials(name: string | null | undefined, email: string | null | undefined): string {
   const n = name?.trim();
@@ -111,6 +127,8 @@ export function HUD() {
 
   const { data: session, status } = useSession();
   const campusAdmin = isCampusAdminEmail(session?.user?.email ?? null);
+  const [guestNickModalOpen, setGuestNickModalOpen] = useState(false);
+  const { guestNickname, guestHydrated, setGuestNickname } = useCampusGuestVisitor(status);
   const { data: xpData } = trpc.campus.myProgress.useQuery(undefined, {
     enabled: status === "authenticated",
     staleTime: 30_000
@@ -118,20 +136,39 @@ export function HUD() {
   const { data: events } = trpc.campus.campusEvents.useQuery(undefined, {
     staleTime: 3600_000
   });
+  const muralGuestRead = campusGuestPublicReadEnabled();
   const { data: mural } = trpc.campus.muralFeed.useQuery(
     { take: 10 },
     {
-      enabled: muralOpen,
+      enabled: muralOpen && (status === "authenticated" || muralGuestRead),
       staleTime: 15_000
     }
   );
   const utils = trpc.useUtils();
+  const socialZoneLabel = useCampusSocialZoneStore((s) => s.zoneLabel);
+
+  const { data: campusSocialPoll } = trpc.campus.campusSocialPoll.useQuery(undefined, {
+    enabled: campusNavActive && status === "authenticated",
+    staleTime: 18_000,
+    refetchInterval: 26_000
+  });
+
+  const campusSocialHeartbeatMut = trpc.campus.campusSocialHeartbeat.useMutation({
+    onSuccess: () => void utils.campus.campusSocialPoll.invalidate()
+  });
   const [muralBody, setMuralBody] = useState("");
   const [campusProfileOpen, setCampusProfileOpen] = useState(false);
   const muralPost = trpc.campus.muralPost.useMutation({
     onSuccess: () => {
       void utils.campus.muralFeed.invalidate();
       setMuralBody("");
+    }
+  });
+  const campusGuidedMissionEvent = trpc.campus.campusGuidedMissionEvent.useMutation({
+    onSuccess: () => {
+      void utils.campus.campusGuidedMissions.invalidate();
+      void utils.campus.myProgress.invalidate();
+      void utils.campus.campusPersistenceSummary.invalidate();
     }
   });
   const { data: badges } = trpc.campus.myBadges.useQuery(undefined, {
@@ -223,6 +260,40 @@ export function HUD() {
   }, [campusNavActive, cinemaDockOpen, isCineOpen]);
 
   useEffect(() => {
+    if (status !== "authenticated") return;
+    if (!campusProfileOpen) return;
+    campusGuidedMissionEvent.mutate({ event: "OPEN_PROFILE" });
+  }, [campusProfileOpen, status, campusGuidedMissionEvent]);
+
+  useEffect(() => {
+    if (status !== "authenticated") return;
+    if (!campusNavActive) return;
+    if (!cinemaDockOpen && !isCineOpen) return;
+    campusGuidedMissionEvent.mutate({ event: "OPEN_CINEMA" });
+  }, [campusNavActive, cinemaDockOpen, isCineOpen, status, campusGuidedMissionEvent]);
+
+  useEffect(() => {
+    if (status !== "authenticated" || !campusNavActive) return;
+    const pulse = () => {
+      const statusLight = campusSelfPresenceStatusToSocialLight(
+        useCampusSelfPresenceStore.getState().status
+      );
+      campusSocialHeartbeatMut.mutate({
+        currentZoneLabel: socialZoneLabel,
+        statusLight
+      });
+    };
+    pulse();
+    const id = window.setInterval(pulse, 26000);
+    return () => clearInterval(id);
+  }, [status, campusNavActive, socialZoneLabel, campusSocialHeartbeatMut]);
+
+  useEffect(() => {
+    if (campusNavActive) return;
+    useCampusSocialZoneStore.getState().setCampusSocialZoneLabel(null);
+  }, [campusNavActive]);
+
+  useEffect(() => {
     if (campusProfileOpenNonce <= profileOpenNonceHandled.current) return;
     profileOpenNonceHandled.current = campusProfileOpenNonce;
     setCampusProfileOpen(true);
@@ -253,8 +324,8 @@ export function HUD() {
             transition={{ duration: 0.45, delay: 0.1 }}
             className="pointer-events-none fixed left-0 right-0 top-0 z-20 px-3 pt-[max(0.75rem,env(safe-area-inset-top))] sm:px-4 [&_a]:pointer-events-auto [&_button]:pointer-events-auto"
           >
-            <div className="flex w-full items-start gap-2">
-              <div className="pointer-events-auto flex items-center gap-1.5">
+            <div className="flex w-full flex-wrap items-start justify-between gap-x-2 gap-y-1.5">
+              <div className="pointer-events-auto flex min-w-0 max-w-[calc(100vw-10rem)] flex-wrap items-center gap-1.5 sm:max-w-none">
                 <Link
                   href="/"
                   className={cn(mapHudGlassBtn, "shrink-0")}
@@ -264,17 +335,13 @@ export function HUD() {
                   <Leaf size={16} className="text-canna-200" />
                 </Link>
                 <Link href={CAMPUS_HOME_PATH} className={mapHudGlassPill} title="Mapa do campus">
-                  <MapPin size={13} className="text-amber-200/90" aria-hidden />
+                  <MapPin size={13} className="shrink-0 text-amber-200/90" aria-hidden />
                   <span className="whitespace-nowrap">Mapa</span>
                 </Link>
-              </div>
-
-              <div className="pointer-events-auto hidden min-w-0 min-[380px]:flex flex-1 justify-center px-1 pt-0.5 min-[480px]:pt-0">
                 <CampusLocalGamificationHudPill onOpenProfile={() => setCampusProfileOpen(true)} />
               </div>
 
-              <div className="pointer-events-auto ml-auto flex shrink-0 items-center gap-1 sm:gap-1.5">
-                <CampusHudAmbientMusic />
+              <div className="pointer-events-auto flex shrink-0 items-center gap-1 sm:gap-1.5">
                 <div className="pointer-events-auto relative" ref={campusMoreWrapRef}>
                   <button
                     type="button"
@@ -327,7 +394,10 @@ export function HUD() {
                         <Link
                           href="/planos"
                           role="menuitem"
-                          className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-[11px] font-medium text-white/88 transition hover:bg-white/10"
+                          className={cn(
+                            "flex w-full cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-left text-[11px] font-medium text-white/88 transition hover:bg-white/10",
+                            campusMapHudFocus
+                          )}
                           data-campus-tour-anchor="planos"
                           onClick={() => setCampusMoreOpen(false)}
                         >
@@ -336,7 +406,10 @@ export function HUD() {
                         <Link
                           href="/inscrever-se"
                           role="menuitem"
-                          className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-[11px] font-medium text-white/88 transition hover:bg-white/10"
+                          className={cn(
+                            "flex w-full cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-left text-[11px] font-medium text-white/88 transition hover:bg-white/10",
+                            campusMapHudFocus
+                          )}
                           data-campus-tour-anchor="inscrever"
                           onClick={() => setCampusMoreOpen(false)}
                         >
@@ -426,7 +499,10 @@ export function HUD() {
                             <Link
                               href="/perfil"
                               role="menuitem"
-                              className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-[11px] font-medium text-white/88 transition hover:bg-white/10"
+                              className={cn(
+                                "flex w-full cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-left text-[11px] font-medium text-white/88 transition hover:bg-white/10",
+                                campusMapHudFocus
+                              )}
                               onClick={() => setCampusMoreOpen(false)}
                             >
                               Progresso (conta)
@@ -506,6 +582,22 @@ export function HUD() {
                   </button>
                 ) : (
                   <div className="pointer-events-auto flex items-center gap-1 sm:gap-1.5">
+                    <button
+                      type="button"
+                      className={cn(
+                        mapHudGlassBtn,
+                        "h-8 w-8 overflow-hidden border-white/18 sm:h-9 sm:w-9"
+                      )}
+                      title="Nick de visitante (só neste dispositivo — não é conta)"
+                      aria-label="Editar nick de visitante"
+                      onClick={() => setGuestNickModalOpen(true)}
+                    >
+                      <span className="text-[10px] font-bold tabular-nums text-emerald-100/95 sm:text-[11px]">
+                        {guestHydrated
+                          ? campusProfileInitials(guestNickname ?? undefined, null)
+                          : "?"}
+                      </span>
+                    </button>
                     <Link href="/login" className={cn(mapHudGlassPill, "text-white/90")}>
                       Entrar
                     </Link>
@@ -521,6 +613,7 @@ export function HUD() {
               </div>
             </div>
           </motion.header>
+          <CampusHudAmbientMusic />
         </>
       ) : null}
 
@@ -553,6 +646,7 @@ export function HUD() {
                 <div className="p-2">
                   <CampusPresencePanel
                     presence={presenceBreakdown}
+                    social={campusSocialPoll ?? null}
                     className="border-white/10 bg-transparent shadow-none"
                   />
                   <div className="mt-2 max-h-[10rem] overflow-y-auto rounded-lg border border-white/[0.08] bg-black/[0.18] p-1.5">
@@ -573,7 +667,10 @@ export function HUD() {
           <div className="pointer-events-auto flex h-12 items-center justify-around px-1">
             <button
               type="button"
-              className="flex flex-col items-center gap-0.5 rounded-lg px-2 py-1 text-[9px] font-semibold text-white/80 transition hover:bg-white/10 hover:text-white"
+              className={cn(
+                "flex cursor-pointer flex-col items-center gap-0.5 rounded-lg px-3 py-1 text-[9px] font-semibold text-white/80 transition hover:bg-white/10 hover:text-white",
+                campusMapHudFocus
+              )}
               aria-label="Centrar mapa"
               onClick={recenterMap}
             >
@@ -582,7 +679,10 @@ export function HUD() {
             </button>
             <button
               type="button"
-              className="flex flex-col items-center gap-0.5 rounded-lg px-2 py-1 text-[9px] font-semibold text-white/80 transition hover:bg-white/10 hover:text-white"
+              className={cn(
+                "flex cursor-pointer flex-col items-center gap-0.5 rounded-lg px-3 py-1 text-[9px] font-semibold text-white/80 transition hover:bg-white/10 hover:text-white",
+                campusMapHudFocus
+              )}
               aria-label="Perfil"
               onClick={() => setCampusProfileOpen(true)}
             >
@@ -591,7 +691,10 @@ export function HUD() {
             </button>
             <button
               type="button"
-              className="flex flex-col items-center gap-0.5 rounded-lg px-2 py-1 text-[9px] font-semibold text-white/80 transition hover:bg-white/10 hover:text-white"
+              className={cn(
+                "flex cursor-pointer flex-col items-center gap-0.5 rounded-lg px-3 py-1 text-[9px] font-semibold text-white/80 transition hover:bg-white/10 hover:text-white",
+                campusMapHudFocus
+              )}
               aria-label="Continuar aula"
               onClick={() => requestCampusResumeLesson()}
             >
@@ -855,23 +958,51 @@ export function HUD() {
                   </Button>
                 </div>
                 {campusNavActive && status !== "authenticated" ? (
-                  <p className="border-b border-white/10 px-4 py-2 text-[11px] text-white/55 sm:px-5">
-                    <Link href="/login" className="text-canna-300 hover:underline">
-                      Entrar
-                    </Link>{" "}
-                    para sincronizar conta. Loja campus:{" "}
-                    <button
-                      type="button"
-                      className="font-semibold text-amber-200/90 hover:underline"
-                      onClick={() => {
-                        markMissionStoreEntered();
-                        setCampusStoreOpen(true);
-                      }}
-                    >
-                      abrir
-                    </button>
-                    .
-                  </p>
+                  <div className="space-y-2 border-b border-white/10 px-4 py-2 text-[11px] text-white/55 sm:px-5">
+                    <p>
+                      <button
+                        type="button"
+                        className="font-semibold text-canna-200/95 hover:underline"
+                        onClick={() => setGuestNickModalOpen(true)}
+                      >
+                        {guestHydrated && guestNickname?.trim()
+                          ? "Editar nick de visitante"
+                          : "Criar nick de visitante"}
+                      </button>
+                      <span className="text-white/40"> · </span>
+                      nick local, não é conta.
+                    </p>
+                    <p>
+                      <Link href="/login" className="text-canna-300 hover:underline">
+                        Entrar
+                      </Link>{" "}
+                      para sincronizar conta. Loja campus:{" "}
+                      <button
+                        type="button"
+                        className="font-semibold text-amber-200/90 hover:underline"
+                        onClick={() => {
+                          markMissionStoreEntered();
+                          setCampusStoreOpen(true);
+                        }}
+                      >
+                        abrir
+                      </button>
+                      .
+                    </p>
+                    <p className="flex flex-wrap gap-x-2 gap-y-1 text-[10px] text-white/42">
+                      <Link href="/inscrever" className="text-emerald-200/88 hover:underline">
+                        Salvar meu progresso
+                      </Link>
+                      <span aria-hidden>·</span>
+                      <Link href="/inscrever" className="text-emerald-200/88 hover:underline">
+                        Criar conta gratuita
+                      </Link>
+                      <span aria-hidden>·</span>
+                      <Link href="/entrar" className="text-emerald-200/88 hover:underline">
+                        Campus completo
+                      </Link>
+                    </p>
+                  </div>
                 ) : null}
                 <div className="min-h-0 flex-1 overflow-y-auto scrollbar-thin p-4 pb-5 sm:p-5">
                   <CampusLocalProfileModalBody
@@ -888,6 +1019,13 @@ export function HUD() {
       </AnimatePresence>
 
       <CampusStoreModal open={campusStoreOpen} onClose={() => setCampusStoreOpen(false)} />
+
+      <CampusGuestNicknameModal
+        open={guestNickModalOpen}
+        onOpenChange={setGuestNickModalOpen}
+        initialNickname={guestNickname}
+        onSave={(n) => setGuestNickname(n)}
+      />
 
       <AnimatePresence>
         {campusMissionsOpen ? (
@@ -1053,7 +1191,8 @@ function OverflowAction({
   className?: string;
 }) {
   const c = cn(
-    "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-[11px] font-medium text-white/88 transition hover:bg-white/10",
+    "flex w-full cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-left text-[11px] font-medium text-white/88 transition hover:bg-white/10",
+    campusMapHudFocus,
     className
   );
   return (

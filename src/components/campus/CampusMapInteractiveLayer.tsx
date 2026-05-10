@@ -36,6 +36,7 @@ import {
   isCampusMapPrimaryCourseArea
 } from "@/lib/campusMapTopicCatalog";
 import { hotspotDisplayLabel } from "@/lib/campusMapHotspotResolve";
+import type { CampusZoneStatus } from "@/types/campusProgress";
 
 type Props = {
   setPlayerLoose: (p: PctPos) => void;
@@ -45,9 +46,13 @@ type Props = {
   /** Opcional; por defeito deriva de {@link imageObjectFit}. */
   svgPreserveAspectRatio?: "xMidYMid meet" | "xMidYMid slice";
   /** Salas principais do mapa → abre `CoursePanel` via seleção do curso. */
-  onOpenCampusCourse: (courseId: string) => void;
+  onOpenCampusCourse: (courseId: string, legacyHitId?: string | null) => void;
   /** Abertura directa de aula no campus (ex.: slug Cannabis 101). */
   onOpenCampusLesson: (courseId: string, lessonIndex: number) => void;
+  /** Estados por hotspot SVG (`CampusMapInteractiveArea.id`) vindos do servidor. */
+  hitZoneStates?: Partial<Record<string, CampusZoneStatus>>;
+  /** Registo de visita/zona antes das rotas HUD/rota externa (evita duplicar com painel curso principal). */
+  onPersistInteractiveActivation?: (hit: CampusMapInteractiveArea) => void;
 };
 
 type MsgTone = "coming_soon" | "inactive" | "missing_course" | "missing_topic";
@@ -201,7 +206,9 @@ export function CampusMapInteractiveLayer({
   imageObjectFit,
   svgPreserveAspectRatio,
   onOpenCampusCourse,
-  onOpenCampusLesson
+  onOpenCampusLesson,
+  hitZoneStates,
+  onPersistInteractiveActivation
 }: Props) {
   const router = useRouter();
   const { data: session } = useSession();
@@ -332,6 +339,24 @@ export function CampusMapInteractiveLayer({
     (hit: CampusMapInteractiveArea) => {
       triggerHitFlash(hit.id);
 
+      const tEarly = hit.target;
+      const skipHudRoute =
+        tEarly.kind === "route" ||
+        tEarly.kind === "hud_store" ||
+        tEarly.kind === "hud_mural" ||
+        tEarly.kind === "schedule_day" ||
+        tEarly.kind === "cinema_live_rail" ||
+        tEarly.kind === "campus_mural_feed";
+      const skipBecausePrimaryCoursePanel =
+        isCampusMapPrimaryCourseArea(hit.id) && tEarly.kind === "course";
+      if (
+        onPersistInteractiveActivation &&
+        !skipHudRoute &&
+        !skipBecausePrimaryCoursePanel
+      ) {
+        onPersistInteractiveActivation(hit);
+      }
+
       setDialog(null);
       setPlayerLoose(clampPlayerPct(imageMapApproxCenterPct(hit.coords, hit.shape)));
 
@@ -381,7 +406,7 @@ export function CampusMapInteractiveLayer({
           return;
         }
         useCampusHudStore.getState().setCampusMapHotspotPanelHitId(null);
-        onOpenCampusCourse(t.courseId);
+        onOpenCampusCourse(t.courseId, hit.id);
         return;
       }
       const topic = getCampusMapTopicByAreaId(hit.id);
@@ -412,7 +437,14 @@ export function CampusMapInteractiveLayer({
       }
       setDialog({ variant: "message", hit, messageTone: "missing_topic" });
     },
-    [router, setPlayerLoose, triggerHitFlash, onOpenCampusCourse, onOpenCampusLesson]
+    [
+      router,
+      setPlayerLoose,
+      triggerHitFlash,
+      onOpenCampusCourse,
+      onOpenCampusLesson,
+      onPersistInteractiveActivation
+    ]
   );
 
   const handleHitFaceKeyDown = useCallback(
@@ -430,13 +462,24 @@ export function CampusMapInteractiveLayer({
     if (mapInteractionsSuppressed) return;
     if (e.button !== 0) return;
     const id = (e.target as SVGElement).closest("[data-hit-id]")?.getAttribute("data-hit-id");
-    if (!id) return;
-    e.preventDefault();
-    e.stopPropagation();
-    const hit = CAMPUS_MAP_INTERACTIVE_AREAS.find((x) => x.id === id);
-    if (!hit) return;
+    if (id) {
+      e.preventDefault();
+      e.stopPropagation();
+      const hit = CAMPUS_MAP_INTERACTIVE_AREAS.find((x) => x.id === id);
+      if (!hit) return;
+      activateInteractiveHit(hit);
+      return;
+    }
 
-    activateInteractiveHit(hit);
+    /** Clique fora de hotspots: só mover avatar (% na arte), sem painéis. */
+    const svg = svgRef.current;
+    if (!svg) return;
+    const pt = clientToSvgViewBox(svg, e.clientX, e.clientY);
+    if (!pt) return;
+    const mx = (pt.x / CAMPUS_ART_WIDTH) * 100;
+    const my = (pt.y / CAMPUS_ART_HEIGHT) * 100;
+    setPlayerLoose(clampPlayerPct({ x: mx, y: my }));
+    e.preventDefault();
   };
 
   const renderTechFooter = (hit: CampusMapInteractiveArea | null) => {
@@ -515,10 +558,13 @@ export function CampusMapInteractiveLayer({
             const suppressFloatingSvgMarker =
               hit.target.kind === "course" && hit.target.courseId === CANNABIS101_AREA_ID;
 
+            const zoneState = hitZoneStates?.[hit.id] ?? "new";
+
             return primitiveArt.kind === "polygon" ? (
               <g
                 key={hit.id}
                 data-hit-id={hit.id}
+                data-campus-zone-state={zoneState}
                 data-light-preset={light.preset}
                 style={groupStyle}
                 className={cn(
@@ -590,6 +636,7 @@ export function CampusMapInteractiveLayer({
               <g
                 key={hit.id}
                 data-hit-id={hit.id}
+                data-campus-zone-state={zoneState}
                 data-light-preset={light.preset}
                 style={groupStyle}
                 className={cn(

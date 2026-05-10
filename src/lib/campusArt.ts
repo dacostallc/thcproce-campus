@@ -64,8 +64,8 @@ export const CAMPUS_MAP_SIMPLE_STAGE_BACKDROP_IMG_STYLE = {
   objectPosition: CAMPUS_IMAGE_OBJECT_POSITION,
   transform: "scale(1.06)",
   transformOrigin: "center center",
-  filter: "blur(20px) saturate(0.82)",
-  opacity: 0.14
+  filter: "blur(14px) saturate(0.92)",
+  opacity: 0.085
 } satisfies CSSProperties;
 
 /**

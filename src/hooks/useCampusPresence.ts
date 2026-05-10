@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo } from "react";
 import { usePathname } from "next/navigation";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 import { CAMPUS_PRESENCE_TTL_MS } from "@/config/campusPresence";
@@ -81,7 +81,6 @@ export function useCampusPresence(): {
   const setVisitorPresenceStatus = useCampusHudStore((s) => s.setVisitorPresenceStatus);
 
   const supa = useMemo(() => createSupabaseBrowser(), []);
-  const warnedMissingSupabaseRef = useRef(false);
 
   useEffect(() => {
     if (!onCampus) {
@@ -94,14 +93,6 @@ export function useCampusPresence(): {
       process.env.NEXT_PUBLIC_SUPABASE_DISABLE_PRESENCE === "true";
 
     if (!supa || disablePresence) {
-      if (!supa && !warnedMissingSupabaseRef.current) {
-        warnedMissingSupabaseRef.current = true;
-        if (process.env.NODE_ENV === "development") {
-          console.info(
-            "[CampusVisitorPresence] Supabase não configurado — contagem de visitantes desligada (mapa continua normal)."
-          );
-        }
-      }
       setCampusVisitorCount(null);
       setVisitorPresenceStatus("offline");
       return;

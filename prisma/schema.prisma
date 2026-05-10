@@ -82,6 +82,10 @@ model Profile {
   // Fila Moodle quando WS ativo
   moodleSyncPending Boolean @default(false)
   role              UserRole @default(STUDENT)
+  /// Presença social no campus: nome público | anónimo | invisível (`src/types/campusSocialPresence.ts`).
+  campusSocialVisibility  String @default("name")
+  /// Estado leve mostrado no cartão social (exploring | studying | cinema | rest).
+  campusSocialStatusLight String @default("exploring")
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
@@ -108,6 +112,140 @@ model Profile {
   userAchievements  UserAchievement[]
   userAvatarItems   UserAvatarItem[]
   userMissionProgresses UserMissionProgress[]
+
+  /// THCProce Campus — estado persistente do mapa e microaulas (Fase A).
+  userCampusProgress      UserCampusProgress?
+  userZoneDiscoveries     UserZoneDiscovery[]
+  userMicroLessonProgress UserMicroLessonProgress[]
+  campusXpLedger          UserXpLedger[]
+  campusBadges            UserBadge[]
+  campusMissionProgress   CampusMissionProgress[]
+  campusSocialPresence    CampusSocialPresence?
+}
+
+/// Sessão de presença social leve no campus (polling; renovada por heartbeat).
+model CampusSocialPresence {
+  profileId            String   @id
+  profile              Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  /// Espelho da preferência no momento do último heartbeat (para filtrar em poll sem join extra).
+  visibilitySnapshot   String   @default("name")
+  statusLight          String   @default("exploring")
+  currentZoneLabel     String?
+  avatarUrl            String?
+  displayNameSnapshot  String?
+  peerToken            String   @unique
+  lastSeenAt           DateTime @updatedAt
+  createdAt            DateTime @default(now())
+
+  @@index([lastSeenAt])
+  @@index([currentZoneLabel, lastSeenAt])
+}
+
+/// Interacções pré-aprovadas (sem texto livre). TTL limpo no poll.
+model CampusSocialGesture {
+  id            String   @id @default(cuid())
+  fromProfileId String
+  toProfileId   String
+  kind          String
+  emoji         String?
+  createdAt     DateTime @default(now())
+
+  @@index([toProfileId, createdAt])
+  @@index([fromProfileId, createdAt])
+}
+
+/// Progresso das orientações / primeiros passos no campus (catálogo em `src/lib/campus/campusMissions.ts`).
+model CampusMissionProgress {
+  profileId       String
+  missionId       String
+  profile         Profile   @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  progressCurrent Int       @default(0)
+  completedAt     DateTime?
+  rewardClaimedAt DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@id([profileId, missionId])
+  @@index([profileId])
+}
+
+/// Memória do campus: última zona, painéis e histórico leve (JSON).
+model UserCampusProgress {
+  profileId String  @id
+  profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  lastZoneLabel              String?
+  lastLegacyHitId            String?
+  lastBuildingCourseId       String?
+  lastMicroLessonBlueprintId String?
+  /// course | hotspot | lesson | null
+  lastPanelKind              String?
+
+  recommendedZoneLabels Json @default("[]")
+  favoriteTrailIds      Json @default("[]")
+  navigationHistory     Json @default("[]")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model UserZoneDiscovery {
+  id        String   @id @default(cuid())
+  profileId String
+  profile   Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  zoneLabel String
+  status    String   @default("discovered")
+  visitCount Int     @default(1)
+  firstSeenAt DateTime @default(now())
+  lastSeenAt  DateTime @default(now())
+
+  @@unique([profileId, zoneLabel])
+  @@index([profileId])
+}
+
+model UserMicroLessonProgress {
+  id             String    @id @default(cuid())
+  profileId      String
+  profile        Profile   @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  blueprintId    String
+  zoneLabel      String
+  legacyHitId    String?
+  startedAt      DateTime?
+  completedAt    DateTime?
+  xpEarned       Int       @default(0)
+  secondsEngaged Int       @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([profileId, blueprintId])
+  @@index([profileId, zoneLabel])
+}
+
+/// Ledger de XP ganho no campus (microaulas, zonas, painéis). Não duplica `ProfileRewardLog`.
+model UserXpLedger {
+  id        String   @id @default(cuid())
+  profileId String
+  profile   Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  actionType String
+  amount    Int
+  meta      Json?
+
+  createdAt DateTime @default(now())
+
+  @@index([profileId, createdAt])
+}
+
+/// Badges específicos do ecossistema Campus (separados de Achievement Moodle/legacy).
+model UserBadge {
+  id        String   @id @default(cuid())
+  profileId String
+  profile   Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  badgeCode String
+  unlockedAt DateTime @default(now())
+
+  @@unique([profileId, badgeCode])
+  @@index([profileId])
 }
 
 /// Registo idempotente: um perfil só pode receber bónus de indicação uma vez (referredProfileId único).

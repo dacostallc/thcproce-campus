@@ -7,7 +7,6 @@ import { SessionProvider } from "next-auth/react";
 import superjson from "superjson";
 import { trpc } from "@/lib/trpc/react";
 import { initSentryClient } from "@/lib/sentry";
-
 function getBaseUrl() {
   if (typeof window !== "undefined") return "";
   if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;

@@ -1,37 +1,15 @@
 "use client";
 
-import { cn } from "@/lib/utils";
-
 type Phase = "day" | "night";
 
 /**
  * Camada de "vida ambiente" CSS-only sobre o mapa do campus.
- * Luzes flutuantes leves ficam em `CampusAmbientSparks`. `phase` atenua vinheta de dia/noite.
- * Animações horizontais usam a largura do frame (`left` + trilho), nunca `vw`, para não invadir letterbox.
+ * Luzes pontuais e tráfego discreto na base; sem traços voadores ou partículas sobre o mapa.
+ * `phase` atenua vinheta de dia/noite.
  */
 export function AmbientLife({ phase = "night" }: { phase?: Phase }) {
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden">
-      {/* Drone 1 — alto, da esquerda pra direita */}
-      <div className="pointer-events-none absolute left-0 right-0 top-[6%] h-[24px] overflow-hidden">
-        <div className="absolute top-0 h-[22px] w-[44px] motion-reduce:!animate-none campus-map-ambient-drone-a">
-          <Drone tint="#8b9aaf" />
-        </div>
-      </div>
-
-      {/* Drone 2 — meio, da direita pra esquerda */}
-      <div className="pointer-events-none absolute left-0 right-0 top-[18%] h-[24px] overflow-hidden">
-        <div
-          className={cn(
-            "absolute top-0 h-[22px] w-[44px] motion-reduce:!animate-none campus-map-ambient-drone-b",
-            /* defasagem para não sincronizar com o primeiro */
-            "[animation-delay:-12s]"
-          )}
-        >
-          <Drone tint="#7eb8c8" />
-        </div>
-      </div>
-
       {/* Carro na rua de baixo */}
       <div className="pointer-events-none absolute bottom-[6%] left-0 right-0 h-[12px] overflow-hidden">
         <div
@@ -78,24 +56,6 @@ export function AmbientLife({ phase = "night" }: { phase?: Phase }) {
         }
       />
     </div>
-  );
-}
-
-function Drone({ tint }: { tint: string }) {
-  return (
-    <svg width="44" height="22" viewBox="0 0 44 22" className="opacity-38">
-      <defs>
-        <radialGradient id={`g-${tint}`} cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor={tint} stopOpacity="1" />
-          <stop offset="100%" stopColor={tint} stopOpacity="0" />
-        </radialGradient>
-      </defs>
-      <circle cx="6" cy="11" r="6" fill={`url(#g-${tint})`} />
-      <circle cx="38" cy="11" r="6" fill={`url(#g-${tint})`} />
-      <rect x="14" y="9" width="16" height="4" rx="2" fill="#0a0f0c" />
-      <circle cx="6" cy="11" r="1.5" fill={tint} />
-      <circle cx="38" cy="11" r="1.5" fill={tint} />
-    </svg>
   );
 }
 

@@ -24,6 +24,32 @@ import { areaUsesMoodleLessonSnippet } from "@/content/courses";
 import { resolveCampusLessonDbContent } from "@/lib/campus/resolveCampusLessonDbContent";
 import { getPublishedQuizWithAnswers } from "@/lib/quiz/playable";
 import { loadCampusMapPointReaderPayload } from "@/lib/campus/loadCampusMapPointContent";
+import { buildCampusWorldSnapshot } from "@/server/campus/buildCampusWorldSnapshot";
+import {
+  appendNavigationHistory,
+  refreshCampusRecommendedZones
+} from "@/server/campus/campusPersistenceHelpers";
+import { syncCampusGuidedMissions } from "@/server/campus/campusGuidedMissionsSync";
+import {
+  CAMPUS_MISSION_CATALOG,
+  campusMissionIdsForGuidedEvent
+} from "@/lib/campus/campusMissions";
+import {
+  campusSocialHeartbeat as persistCampusSocialHeartbeat,
+  campusSocialPoll as loadCampusSocialPoll,
+  campusSocialSendGesture as recordCampusSocialGestureAction,
+  campusSocialUpdatePrefs as persistCampusSocialPrefs
+} from "@/server/campus/campusSocialPresenceServer";
+import {
+  awardXp,
+  recordCampusAction,
+  syncCampusBadgeUnlocks
+} from "@/lib/campus/campusXpEngine";
+import {
+  enrichMicroLessonBlueprint,
+  findMicroLessonBlueprintById,
+  resolveCampusMapZoneLabel
+} from "@/data/campusMicroLessonContext";
 
 const mockCourses: MoodleCourse[] = areas.map((a, i) => ({
   id: 100 + i,
@@ -104,6 +130,23 @@ function parseLessonMap(raw: unknown): Record<string, number[]> {
     out[k] = nums.sort((a, b) => a - b);
   }
   return out;
+}
+
+async function requireCampusProfile(session: {
+  user?: { email?: string | null; name?: string | null } | null;
+} | null) {
+  const email = session?.user?.email;
+  if (!email) {
+    throw new TRPCError({ code: "UNAUTHORIZED", message: "Sem sessão válida." });
+  }
+  const displayName = session?.user?.name?.trim() || "Aluno";
+  let p = await prisma.profile.findUnique({ where: { email } });
+  if (!p) {
+    p = await prisma.profile.create({
+      data: { email, displayName }
+    });
+  }
+  return p;
 }
 
 export const campusRouter = router({
@@ -360,11 +403,16 @@ export const campusRouter = router({
   chatHistory: publicProcedure
     .input(z.object({ channel: z.string().default("global"), take: z.number().max(100).default(40) }))
     .query(async ({ input }) => {
-      return prisma.chatMessage.findMany({
-        where: { channel: input.channel },
-        orderBy: { createdAt: "desc" },
-        take: input.take
-      });
+      try {
+        return await prisma.chatMessage.findMany({
+          where: { channel: input.channel },
+          orderBy: { createdAt: "desc" },
+          take: input.take
+        });
+      } catch (e) {
+        console.warn("[campus] chatHistory: indisponível, devolvendo vazio", e);
+        return [];
+      }
     }),
 
   chatPost: publicProcedure
@@ -375,24 +423,43 @@ export const campusRouter = router({
         body: z.string().min(1).max(2000)
       })
     )
-    .mutation(async ({ input }) => {
-      return prisma.chatMessage.create({
-        data: {
-          channel: input.channel,
-          authorName: input.authorName,
-          body: input.body
-        }
-      });
+    .mutation(async ({ ctx, input }) => {
+      if (!ctx.session?.user?.email) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "Inicia sessão para enviar mensagens no chat."
+        });
+      }
+      try {
+        return await prisma.chatMessage.create({
+          data: {
+            channel: input.channel,
+            authorName: input.authorName,
+            body: input.body
+          }
+        });
+      } catch (e) {
+        console.warn("[campus] chatPost: falha ao gravar", e);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Chat temporariamente indisponível."
+        });
+      }
     }),
 
   leaderboard: publicProcedure
     .input(z.object({ take: z.number().max(50).default(10) }))
     .query(async ({ input }) => {
-      return prisma.profile.findMany({
-        orderBy: { xpTotal: "desc" },
-        take: input.take,
-        select: { displayName: true, xpTotal: true, levelKey: true }
-      });
+      try {
+        return await prisma.profile.findMany({
+          orderBy: { xpTotal: "desc" },
+          take: input.take,
+          select: { displayName: true, xpTotal: true, levelKey: true }
+        });
+      } catch (e) {
+        console.warn("[campus] leaderboard: indisponível, devolvendo vazio", e);
+        return [];
+      }
     }),
 
   campusEvents: publicProcedure.query(() => {
@@ -406,13 +473,18 @@ export const campusRouter = router({
 
   muralFeed: publicProcedure
     .input(z.object({ take: z.number().max(30).default(12) }))
-    .query(async ({ input }) =>
-      prisma.chatMessage.findMany({
-        where: { channel: "mural" },
-        orderBy: { createdAt: "desc" },
-        take: input.take
-      })
-    ),
+    .query(async ({ input }) => {
+      try {
+        return await prisma.chatMessage.findMany({
+          where: { channel: "mural" },
+          orderBy: { createdAt: "desc" },
+          take: input.take
+        });
+      } catch (e) {
+        console.warn("[campus] muralFeed: indisponível, devolvendo vazio", e);
+        return [];
+      }
+    }),
 
   muralPost: publicProcedure
     .input(
@@ -421,15 +493,29 @@ export const campusRouter = router({
         body: z.string().min(1).max(500)
       })
     )
-    .mutation(async ({ input }) =>
-      prisma.chatMessage.create({
-        data: {
-          channel: "mural",
-          authorName: input.authorName,
-          body: input.body
-        }
-      })
-    ),
+    .mutation(async ({ ctx, input }) => {
+      if (!ctx.session?.user?.email) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "Inicia sessão para publicar no mural."
+        });
+      }
+      try {
+        return await prisma.chatMessage.create({
+          data: {
+            channel: "mural",
+            authorName: input.authorName,
+            body: input.body
+          }
+        });
+      } catch (e) {
+        console.warn("[campus] muralPost: falha ao gravar", e);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Mural temporariamente indisponível."
+        });
+      }
+    }),
 
   myBadges: protectedProcedure.query(async ({ ctx }) => {
     const session = ctx.session;
@@ -506,6 +592,511 @@ export const campusRouter = router({
       });
 
       return { done: lpMap[input.areaId]!, awardedXp: wasNew ? 8 : 0 };
+    }),
+
+  /** Estado persistente do mapa + microaulas (Fase A). */
+  campusWorldSnapshot: protectedProcedure.query(async ({ ctx }) => {
+    const p = await requireCampusProfile(ctx.session);
+    const level = levelFromXp(p.xpTotal);
+    return buildCampusWorldSnapshot(prisma, p.id, p.xpTotal, level.key, level.label);
+  }),
+
+  campusPersistenceSummary: protectedProcedure.query(async ({ ctx }) => {
+    const p = await requireCampusProfile(ctx.session);
+    const [zonesCount, microCompleted, badges, zoneRows] = await Promise.all([
+      prisma.userZoneDiscovery.count({ where: { profileId: p.id } }),
+      prisma.userMicroLessonProgress.count({
+        where: { profileId: p.id, completedAt: { not: null } }
+      }),
+      prisma.userBadge.findMany({
+        where: { profileId: p.id },
+        orderBy: { unlockedAt: "desc" }
+      }),
+      prisma.userZoneDiscovery.findMany({
+        where: { profileId: p.id },
+        orderBy: { visitCount: "desc" },
+        take: 8,
+        select: { zoneLabel: true, visitCount: true }
+      })
+    ]);
+    const level = levelFromXp(p.xpTotal);
+    return {
+      xpTotal: p.xpTotal,
+      levelKey: level.key,
+      levelLabel: level.label,
+      zonesDiscovered: zonesCount,
+      microLessonsCompleted: microCompleted,
+      badges: badges.map((b) => ({
+        badgeCode: b.badgeCode,
+        unlockedAt: b.unlockedAt.toISOString()
+      })),
+      topZones: zoneRows
+    };
+  }),
+
+  /** Orientação no campus — catálogo em `src/lib/campus/campusMissions.ts`. */
+  campusGuidedMissions: protectedProcedure.query(async ({ ctx }) => {
+    const p = await requireCampusProfile(ctx.session);
+    await syncCampusGuidedMissions(prisma, p.id);
+    const rows = await prisma.campusMissionProgress.findMany({
+      where: { profileId: p.id },
+      select: {
+        missionId: true,
+        progressCurrent: true,
+        completedAt: true,
+        rewardClaimedAt: true
+      }
+    });
+    const byId = new Map(rows.map((r) => [r.missionId, r]));
+    return {
+      missions: CAMPUS_MISSION_CATALOG.map((def) => {
+        const row = byId.get(def.id);
+        const progressCurrent = row?.progressCurrent ?? 0;
+        const done =
+          !!row?.completedAt && progressCurrent >= def.targetValue;
+        return {
+          id: def.id,
+          title: def.title,
+          description: def.description,
+          objectiveType: def.objectiveType,
+          targetValue: def.targetValue,
+          xpReward: def.xpReward,
+          badgeId: def.badgeId ?? null,
+          suggestedZoneLabel: def.suggestedZoneLabel ?? null,
+          progressCurrent,
+          completedAt: row?.completedAt?.toISOString() ?? null,
+          rewardClaimedAt: row?.rewardClaimedAt?.toISOString() ?? null,
+          done
+        };
+      })
+    };
+  }),
+
+  campusGuidedMissionEvent: protectedProcedure
+    .input(z.object({ event: z.enum(["OPEN_PROFILE", "OPEN_CINEMA"]) }))
+    .mutation(async ({ ctx, input }) => {
+      const p = await requireCampusProfile(ctx.session);
+      const ids = campusMissionIdsForGuidedEvent(input.event);
+      for (const missionId of ids) {
+        const existing = await prisma.campusMissionProgress.findUnique({
+          where: { profileId_missionId: { profileId: p.id, missionId } }
+        });
+        const next = Math.max(existing?.progressCurrent ?? 0, 1);
+        await prisma.campusMissionProgress.upsert({
+          where: { profileId_missionId: { profileId: p.id, missionId } },
+          create: {
+            profileId: p.id,
+            missionId,
+            progressCurrent: next,
+            completedAt: null,
+            rewardClaimedAt: null
+          },
+          update: {
+            progressCurrent: next
+          }
+        });
+      }
+      await syncCampusGuidedMissions(prisma, p.id);
+      return { ok: true as const };
+    }),
+
+  /** Presença social leve — estado consolidado para polling (~15–30s no cliente). */
+  campusSocialPoll: protectedProcedure.query(async ({ ctx }) => {
+    const p = await requireCampusProfile(ctx.session);
+    return loadCampusSocialPoll({ profileId: p.id });
+  }),
+
+  campusSocialHeartbeat: protectedProcedure
+    .input(
+      z.object({
+        currentZoneLabel: z.string().min(2).max(64).nullable().optional(),
+        statusLight: z.enum(["exploring", "studying", "cinema", "rest"]).optional()
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const p = await requireCampusProfile(ctx.session);
+      const name = ctx.session?.user?.name?.trim() ?? null;
+      const img =
+        typeof ctx.session?.user?.image === "string" ? ctx.session.user.image : null;
+      return persistCampusSocialHeartbeat({
+        profileId: p.id,
+        sessionDisplayName: name,
+        sessionImage: img,
+        currentZoneLabel: input.currentZoneLabel ?? undefined,
+        statusLightOverride: input.statusLight
+      });
+    }),
+
+  campusSocialUpdatePrefs: protectedProcedure
+    .input(
+      z.object({
+        visibility: z.enum(["name", "anonymous", "hidden"]).optional(),
+        statusLight: z.enum(["exploring", "studying", "cinema", "rest"]).optional()
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const p = await requireCampusProfile(ctx.session);
+      await persistCampusSocialPrefs({
+        profileId: p.id,
+        visibility: input.visibility,
+        statusLight: input.statusLight
+      });
+      return { ok: true as const };
+    }),
+
+  campusSocialSendGesture: protectedProcedure
+    .input(
+      z.object({
+        targetPeerToken: z.string().min(8).max(96),
+        kind: z.enum(["wave", "salve", "emoji"]),
+        emoji: z.string().max(8).optional()
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const p = await requireCampusProfile(ctx.session);
+      try {
+        await recordCampusSocialGestureAction({
+          fromProfileId: p.id,
+          targetPeerToken: input.targetPeerToken,
+          kind: input.kind,
+          emoji: input.emoji
+        });
+        return { ok: true as const };
+      } catch (e) {
+        const code = e instanceof Error ? e.message : "";
+        if (code === "RATE_LIMIT_GESTURES") {
+          throw new TRPCError({
+            code: "TOO_MANY_REQUESTS",
+            message: "Vá devagar com as interações."
+          });
+        }
+        if (code === "TARGET_UNAVAILABLE") {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Este colega já não está disponível."
+          });
+        }
+        if (code === "SELF_TARGET") {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Não é possível interagir consigo mesmo."
+          });
+        }
+        if (code === "BAD_EMOJI") {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Emoji não permitido nesta interação."
+          });
+        }
+        throw e;
+      }
+    }),
+
+  campusMapMemory: protectedProcedure
+    .input(
+      z.object({
+        lastZoneLabel: z.string().max(64).optional(),
+        lastLegacyHitId: z.string().max(140).optional().nullable(),
+        lastBuildingCourseId: z.string().max(64).optional().nullable(),
+        lastMicroLessonBlueprintId: z.string().max(120).optional().nullable(),
+        lastPanelKind: z.enum(["course", "hotspot", "lesson"]).optional().nullable()
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const p = await requireCampusProfile(ctx.session);
+      await prisma.userCampusProgress.upsert({
+        where: { profileId: p.id },
+        create: {
+          profileId: p.id,
+          lastZoneLabel: input.lastZoneLabel ?? null,
+          lastLegacyHitId: input.lastLegacyHitId ?? null,
+          lastBuildingCourseId: input.lastBuildingCourseId ?? null,
+          lastMicroLessonBlueprintId: input.lastMicroLessonBlueprintId ?? null,
+          lastPanelKind: input.lastPanelKind ?? null
+        },
+        update: {
+          ...(input.lastZoneLabel !== undefined ? { lastZoneLabel: input.lastZoneLabel } : {}),
+          ...(input.lastLegacyHitId !== undefined ? { lastLegacyHitId: input.lastLegacyHitId } : {}),
+          ...(input.lastBuildingCourseId !== undefined
+            ? { lastBuildingCourseId: input.lastBuildingCourseId }
+            : {}),
+          ...(input.lastMicroLessonBlueprintId !== undefined
+            ? { lastMicroLessonBlueprintId: input.lastMicroLessonBlueprintId }
+            : {}),
+          ...(input.lastPanelKind !== undefined ? { lastPanelKind: input.lastPanelKind } : {})
+        }
+      });
+      return { ok: true as const };
+    }),
+
+  campusTouchZone: protectedProcedure
+    .input(
+      z.object({
+        zoneLabel: z.string().min(2).max(64),
+        legacyHitId: z.string().max(140).optional().nullable(),
+        courseAreaId: z.string().max(64).optional().nullable()
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const p = await requireCampusProfile(ctx.session);
+      const existing = await prisma.userZoneDiscovery.findUnique({
+        where: {
+          profileId_zoneLabel: { profileId: p.id, zoneLabel: input.zoneLabel }
+        }
+      });
+      const first = !existing;
+
+      await prisma.userZoneDiscovery.upsert({
+        where: {
+          profileId_zoneLabel: { profileId: p.id, zoneLabel: input.zoneLabel }
+        },
+        create: {
+          profileId: p.id,
+          zoneLabel: input.zoneLabel,
+          visitCount: 1,
+          status: "discovered"
+        },
+        update: {
+          visitCount: { increment: 1 },
+          lastSeenAt: new Date(),
+          status: "discovered"
+        }
+      });
+
+      const prog = await prisma.userCampusProgress.findUnique({
+        where: { profileId: p.id }
+      });
+      const nav = appendNavigationHistory(prog?.navigationHistory, {
+        at: new Date().toISOString(),
+        zoneLabel: input.zoneLabel,
+        hitId: input.legacyHitId ?? null
+      });
+
+      await prisma.userCampusProgress.upsert({
+        where: { profileId: p.id },
+        create: {
+          profileId: p.id,
+          lastZoneLabel: input.zoneLabel,
+          lastLegacyHitId: input.legacyHitId ?? null,
+          lastBuildingCourseId: input.courseAreaId ?? null,
+          navigationHistory: nav
+        },
+        update: {
+          lastZoneLabel: input.zoneLabel,
+          ...(input.legacyHitId !== undefined ? { lastLegacyHitId: input.legacyHitId } : {}),
+          ...(input.courseAreaId !== undefined ? { lastBuildingCourseId: input.courseAreaId } : {}),
+          navigationHistory: nav
+        }
+      });
+
+      if (first) {
+        await recordCampusAction(prisma, p.id, "VISIT_ZONE_FIRST");
+      } else {
+        await recordCampusAction(prisma, p.id, "VISIT_ZONE_REPEAT");
+      }
+
+      await refreshCampusRecommendedZones(prisma, p.id);
+      await syncCampusGuidedMissions(prisma, p.id);
+
+      return { ok: true as const };
+    }),
+
+  campusMicroLessonStart: protectedProcedure
+    .input(
+      z.object({
+        blueprintId: z.string().min(2).max(140),
+        legacyHitId: z.string().max(140).optional().nullable()
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const p = await requireCampusProfile(ctx.session);
+      const found = findMicroLessonBlueprintById(input.blueprintId);
+      if (!found) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Microaula desconhecida."
+        });
+      }
+      const zoneLabel = found.zone;
+      const existing = await prisma.userMicroLessonProgress.findUnique({
+        where: {
+          profileId_blueprintId: { profileId: p.id, blueprintId: input.blueprintId }
+        }
+      });
+      const firstOpen = !existing?.startedAt;
+
+      await prisma.userMicroLessonProgress.upsert({
+        where: {
+          profileId_blueprintId: { profileId: p.id, blueprintId: input.blueprintId }
+        },
+        create: {
+          profileId: p.id,
+          blueprintId: input.blueprintId,
+          zoneLabel,
+          legacyHitId: input.legacyHitId ?? null,
+          startedAt: new Date()
+        },
+        update: {
+          startedAt: existing?.startedAt ?? new Date(),
+          ...(input.legacyHitId !== undefined ? { legacyHitId: input.legacyHitId } : {}),
+          zoneLabel
+        }
+      });
+
+      if (firstOpen) {
+        await recordCampusAction(prisma, p.id, "OPEN_MICRO_LESSON", {
+          meta: { blueprintId: input.blueprintId }
+        });
+      }
+
+      await prisma.userCampusProgress.upsert({
+        where: { profileId: p.id },
+        create: {
+          profileId: p.id,
+          lastMicroLessonBlueprintId: input.blueprintId,
+          lastZoneLabel: zoneLabel,
+          lastLegacyHitId: input.legacyHitId ?? null,
+          lastPanelKind: "lesson"
+        },
+        update: {
+          lastMicroLessonBlueprintId: input.blueprintId,
+          lastZoneLabel: zoneLabel,
+          ...(input.legacyHitId !== undefined ? { lastLegacyHitId: input.legacyHitId } : {}),
+          lastPanelKind: "lesson"
+        }
+      });
+
+      await refreshCampusRecommendedZones(prisma, p.id);
+      await syncCampusGuidedMissions(prisma, p.id);
+      return { ok: true as const, zoneLabel };
+    }),
+
+  campusMicroLessonPulse: protectedProcedure
+    .input(
+      z.object({
+        blueprintId: z.string().min(2).max(140),
+        deltaSeconds: z.number().int().min(1).max(180)
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const p = await requireCampusProfile(ctx.session);
+      await prisma.userMicroLessonProgress.updateMany({
+        where: { profileId: p.id, blueprintId: input.blueprintId },
+        data: { secondsEngaged: { increment: input.deltaSeconds } }
+      });
+      return { ok: true as const };
+    }),
+
+  campusMicroLessonComplete: protectedProcedure
+    .input(z.object({ blueprintId: z.string().min(2).max(140) }))
+    .mutation(async ({ ctx, input }) => {
+      const p = await requireCampusProfile(ctx.session);
+      const row = await prisma.userMicroLessonProgress.findUnique({
+        where: {
+          profileId_blueprintId: { profileId: p.id, blueprintId: input.blueprintId }
+        }
+      });
+      if (row?.completedAt) {
+        return { ok: true as const, xpAwarded: 0, alreadyDone: true as const };
+      }
+
+      const found = findMicroLessonBlueprintById(input.blueprintId);
+      const amount = found ? enrichMicroLessonBlueprint(found.blueprint).xpReward : 16;
+      const zoneLabel = found?.zone ?? row?.zoneLabel ?? "fundamentos";
+
+      await prisma.userMicroLessonProgress.upsert({
+        where: {
+          profileId_blueprintId: { profileId: p.id, blueprintId: input.blueprintId }
+        },
+        create: {
+          profileId: p.id,
+          blueprintId: input.blueprintId,
+          zoneLabel,
+          startedAt: new Date(),
+          completedAt: new Date(),
+          xpEarned: amount
+        },
+        update: {
+          completedAt: new Date(),
+          xpEarned: amount,
+          zoneLabel
+        }
+      });
+
+      await awardXp(prisma, p.id, amount, "COMPLETE_MICRO_LESSON", {
+        blueprintId: input.blueprintId
+      });
+
+      await syncCampusBadgeUnlocks(prisma, p.id);
+
+      await refreshCampusRecommendedZones(prisma, p.id);
+      await syncCampusGuidedMissions(prisma, p.id);
+      return { ok: true as const, xpAwarded: amount, alreadyDone: false as const };
+    }),
+
+  campusCoursePanelOpened: protectedProcedure
+    .input(
+      z.object({
+        courseAreaId: z.string().min(2).max(64),
+        legacyHitId: z.string().max(140).optional().nullable()
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const p = await requireCampusProfile(ctx.session);
+      await recordCampusAction(prisma, p.id, "OPEN_COURSE_PANEL", {
+        meta: { courseAreaId: input.courseAreaId }
+      });
+      const zoneLabel = resolveCampusMapZoneLabel({
+        legacyHitId: input.legacyHitId ?? undefined,
+        courseId: input.courseAreaId
+      });
+
+      await prisma.userZoneDiscovery.upsert({
+        where: {
+          profileId_zoneLabel: { profileId: p.id, zoneLabel }
+        },
+        create: {
+          profileId: p.id,
+          zoneLabel,
+          visitCount: 1,
+          status: "discovered"
+        },
+        update: {
+          lastSeenAt: new Date()
+        }
+      });
+
+      const prog = await prisma.userCampusProgress.findUnique({
+        where: { profileId: p.id }
+      });
+      const nav = appendNavigationHistory(prog?.navigationHistory, {
+        at: new Date().toISOString(),
+        zoneLabel,
+        hitId: input.legacyHitId ?? null
+      });
+
+      await prisma.userCampusProgress.upsert({
+        where: { profileId: p.id },
+        create: {
+          profileId: p.id,
+          lastZoneLabel: zoneLabel,
+          lastLegacyHitId: input.legacyHitId ?? null,
+          lastBuildingCourseId: input.courseAreaId,
+          lastPanelKind: "course",
+          navigationHistory: nav
+        },
+        update: {
+          lastZoneLabel: zoneLabel,
+          lastLegacyHitId: input.legacyHitId ?? undefined,
+          lastBuildingCourseId: input.courseAreaId,
+          lastPanelKind: "course",
+          navigationHistory: nav
+        }
+      });
+
+      await refreshCampusRecommendedZones(prisma, p.id);
+      await syncCampusGuidedMissions(prisma, p.id);
+      return { ok: true as const, zoneLabel };
     }),
 
   quizForPlay: publicProcedure

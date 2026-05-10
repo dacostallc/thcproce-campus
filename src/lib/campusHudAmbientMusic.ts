@@ -1,165 +1,201 @@
-/**
- * Música ambiente do campus — MP3 (ou WAV legacy) em `/public/audio/`.
- * Ficheiros em falta são ignorados após probe (GET parcial + validação); playlist vazia = botão desactivado.
- */
+import { humanizeCampusMusicFilename } from "@/lib/audio/campusMusicPlayer";
 
-export type CampusHudAmbientTrack = {
-  readonly id: string;
-  readonly title: string;
-  /** Caminho público (ex.: `/audio/foo.mp3`). */
-  readonly src: string;
+export const HUD_AMBIENT_DEFAULT_VOLUME = 0.65;
+
+export type HudAmbientCategory = "ambience" | "radio" | "cinema" | "legacy";
+
+export type HudAmbientTrackRow = {
+  category: HudAmbientCategory;
+  filename: string;
+  /** Caminho público absoluto (ex.: `/audio/ambience/foo.mp3`). */
+  url: string;
 };
 
-/** Ordem de reprodução — só entram faixas que existirem no servidor. */
-export const CAMPUS_HUD_AMBIENT_PLAYLIST: readonly CampusHudAmbientTrack[] = [
-  { id: "ambient-01", title: "Ambiente campus · 1", src: "/audio/campus-ambient-01.mp3" },
-  { id: "ambient-02", title: "Ambiente campus · 2", src: "/audio/campus-ambient-02.mp3" },
-  { id: "ambient-legacy-wav", title: "Ambiente campus", src: "/audio/campus-ambient.wav" }
-];
+/**
+ * Monta candidatos à playlist **apenas** a partir da API (`/api/campus/audio-tracks`).
+ * Pastas `public/audio/mp3` etc. entram só quando o servidor as lista — sem lista hardcoded
+ * de nomes inexistentes (evita probes 404 em massa).
+ */
+export type HudAmbientResolvedTrack = {
+  category: HudAmbientCategory;
+  src: string;
+  title: string;
+};
 
-const LS_VOLUME = "thc-campus-hud-music-volume";
-const LS_MUTED = "thc-campus-hud-music-muted";
-const LS_TRACK = "thc-campus-hud-music-track";
-const LS_PLAYING = "thc-campus-hud-music-playing";
-const LS_LEGACY_MUTED = "thc-campus-ambient-muted";
-
-/** Volume reprodução (0–1), baixo por defeito. */
-export const CAMPUS_HUD_AMBIENT_DEFAULT_VOLUME = 0.12;
-
-function bufferLooksLikeHtml(buf: ArrayBuffer): boolean {
-  const v = new Uint8Array(buf);
-  let i = 0;
-  while (i < v.length && (v[i] === 9 || v[i] === 10 || v[i] === 13 || v[i] === 32)) i++;
-  if (i >= v.length) return false;
-  return v[i] === 0x3c; // '<' — páginas de erro Next/HTML
+function normalizeSrc(src: string): string {
+  try {
+    const u = new URL(src, typeof window !== "undefined" ? window.location.origin : "http://localhost");
+    return u.pathname;
+  } catch {
+    return src;
+  }
 }
 
-function asciiPrefix(v: Uint8Array, n: number): string {
-  let s = "";
-  for (let j = 0; j < Math.min(n, v.length); j++) s += String.fromCharCode(v[j]!);
-  return s;
-}
+export function hudAmbientPlaylistFromApiRows(rows: HudAmbientTrackRow[]): HudAmbientResolvedTrack[] {
+  const seen = new Set<string>();
+  const out: HudAmbientResolvedTrack[] = [];
 
-function bufferLooksLikeBinaryAudio(buf: ArrayBuffer): boolean {
-  const v = new Uint8Array(buf);
-  if (v.length < 2) return false;
-  if (v[0] === 0xff && (v[1]! & 0xe0) === 0xe0) return true;
-  if (v.length >= 3 && v[0] === 0x49 && v[1] === 0x44 && v[2] === 0x33) return true;
-  if (v.length >= 12 && asciiPrefix(v, 4) === "RIFF") return true;
-  return false;
+  const push = (category: HudAmbientCategory, src: string, titleHint?: string) => {
+    const key = normalizeSrc(src);
+    if (seen.has(key)) return;
+    seen.add(key);
+    const filenameFromUrl = key.split("/").pop() ?? src;
+    const title =
+      titleHint ??
+      humanizeCampusMusicFilename(filenameFromUrl.replace(/\.[^/.]+$/, ""));
+    out.push({ category, src, title });
+  };
+
+  for (const row of rows) {
+    push(
+      row.category,
+      row.url,
+      humanizeCampusMusicFilename(row.filename.replace(/\.[^/.]+$/, ""))
+    );
+  }
+
+  return out;
 }
 
 /**
- * Verifica se o asset existe e parece áudio — um único GET parcial (menos 404 duplicados que HEAD+GET).
- * Rejeita HTML de erro mesmo com status ambíguo.
+ * Verifica existência do ficheiro sem montar `<audio>` (evita erros no console).
+ * HEAD primeiro; Range só se HEAD não for OK — respostas 404 tratadas como false, sem throw.
  */
-export async function campusHudAmbientProbeSrc(src: string): Promise<boolean> {
-  if (typeof window === "undefined") return false;
+async function probeOnce(src: string, signal?: AbortSignal): Promise<boolean> {
   try {
-    const url = new URL(src, window.location.origin).href;
-    const res = await fetch(url, {
+    const head = await fetch(src, { method: "HEAD", signal, cache: "no-store" });
+    if (head.ok) return true;
+    if (head.status === 405 || head.status === 501) {
+      const range = await fetch(src, {
+        method: "GET",
+        headers: { Range: "bytes=0-0" },
+        signal,
+        cache: "no-store"
+      });
+      return range.ok || range.status === 206;
+    }
+    if (head.status === 404) return false;
+    const range = await fetch(src, {
       method: "GET",
-      referrerPolicy: "no-referrer",
-      headers: { Range: "bytes=0-511" },
-      cache: "force-cache"
+      headers: { Range: "bytes=0-0" },
+      signal,
+      cache: "no-store"
     });
-    if (!(res.ok || res.status === 206)) return false;
-    const buf = await res.arrayBuffer();
-    if (buf.byteLength === 0) return false;
-    if (bufferLooksLikeHtml(buf)) return false;
-    const ct = (res.headers.get("Content-Type") ?? "").split(";")[0].trim().toLowerCase();
-    if (ct.startsWith("audio/") || ct === "application/octet-stream") return true;
-    return bufferLooksLikeBinaryAudio(buf);
+    return range.ok || range.status === 206;
   } catch {
     return false;
   }
 }
 
-function clamp01(n: number): number {
-  if (!Number.isFinite(n)) return CAMPUS_HUD_AMBIENT_DEFAULT_VOLUME;
-  return Math.min(1, Math.max(0, n));
+const HUD_PROBE_CONCURRENCY = 6;
+
+export async function probeHudAmbientTracks(
+  tracks: HudAmbientResolvedTrack[],
+  signal?: AbortSignal
+): Promise<HudAmbientResolvedTrack[]> {
+  const ok: HudAmbientResolvedTrack[] = [];
+  let i = 0;
+
+  async function worker(): Promise<void> {
+    while (i < tracks.length) {
+      const idx = i++;
+      const t = tracks[idx];
+      if (!t) continue;
+      const alive = await probeOnce(t.src, signal);
+      if (alive) ok.push(t);
+    }
+  }
+
+  await Promise.all(Array.from({ length: Math.min(HUD_PROBE_CONCURRENCY, tracks.length) }, () => worker()));
+  return ok;
 }
 
-function parseBool(v: string | null, fallback: boolean): boolean {
-  if (v === null) return fallback;
-  return v === "1" || v === "true";
+export function campusHudAmbientProbeSrc(src: string): Promise<boolean> {
+  return probeOnce(src);
 }
 
-export function readCampusHudAmbientVolume(): number {
-  if (typeof window === "undefined") return CAMPUS_HUD_AMBIENT_DEFAULT_VOLUME;
+export const CAMPUS_HUD_AMBIENT_VOLUME_LS_KEY = "thcproce.campus.hudAmbient.volume.v1";
+export const CAMPUS_HUD_AMBIENT_MUTED_LS_KEY = "thcproce.campus.hudAmbient.muted.v1";
+export const CAMPUS_HUD_AMBIENT_TRACK_INDEX_LS_KEY = "thcproce.campus.hudAmbient.trackIndex.v1";
+/** Intent de autoplay — usuário deve dar play ao menos uma vez para browsers permitirem som. */
+export const CAMPUS_HUD_AMBIENT_AUTOPLAY_INTENT_LS_KEY = "thcproce.campus.hudAmbient.autoplayIntent.v1";
+
+export function readHudAmbientVolume01(): number {
+  if (typeof window === "undefined") return 0.65;
   try {
-    const raw = window.localStorage.getItem(LS_VOLUME);
-    if (raw === null) return CAMPUS_HUD_AMBIENT_DEFAULT_VOLUME;
-    return clamp01(Number.parseFloat(raw));
+    const raw = window.localStorage.getItem(CAMPUS_HUD_AMBIENT_VOLUME_LS_KEY);
+    const n = raw == null ? NaN : Number(raw);
+    if (!Number.isFinite(n)) return 0.65;
+    return Math.min(1, Math.max(0, n));
   } catch {
-    return CAMPUS_HUD_AMBIENT_DEFAULT_VOLUME;
+    return 0.65;
   }
 }
 
-export function writeCampusHudAmbientVolume(volume: number): void {
+export function writeHudAmbientVolume01(v: number): void {
+  if (typeof window === "undefined") return;
   try {
-    window.localStorage.setItem(LS_VOLUME, String(clamp01(volume)));
+    window.localStorage.setItem(CAMPUS_HUD_AMBIENT_VOLUME_LS_KEY, String(Math.min(1, Math.max(0, v))));
   } catch {
-    /* ignore */
+    /* quota */
   }
 }
 
-export function readCampusHudAmbientMuted(): boolean {
+export function readHudAmbientMuted(): boolean {
   if (typeof window === "undefined") return false;
   try {
-    const v = window.localStorage.getItem(LS_MUTED);
-    if (v !== null) return parseBool(v, false);
-    const legacy = window.localStorage.getItem(LS_LEGACY_MUTED);
-    if (legacy !== null) return parseBool(legacy, true);
-    return false;
+    return window.localStorage.getItem(CAMPUS_HUD_AMBIENT_MUTED_LS_KEY) === "1";
   } catch {
     return false;
   }
 }
 
-export function writeCampusHudAmbientMuted(muted: boolean): void {
+export function writeHudAmbientMuted(muted: boolean): void {
+  if (typeof window === "undefined") return;
   try {
-    window.localStorage.setItem(LS_MUTED, muted ? "1" : "0");
+    window.localStorage.setItem(CAMPUS_HUD_AMBIENT_MUTED_LS_KEY, muted ? "1" : "0");
   } catch {
-    /* ignore */
+    /* quota */
   }
 }
 
-export function readCampusHudAmbientTrackIndex(maxExclusive: number): number {
+export function readHudAmbientTrackIndex(maxExclusive: number): number {
   if (typeof window === "undefined" || maxExclusive <= 0) return 0;
   try {
-    const raw = window.localStorage.getItem(LS_TRACK);
-    if (raw === null) return 0;
-    const n = Number.parseInt(raw, 10);
+    const raw = window.localStorage.getItem(CAMPUS_HUD_AMBIENT_TRACK_INDEX_LS_KEY);
+    const n = raw == null ? NaN : Number(raw);
     if (!Number.isFinite(n)) return 0;
-    return Math.min(maxExclusive - 1, Math.max(0, n));
+    const idx = Math.floor(n);
+    if (idx < 0 || idx >= maxExclusive) return 0;
+    return idx;
   } catch {
     return 0;
   }
 }
 
-export function writeCampusHudAmbientTrackIndex(index: number): void {
+export function writeHudAmbientTrackIndex(idx: number): void {
+  if (typeof window === "undefined") return;
   try {
-    window.localStorage.setItem(LS_TRACK, String(Math.max(0, index)));
+    window.localStorage.setItem(CAMPUS_HUD_AMBIENT_TRACK_INDEX_LS_KEY, String(Math.max(0, Math.floor(idx))));
   } catch {
-    /* ignore */
+    /* quota */
   }
 }
 
-/** Autoplay desligado por UX; persistimos intenção para não resetar ao mudar de painel. */
-export function readCampusHudAmbientPlayingIntent(): boolean {
+export function readHudAmbientAutoplayIntent(): boolean {
   if (typeof window === "undefined") return false;
   try {
-    return window.localStorage.getItem(LS_PLAYING) === "1";
+    return window.localStorage.getItem(CAMPUS_HUD_AMBIENT_AUTOPLAY_INTENT_LS_KEY) === "1";
   } catch {
     return false;
   }
 }
 
-export function writeCampusHudAmbientPlayingIntent(playing: boolean): void {
+export function writeHudAmbientAutoplayIntent(on: boolean): void {
+  if (typeof window === "undefined") return;
   try {
-    window.localStorage.setItem(LS_PLAYING, playing ? "1" : "0");
+    window.localStorage.setItem(CAMPUS_HUD_AMBIENT_AUTOPLAY_INTENT_LS_KEY, on ? "1" : "0");
   } catch {
-    /* ignore */
+    /* quota */
   }
 }

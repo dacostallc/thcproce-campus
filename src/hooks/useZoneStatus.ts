@@ -48,12 +48,12 @@ export function useZoneStatus(
     const reason = locked ? campusZoneLockedTooltip(zone, ctx) : null;
     const { r, g, b } = hexToRgb(zone.color);
 
-    const opacity = locked ? 0.52 : 1;
-    const grayscale = locked ? "1" : "0";
+    const opacity = locked ? 0.78 : 1;
+    const grayscale = locked ? "0.42" : "0";
     const cursor = locked ? "not-allowed" : "pointer";
 
-    const fillAlpha = locked ? 0.07 : 0.09;
-    const strokeAlpha = locked ? 0.22 : active ? 0.46 : 0.3;
+    const fillAlpha = locked ? 0.055 : 0.072;
+    const strokeAlpha = locked ? 0.32 : active ? 0.52 : 0.34;
     const zoneFill = `rgba(${r},${g},${b},${fillAlpha})`;
     const zoneStroke = `rgba(${r},${g},${b},${strokeAlpha})`;
 

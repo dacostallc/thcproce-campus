@@ -195,16 +195,16 @@ html, body {
   /** Profundidade cinematográfica sobre o mapa (noite). */
   .campus-depth-night {
     background:
-      radial-gradient(ellipse 100% 65% at 50% 115%, rgba(34, 197, 94, 0.11), transparent 58%),
-      radial-gradient(ellipse 55% 45% at 0% 40%, rgba(251, 191, 36, 0.07), transparent 52%),
-      radial-gradient(ellipse 50% 40% at 100% 25%, rgba(167, 139, 250, 0.06), transparent 48%),
-      linear-gradient(180deg, rgba(0, 0, 0, 0.22) 0%, transparent 28%, rgba(0, 0, 0, 0.42) 100%);
+      radial-gradient(ellipse 100% 65% at 50% 115%, rgba(34, 197, 94, 0.065), transparent 58%),
+      radial-gradient(ellipse 55% 45% at 0% 40%, rgba(251, 191, 36, 0.042), transparent 52%),
+      radial-gradient(ellipse 50% 40% at 100% 25%, rgba(167, 139, 250, 0.038), transparent 48%),
+      linear-gradient(180deg, rgba(0, 0, 0, 0.12) 0%, transparent 30%, rgba(0, 0, 0, 0.28) 100%);
   }
   .campus-depth-day {
     background:
-      radial-gradient(ellipse 90% 60% at 50% 100%, rgba(74, 222, 128, 0.1), transparent 55%),
-      radial-gradient(ellipse 50% 45% at 10% 30%, rgba(56, 189, 248, 0.08), transparent 50%),
-      linear-gradient(180deg, rgba(255, 255, 255, 0.06) 0%, transparent 35%, rgba(15, 23, 42, 0.12) 100%);
+      radial-gradient(ellipse 90% 60% at 50% 100%, rgba(74, 222, 128, 0.055), transparent 55%),
+      radial-gradient(ellipse 50% 45% at 10% 30%, rgba(56, 189, 248, 0.045), transparent 50%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.025) 0%, transparent 38%, rgba(15, 23, 42, 0.065) 100%);
   }
   .scrollbar-thin::-webkit-scrollbar { width: 6px; }
   .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
@@ -230,27 +230,27 @@ html, body {
  * Zonas laterais do palco (mapa em `contain`): vinhetas desfocadas — não “colunas”, só ambiente em torno da arte.
  */
 .campus-map-letterbox-gutter {
-  background-color: rgb(8 14 12 / 0.42);
+  background-color: rgb(8 14 12 / 0.32);
   background-image:
-    radial-gradient(ellipse 52% 115% at 0% 48%, rgb(5 10 7 / 0.82), transparent 58%),
-    radial-gradient(ellipse 52% 115% at 100% 48%, rgb(5 10 7 / 0.82), transparent 58%),
-    radial-gradient(ellipse 78% 62% at 48% 22%, rgba(34, 211, 238, 0.038), transparent 58%),
-    radial-gradient(ellipse 54% 46% at 82% 74%, rgba(167, 139, 250, 0.048), transparent 55%),
-    linear-gradient(180deg, rgba(5, 10, 7, 0.82) 0%, rgba(10, 22, 16, 0.88) 52%, rgba(5, 10, 7, 0.82) 100%);
-  -webkit-backdrop-filter: blur(14px) saturate(118%);
-  backdrop-filter: blur(14px) saturate(118%);
+    radial-gradient(ellipse 52% 115% at 0% 48%, rgb(5 10 7 / 0.68), transparent 58%),
+    radial-gradient(ellipse 52% 115% at 100% 48%, rgb(5 10 7 / 0.68), transparent 58%),
+    radial-gradient(ellipse 78% 62% at 48% 22%, rgba(34, 211, 238, 0.024), transparent 58%),
+    radial-gradient(ellipse 54% 46% at 82% 74%, rgba(167, 139, 250, 0.03), transparent 55%),
+    linear-gradient(180deg, rgba(5, 10, 7, 0.68) 0%, rgba(10, 22, 16, 0.74) 52%, rgba(5, 10, 7, 0.68) 100%);
+  -webkit-backdrop-filter: blur(11px) saturate(112%);
+  backdrop-filter: blur(11px) saturate(112%);
 }
 
 [data-sky="day"] .campus-map-letterbox-gutter {
-  background-color: rgb(224 242 254 / 0.18);
+  background-color: rgb(224 242 254 / 0.1);
   background-image:
-    radial-gradient(ellipse 50% 115% at 0% 50%, rgb(224 242 254 / 0.58), transparent 58%),
-    radial-gradient(ellipse 50% 115% at 100% 50%, rgb(224 242 254 / 0.58), transparent 58%),
-    radial-gradient(ellipse 72% 54% at 44% 18%, rgba(56, 189, 248, 0.11), transparent 56%),
-    radial-gradient(ellipse 50% 42% at 78% 78%, rgba(250, 204, 21, 0.06), transparent 54%),
-    linear-gradient(180deg, rgba(224, 242, 254, 0.38) 0%, rgba(254, 249, 195, 0.2) 55%, rgba(220, 252, 231, 0.32) 100%);
-  -webkit-backdrop-filter: blur(14px) saturate(124%);
-  backdrop-filter: blur(14px) saturate(124%);
+    radial-gradient(ellipse 50% 115% at 0% 50%, rgb(224 242 254 / 0.34), transparent 58%),
+    radial-gradient(ellipse 50% 115% at 100% 50%, rgb(224 242 254 / 0.34), transparent 58%),
+    radial-gradient(ellipse 72% 54% at 44% 18%, rgba(56, 189, 248, 0.055), transparent 56%),
+    radial-gradient(ellipse 50% 42% at 78% 78%, rgba(250, 204, 21, 0.035), transparent 54%),
+    linear-gradient(180deg, rgba(224, 242, 254, 0.22) 0%, rgba(254, 249, 195, 0.11) 55%, rgba(220, 252, 231, 0.18) 100%);
+  -webkit-backdrop-filter: blur(11px) saturate(118%);
+  backdrop-filter: blur(11px) saturate(118%);
 }
 
 .campus-map-zone {
@@ -335,6 +335,15 @@ html, body {
   container-name: campus-art;
 }
 
+/** Arte PNG/JPEG — micro-contraste para ler prédios/caminhos (sem “look gamer”). */
+.campus-map-base-art {
+  filter: contrast(1.03);
+}
+
+[data-sky="day"] .campus-map-base-art {
+  filter: contrast(1.038);
+}
+
 /**
  * Partículas/vida ambiente — clip estrito à caixa da arte (não letterbox).
  * `contain: paint` reforça corte de brilho/blur em WebKit; `border-radius` herda a moldura premium.
@@ -357,50 +366,33 @@ html, body {
 
 [data-sky="night"] .campus-map-cinematic-ledge-top {
   background-image:
-    radial-gradient(ellipse 98% 130% at 50% 0%, rgb(5 10 7 / 0.34), transparent 58%),
-    radial-gradient(ellipse 62% 48% at 18% 8%, rgba(34, 211, 238, 0.028), transparent 55%),
-    linear-gradient(to bottom, rgb(5 10 7 / 0.12), transparent 85%);
+    radial-gradient(ellipse 98% 130% at 50% 0%, rgb(5 10 7 / 0.22), transparent 58%),
+    radial-gradient(ellipse 62% 48% at 18% 8%, rgba(34, 211, 238, 0.018), transparent 55%),
+    linear-gradient(to bottom, rgb(5 10 7 / 0.065), transparent 85%);
 }
 
 [data-sky="night"] .campus-map-cinematic-ledge-bottom {
   background-image:
-    radial-gradient(ellipse 98% 130% at 50% 100%, rgb(5 10 7 / 0.32), transparent 58%),
-    radial-gradient(ellipse 58% 46% at 78% 94%, rgba(167, 139, 250, 0.038), transparent 56%),
-    linear-gradient(to top, rgb(8 14 12 / 0.1), transparent 88%);
+    radial-gradient(ellipse 98% 130% at 50% 100%, rgb(5 10 7 / 0.21), transparent 58%),
+    radial-gradient(ellipse 58% 46% at 78% 94%, rgba(167, 139, 250, 0.024), transparent 56%),
+    linear-gradient(to top, rgb(8 14 12 / 0.055), transparent 88%);
 }
 
 [data-sky="day"] .campus-map-cinematic-ledge-top {
   background-image:
-    radial-gradient(ellipse 96% 125% at 50% 0%, rgb(224 242 254 / 0.22), transparent 58%),
-    radial-gradient(ellipse 58% 46% at 22% 10%, rgba(56, 189, 248, 0.06), transparent 54%),
-    linear-gradient(to bottom, rgb(254 249 195 / 0.08), transparent 85%);
+    radial-gradient(ellipse 96% 125% at 50% 0%, rgb(224 242 254 / 0.12), transparent 58%),
+    radial-gradient(ellipse 58% 46% at 22% 10%, rgba(56, 189, 248, 0.032), transparent 54%),
+    linear-gradient(to bottom, rgb(254 249 195 / 0.045), transparent 85%);
 }
 
 [data-sky="day"] .campus-map-cinematic-ledge-bottom {
   background-image:
-    radial-gradient(ellipse 96% 125% at 50% 100%, rgb(224 242 254 / 0.24), transparent 58%),
-    radial-gradient(ellipse 56% 44% at 76% 92%, rgba(250, 204, 21, 0.045), transparent 55%),
-    linear-gradient(to top, rgb(220 252 231 / 0.09), transparent 88%);
+    radial-gradient(ellipse 96% 125% at 50% 100%, rgb(224 242 254 / 0.13), transparent 58%),
+    radial-gradient(ellipse 56% 44% at 76% 92%, rgba(250, 204, 21, 0.028), transparent 55%),
+    linear-gradient(to top, rgb(220 252 231 / 0.05), transparent 88%);
 }
 
-/* Ambiente: tráfego/drones ao longo da largura do frame (não `vw`, para não invadir gutters). */
-@keyframes campus-map-ambient-drone-a {
-  0% {
-    left: -56px;
-  }
-  100% {
-    left: 100%;
-  }
-}
-
-@keyframes campus-map-ambient-drone-b {
-  0% {
-    left: 100%;
-  }
-  100% {
-    left: -56px;
-  }
-}
+/* Ambiente: tráfego discreto na base do frame (não `vw`, para não invadir gutters). */
 
 @keyframes campus-map-ambient-car-pass {
   0% {
@@ -411,14 +403,6 @@ html, body {
   }
 }
 
-.campus-map-ambient-drone-a {
-  animation: campus-map-ambient-drone-a 38s linear infinite;
-}
-
-.campus-map-ambient-drone-b {
-  animation: campus-map-ambient-drone-b 46s linear infinite;
-}
-
 .campus-map-ambient-car-a {
   animation: campus-map-ambient-car-pass 52s linear infinite;
 }
@@ -427,45 +411,31 @@ html, body {
   animation: campus-map-ambient-car-pass 62s linear infinite 9s;
 }
 
-@keyframes campus-map-vivo-drone-crawl {
-  0% {
-    left: -40px;
-  }
-  100% {
-    left: 100%;
-  }
-}
-
-.campus-map-vivo-drone-crawl {
-  animation: campus-map-vivo-drone-crawl 58s linear infinite;
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .campus-map-ambient-drone-a,
-  .campus-map-ambient-drone-b,
   .campus-map-ambient-car-a,
-  .campus-map-ambient-car-b,
-  .campus-map-vivo-drone-crawl {
+  .campus-map-ambient-car-b {
     animation: none !important;
   }
 }
 
 /** Vigneta mais suave — menos “caixa escura” sobre o desenho. */
 .campus-map-art-vignette {
-  background: radial-gradient(circle at center, transparent 62%, rgba(0, 0, 0, 0.22) 100%);
+  background: radial-gradient(circle at center, transparent 64%, rgba(0, 0, 0, 0.14) 100%);
 }
 
 [data-sky="day"] .campus-map-art-vignette {
-  background: radial-gradient(circle at center, transparent 58%, rgba(15, 23, 42, 0.08) 100%);
+  background: radial-gradient(circle at center, transparent 62%, rgba(15, 23, 42, 0.045) 100%);
 }
 
 /** Sobreposição image-map: viewBox = pixéis da arte 1536×1024; SVG com overflow cortado para sombras não fugirem do mapa. */
+/** Rect de enquadramento: não captura cliques — só geometria; hits ficam nos polígonos/círculos abaixo. */
 .campus-interactive-svg-capture {
-  pointer-events: all;
+  pointer-events: none;
 }
 
 /**
- * Camada “glass” sob cada hotspot — preenchimento muito transparente, traço fino, blend suave com a arte.
+ * Camada “glass” sob cada hotspot — preenchimento muito transparente, traço fino.
+ * `mix-blend-mode: normal` evita wash-out em telhados claros / centro do mapa (dia).
  * O marcador circular permanece por cima (ordem no DOM). Forma = polígono/círculo real (sem rectângulos).
  */
 .campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug)
@@ -473,7 +443,7 @@ html, body {
   .campus-interactive-shape__glass-fill {
   pointer-events: none;
   vector-effect: non-scaling-stroke;
-  mix-blend-mode: soft-light;
+  mix-blend-mode: normal;
   stroke-linejoin: round;
   stroke-linecap: round;
   transition:
@@ -487,11 +457,11 @@ html, body {
 .campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug)
   .campus-interactive-shape--access-open.campus-interactive-shape--hits
   .campus-interactive-shape__glass-fill {
-  fill: rgba(45, 212, 191, 0.056);
-  stroke: rgba(253, 224, 71, 0.13);
-  stroke-width: 0.056;
+  fill: rgba(45, 212, 191, 0.042);
+  stroke: rgba(253, 224, 71, 0.165);
+  stroke-width: 0.058;
   filter: none;
-  opacity: 0.94;
+  opacity: 0.97;
 }
 
 /* Ao vivo — vermelho discreto sobre a área */
@@ -507,10 +477,10 @@ html, body {
 .campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug)
   .campus-interactive-shape--access-locked.campus-interactive-shape--hits
   .campus-interactive-shape__glass-fill {
-  fill: rgba(56, 189, 248, 0.045);
-  stroke: rgba(148, 163, 184, 0.14);
-  stroke-width: 0.054;
-  opacity: 0.9;
+  fill: rgba(56, 189, 248, 0.036);
+  stroke: rgba(186, 230, 253, 0.22);
+  stroke-width: 0.058;
+  opacity: 0.94;
 }
 
 /* Em breve — roxo suave */
@@ -530,8 +500,8 @@ html, body {
   stroke-linejoin: round;
   stroke-linecap: round;
   fill: transparent;
-  stroke: rgba(255, 255, 255, 0.038);
-  stroke-width: 0.048;
+  stroke: rgba(255, 255, 255, 0.055);
+  stroke-width: 0.115;
   transition:
     filter 620ms cubic-bezier(0.2, 0.74, 0.18, 1),
     stroke 620ms cubic-bezier(0.2, 0.74, 0.18, 1),
@@ -706,38 +676,78 @@ html, body {
   .campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug)
   .campus-interactive-shape--access-open.campus-interactive-shape--hits
   .campus-interactive-shape__glass-fill {
-  fill: rgba(16, 185, 129, 0.062);
-  stroke: rgba(180, 83, 9, 0.17);
+  fill: rgba(16, 185, 129, 0.048);
+  stroke: rgba(180, 83, 9, 0.21);
 }
 
 [data-sky="day"]
   .campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug)
   .campus-interactive-shape--live.campus-interactive-shape--access-open.campus-interactive-shape--hits
   .campus-interactive-shape__glass-fill {
-  fill: rgba(239, 68, 68, 0.055);
-  stroke: rgba(252, 165, 165, 0.18);
+  fill: rgba(239, 68, 68, 0.042);
+  stroke: rgba(252, 165, 165, 0.21);
 }
 
 [data-sky="day"]
   .campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug)
   .campus-interactive-shape--access-locked.campus-interactive-shape--hits
   .campus-interactive-shape__glass-fill {
-  fill: rgba(59, 130, 246, 0.058);
-  stroke: rgba(100, 116, 139, 0.16);
+  fill: rgba(59, 130, 246, 0.045);
+  stroke: rgba(147, 197, 253, 0.24);
 }
 
 [data-sky="day"]
   .campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug)
   .campus-interactive-shape--access-soon.campus-interactive-shape--hits
   .campus-interactive-shape__glass-fill {
-  fill: rgba(124, 58, 237, 0.058);
-  stroke: rgba(167, 139, 250, 0.17);
+  fill: rgba(124, 58, 237, 0.048);
+  stroke: rgba(167, 139, 250, 0.2);
 }
 
 [data-sky="day"]
   .campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug)
   .campus-interactive-shape__hit-face {
-  stroke: rgba(255, 255, 255, 0.052);
+  stroke: rgba(30, 41, 59, 0.14);
+}
+
+/* Estados de progressão por zona (attributes em CampusMapInteractiveLayer) — glow/pulse discretos */
+.campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug)
+  g[data-campus-zone-state="discovered"]
+  .campus-interactive-shape__glass-fill {
+  filter: drop-shadow(
+    0 0 12px color-mix(in srgb, var(--campus-glow-color, rgb(52 211 153)) 16%, transparent)
+  );
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug)
+    g[data-campus-zone-state="recommended"]
+    .campus-interactive-shape__glass-fill {
+    animation: campus-zone-recommended-pulse 5.8s ease-in-out infinite;
+  }
+}
+
+.campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug)
+  g[data-campus-zone-state="completed"]
+  .campus-interactive-shape__glass-fill {
+  fill-opacity: 0.82;
+  filter: drop-shadow(0 0 10px rgba(251, 191, 36, 0.11));
+}
+
+@keyframes campus-zone-recommended-pulse {
+  0%,
+  100% {
+    opacity: 0.93;
+    filter: drop-shadow(
+      0 0 8px color-mix(in srgb, var(--campus-glow-color, rgb(52 211 153)) 14%, transparent)
+    );
+  }
+  50% {
+    opacity: 1;
+    filter: drop-shadow(
+      0 0 16px color-mix(in srgb, var(--campus-glow-color, rgb(52 211 153)) 22%, transparent)
+    );
+  }
 }
 
 /**
@@ -818,17 +828,17 @@ html, body {
   .campus-hotspot-marker-root--locked
   .campus-hotspot-marker-ring {
   fill: none;
-  stroke: rgba(56, 189, 248, 0.26);
-  stroke-width: 0.32;
+  stroke: rgba(56, 189, 248, 0.38);
+  stroke-width: 0.36;
 }
 
 .campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug)
   .campus-hotspot-marker-root--locked
   .campus-hotspot-marker-core {
-  fill: rgba(226, 232, 240, 0.17);
-  stroke: rgba(100, 116, 139, 0.46);
-  stroke-width: 0.26;
-  filter: drop-shadow(0 0 3px rgba(56, 189, 248, 0.22));
+  fill: rgba(226, 232, 240, 0.22);
+  stroke: rgba(71, 85, 105, 0.58);
+  stroke-width: 0.3;
+  filter: drop-shadow(0 0 4px rgba(56, 189, 248, 0.28));
 }
 
 .campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug)

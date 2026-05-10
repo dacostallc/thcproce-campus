@@ -8,13 +8,16 @@ import { Hotspot } from "./Hotspot";
 import { AmbientLife } from "./AmbientLife";
 import { CampusAmbientSparks } from "./CampusAmbientSparks";
 import { CampusVivoLayer } from "./CampusVivoLayer";
-import { AmbientPixi } from "./AmbientPixi";
 import { CoursePanel } from "./CoursePanel";
 import { LessonPanel } from "./LessonPanel";
 import { HUD } from "./HUD";
 import { CampusPlayer } from "./CampusPlayer";
-import { CampusPeerAvatars } from "./CampusPeerAvatars";
+import { CampusMapPeerLayer } from "./CampusMapPeerLayer";
+import { CampusMicroHotspotDecorLayer } from "./CampusMicroHotspotDecorLayer";
 import { CampusPresenceSync } from "./CampusPresenceSync";
+import { CampusSelfPresenceSync } from "./CampusSelfPresenceSync";
+import { CampusWorldPersistenceSync } from "./CampusWorldPersistenceSync";
+import { CampusSocialPresenceDots } from "@/components/campus/presence/CampusSocialPresenceDots";
 import { MapWalkLayer } from "./MapWalkLayer";
 import { ProximityBanner } from "./ProximityBanner";
 import { CampusChatDrawer } from "./CampusChatDrawer";
@@ -53,6 +56,13 @@ import {
 import { CANNABIS101_AREA_ID } from "@/content/courses/cannabis-101/manifest";
 import { cannabis101StableIdToLessonIndex } from "@/content/courses/cannabis-101/lessons";
 import { trpc } from "@/lib/trpc/react";
+import { resolveCampusMapZoneLabel } from "@/data/campusMicroLessonContext";
+import {
+  CAMPUS_MAP_INTERACTIVE_AREAS,
+  imageMapApproxCenterPct
+} from "@/lib/campusMapAreasCatalog";
+import type { CampusMapInteractiveArea } from "@/lib/campusMapAreasInteractive.types";
+import { hotspotEffectiveCourseId } from "@/lib/campusMapHotspotResolve";
 import { CampusAreaGateModal, type CampusGateKind } from "./CampusAreaGateModal";
 import { isCampusAdminEmail } from "@/lib/campusAdmin";
 import {
@@ -85,6 +95,7 @@ import { cn } from "@/lib/utils";
 import { useStudentGamification } from "@/hooks/useStudentGamification";
 import { useCampusPresence } from "@/hooks/useCampusPresence";
 import { useCampusPresenceBreakdown } from "@/hooks/useCampusPresenceBreakdown";
+import { useCampusSocialZoneStore } from "@/stores/campusSocialZoneStore";
 import { grantFirstCampusVisitCreditsIfNeeded } from "@/lib/studentGamificationStorage";
 import {
   campusUnlockStats,
@@ -99,9 +110,14 @@ import {
   isCampusAutoOnboardingUxEnabled,
   isCampusMapAreasPolygonOverlayEnabled,
   isCampusMapDebugOutline,
-  isCampusMapInteractiveDebugEnabled,
-  isCampusPixiLayerEnabled
+  isCampusMapInteractiveDebugEnabled
 } from "@/config/campusMapStability";
+import {
+  readCampusAvatarPositionV1,
+  writeCampusAvatarPositionV1
+} from "@/lib/campusAvatarPositionStorage";
+import { mergeCampusMapMemory } from "@/lib/campusMapMemoryStorage";
+import { recordCampusZoneVisit } from "@/lib/campusVisitedZonesStorage";
 
 const PLACEHOLDER_NIGHT = `
   radial-gradient(ellipse at 20% 30%, rgba(34, 197, 94, 0.20), transparent 45%),
@@ -142,6 +158,7 @@ export function CampusMap({
   const setPlayerLoose = useCampusStore((s) => s.setPlayerLoose);
   const player = useCampusStore((s) => s.player);
   const { data: session, status } = useSession();
+  const utils = trpc.useUtils();
   const localGamification = useStudentGamification();
 
   useEffect(() => {
@@ -149,6 +166,10 @@ export function CampusMap({
   }, []);
 
   const [selected, setSelected] = useState<Area | null>(null);
+  /** Hit SVG legado (`campusMapAreasCatalog.seed`) quando o painel abre a partir do mapa interactivo — contextualiza microaulas. */
+  const [coursePanelLegacyHitId, setCoursePanelLegacyHitId] = useState<string | null>(null);
+  const campusRestoreDoneRef = useRef(false);
+  const campusAvatarLsHydratedRef = useRef(false);
   const [campusLesson, setCampusLesson] = useState<{
     area: Area;
     idx: number;
@@ -191,6 +212,53 @@ export function CampusMap({
       staleTime: 45_000
     });
 
+  const { data: campusWorld } = trpc.campus.campusWorldSnapshot.useQuery(undefined, {
+    enabled: status === "authenticated",
+    staleTime: 45_000
+  });
+
+  const { data: campusSocialPoll } = trpc.campus.campusSocialPoll.useQuery(undefined, {
+    enabled: status === "authenticated",
+    staleTime: 18_000,
+    refetchInterval: 26_000
+  });
+
+  const touchCampusZoneMut = trpc.campus.campusTouchZone.useMutation({
+    onSuccess: () => {
+      void utils.campus.campusWorldSnapshot.invalidate();
+      void utils.campus.campusGuidedMissions.invalidate();
+      void utils.campus.campusSocialPoll.invalidate();
+    }
+  });
+  const campusMapMemoryMut = trpc.campus.campusMapMemory.useMutation();
+
+  useEffect(() => {
+    if (status !== "authenticated" || !campusLesson) return;
+    campusMapMemoryMut.mutate({
+      lastBuildingCourseId: campusLesson.area.id,
+      lastPanelKind: "lesson",
+      lastZoneLabel: resolveCampusMapZoneLabel({ courseId: campusLesson.area.id }),
+      lastLegacyHitId: null
+    });
+  }, [status, campusLesson, campusMapMemoryMut]);
+
+  useEffect(() => {
+    const z = campusWorld?.restore?.lastZoneLabel ?? null;
+    if (typeof z === "string" && z.trim().length >= 2) {
+      useCampusSocialZoneStore.getState().setCampusSocialZoneLabel(z.trim());
+    }
+  }, [campusWorld?.restore?.lastZoneLabel]);
+
+  const microLessonProgressById = useMemo(() => {
+    const rows = campusWorld?.microLessons;
+    if (!rows?.length) return undefined;
+    const m: Record<string, { completedAt: string | null }> = {};
+    for (const r of rows) {
+      m[r.blueprintId] = { completedAt: r.completedAt };
+    }
+    return m;
+  }, [campusWorld?.microLessons]);
+
   const { data: liveBroadcast } = trpc.campus.liveBroadcast.useQuery(undefined, {
     staleTime: 8_000,
     refetchInterval: 18_000
@@ -223,9 +291,71 @@ export function CampusMap({
     return campusAccess.canOpenCourses;
   }, [status, campusAccess, isCampusAdmin, livePulse]);
 
-  const handleSelectArea = (area: Area) => {
+  const persistInteractiveActivation = useCallback(
+    (hit: CampusMapInteractiveArea) => {
+      const courseId = hotspotEffectiveCourseId(hit);
+      const zoneLabel = resolveCampusMapZoneLabel({
+        legacyHitId: hit.id,
+        courseId: courseId ?? undefined
+      });
+      recordCampusZoneVisit(hit.id);
+      mergeCampusMapMemory({
+        lastPanelKind: "hotspot",
+        lastLegacyHitId: hit.id,
+        lastBuildingCourseId: courseId ?? null,
+        lastZoneLabel: zoneLabel,
+        lastAvatarPct: useCampusStore.getState().player,
+        lastActivityAt: Date.now(),
+        discoveredHotspotIds: [hit.id]
+      });
+      if (status !== "authenticated") return;
+      useCampusSocialZoneStore.getState().setCampusSocialZoneLabel(zoneLabel);
+      touchCampusZoneMut.mutate({
+        zoneLabel,
+        legacyHitId: hit.id,
+        courseAreaId: courseId
+      });
+    },
+    [status, touchCampusZoneMut]
+  );
+
+  const handleSelectArea = (area: Area, opts?: { legacyHitId?: string | null }) => {
+    const touchLocalZoneVisit = () => {
+      const zoneLabel = resolveCampusMapZoneLabel({
+        legacyHitId: opts?.legacyHitId ?? undefined,
+        courseId: area.id
+      });
+      const visitKey = opts?.legacyHitId?.trim() || area.id;
+      recordCampusZoneVisit(visitKey);
+      mergeCampusMapMemory({
+        lastPanelKind: "course",
+        lastBuildingCourseId: area.id,
+        lastLegacyHitId: opts?.legacyHitId ?? null,
+        lastZoneLabel: zoneLabel,
+        lastAvatarPct: useCampusStore.getState().player,
+        lastActivityAt: Date.now()
+      });
+    };
+
+    const touchIfAuthed = () => {
+      touchLocalZoneVisit();
+      if (status !== "authenticated") return;
+      const zoneLabel = resolveCampusMapZoneLabel({
+        legacyHitId: opts?.legacyHitId ?? undefined,
+        courseId: area.id
+      });
+      useCampusSocialZoneStore.getState().setCampusSocialZoneLabel(zoneLabel);
+      touchCampusZoneMut.mutate({
+        zoneLabel,
+        legacyHitId: opts?.legacyHitId ?? null,
+        courseAreaId: area.id
+      });
+    };
+
     if (isCampusAdmin) {
       setSelected(area);
+      setCoursePanelLegacyHitId(opts?.legacyHitId ?? null);
+      touchIfAuthed();
       return;
     }
     if (isCampusAreaConstruction(area.id)) {
@@ -237,6 +367,8 @@ export function CampusMap({
       return;
     }
     setSelected(area);
+    setCoursePanelLegacyHitId(opts?.legacyHitId ?? null);
+    touchIfAuthed();
   };
 
   const openCampusLessonFromMap = useCallback(
@@ -478,6 +610,58 @@ export function CampusMap({
 
   const advancedMap = isCampusAdvancedMap();
 
+  useLayoutEffect(() => {
+    if (campusAvatarLsHydratedRef.current) return;
+    campusAvatarLsHydratedRef.current = true;
+    const saved = readCampusAvatarPositionV1();
+    if (!saved) return;
+    if (advancedMap) setPlayer({ x: saved.xPercent, y: saved.yPercent });
+    else setPlayerLoose({ x: saved.xPercent, y: saved.yPercent });
+  }, [advancedMap, setPlayer, setPlayerLoose]);
+
+  useEffect(() => {
+    const id = window.setTimeout(() => {
+      writeCampusAvatarPositionV1({ xPercent: player.x, yPercent: player.y });
+    }, 320);
+    return () => window.clearTimeout(id);
+  }, [player.x, player.y]);
+
+  useEffect(() => {
+    if (status !== "authenticated" || !campusWorld || campusRestoreDoneRef.current) return;
+    const { restore } = campusWorld;
+    const hasMemory =
+      Boolean(restore.lastPanelKind) ||
+      Boolean(restore.lastLegacyHitId) ||
+      Boolean(restore.lastBuildingCourseId) ||
+      Boolean(restore.lastMicroLessonBlueprintId);
+    if (!hasMemory) return;
+
+    campusRestoreDoneRef.current = true;
+
+    if (restore.lastLegacyHitId && !advancedMap) {
+      const hit = CAMPUS_MAP_INTERACTIVE_AREAS.find((h) => h.id === restore.lastLegacyHitId);
+      if (hit) {
+        const c = imageMapApproxCenterPct(hit.coords, hit.shape);
+        setPlayerLoose({
+          x: Math.min(99, Math.max(1, c.x)),
+          y: Math.min(99, Math.max(1, c.y))
+        });
+      }
+    }
+
+    if (!canEnterCourses && !isCampusAdmin) return;
+
+    if (restore.lastPanelKind === "course" && restore.lastBuildingCourseId) {
+      const a = areas.find((x) => x.id === restore.lastBuildingCourseId);
+      if (a) {
+        setSelected(a);
+        setCoursePanelLegacyHitId(restore.lastLegacyHitId);
+      }
+    } else if (restore.lastPanelKind === "hotspot" && restore.lastLegacyHitId) {
+      useCampusHudStore.getState().setCampusMapHotspotPanelHitId(restore.lastLegacyHitId);
+    }
+  }, [status, campusWorld, advancedMap, canEnterCourses, isCampusAdmin, setPlayerLoose]);
+
   /**
    * Mapa simples: sempre `contain` (arte inteira, sem corte nem distorção). Debug/preview/overlays seguem o mesmo alinhamento.
    * Mapa avançado: `cover` no palco cheio (exceto quando flags de debug pedem contain).
@@ -548,6 +732,8 @@ export function CampusMap({
         campusRole={presenceCampusRole}
         memberSinceIso={membershipSinceIso}
       />
+      <CampusSelfPresenceSync />
+      <CampusWorldPersistenceSync />
 
       <div className="absolute inset-0 z-[1] min-h-0 bg-ink-900">
         <div
@@ -648,7 +834,7 @@ export function CampusMap({
                 <img
                   src={bgNightSrc}
                   alt=""
-                  className="pointer-events-none opacity-100"
+                  className="campus-map-base-art pointer-events-none opacity-100"
                   style={{ ...campusMapBgImgStyle }}
                   decoding="async"
                   onError={() => setNightOk(false)}
@@ -660,7 +846,7 @@ export function CampusMap({
                 />
               )}
               <div
-                className="pointer-events-none absolute inset-0 z-[1] bg-gradient-to-b from-black/25 via-transparent to-black/35"
+                className="pointer-events-none absolute inset-0 z-[1] bg-gradient-to-b from-black/12 via-transparent to-black/24"
                 aria-hidden
               />
             </div>
@@ -677,7 +863,7 @@ export function CampusMap({
                 <img
                   src={bgDaySrc}
                   alt=""
-                  className="pointer-events-none opacity-100"
+                  className="campus-map-base-art pointer-events-none opacity-100"
                   style={{ ...campusMapBgImgStyle }}
                   decoding="async"
                   onError={() => setDayOk(false)}
@@ -689,11 +875,11 @@ export function CampusMap({
                 />
               )}
               <div
-                className="pointer-events-none absolute inset-0 z-[1] bg-gradient-to-b from-sky-400/8 via-transparent to-amber-200/12"
+                className="pointer-events-none absolute inset-0 z-[1] bg-gradient-to-b from-sky-400/4 via-transparent to-amber-200/7"
                 aria-hidden
               />
               <div
-                className="pointer-events-none absolute inset-0 z-[1] bg-[radial-gradient(ellipse_at_50%_12%,rgba(255,251,235,0.2),transparent_52%)]"
+                className="pointer-events-none absolute inset-0 z-[1] bg-[radial-gradient(ellipse_at_50%_14%,rgba(255,251,235,0.075),transparent_58%)]"
                 aria-hidden
               />
             </div>
@@ -727,8 +913,14 @@ export function CampusMap({
             <div className="campus-map-fx-clip pointer-events-none absolute inset-0 z-[7] overflow-hidden">
               <AmbientLife phase={phase} />
               <CampusAmbientSparks phase={phase} />
-              <CampusVivoLayer phase={phase} presence={presenceBreakdown} />
-              {isCampusPixiLayerEnabled() ? <AmbientPixi phase={phase} /> : null}
+              <CampusVivoLayer
+                phase={phase}
+                presence={presenceBreakdown}
+                socialRegisteredOnline={campusSocialPoll?.registeredOnlineCount ?? null}
+              />
+              {status === "authenticated" ? (
+                <CampusSocialPresenceDots phase={phase} peers={campusSocialPoll?.peers} />
+              ) : null}
             </div>
 
             <div
@@ -768,9 +960,11 @@ export function CampusMap({
                 setPlayerLoose={setPlayerLoose}
                 imageObjectFit={CAMPUS_IMAGE_OBJECT_FIT_SIMPLE}
                 svgPreserveAspectRatio={interactiveMapSvgPar}
-                onOpenCampusCourse={(courseId) => {
+                hitZoneStates={campusWorld?.hitZoneStates}
+                onPersistInteractiveActivation={persistInteractiveActivation}
+                onOpenCampusCourse={(courseId, legacyHitId) => {
                   const area = areas.find((a) => a.id === courseId);
-                  if (area) handleSelectArea(area);
+                  if (area) handleSelectArea(area, { legacyHitId: legacyHitId ?? null });
                 }}
                 onOpenCampusLesson={(courseId, lessonIndex) => {
                   const area = areas.find((a) => a.id === courseId);
@@ -819,6 +1013,10 @@ export function CampusMap({
 
           <CampusCineHotspot />
 
+          <div className="pointer-events-none absolute inset-0 z-[10]">
+            <CampusMicroHotspotDecorLayer />
+          </div>
+
           <div className="pointer-events-none absolute inset-0 z-[12]">
             <CampusPlayer
               tagDisplayName={presenceDisplayName}
@@ -827,7 +1025,11 @@ export function CampusMap({
               memberSinceIso={membershipSinceIso}
               gamificationAvatarVariant={localGamification.avatarVariant}
             />
-            <CampusPeerAvatars />
+            <CampusMapPeerLayer
+              socialPeers={status === "authenticated" ? campusSocialPoll?.peers ?? null : null}
+              socialPollResolved={status !== "authenticated" || campusSocialPoll !== undefined}
+              allowAmbientMock={status !== "authenticated"}
+            />
           </div>
           </div>
         </div>
@@ -914,7 +1116,12 @@ export function CampusMap({
 
       <CoursePanel
         area={selected}
-        onClose={() => setSelected(null)}
+        legacyHitId={coursePanelLegacyHitId}
+        microLessonProgressById={microLessonProgressById}
+        onClose={() => {
+          setSelected(null);
+          setCoursePanelLegacyHitId(null);
+        }}
         onOpenCampusLesson={(lessonIndex) => {
           if (!selected) return;
           const idx =

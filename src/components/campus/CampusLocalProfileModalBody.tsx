@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { Play } from "lucide-react";
+import { useSession } from "next-auth/react";
+import { trpc } from "@/lib/trpc/react";
 import { useEffect, useMemo, useState } from "react";
 import { AvatarPreview } from "@/components/campus/AvatarPreview";
 import { CampusProfileInventoryTab } from "@/components/campus/CampusProfileInventoryTab";
@@ -37,9 +39,14 @@ export function CampusLocalProfileModalBody({ onContinueLastLesson, className }:
   const hydrated = useClientHydrated();
   const g = useStudentGamification();
   const campus = useCampusProgressClient();
+  const { status } = useSession();
+  const { data: campusPersist } = trpc.campus.campusPersistenceSummary.useQuery(undefined, {
+    enabled: status === "authenticated",
+    staleTime: 60_000
+  });
   const studentTitle = useMemo(() => getStudentTitleForProfile(g).label, [g.xp]);
   const [visitTick, setVisitTick] = useState(0);
-  const [modalMainTab, setModalMainTab] = useState<"resumo" | "inventario">("resumo");
+  const [modalMainTab, setModalMainTab] = useState<"resumo" | "campus" | "inventario">("resumo");
 
   useEffect(() => {
     const bump = () => setVisitTick((t) => t + 1);
@@ -98,6 +105,20 @@ export function CampusLocalProfileModalBody({ onContinueLastLesson, className }:
         <button
           type="button"
           role="tab"
+          aria-selected={modalMainTab === "campus"}
+          onClick={() => setModalMainTab("campus")}
+          className={cn(
+            "flex-1 rounded-lg px-2 py-2 text-[11px] font-semibold transition sm:text-xs",
+            modalMainTab === "campus"
+              ? "bg-sky-500/22 text-sky-50"
+              : "text-white/55 hover:bg-white/[0.06] hover:text-white/85"
+          )}
+        >
+          Meu perfil
+        </button>
+        <button
+          type="button"
+          role="tab"
           aria-selected={modalMainTab === "inventario"}
           onClick={() => setModalMainTab("inventario")}
           className={cn(
@@ -113,6 +134,86 @@ export function CampusLocalProfileModalBody({ onContinueLastLesson, className }:
 
       {modalMainTab === "inventario" ? (
         <CampusProfileInventoryTab density="modal" hydrated={hydrated} />
+      ) : modalMainTab === "campus" ? (
+        <div className="space-y-4 rounded-xl border border-white/12 bg-white/[0.03] p-4">
+          <div>
+            <h3 className="text-base font-bold text-white">Campus persistente</h3>
+            <p className="mt-1 text-[12px] leading-snug text-white/55">
+              Progresso sincronizado com a tua conta neste mapa (zonas, microaulas, XP de campus).
+            </p>
+          </div>
+          {status !== "authenticated" ? (
+            <p className="text-[13px] text-white/58">
+              Inicia sessão para ver XP, nível, badges e zonas descobertas no servidor.
+            </p>
+          ) : !campusPersist ? (
+            <p className="text-[13px] text-white/58">A carregar o teu perfil de campus…</p>
+          ) : (
+            <>
+              <dl className="grid gap-3 text-[13px] sm:grid-cols-2">
+                <div>
+                  <dt className="text-[10px] font-semibold uppercase tracking-wide text-white/45">
+                    XP total (servidor)
+                  </dt>
+                  <dd className="font-semibold tabular-nums text-canna-200/95">{campusPersist.xpTotal}</dd>
+                </div>
+                <div>
+                  <dt className="text-[10px] font-semibold uppercase tracking-wide text-white/45">Nível</dt>
+                  <dd className="font-semibold text-white">{campusPersist.levelLabel}</dd>
+                </div>
+                <div>
+                  <dt className="text-[10px] font-semibold uppercase tracking-wide text-white/45">
+                    Zonas descobertas
+                  </dt>
+                  <dd className="font-semibold tabular-nums text-white">{campusPersist.zonesDiscovered}</dd>
+                </div>
+                <div>
+                  <dt className="text-[10px] font-semibold uppercase tracking-wide text-white/45">
+                    Microaulas concluídas
+                  </dt>
+                  <dd className="font-semibold tabular-nums text-white">{campusPersist.microLessonsCompleted}</dd>
+                </div>
+              </dl>
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-wide text-white/42">Badges</p>
+                {campusPersist.badges.length === 0 ? (
+                  <p className="mt-2 text-[12px] text-white/52">
+                    Ainda sem badges de campus — explora zonas e completa microaulas.
+                  </p>
+                ) : (
+                  <ul className="mt-2 flex flex-wrap gap-2">
+                    {campusPersist.badges.map((b) => (
+                      <li
+                        key={`${b.badgeCode}-${b.unlockedAt}`}
+                        className="rounded-full border border-white/14 bg-black/25 px-3 py-1 text-[11px] font-medium text-emerald-100/95"
+                      >
+                        {b.badgeCode}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+              {campusPersist.topZones.length > 0 ? (
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-wide text-white/42">
+                    Zonas mais visitadas
+                  </p>
+                  <ul className="mt-2 space-y-1.5">
+                    {campusPersist.topZones.map((z) => (
+                      <li
+                        key={z.zoneLabel}
+                        className="flex items-center justify-between gap-2 rounded-lg border border-white/[0.07] bg-black/15 px-3 py-2 text-[12px]"
+                      >
+                        <span className="min-w-0 truncate font-medium text-white/88">{z.zoneLabel}</span>
+                        <span className="shrink-0 tabular-nums text-sky-200/90">{z.visitCount}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+            </>
+          )}
+        </div>
       ) : (
         <>
       <div className="flex flex-wrap items-start gap-4 rounded-xl border border-white/12 bg-white/[0.04] p-4">

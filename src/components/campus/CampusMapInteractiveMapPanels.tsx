@@ -213,14 +213,16 @@ export function CampusMapInteractiveMapPanels({
               role="dialog"
               aria-modal
               aria-label="Cinema e ao vivo"
-              initial={{ x: "104%" }}
+              initial={{ x: "-104%" }}
               animate={{ x: 0 }}
-              exit={{ x: "104%" }}
+              exit={{ x: "-104%" }}
               transition={{ type: "spring", stiffness: 340, damping: 32 }}
               className={cn(
-                "fixed right-0 z-[53] flex h-[calc(100dvh-0.5rem-env(safe-area-inset-top)-env(safe-area-inset-bottom))] max-h-[calc(100dvh-3.5rem)] min-h-[48%] translate-y-1 flex-col rounded-l-3xl border border-white/12 shadow-[-20px_0_60px_rgba(0,0,0,0.35)] backdrop-blur-2xl",
-                "top-[calc(3.5rem+env(safe-area-inset-top))]",
-                cinemaExpanded ? "w-[min(100vw,372px)] min-w-[320px]" : "w-11 min-w-[44px]"
+                "fixed z-[53] flex flex-col rounded-r-3xl border border-white/12 shadow-[14px_12px_52px_rgba(0,0,0,0.38)] backdrop-blur-2xl",
+                "left-[max(0.5rem,env(safe-area-inset-left))]",
+                "bottom-[calc(env(safe-area-inset-bottom)+3.25rem)] sm:bottom-[max(0.5rem,env(safe-area-inset-bottom))]",
+                "max-sm:h-[calc(100dvh-6.75rem-env(safe-area-inset-top)-env(safe-area-inset-bottom))] sm:h-[calc(100dvh-4rem-env(safe-area-inset-top)-env(safe-area-inset-bottom))]",
+                cinemaExpanded ? "w-[min(calc(100vw-1rem),372px)] min-w-[280px]" : "w-11 min-w-[44px]"
               )}
               style={{
                 background:
@@ -239,7 +241,7 @@ export function CampusMapInteractiveMapPanels({
                   aria-label={cinemaExpanded ? "Recolher painel" : "Expandir painel"}
                   onClick={() => setCinemaExpanded(!cinemaExpanded)}
                 >
-                  {cinemaExpanded ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
+                  {cinemaExpanded ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
                 </button>
                 {cinemaExpanded ? (
                   <button
@@ -281,7 +283,7 @@ export function CampusMapInteractiveMapPanels({
                   <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-3">
                     <p className="text-[10px] font-bold uppercase tracking-widest text-white/45">Programação</p>
                     <p className="mt-2 text-[12px] text-white/55">
-                      Atalho para a programação do dia — abre o painel à esquerda quando quiseres ver tudo junto.
+                      Atalho para a programação do dia — abre o painel completo quando quiseres ver tudo junto.
                     </p>
                   </div>
                 </div>

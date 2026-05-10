@@ -98,17 +98,24 @@ export function CampusPlayer({
 
   });
 
-
+  /** Direção do movimento no plano do mapa (graus); só atualiza com deslocamento perceptível. */
+  const [headingDeg, setHeadingDeg] = useState(0);
 
   useEffect(() => {
 
     const prev = prevRef.current;
 
-    const d = Math.hypot(player.x - prev.x, player.y - prev.y);
+    const dx = player.x - prev.x;
+
+    const dy = player.y - prev.y;
+
+    const d = Math.hypot(dx, dy);
 
     prevRef.current = player;
 
     if (d < 0.05) return;
+
+    setHeadingDeg(Math.atan2(dy, dx) * (180 / Math.PI) + 90);
 
     setMoveTransition({
 
@@ -150,7 +157,9 @@ export function CampusPlayer({
 
           opacity: sit ? 0.92 : 1,
 
-          filter: sit ? "brightness(1.15)" : "brightness(1)"
+          filter: sit ? "brightness(1.15)" : "brightness(1)",
+
+          rotate: sit ? 0 : headingDeg
 
         }}
 
@@ -182,7 +191,7 @@ export function CampusPlayer({
 
 
 
-          <div className="pointer-events-auto flex min-h-[52px] min-w-[52px] items-center justify-center">
+          <div className="pointer-events-none flex min-h-[52px] min-w-[52px] items-center justify-center">
 
             {advancedMap ? (
 

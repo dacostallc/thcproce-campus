@@ -30,6 +30,7 @@ import {
 import { useCampusPresenceStore } from "@/stores/campusPresenceStore";
 import { useCampusHudStore } from "@/stores/campusHudStore";
 import { useCampusStore } from "@/stores/campusStore";
+import { useCampusSelfPresenceStore } from "@/stores/campusSelfPresenceStore";
 
 /** Ative Presence (recom.). Desative só se o projeto ainda só usar broadcast legacy: `NEXT_PUBLIC_SUPABASE_DISABLE_PRESENCE=true`. */
 
@@ -91,6 +92,16 @@ function parseRealtimePayload(row: unknown): CampusRealtimePayload | null {
     coerceCampusActivityKind(o.campusActivity) ??
     inferCampusActivityFromLegacyPayload(inCinema);
 
+  const cps = o.campusPresenceStatus;
+  const campusPresenceStatus =
+    cps === "idle" ||
+    cps === "walking" ||
+    cps === "cinema" ||
+    cps === "lesson" ||
+    cps === "exploring"
+      ? cps
+      : undefined;
+
   return {
     uid,
     x: Number(o.x) || 0,
@@ -109,7 +120,8 @@ function parseRealtimePayload(row: unknown): CampusRealtimePayload | null {
     memberSinceIso,
     adminBroadcastText,
     adminBroadcastAt,
-    campusActivity
+    campusActivity,
+    campusPresenceStatus
   };
 }
 
@@ -153,7 +165,6 @@ export function CampusPresenceSync({
 
   const supa = useMemo(() => createSupabaseBrowser(), []);
   const uid = useMemo(() => getCampusPresenceUid(), []);
-  const warnedMissingSupabaseRef = useRef(false);
 
   const displayRef = useRef(displayName);
   displayRef.current = displayName;
@@ -187,14 +198,6 @@ export function CampusPresenceSync({
     const setOthers = useCampusPresenceStore.getState().setOthersFromRealtime;
 
     if (!supa || !uid) {
-      if (!supa && !warnedMissingSupabaseRef.current) {
-        warnedMissingSupabaseRef.current = true;
-        if (process.env.NODE_ENV === "development") {
-          console.info(
-            "[CampusPresence] Supabase não configurado — presença/desmultiplicação em modo local (mapa continua normal)."
-          );
-        }
-      }
       setOthers({});
       return;
     }
@@ -244,6 +247,8 @@ export function CampusPresenceSync({
         adminBroadcastAt = localAb.sentAtMs;
       }
 
+      const campusPresenceStatus = useCampusSelfPresenceStore.getState().status;
+
       return {
         uid,
         x: playerRef.current.x,
@@ -265,7 +270,8 @@ export function CampusPresenceSync({
         memberSinceIso: ms,
         adminBroadcastText,
         adminBroadcastAt,
-        campusActivity
+        campusActivity,
+        campusPresenceStatus
       };
     };
 
@@ -454,7 +460,8 @@ export function CampusPresenceSync({
         memberSinceIso: raw?.memberSinceIso,
         adminBroadcastText: raw?.adminBroadcastText,
         adminBroadcastAt: raw?.adminBroadcastAt,
-        campusActivity: raw?.campusActivity
+        campusActivity: raw?.campusActivity,
+        campusPresenceStatus: raw?.campusPresenceStatus
       });
       if (!p?.uid || p.uid === uid) return;
 
