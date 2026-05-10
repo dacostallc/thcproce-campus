@@ -107,24 +107,24 @@ export const CANNABIS101_MANIFEST = {
   displayName: "Cannabis 101",
   marketing: {
     short:
-      "Introdução acolhedora à planta, ao corpo e ao contexto legal — com responsabilidade e método THCProce",
+      "Fundamentos aplicáveis: botânica útil, leitura de laudos, conservação, corpo, redução de danos e lei — em português BR, tom científico",
     category: "Anfiteatro" as const,
     level: "Iniciante" as const,
     color: "amber" as AreaColor,
     mapPosition: { x: 86, y: 36 } as const,
     description:
-      "O Cannabis 101 é o seu primeiro contato organizado com a cannabis no campus: o que é a planta, como ela conversa com o organismo, que diferenças existem entre cânhamo industrial, uso informal de flores e caminhos medicinais regulados, e como pensar consumo com redução de danos. O tom é didático, sem sensacionalismo, sem prometer curas e sem incentivar condutas ilegais. Aprofundamentos técnicos (cultivo, extrações, medicina avançada) ficam nas trilhas seguintes; materiais oficiais e certificação, quando aplicáveis, continuam na sala digital THCProce.",
+      "Cannabis 101 combina ciência com protocolos que você usa na vida real: ler COA e rótulos, pensar colheita e pós-colheita, preservar terpenos, preparar consultas médicas, comparar vias de uso sem improvisos perigosos, pesquisar lei em fonte primária e fechar com segurança doméstica e ética digital. É conteúdo educativo em PT-BR — não substitui prescritor, farmacêutico ou advogado e não ensina evadir fiscalização. Cultivo solvente e medicina avançada ficam nas salas especializadas; vídeos longos e certificações institucionais continuam na sala digital THCProce.",
     highlights: [
-      "Onze aulas em português: fundamentos, canabinoides, terpenos, sistema endocanabinoide, usos, consumo responsável, panorama legal Brasil/EUA e limites do curso",
-      "Cada aula traz ideias centrais, reflexão breve e um quiz de três questões para fixar no seu ritmo",
-      "Ponte clara para as salas de cultivo, extrações e medicina canabinoide quando você quiser ir além do básico",
-      "Conteúdo educativo: não substitui orientação médica, jurídica ou agronómica para o seu caso concreto"
+      "Onze aulas densas com objetivos, passo a passo, exemplos, erros comuns, glossário embutido e quiz coerente — foco em aplicação responsável",
+      "Temas práticos: leitura de laudos, conservação volátil, checklists de redução de danos, higiene de pesquisa jurídica e limites explícitos",
+      "Ponte para salas de cultivo (onde permitido), solventless e medicina canabinoide avançada com pré-requisitos de segurança",
+      "Aviso permanente: não é consultório, escritório jurídico nem manual de condutas ilegais"
     ] as const,
     professor: "Equipa THCProce"
   },
   stats: {
     lessonCount: EXPECTED_LESSON_COUNT,
-    hoursLabel: "≈6h (estimativa de estudo + materiais na sala oficial)"
+    hoursLabel: "≈4h leitura guiada + materiais na sala oficial (variável por aluno)"
   },
   /** Ordem canônica da árvore (módulos → aulas). */
   modules: CANNABIS101_MODULES,
