@@ -756,7 +756,23 @@ html, body {
 .campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug) .campus-hotspot-marker-hoverscale {
   transform-box: fill-box;
   transform-origin: center;
-  transition: transform 560ms cubic-bezier(0.2, 0.74, 0.18, 1);
+  opacity: 0.06;
+  transition:
+    transform 560ms cubic-bezier(0.2, 0.74, 0.18, 1),
+    opacity 560ms cubic-bezier(0.2, 0.74, 0.18, 1);
+}
+
+/* Revelar âncora SVG só em hover do polígono, proximidade ou pulso pós-clique */
+.campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug)
+  .campus-interactive-shape--hits:hover
+  .campus-hotspot-marker-hoverscale,
+.campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug)
+  .campus-interactive-shape--hits.campus-interactive-shape--proximity-near
+  .campus-hotspot-marker-hoverscale,
+.campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug)
+  .campus-interactive-shape--hits.campus-interactive-shape--hit-flash
+  .campus-hotspot-marker-hoverscale {
+  opacity: 1;
 }
 
 .campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug)
@@ -765,11 +781,32 @@ html, body {
   transform: scale(1.15);
 }
 
+.campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug)
+  .campus-interactive-shape--hits.campus-interactive-shape--proximity-near:not(:hover)
+  .campus-hotspot-marker-hoverscale {
+  transform: scale(1.06);
+}
+
+.campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug)
+  .campus-interactive-shape--hits.campus-interactive-shape--hit-flash:not(:hover)
+  .campus-hotspot-marker-hoverscale {
+  transform: scale(1.07);
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug) .campus-hotspot-marker-halo {
     animation: campus-hotspot-marker-halo 7.4s ease-in-out infinite;
     transform-box: fill-box;
     transform-origin: center;
+  }
+
+  .campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug)
+    .campus-interactive-shape--hits:not(:hover):not(.campus-interactive-shape--proximity-near):not(
+      .campus-interactive-shape--hit-flash
+    )
+    .campus-hotspot-marker-halo {
+    animation: none;
+    opacity: 0.14;
   }
 }
 
@@ -977,6 +1014,14 @@ html, body {
   }
   .campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug)
     .campus-interactive-shape--hits:hover
+    .campus-hotspot-marker-hoverscale {
+    transform: none;
+  }
+  .campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug)
+    .campus-interactive-shape--hits.campus-interactive-shape--proximity-near
+    .campus-hotspot-marker-hoverscale,
+  .campus-map-interactive-overlay:not(.campus-map-interactive-overlay--debug)
+    .campus-interactive-shape--hits.campus-interactive-shape--hit-flash
     .campus-hotspot-marker-hoverscale {
     transform: none;
   }

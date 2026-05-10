@@ -3,7 +3,6 @@
 import type { CSSProperties, KeyboardEventHandler, PointerEventHandler } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
 import { AnimatePresence, motion } from "framer-motion";
 import { X } from "lucide-react";
 import { areas, type Area } from "@/data/courses";
@@ -27,8 +26,6 @@ import {
 import { CAMPUS_ART_HEIGHT, CAMPUS_ART_WIDTH, campusMapInteractiveSvgPreserveAspectRatio } from "@/lib/campusArt";
 import { useCampusStore, type PctPos } from "@/stores/campusStore";
 import { useCampusHudStore } from "@/stores/campusHudStore";
-import { isCampusMapInteractiveDebugEnabled } from "@/config/campusMapStability";
-import { isCampusAdminEmail } from "@/lib/campusAdmin";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
@@ -53,6 +50,10 @@ type Props = {
   hitZoneStates?: Partial<Record<string, CampusZoneStatus>>;
   /** Registo de visita/zona antes das rotas HUD/rota externa (evita duplicar com painel curso principal). */
   onPersistInteractiveActivation?: (hit: CampusMapInteractiveArea) => void;
+  /** Polígonos pretos / labels técnicos: só `?debugZones=1` em produção ou dev local. */
+  zonesDebugChrome: boolean;
+  /** Pulso «live» na zona cinema (TRPC / env). */
+  cinemaLiveActive?: boolean;
 };
 
 type MsgTone = "coming_soon" | "inactive" | "missing_course" | "missing_topic";
@@ -96,6 +97,12 @@ function hotspotHitAriaLabel(hit: CampusMapInteractiveArea): string {
       : hit.status === "coming_soon"
         ? "em breve"
         : "disponível";
+  if (hit.target.kind === "cinema_live_rail") {
+    const stream = hit.live
+      ? "Transmissão ao vivo disponível."
+      : "Sem live neste momento — podes abrir o cinema para ver o estado e entrar quando houver sessão.";
+    return `${name}. Cinema THCProce. ${stream} Área ${status}.`;
+  }
   const live = hit.live ? ", com transmissão ao vivo" : "";
   return `${name}. Área ${status}${live}. Abrir no mapa.`;
 }
@@ -191,8 +198,8 @@ function CampusInteractiveHotspotMarker({
           ry={1.28}
           transform="rotate(-26)"
         />
-        {live ? <circle className="campus-hotspot-marker-live" cx={8.6} cy={-8.15} r={3.35} /> : null}
       </g>
+      {live ? <circle className="campus-hotspot-marker-live" cx={8.6} cy={-8.15} r={3.35} /> : null}
     </g>
   );
 }
@@ -208,19 +215,18 @@ export function CampusMapInteractiveLayer({
   onOpenCampusCourse,
   onOpenCampusLesson,
   hitZoneStates,
-  onPersistInteractiveActivation
+  onPersistInteractiveActivation,
+  zonesDebugChrome,
+  cinemaLiveActive
 }: Props) {
   const router = useRouter();
-  const { data: session } = useSession();
-  const campusAdminUser = isCampusAdminEmail(session?.user?.email);
 
   const cineOpen = useCampusStore((s) => s.isCineOpen);
   const mapInteractionsSuppressed = cineOpen;
   const [dialog, setDialog] = useState<InteractiveTopicDialog>(null);
 
-  const interactiveDebugEnv = typeof process !== "undefined" && isCampusMapInteractiveDebugEnabled();
-  const mapDebugChrome = interactiveDebugEnv || campusAdminUser;
-  const showModalTechStripe = interactiveDebugEnv || campusAdminUser;
+  const mapDebugChrome = zonesDebugChrome;
+  const showModalTechStripe = mapDebugChrome;
   const showSvgTargetStrip = mapDebugChrome && showModalTechStripe;
 
   const svgRef = useRef<SVGSVGElement | null>(null);
@@ -262,13 +268,19 @@ export function CampusMapInteractiveLayer({
   const labelScale = CAMPUS_ART_HEIGHT / 100;
 
   const prepared = useMemo(() => {
-    return CAMPUS_MAP_INTERACTIVE_AREAS.map((a) => ({
-      hit: a,
-      primitiveArt: imageMapCoordsToSvgPrimitiveArt(a.coords, a.shape),
-      anchorPct: imageMapApproxCenterPct(a.coords, a.shape),
-      anchorArt: imageMapApproxArtCentroid(a.coords, a.shape)
-    }));
-  }, []);
+    return CAMPUS_MAP_INTERACTIVE_AREAS.map((a) => {
+      const hit =
+        a.id === "campus-cinema"
+          ? { ...a, live: Boolean(cinemaLiveActive) }
+          : a;
+      return {
+        hit,
+        primitiveArt: imageMapCoordsToSvgPrimitiveArt(hit.coords, hit.shape),
+        anchorPct: imageMapApproxCenterPct(hit.coords, hit.shape),
+        anchorArt: imageMapApproxArtCentroid(hit.coords, hit.shape)
+      };
+    });
+  }, [cinemaLiveActive]);
 
   preparedRef.current = prepared;
 
