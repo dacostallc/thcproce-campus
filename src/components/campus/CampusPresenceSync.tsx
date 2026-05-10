@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 import {
   CAMPUS_PRESENCE_MOVE_FLUSH_MS,
+  CAMPUS_PRESENCE_SIGNIFICANT_MOVE_PCT,
   CAMPUS_PRESENCE_TTL_MS,
   nextCampusPresenceHeartbeatDelayMs
 } from "@/config/campusPresence";
@@ -31,6 +32,7 @@ import { useCampusPresenceStore } from "@/stores/campusPresenceStore";
 import { useCampusHudStore } from "@/stores/campusHudStore";
 import { useCampusStore } from "@/stores/campusStore";
 import { useCampusSelfPresenceStore } from "@/stores/campusSelfPresenceStore";
+import { useCampusSocialZoneStore } from "@/stores/campusSocialZoneStore";
 
 /** Ative Presence (recom.). Desative só se o projeto ainda só usar broadcast legacy: `NEXT_PUBLIC_SUPABASE_DISABLE_PRESENCE=true`. */
 
@@ -102,6 +104,10 @@ function parseRealtimePayload(row: unknown): CampusRealtimePayload | null {
       ? cps
       : undefined;
 
+  const zRaw = o.currentZoneId;
+  const currentZoneId =
+    typeof zRaw === "string" && zRaw.trim().length ? zRaw.trim().slice(0, 120) : null;
+
   return {
     uid,
     x: Number(o.x) || 0,
@@ -121,7 +127,8 @@ function parseRealtimePayload(row: unknown): CampusRealtimePayload | null {
     adminBroadcastText,
     adminBroadcastAt,
     campusActivity,
-    campusPresenceStatus
+    campusPresenceStatus,
+    currentZoneId
   };
 }
 
@@ -162,6 +169,8 @@ export function CampusPresenceSync({
   const pathname = usePathname() ?? "";
   const pathnameRef = useRef(pathname);
   pathnameRef.current = pathname;
+
+  const lastEmittedPosRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
 
   const supa = useMemo(() => createSupabaseBrowser(), []);
   const uid = useMemo(() => getCampusPresenceUid(), []);
@@ -249,6 +258,12 @@ export function CampusPresenceSync({
 
       const campusPresenceStatus = useCampusSelfPresenceStore.getState().status;
 
+      const zoneLabel = useCampusSocialZoneStore.getState().zoneLabel;
+      const currentZoneId =
+        typeof zoneLabel === "string" && zoneLabel.trim().length
+          ? zoneLabel.trim().slice(0, 120)
+          : null;
+
       return {
         uid,
         x: playerRef.current.x,
@@ -271,7 +286,8 @@ export function CampusPresenceSync({
         adminBroadcastText,
         adminBroadcastAt,
         campusActivity,
-        campusPresenceStatus
+        campusPresenceStatus,
+        currentZoneId
       };
     };
 
@@ -306,6 +322,10 @@ export function CampusPresenceSync({
         } catch {
           /* noop */
         }
+        lastEmittedPosRef.current = {
+          x: playerRef.current.x,
+          y: playerRef.current.y
+        };
         flushPresence();
       };
 
@@ -322,6 +342,15 @@ export function CampusPresenceSync({
         const nextSig = `${p.x},${p.y}`;
         if (nextSig === posSig) return;
         posSig = nextSig;
+        const last = lastEmittedPosRef.current;
+        const dx = Math.abs(p.x - last.x);
+        const dy = Math.abs(p.y - last.y);
+        if (
+          dx < CAMPUS_PRESENCE_SIGNIFICANT_MOVE_PCT &&
+          dy < CAMPUS_PRESENCE_SIGNIFICANT_MOVE_PCT
+        ) {
+          return;
+        }
         const now = Date.now();
         const elapsed = now - lastMoveFlushWall;
 
@@ -342,6 +371,7 @@ export function CampusPresenceSync({
 
       const p0 = useCampusStore.getState().player;
       posSig = `${p0.x},${p0.y}`;
+      lastEmittedPosRef.current = { x: p0.x, y: p0.y };
 
       registerCampusRealtimeFlush(flushImmediate);
 
@@ -399,6 +429,10 @@ export function CampusPresenceSync({
         event: "pos",
         payload: buildPayload()
       });
+      lastEmittedPosRef.current = {
+        x: playerRef.current.x,
+        y: playerRef.current.y
+      };
       flushBroadcastPeers();
     };
 
@@ -415,6 +449,15 @@ export function CampusPresenceSync({
       const nextSig = `${p.x},${p.y}`;
       if (nextSig === posSigFb) return;
       posSigFb = nextSig;
+      const last = lastEmittedPosRef.current;
+      const dx = Math.abs(p.x - last.x);
+      const dy = Math.abs(p.y - last.y);
+      if (
+        dx < CAMPUS_PRESENCE_SIGNIFICANT_MOVE_PCT &&
+        dy < CAMPUS_PRESENCE_SIGNIFICANT_MOVE_PCT
+      ) {
+        return;
+      }
       const now = Date.now();
       const elapsed = now - lastMoveFlushWallFb;
 
@@ -435,6 +478,7 @@ export function CampusPresenceSync({
 
     const pFb0 = useCampusStore.getState().player;
     posSigFb = `${pFb0.x},${pFb0.y}`;
+    lastEmittedPosRef.current = { x: pFb0.x, y: pFb0.y };
 
     registerCampusRealtimeFlush(flushImmediate);
 
@@ -461,7 +505,11 @@ export function CampusPresenceSync({
         adminBroadcastText: raw?.adminBroadcastText,
         adminBroadcastAt: raw?.adminBroadcastAt,
         campusActivity: raw?.campusActivity,
-        campusPresenceStatus: raw?.campusPresenceStatus
+        campusPresenceStatus: raw?.campusPresenceStatus,
+        currentZoneId:
+          typeof raw?.currentZoneId === "string" && raw.currentZoneId.trim().length
+            ? raw.currentZoneId.trim().slice(0, 120)
+            : null
       });
       if (!p?.uid || p.uid === uid) return;
 

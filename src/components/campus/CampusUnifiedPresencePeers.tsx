@@ -7,7 +7,8 @@ import { CampusCinemaEmojiBurst } from "@/components/campus/CampusCinemaEmoji";
 import type { CampusRealtimePayload } from "@/lib/campusCinemaSeats";
 import { normalizeCampusPeerIdentity } from "@/lib/campusCinemaSeats";
 import { cn } from "@/lib/utils";
-import type { CampusPresencePeer, CampusPresenceStatus } from "@/types/campusPresencePeer";
+import type { CampusPresenceStatus } from "@/types/campusPresencePeer";
+import type { CampusPresencePeerVisual } from "@/hooks/useCampusPresencePeersVisual";
 
 function peerStatusLabelPt(status: CampusPresenceStatus): string {
   switch (status) {
@@ -19,6 +20,8 @@ function peerStatusLabelPt(status: CampusPresenceStatus): string {
       return "No cinema";
     case "lesson":
       return "Em aula";
+    case "offline":
+      return "A sair…";
     default:
       return "A explorar";
   }
@@ -27,7 +30,7 @@ function peerStatusLabelPt(status: CampusPresenceStatus): string {
 function peerStatusOrbClasses(status: CampusPresenceStatus): string {
   switch (status) {
     case "idle":
-      return "border-amber-400/55 bg-amber-950/75 text-amber-50 shadow-[0_0_14px_rgba(250,204,21,0.28)] ring-amber-300/35";
+      return "border-amber-400/42 bg-amber-950/62 text-amber-50 shadow-[0_0_8px_rgba(250,204,21,0.14)] ring-amber-300/22";
     case "walking":
     case "exploring":
       return "border-emerald-400/55 bg-emerald-950/74 text-emerald-50 shadow-[0_0_14px_rgba(52,211,153,0.3)] ring-emerald-300/32";
@@ -35,6 +38,8 @@ function peerStatusOrbClasses(status: CampusPresenceStatus): string {
       return "border-violet-400/55 bg-violet-950/78 text-violet-50 shadow-[0_0_16px_rgba(167,139,250,0.38)] ring-violet-300/38";
     case "lesson":
       return "border-sky-400/55 bg-sky-950/78 text-sky-50 shadow-[0_0_14px_rgba(56,189,248,0.34)] ring-sky-300/36";
+    case "offline":
+      return "border-white/18 bg-zinc-900/72 text-white/55 shadow-[0_0_6px_rgba(255,255,255,0.06)] ring-white/10";
     default:
       return "border-white/25 bg-black/55 text-white ring-white/15";
   }
@@ -42,7 +47,7 @@ function peerStatusOrbClasses(status: CampusPresenceStatus): string {
 
 type Props = {
   cinemaOpen: boolean;
-  peers: CampusPresencePeer[];
+  items: CampusPresencePeerVisual[];
   realtimeByPeerId?: Record<string, CampusRealtimePayload>;
 };
 
@@ -50,15 +55,16 @@ type Props = {
  * Peers no mapa — pointer-events-none no outer shell (não bloqueia walk/hotspots).
  * Cartão compacto sempre visível (mobile-safe); realtime inclui tag XP como antes.
  */
-export function CampusUnifiedPresencePeers({ cinemaOpen, peers, realtimeByPeerId }: Props) {
-  if (!peers.length) return null;
+export function CampusUnifiedPresencePeers({ cinemaOpen, items, realtimeByPeerId }: Props) {
+  if (!items.length) return null;
 
   return (
     <AnimatePresence initial={false}>
-      {peers.map((peer) => {
+      {items.map(({ peer }) => {
         const rt = realtimeByPeerId?.[peer.peerId];
         const fullId = rt ? normalizeCampusPeerIdentity(rt) : null;
         const sit = rt?.avatarPosture === "sit";
+        const opacity = peer.visualOpacity ?? 1;
 
         return (
           <motion.div
@@ -66,17 +72,17 @@ export function CampusUnifiedPresencePeers({ cinemaOpen, peers, realtimeByPeerId
             layout="position"
             initial={{ opacity: 0, scale: 0.92 }}
             animate={{
-              opacity: 1,
-              scale: 1,
+              opacity,
+              scale: opacity > 0.2 ? 1 : 0.94,
               left: `${peer.xPercent}%`,
               top: `${peer.yPercent}%`
             }}
-            exit={{ opacity: 0, scale: 0.9 }}
+            exit={{ opacity: 0, scale: 0.88, transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] } }}
             transition={{
               left: { type: "tween", duration: 0.52, ease: [0.22, 0.85, 0.36, 1] },
               top: { type: "tween", duration: 0.52, ease: [0.22, 0.85, 0.36, 1] },
-              opacity: { duration: 0.24 },
-              scale: { type: "spring", stiffness: 320, damping: 28 },
+              opacity: { duration: 0.38 },
+              scale: { type: "spring", stiffness: 280, damping: 28 },
               layout: { type: "spring", stiffness: 260, damping: 30 }
             }}
             className="pointer-events-none absolute z-[13] flex -translate-x-1/2 -translate-y-full flex-col items-center"
@@ -85,13 +91,17 @@ export function CampusUnifiedPresencePeers({ cinemaOpen, peers, realtimeByPeerId
               className="group relative flex flex-col items-center"
               animate={
                 peer.status === "idle"
-                  ? { y: [0, -3, 0] }
-                  : { y: sit ? 2 : 0 }
+                  ? { y: [0, -2, 0] }
+                  : peer.status === "offline"
+                    ? { y: 0 }
+                    : { y: sit ? 2 : 0 }
               }
               transition={
                 peer.status === "idle"
-                  ? { duration: 3.4, repeat: Infinity, ease: "easeInOut" }
-                  : { type: "spring", stiffness: 260, damping: 26 }
+                  ? { duration: 4.6, repeat: Infinity, ease: "easeInOut" }
+                  : peer.status === "offline"
+                    ? { duration: 0.35 }
+                    : { type: "spring", stiffness: 260, damping: 26 }
               }
             >
               {rt && fullId ? (
@@ -119,7 +129,15 @@ export function CampusUnifiedPresencePeers({ cinemaOpen, peers, realtimeByPeerId
                   animate={{ scale: sit ? 0.92 : 1 }}
                   transition={{ type: "spring", stiffness: 280, damping: 28 }}
                 >
-                  <Users size={sit ? 13 : 15} strokeWidth={2} aria-hidden />
+                  <Users
+                    size={sit ? 13 : 15}
+                    strokeWidth={2}
+                    aria-hidden
+                    className={cn(
+                      peer.status === "offline" && "opacity-55",
+                      peer.status === "idle" && "opacity-80"
+                    )}
+                  />
                 </motion.div>
 
                 <div
@@ -138,6 +156,8 @@ export function CampusUnifiedPresencePeers({ cinemaOpen, peers, realtimeByPeerId
                   </p>
                   {peer.zoneTitlePt ? (
                     <p className="mt-0.5 truncate text-[8px] text-white/42">{peer.zoneTitlePt}</p>
+                  ) : peer.currentZoneId ? (
+                    <p className="mt-0.5 truncate text-[8px] text-white/38">{peer.currentZoneId}</p>
                   ) : null}
                   {peer.levelHint && !rt ? (
                     <p className="mt-0.5 truncate text-[8px] text-emerald-200/55">{peer.levelHint}</p>

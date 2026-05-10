@@ -47,6 +47,8 @@ export type CampusRealtimePayload = {
   campusActivity: CampusActivityKind;
   /** Presença fina (idle / walking / cinema / lesson / exploring) — opcional para peers antigos. */
   campusPresenceStatus?: CampusSelfPresenceStatus;
+  /** Zona pedagógica / hotspot atual (heartbeat social). */
+  currentZoneId?: string | null;
 };
 
 export function isAllowedCinemaReactionEmoji(s: string): s is (typeof CINEMA_REACTION_EMOJIS)[number] {

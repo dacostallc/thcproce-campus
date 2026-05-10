@@ -48,6 +48,10 @@ export function derivePresenceStatusFromRealtimePayload(
 
 export function realtimePayloadToPresencePeer(p: CampusRealtimePayload): CampusPresencePeer {
   const id = normalizeCampusPeerIdentity(p);
+  const z =
+    typeof p.currentZoneId === "string" && p.currentZoneId.trim().length
+      ? p.currentZoneId.trim().slice(0, 120)
+      : undefined;
   return {
     peerId: p.uid,
     displayName: id.displayName,
@@ -56,6 +60,7 @@ export function realtimePayloadToPresencePeer(p: CampusRealtimePayload): CampusP
     xPercent: p.x,
     yPercent: p.y,
     status: derivePresenceStatusFromRealtimePayload(p),
+    currentZoneId: z,
     lastSeenAt: typeof p.at === "number" && Number.isFinite(p.at) ? p.at : Date.now()
   };
 }

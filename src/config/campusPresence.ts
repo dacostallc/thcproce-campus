@@ -1,18 +1,30 @@
 /**
- * Presença no mapa (/campus): TTL e ritmo do heartbeat (Supabase Presence / broadcast).
- * Peers sem `at` atualizado dentro de {@link CAMPUS_PRESENCE_TTL_MS} ficam de fora da contagem
- * e do payload de outros avatares — evita fantasmas quando a aba cai ou o socket some.
+ * Presença no mapa (/campus): TTL, heartbeat e rede (Supabase Presence / broadcast).
+ * Peers sem `at` fresco dentro de {@link CAMPUS_PRESENCE_TTL_MS} deixam de contar como «vivos»;
+ * a UI aplica fade antes de retirar o avatar (evita fantasmas permanentes).
  */
 
-/** TTL (segundos) — escolha 75s dentro do pedido [60–90]. */
-export const CAMPUS_PRESENCE_TTL_MS = 75_000;
+/** Consideramos peer «vivo» enquanto `Date.now() - lastSeenAt <= TTL`. */
+export const CAMPUS_PRESENCE_TTL_MS = 60_000;
 
-/** Heartbeat Presence (intervalo nominal entre dois `track` quando parado): ~25–40s. */
-export const CAMPUS_PRESENCE_HEARTBEAT_MIN_MS = 25_000;
-export const CAMPUS_PRESENCE_HEARTBEAT_MAX_MS = 40_000;
+/** Depois do TTL, opacity anima até zero durante esta janela antes de remover do mapa. */
+export const CAMPUS_PRESENCE_PEER_FADE_MS = 1_200;
 
-/** Após mover o jogador: no máximo um `track` / broadcast neste intervalo (suaviza avatar). */
-export const CAMPUS_PRESENCE_MOVE_FLUSH_MS = 220;
+/** Tick da camada visual (fade / cleanup) — baixo custo, só no cliente do mapa. */
+export const CAMPUS_PRESENCE_VISUAL_TICK_MS = 480;
+
+/** Heartbeat Presence: ~15–30s (pedido produto; reduz fantasmas sem spam). */
+export const CAMPUS_PRESENCE_HEARTBEAT_MIN_MS = 15_000;
+export const CAMPUS_PRESENCE_HEARTBEAT_MAX_MS = 30_000;
+
+/**
+ * Após mover o jogador: no máximo um `track` / broadcast neste intervalo (suaviza avatar).
+ * Movimento inferior a {@link CAMPUS_PRESENCE_SIGNIFICANT_MOVE_PCT} (% mapa) não dispara envio.
+ */
+export const CAMPUS_PRESENCE_MOVE_FLUSH_MS = 280;
+
+/** Delta mínimo em % do mapa para considerar movimento relevante (evita spam por micro‑drift). */
+export const CAMPUS_PRESENCE_SIGNIFICANT_MOVE_PCT = 0.32;
 
 /** Próximo atraso de heartbeat (~25–40s), sem Math.random quando `crypto` existe. */
 export function nextCampusPresenceHeartbeatDelayMs(): number {

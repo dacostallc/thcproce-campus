@@ -6,11 +6,14 @@ import { useCampusStore } from "@/stores/campusStore";
 import { CampusUnifiedPresencePeers } from "@/components/campus/CampusUnifiedPresencePeers";
 import type { CampusRealtimePayload } from "@/lib/campusCinemaSeats";
 import {
-  realtimePayloadToPresencePeer,
   socialPollPeerToPresencePeer,
   type CampusSocialPollPeerLite
 } from "@/lib/campusPresencePeerMappers";
 import type { CampusPresencePeer } from "@/types/campusPresencePeer";
+import {
+  useCampusPresencePeersVisual,
+  type CampusPresencePeerVisual
+} from "@/hooks/useCampusPresencePeersVisual";
 
 const MOCK_FALLBACK_PEERS: CampusPresencePeer[] = [
   {
@@ -56,7 +59,7 @@ type Props = {
 
 /**
  * Prioridade: Supabase realtime (`campus-map`) → polling social → mock discreto.
- * pointer-events-none no subtree dos peers (walk/hotspots intocados).
+ * Realtime passa por TTL + fade para não deixar fantasmas eternos no mapa.
  */
 export function CampusMapPeerLayer({
   socialPeers,
@@ -66,36 +69,56 @@ export function CampusMapPeerLayer({
   const cinemaOpen = useCampusStore((s) => s.isCineOpen);
   const realtimeRecord = useCampusPresenceStore((s) => s.othersByUid);
 
-  const { peers, realtimeByPeerId } = useMemo(() => {
+  const realtimeVisuals = useCampusPresencePeersVisual(realtimeRecord);
+
+  const realtimeByPeerId = useMemo(() => {
+    const m: Record<string, CampusRealtimePayload> = {};
+    for (const v of realtimeVisuals) {
+      if (v.realtime) m[v.peer.peerId] = v.realtime;
+    }
+    return m;
+  }, [realtimeVisuals]);
+
+  const { items, realtimeMap } = useMemo((): {
+    items: CampusPresencePeerVisual[];
+    realtimeMap: Record<string, CampusRealtimePayload> | undefined;
+  } => {
     const rtEntries = Object.values(realtimeRecord);
     if (rtEntries.length > 0) {
-      const realtimeByPeerId: Record<string, CampusRealtimePayload> = {};
-      for (const p of rtEntries) realtimeByPeerId[p.uid] = p;
-      return {
-        peers: rtEntries.map(realtimePayloadToPresencePeer),
-        realtimeByPeerId
-      };
+      return { items: realtimeVisuals, realtimeMap: realtimeByPeerId };
     }
     if (socialPeers?.length) {
       return {
-        peers: socialPeers.map(socialPollPeerToPresencePeer),
-        realtimeByPeerId: undefined
+        items: socialPeers.map((row) => ({
+          peer: socialPollPeerToPresencePeer(row)
+        })),
+        realtimeMap: undefined
       };
     }
     if (!socialPollResolved) {
-      return { peers: [], realtimeByPeerId: undefined };
+      return { items: [], realtimeMap: undefined };
     }
     if (allowAmbientMock) {
-      return { peers: MOCK_FALLBACK_PEERS, realtimeByPeerId: undefined };
+      return {
+        items: MOCK_FALLBACK_PEERS.map((peer) => ({ peer })),
+        realtimeMap: undefined
+      };
     }
-    return { peers: [], realtimeByPeerId: undefined };
-  }, [realtimeRecord, socialPeers, socialPollResolved, allowAmbientMock]);
+    return { items: [], realtimeMap: undefined };
+  }, [
+    realtimeRecord,
+    realtimeVisuals,
+    realtimeByPeerId,
+    socialPeers,
+    socialPollResolved,
+    allowAmbientMock
+  ]);
 
   return (
     <CampusUnifiedPresencePeers
       cinemaOpen={cinemaOpen}
-      peers={peers}
-      realtimeByPeerId={realtimeByPeerId}
+      items={items}
+      realtimeByPeerId={realtimeMap}
     />
   );
 }

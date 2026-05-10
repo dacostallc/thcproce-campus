@@ -170,6 +170,40 @@ export const CampusPresencePanel = memo(function CampusPresencePanel({
           </span>
           <span className="font-semibold text-white/88">{presence.inLessons ?? "—"}</span>
         </li>
+        {presence.peerMetrics ? (
+          <>
+            <li className="flex justify-between gap-4 border-t border-white/[0.06] pt-1">
+              <span className="flex items-center gap-1 text-white/48">
+                <Users size={11} className="text-emerald-300/80" aria-hidden /> Avatares no mapa (TTL)
+              </span>
+              <span className="font-semibold text-emerald-100/90">{presence.peerMetrics.mapPeersOnline}</span>
+            </li>
+            <li className="flex justify-between gap-4">
+              <span className="flex items-center gap-1 text-white/48">
+                <Armchair size={11} className="text-violet-300/75" aria-hidden /> No cinema
+              </span>
+              <span className="font-semibold text-white/88">{presence.peerMetrics.mapInCinema}</span>
+            </li>
+            <li className="flex justify-between gap-4">
+              <span className="flex items-center gap-1 text-white/48">
+                <Presentation size={11} className="text-sky-300/75" aria-hidden /> Em aula (mapa)
+              </span>
+              <span className="font-semibold text-white/88">{presence.peerMetrics.mapInLesson}</span>
+            </li>
+            <li className="flex justify-between gap-4">
+              <span className="flex items-center gap-1 text-white/48">
+                <Users size={11} className="text-emerald-300/70" aria-hidden /> A estudar
+              </span>
+              <span className="font-semibold text-white/88">{presence.peerMetrics.mapStudying}</span>
+            </li>
+            <li className="flex justify-between gap-4">
+              <span className="flex items-center gap-1 text-white/48">
+                <MessageSquareQuote size={11} className="text-amber-200/55" aria-hidden /> Hotspots / sala
+              </span>
+              <span className="font-semibold text-white/88">{presence.peerMetrics.mapInHotspots}</span>
+            </li>
+          </>
+        ) : null}
       </ul>
 
       {social?.incomingGestures?.length ? (

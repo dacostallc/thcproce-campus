@@ -13,6 +13,7 @@ import {
   coerceCampusActivityKind,
   inferCampusActivityFromLegacyPayload
 } from "@/lib/campusPresenceActivity";
+import { isCampusRealtimePayloadFresh } from "@/lib/campusPresenceFreshness";
 import type { CampusRealtimePayload } from "@/lib/campusCinemaSeats";
 
 export type CampusPresenceVisitorRow = {
@@ -20,6 +21,15 @@ export type CampusPresenceVisitorRow = {
   displayName: string;
   activity: CampusActivityKind;
   activityLabel: string;
+};
+
+/** Contadores derivados dos peers realtime do mapa (TTL já aplicado no sync). */
+export type CampusPresencePeerMetrics = {
+  mapPeersOnline: number;
+  mapInCinema: number;
+  mapInLesson: number;
+  mapStudying: number;
+  mapInHotspots: number;
 };
 
 export type CampusPresenceBreakdown = {
@@ -35,6 +45,8 @@ export type CampusPresenceBreakdown = {
   visitors: CampusPresenceVisitorRow[];
   /** Estado local (mapa + pathname) para destacar na lista. */
   localVisitorRow: CampusPresenceVisitorRow | null;
+  /** Métricas espaciais dos peers visíveis no mapa (fresco via servidor/presence). */
+  peerMetrics: CampusPresencePeerMetrics | null;
 };
 
 function clamp(n: number, lo: number, hi: number): number {
@@ -176,16 +188,21 @@ export function useCampusPresenceBreakdown(): CampusPresenceBreakdown {
           displayName: localSelfLabel,
           activity: localActivity,
           activityLabel: campusActivityLabelPt(localActivity)
-        }
+        },
+        peerMetrics: null
       };
     }
 
+    const now = Date.now();
+    const alive = peers.filter((p) => isCampusRealtimePayloadFresh(p, now));
+    const roster = alive.length ? alive : peers;
+
     const activityCounts: Record<CampusActivityKind, number> = { ...ZERO_ACTIVITY };
-    for (const p of peers) {
+    for (const p of roster) {
       activityCounts[peerActivity(p)] += 1;
     }
 
-    const visitors: CampusPresenceVisitorRow[] = [...peers]
+    const visitors: CampusPresenceVisitorRow[] = [...roster]
       .sort((a, b) =>
         String(a.displayName || a.label).localeCompare(String(b.displayName || b.label), "pt")
       )
@@ -204,6 +221,17 @@ export function useCampusPresenceBreakdown(): CampusPresenceBreakdown {
     const inRooms = Math.max(1, cinemaCluster + Math.round(activityCounts.studying * 0.35));
     const inLessons = Math.max(1, activityCounts.lesson);
 
+    const peerMetrics: CampusPresencePeerMetrics = {
+      mapPeersOnline: roster.length,
+      mapInCinema: roster.filter((p) => p.inCinema || peerActivity(p) === "cinema").length,
+      mapInLesson: roster.filter((p) => peerActivity(p) === "lesson").length,
+      mapStudying: roster.filter((p) => peerActivity(p) === "studying").length,
+      mapInHotspots: roster.filter((p) => {
+        const a = peerActivity(p);
+        return a === "cinema" || a === "mural" || a === "shop" || p.inCinema;
+      }).length
+    };
+
     return {
       totalOnCampus: ambient.totalOnCampus,
       inRooms,
@@ -215,7 +243,8 @@ export function useCampusPresenceBreakdown(): CampusPresenceBreakdown {
         displayName: localSelfLabel,
         activity: localActivity,
         activityLabel: campusActivityLabelPt(localActivity)
-      }
+      },
+      peerMetrics
     };
   }, [othersByUid, total, tick, localActivity, localSelfLabel]);
 }
