@@ -215,8 +215,7 @@ export function CampusMapInteractiveLayer({
   const campusAdminUser = isCampusAdminEmail(session?.user?.email);
 
   const cineOpen = useCampusStore((s) => s.isCineOpen);
-  const cinemaDockOpen = useCampusHudStore((s) => s.campusMapCinemaLiveOpen);
-  const mapInteractionsSuppressed = cineOpen || cinemaDockOpen;
+  const mapInteractionsSuppressed = cineOpen;
   const [dialog, setDialog] = useState<InteractiveTopicDialog>(null);
 
   const interactiveDebugEnv = typeof process !== "undefined" && isCampusMapInteractiveDebugEnabled();

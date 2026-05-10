@@ -18,8 +18,7 @@ type Props = {
  */
 export function CampusSimpleMapLayer({ onSelectArea, setPlayerLoose }: Props) {
   const cineOpen = useCampusStore((s) => s.isCineOpen);
-  const cinemaDockOpen = useCampusHudStore((s) => s.campusMapCinemaLiveOpen);
-  const mapInteractionsSuppressed = cineOpen || cinemaDockOpen;
+  const mapInteractionsSuppressed = cineOpen;
 
   const handlePointerDown: PointerEventHandler<HTMLDivElement> = (e) => {
     if (mapInteractionsSuppressed) return;

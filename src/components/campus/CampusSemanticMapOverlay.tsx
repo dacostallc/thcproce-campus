@@ -74,8 +74,7 @@ export function CampusSemanticMapOverlay({
   onTryOpenCannabis101LessonByStableId
 }: Props) {
   const cineOpen = useCampusStore((s) => s.isCineOpen);
-  const cinemaDockOpen = useCampusHudStore((s) => s.campusMapCinemaLiveOpen);
-  const interactionsSuppressed = cineOpen || cinemaDockOpen;
+  const interactionsSuppressed = cineOpen;
 
   const [detailItem, setDetailItem] = useState<CampusMapItem | null>(null);
 

@@ -1,12 +1,16 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
-import { ChevronLeft, ChevronRight, Clapperboard, MessageCircle, X } from "lucide-react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { AnimatePresence, motion, useDragControls, useMotionValue } from "framer-motion";
+import { ChevronLeft, ChevronRight, Clapperboard, GripHorizontal, MessageCircle, X } from "lucide-react";
 import { useCampusHudStore } from "@/stores/campusHudStore";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { CampusMapHotspotPanel } from "@/components/campus/CampusMapHotspotPanel";
+import {
+  readCampusCinemaLiveFramePosition,
+  writeCampusCinemaLiveFramePosition
+} from "@/lib/campusCinemaLiveFramePositionStorage";
 
 type Props = {
   sky: "day" | "night";
@@ -51,6 +55,235 @@ function SectionBlock({
         ))}
       </ul>
     </section>
+  );
+}
+
+/** Acima do mapa / leitor ambiente (51); abaixo de modais maiores (~55+). */
+const CINEMA_LIVE_FRAME_Z = 54;
+
+function cinemaLiveViewportMargins(): { top: number; left: number; right: number; bottom: number } {
+  if (typeof window === "undefined") {
+    return { top: 16, left: 16, right: 16, bottom: 28 };
+  }
+  const narrow = window.innerWidth < 640;
+  const vv = window.visualViewport;
+  const insetTop = vv ? Math.max(12, vv.offsetTop + 6) : 14;
+  const insetBottom = vv
+    ? Math.max(16, window.innerHeight - vv.offsetTop - vv.height + 12)
+    : narrow
+      ? 80
+      : 26;
+  return {
+    top: insetTop,
+    left: Math.max(12, 14),
+    right: Math.max(12, 14),
+    bottom: narrow ? Math.max(76, insetBottom + 20) : Math.max(24, insetBottom + 6)
+  };
+}
+
+function clampCinemaLiveFrame(
+  x: number,
+  y: number,
+  width: number,
+  height: number
+): { x: number; y: number } {
+  const m = cinemaLiveViewportMargins();
+  const vw = typeof window !== "undefined" ? window.innerWidth : 400;
+  const vh = typeof window !== "undefined" ? window.innerHeight : 800;
+  const maxX = Math.max(m.left, vw - width - m.right);
+  const maxY = Math.max(m.top, vh - height - m.bottom);
+  return {
+    x: Math.min(Math.max(x, m.left), maxX),
+    y: Math.min(Math.max(y, m.top), maxY)
+  };
+}
+
+function defaultCinemaLiveFramePosition(width: number, height: number): { x: number; y: number } {
+  const m = cinemaLiveViewportMargins();
+  const vw = typeof window !== "undefined" ? window.innerWidth : 400;
+  const vh = typeof window !== "undefined" ? window.innerHeight : 800;
+  const x = Math.round((vw - width) / 2 - Math.min(56, vw * 0.06));
+  const y = Math.round(vh - height - m.bottom);
+  return clampCinemaLiveFrame(x, y, width, height);
+}
+
+function CampusMapCinemaLiveFloatingFrame({
+  cinemaExpanded,
+  setCinemaExpanded,
+  setCinemaOpen
+}: {
+  cinemaExpanded: boolean;
+  setCinemaExpanded: (v: boolean) => void;
+  setCinemaOpen: (v: boolean) => void;
+}) {
+  const shellRef = useRef<HTMLDivElement>(null);
+  const dragControls = useDragControls();
+  const xMv = useMotionValue(0);
+  const yMv = useMotionValue(0);
+
+  const persistPosition = useCallback(() => {
+    const el = shellRef.current;
+    if (!el || typeof window === "undefined") return;
+    const rect = el.getBoundingClientRect();
+    const c = clampCinemaLiveFrame(rect.left, rect.top, rect.width, rect.height);
+    xMv.set(c.x);
+    yMv.set(c.y);
+    writeCampusCinemaLiveFramePosition({ version: 1, x: c.x, y: c.y });
+  }, [xMv, yMv]);
+
+  useLayoutEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const saved = readCampusCinemaLiveFramePosition();
+
+    const apply = () => {
+      const el = shellRef.current;
+      if (!el) return;
+      const w = el.offsetWidth;
+      const h = el.offsetHeight;
+      const def = defaultCinemaLiveFramePosition(w, h);
+      const rawX = saved?.x ?? def.x;
+      const rawY = saved?.y ?? def.y;
+      const c = clampCinemaLiveFrame(rawX, rawY, w, h);
+      xMv.set(c.x);
+      yMv.set(c.y);
+    };
+
+    apply();
+    const id = requestAnimationFrame(() => requestAnimationFrame(apply));
+    return () => cancelAnimationFrame(id);
+  }, [cinemaExpanded, xMv, yMv]);
+
+  useEffect(() => {
+    const onResize = () => {
+      const el = shellRef.current;
+      if (!el) return;
+      const w = el.offsetWidth;
+      const h = el.offsetHeight;
+      const c = clampCinemaLiveFrame(xMv.get(), yMv.get(), w, h);
+      xMv.set(c.x);
+      yMv.set(c.y);
+      persistPosition();
+    };
+    window.addEventListener("resize", onResize);
+    window.visualViewport?.addEventListener("resize", onResize);
+    return () => {
+      window.removeEventListener("resize", onResize);
+      window.visualViewport?.removeEventListener("resize", onResize);
+    };
+  }, [xMv, yMv, persistPosition]);
+
+  const onDragEnd = useCallback(() => {
+    persistPosition();
+  }, [persistPosition]);
+
+  return (
+    <motion.div
+      ref={shellRef}
+      role="dialog"
+      aria-modal
+      aria-label="Cinema e ao vivo"
+      initial={{ opacity: 0, scale: 0.94 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.96 }}
+      transition={{ type: "spring", stiffness: 380, damping: 34 }}
+      className={cn(
+        "pointer-events-auto flex flex-col overflow-hidden rounded-2xl border border-white/12 shadow-[0_14px_52px_rgba(0,0,0,0.44)] backdrop-blur-2xl",
+        "max-h-[min(calc(100dvh-5.5rem-env(safe-area-inset-top)-env(safe-area-inset-bottom)),720px)]",
+        cinemaExpanded ? "w-[min(calc(100vw-1.25rem),372px)] min-w-[280px]" : "w-11 min-w-[44px]"
+      )}
+      style={{
+        x: xMv,
+        y: yMv,
+        position: "fixed",
+        left: 0,
+        top: 0,
+        zIndex: CINEMA_LIVE_FRAME_Z,
+        touchAction: "none",
+        background:
+          "linear-gradient(195deg, rgba(255,255,255,0.08) 0%, rgba(8,12,20,0.78) 42%, rgba(4,6,12,0.92) 100%)"
+      }}
+      drag
+      dragControls={dragControls}
+      dragListener={false}
+      dragMomentum={false}
+      dragElastic={0}
+      onDragEnd={onDragEnd}
+      onClick={(e) => e.stopPropagation()}
+    >
+      <div
+        className="flex cursor-grab touch-none items-center gap-1 border-b border-white/10 py-1.5 pl-1.5 pr-1 active:cursor-grabbing"
+        onPointerDown={(e) => dragControls.start(e)}
+      >
+        <GripHorizontal size={14} className="shrink-0 text-white/42" aria-hidden />
+        {cinemaExpanded ? (
+          <Clapperboard size={16} className="ml-0.5 shrink-0 text-amber-200/85" aria-hidden />
+        ) : null}
+        <button
+          type="button"
+          className="flex h-9 flex-1 items-center justify-center rounded-lg text-white/55 transition hover:bg-white/10 hover:text-white"
+          aria-expanded={cinemaExpanded}
+          aria-label={cinemaExpanded ? "Recolher painel" : "Expandir painel"}
+          onPointerDown={(e) => e.stopPropagation()}
+          onClick={(e) => {
+            e.stopPropagation();
+            setCinemaExpanded(!cinemaExpanded);
+          }}
+        >
+          {cinemaExpanded ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
+        </button>
+        {cinemaExpanded ? (
+          <button
+            type="button"
+            className="rounded-lg p-2 text-white/45 hover:bg-white/10 hover:text-white"
+            aria-label="Fechar"
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={(e) => {
+              e.stopPropagation();
+              setCinemaOpen(false);
+            }}
+          >
+            <X size={17} />
+          </button>
+        ) : null}
+      </div>
+      {cinemaExpanded ? (
+        <div className="thin-scrollbar flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto p-3 text-[13px] text-white/82">
+          <div className="space-y-2 rounded-2xl border border-white/10 bg-black/25 p-3">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-teal-200/75">Player</p>
+            <div className="flex aspect-video items-center justify-center rounded-xl bg-gradient-to-br from-slate-900/90 to-black/80 text-xs text-white/42">
+              Vídeo ou transmissão — em breve
+            </div>
+          </div>
+          <div className="rounded-2xl border border-amber-400/15 bg-amber-950/20 p-3">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-amber-200/70">Ao vivo</p>
+            <p className="mt-2 text-white/75">
+              Aqui verias o estado da transmissão ao vivo quando estiver ligada.
+            </p>
+          </div>
+          <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-3">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-white/45">Chat</p>
+            <p className="mt-2 text-[12px] text-white/55">
+              Espaço para conversa com quem está a ver o mesmo ecrã — ainda por configurar.
+            </p>
+          </div>
+          <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-3">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-white/45">Eventos</p>
+            <p className="mt-2 text-[12px] text-white/55">
+              Lista rápida do que passa no telão — exemplo para acompanhar o ritmo do campus.
+            </p>
+          </div>
+          <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-3">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-white/45">Programação</p>
+            <p className="mt-2 text-[12px] text-white/55">
+              Atalho para a programação do dia — abre o painel completo quando quiseres ver tudo junto.
+            </p>
+          </div>
+        </div>
+      ) : (
+        <div className="min-h-[12px] shrink-0" aria-hidden />
+      )}
+    </motion.div>
   );
 }
 
@@ -199,100 +432,12 @@ export function CampusMapInteractiveMapPanels({
 
       <AnimatePresence>
         {cinemaOpen ? (
-          <>
-            <motion.button
-              type="button"
-              aria-label="Fechar painel cinema"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 z-[51] bg-transparent"
-              onClick={() => setCinemaOpen(false)}
-            />
-            <motion.div
-              role="dialog"
-              aria-modal
-              aria-label="Cinema e ao vivo"
-              initial={{ x: "-104%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "-104%" }}
-              transition={{ type: "spring", stiffness: 340, damping: 32 }}
-              className={cn(
-                "fixed z-[53] flex flex-col rounded-r-3xl border border-white/12 shadow-[14px_12px_52px_rgba(0,0,0,0.38)] backdrop-blur-2xl",
-                "left-[max(0.5rem,env(safe-area-inset-left))]",
-                "bottom-[calc(env(safe-area-inset-bottom)+3.25rem)] sm:bottom-[max(0.5rem,env(safe-area-inset-bottom))]",
-                "max-sm:h-[calc(100dvh-6.75rem-env(safe-area-inset-top)-env(safe-area-inset-bottom))] sm:h-[calc(100dvh-4rem-env(safe-area-inset-top)-env(safe-area-inset-bottom))]",
-                cinemaExpanded ? "w-[min(calc(100vw-1rem),372px)] min-w-[280px]" : "w-11 min-w-[44px]"
-              )}
-              style={{
-                background:
-                  "linear-gradient(195deg, rgba(255,255,255,0.08) 0%, rgba(8,12,20,0.78) 42%, rgba(4,6,12,0.92) 100%)"
-              }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="flex items-center gap-1 border-b border-white/10 py-1.5 pl-2 pr-1">
-                {cinemaExpanded ? (
-                  <Clapperboard size={16} className="ml-1 shrink-0 text-amber-200/85" aria-hidden />
-                ) : null}
-                <button
-                  type="button"
-                  className="flex h-9 flex-1 items-center justify-center rounded-lg text-white/55 transition hover:bg-white/10 hover:text-white"
-                  aria-expanded={cinemaExpanded}
-                  aria-label={cinemaExpanded ? "Recolher painel" : "Expandir painel"}
-                  onClick={() => setCinemaExpanded(!cinemaExpanded)}
-                >
-                  {cinemaExpanded ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
-                </button>
-                {cinemaExpanded ? (
-                  <button
-                    type="button"
-                    className="rounded-lg p-2 text-white/45 hover:bg-white/10 hover:text-white"
-                    aria-label="Fechar"
-                    onClick={() => setCinemaOpen(false)}
-                  >
-                    <X size={17} />
-                  </button>
-                ) : null}
-              </div>
-              {cinemaExpanded ? (
-                <div className="thin-scrollbar flex flex-1 flex-col gap-3 overflow-y-auto p-3 text-[13px] text-white/82">
-                  <div className="space-y-2 rounded-2xl border border-white/10 bg-black/25 p-3">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-teal-200/75">Player</p>
-                    <div className="flex aspect-video items-center justify-center rounded-xl bg-gradient-to-br from-slate-900/90 to-black/80 text-xs text-white/42">
-                      Vídeo ou transmissão — em breve
-                    </div>
-                  </div>
-                  <div className="rounded-2xl border border-amber-400/15 bg-amber-950/20 p-3">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-amber-200/70">Ao vivo</p>
-                    <p className="mt-2 text-white/75">
-                      Aqui verias o estado da transmissão ao vivo quando estiver ligada.
-                    </p>
-                  </div>
-                  <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-3">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-white/45">Chat</p>
-                    <p className="mt-2 text-[12px] text-white/55">
-                      Espaço para conversa com quem está a ver o mesmo ecrã — ainda por configurar.
-                    </p>
-                  </div>
-                  <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-3">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-white/45">Eventos</p>
-                    <p className="mt-2 text-[12px] text-white/55">
-                      Lista rápida do que passa no telão — exemplo para acompanhar o ritmo do campus.
-                    </p>
-                  </div>
-                  <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-3">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-white/45">Programação</p>
-                    <p className="mt-2 text-[12px] text-white/55">
-                      Atalho para a programação do dia — abre o painel completo quando quiseres ver tudo junto.
-                    </p>
-                  </div>
-                </div>
-              ) : (
-                /* Recolhido: só a faixa fina com chevron no header — evita mancha âmbar no limite do ecrã. */
-                <div className="flex flex-1" aria-hidden />
-              )}
-            </motion.div>
-          </>
+          <CampusMapCinemaLiveFloatingFrame
+            key="campus-cinema-live-floating"
+            cinemaExpanded={cinemaExpanded}
+            setCinemaExpanded={setCinemaExpanded}
+            setCinemaOpen={setCinemaOpen}
+          />
         ) : null}
       </AnimatePresence>
 
