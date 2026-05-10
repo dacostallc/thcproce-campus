@@ -98,15 +98,21 @@ function clampCinemaLiveFrame(
   };
 }
 
+/** Dock inferior: margem esquerda em ecrãs estreitos; centrado horizontalmente em desktop — evita colidir com atalhos fixos à direita. */
 function defaultCinemaLiveFramePosition(width: number, height: number): { x: number; y: number } {
   const m = cinemaLiveViewportMargins();
   const vw = typeof window !== "undefined" ? window.innerWidth : 400;
   const vh = typeof window !== "undefined" ? window.innerHeight : 800;
-  const x = Math.round((vw - width) / 2 - Math.min(56, vw * 0.06));
   const y = Math.round(vh - height - m.bottom);
+  const wideEnoughForCenter = vw >= 960;
+  const x = wideEnoughForCenter ? Math.round((vw - width) / 2) : m.left;
   return clampCinemaLiveFrame(x, y, width, height);
 }
 
+/**
+ * Painel HUD «Cinema e ao vivo» (zona `campus-cinema` / target `cinema_live_rail`).
+ * Não confundir com: `CampusHudAmbientMusic`, `CineDriveIn`, nem cartões/peers no mapa.
+ */
 function CampusMapCinemaLiveFloatingFrame({
   cinemaExpanded,
   setCinemaExpanded,

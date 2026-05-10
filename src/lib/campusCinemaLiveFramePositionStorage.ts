@@ -1,4 +1,5 @@
-export const CAMPUS_CINEMA_LIVE_FRAME_LS_KEY = "thcproce.campus.cinemaLiveFramePosition.v1";
+/** HUD «Cinema e ao vivo»: chave dedicada (≠ player ambiente `campusMediaPlayerPosition`, ≠ presença). */
+export const CAMPUS_CINEMA_LIVE_FRAME_LS_KEY = "thcproce.campus.cinemaLiveHudDockPosition.v1";
 
 export type CampusCinemaLiveFramePositionV1 = {
   version: 1;

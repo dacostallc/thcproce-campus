@@ -369,9 +369,11 @@ export function CampusMapInteractiveLayer({
       }
 
       setDialog(null);
-      setPlayerLoose(clampPlayerPct(imageMapApproxCenterPct(hit.coords, hit.shape)));
-
       const t = hit.target;
+      /** Cinema ao vivo: só HUD — não teleportar o avatar para o polígono (evita misturar com presença). */
+      if (t.kind !== "cinema_live_rail") {
+        setPlayerLoose(clampPlayerPct(imageMapApproxCenterPct(hit.coords, hit.shape)));
+      }
       if (t.kind === "route") {
         router.push(t.href);
         return;
