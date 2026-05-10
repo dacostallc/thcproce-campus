@@ -53,6 +53,8 @@ test-results/
 *.bak
 *.backup
 *~
+*Copy*.local
+*copy*.local
 
 # --- Vercel CLI (metadata local; deploy oficial via Git) ---
 .vercel
