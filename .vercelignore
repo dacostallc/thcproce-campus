@@ -42,3 +42,7 @@ dump.sql
 
 *.zip
 *.tar.gz
+
+# Mesmo pattern que `.gitignore` — vídeos grandes só na máquina local;
+# deploy Git na Vercel não os inclui; sem isto o `vercel deploy` tenta enviar ~200MB+ e falha.
+public/video/*.mp4
