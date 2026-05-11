@@ -1,0 +1,26 @@
+{
+  "questions": [
+    {
+      "id": "fol-q1",
+      "question": "Porque evitar spray forte sob LED quente?",
+      "options": [
+        "Gotas funcionam como lentes — aumentam burn local",
+        "LED não aquece nunca",
+        "Folhas adoram 45 °C com sal",
+        "Não importa o estado das folhas"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "id": "fol-q2",
+      "question": "Primeiro passo antes de pulverizar lote inteiro?",
+      "options": [
+        "Teste em área limitada monitorizada",
+        "Ir direto ao canopo inteiro sem teste",
+        "Dobrar dose recomendada",
+        "Ignorar pH"
+      ],
+      "correctIndex": 0
+    }
+  ]
+}

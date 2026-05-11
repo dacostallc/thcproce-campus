@@ -1,0 +1,20 @@
+{
+  "theme": "Edibles & segurança",
+  "tags": [
+    "decarb",
+    "porcoes",
+    "rotulagem"
+  ],
+  "difficulty": "Intermediário",
+  "category": "Gastronomia",
+  "areaType": "curso-modulo",
+  "prerequisites": [
+    "curso-cultivo-101"
+  ],
+  "relatedAreas": [
+    "curso-hashmaker"
+  ],
+  "recommendedNext": [
+    "curso-hashmaker"
+  ]
+}

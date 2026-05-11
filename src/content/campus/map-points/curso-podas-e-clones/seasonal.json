@@ -1,0 +1,12 @@
+{
+  "scenarios": [
+    {
+      "id": "umidade-clone",
+      "label": "Umidade errada no aeroporto de clones",
+      "summary": "Semanas úmidas pedem menos névoa e mais vento laminar para não apodrecer corte.",
+      "relatedSlugs": [
+        "curso-germinacao-clones"
+      ]
+    }
+  ]
+}

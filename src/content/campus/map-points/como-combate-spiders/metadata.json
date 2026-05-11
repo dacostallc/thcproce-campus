@@ -1,0 +1,18 @@
+{
+  "theme": "Ecologia da copa",
+  "tags": [
+    "aranha",
+    "teia",
+    "IPM"
+  ],
+  "difficulty": "Intermediário",
+  "category": "Pragas",
+  "areaType": "practice-hotspot",
+  "relatedAreas": [
+    "como-combate-acaros",
+    "curso-pragas-e-doencas"
+  ],
+  "recommendedNext": [
+    "como-combate-acaros"
+  ]
+}

@@ -1,70 +1,85 @@
 ---
-mapPointId: "curso-culinaria-cannabica"
-title: "Culinária cannábica"
-panelTitle: "Escola de culinária"
-linkedCourseId: "culinaria"
-shortDescription: "Escola de culinária"
-longDescription: "técnicas gastronómicas com vetores lipídicos e dosagem consciente. Trilha textual preparada para LMS, portal web e futuras peças audiovisuais — prioriza método, segurança e clareza jurídico‑sanitária."
-introduction: "A escola de culinária canábica ensina técnicas gastronómicas com vetores lipídicos e dosagem consciente: técnica gastronómica primeiro, canabinoides como variável controlada depois."
+mapPointId: curso-culinaria-cannabica
+title: Culinária cannábica
+panelTitle: Escola de culinária
+linkedCourseId: culinaria
+shortDescription: Escola de culinária
+longDescription: 'técnicas gastronómicas com vetores lipídicos e dosagem consciente. Trilha textual preparada para LMS, portal web e futuras peças audiovisuais — prioriza método, segurança e clareza jurídico‑sanitária.'
+introduction: 'A escola de culinária canábica ensina técnicas gastronómicas com vetores lipídicos e dosagem consciente: técnica gastronómica primeiro, canabinoides como variável controlada depois.'
 objectives:
-  - "Compreender fundamentos e limites do tema em linguagem acessível."
-  - "Aplicar checklist práticos sem improvisação perigosa."
-  - "Relacionar observação, registo e decisão técnica gradual."
-  - "Reconhecer erros comuns e corrigi-los com método."
-  - "Manter ética, legalidade e segurança como critérios não negociáveis."
-summary: "Você articula cozinha séria com cannabis como ingrediente técnico — respeito e clareza antes de ‘efeito’."
-difficulty: "Intermediário"
-category: "Gastronomia"
+  - Compreender fundamentos e limites do tema em linguagem acessível.
+  - Aplicar checklist práticos sem improvisação perigosa.
+  - 'Relacionar observação, registro e decisão técnica gradual.'
+  - Reconhecer erros comuns e corrigi-los com método.
+  - 'Manter ética, legalidade e segurança como critérios não negociáveis.'
+summary: Você articula cozinha séria com cannabis como ingrediente técnico — respeito e clareza antes de ‘efeito’.
+difficulty: Intermediário
+category: Gastronomia
 tags:
-  - "edibles"
-  - "decarboxilacao"
-  - "porcoes"
-  - "seguranca-alimentar"
+  - edibles
+  - decarboxilacao
+  - porcoes
+  - seguranca-alimentar
 moduleTitles:
-  - "Gastronomia primeiro"
-  - "Thermal & tempo"
-  - "Porções e comunicação"
-  - "Ética social"
+  - Gastronomia primeiro
+  - Thermal & tempo
+  - Porções e comunicação
+  - Ética social
 lessonTitles:
-  - "Mise en place mental"
-  - "Óleos estáveis versus delicados"
-  - "Ficha de porção modelo"
-  - "Rotulagem doméstica"
-  - "Ambientes sociais responsáveis"
+  - Mise en place mental
+  - Óleos estáveis versus delicados
+  - Ficha de porção modelo
+  - Rotulagem doméstica
+  - Ambientes sociais responsáveis
 contentVersion: 1
-locale: "pt-BR"
+locale: pt-BR
 ---
 
-# Culinária cannábica
+# Culinária cannábica: decarboxilar, repartir e não assustar o corpo
 
 > **Aviso:** Material educativo THCProce Campus. Não substitui acompanhamento médico nem assessoria jurídica. Em cultivo e pesquisa, respeite leis e licenças aplicáveis à sua situação.
 
-## Introdução
+*Panela quente pede matemática leve e ética pesada: dose conversada com quem entende de saúde.*
 
-A escola de culinária canábica ensina técnicas gastronómicas com vetores lipídicos e dosagem consciente: técnica gastronómica primeiro, canabinoides como variável controlada depois.
+## História de quem cultiva
 
-## Fundamentos
+Comível exige **precisão térmica + ética**: você cozinha para si em contexto legal e com honestidade de porção — ninguém merece surpresa de intensidade.
 
-Ligação lipofílica; por que manteiga e óleos estáveis são vetores clássicos; importância de homogeneizar misturas para distribuição mais uniforme.
+## Na prática, assim que a coisa anda
 
-## Parte técnica
+Decarboxilação transforma ácidos em formas ativas — tempo/temperatura têm janela; depois lipídios carregam melhor que água pura.
 
-Decarboxilação conceitual aplicada à cozinha; térmicas suaves versus longos cozidos; microdosagem culinária e etiquetagem doméstica ‘para adultos informados’.
+## Olhar de cultivador
 
-## Aplicações práticas
+Efeito varia com metabolismo e vacuidade gástrica — por isso ‘pedaço pequeno e esperar’ vence heroísmo.
 
-Roteiros de receita com checkpoints de tempo/temperatura; fichas de porção para discussão responsável em comunidade.
+## Ferramentas e insumos
 
-## Erros comuns
+Termómetro de forno confiável, manteiga ghee/clarificada, etiquetas, timer, luvas.
+## Passo a passo sem heroísmo
 
-Dosagem impulsiva; misturar bebidas alcoólicas sem critério educativo; falta de comunicação clara em ambiente social.
+1) Calcula batch teórico com notas — anota peso de matéria-prima.
+2) Decarb monitorizado.
+3) Infunde em gordura com heat baixo estável.
+4) Divide porções homogéneas e rotula concentracao aproximada + data.
+5) Guarda longe de menores — sempre.
 
-## Segurança e responsabilidade
+## Erros que eu já vi na roça
 
-Armazenamento fora do alcance de crianças e animais; rotulagem visível; alertas para grupos sensíveis conforme orientação profissional.
+Queimar decarb; misturar álcool forte sem ventilação; servir terceiros sem consentimento informado.
 
-Consulte sempre normas locais sobre pesquisa, cultivo autorizado e transporte. Em contexto medicinal, busque profissionais habilitados para prescrição e monitorização.
+## Filosofia de quem colhe com calma
 
-## Resumo final
+Cozinhar com cannabis é hospitalidade responsável — dose modesta, conversa clara.
 
-Você articula cozinha séria com cannabis como ingrediente técnico — respeito e clareza antes de ‘efeito’.
+## Sua missão aqui
+
+Redige rótulo modelo para o seu frigorífico com data, batch e ‘começar com 1/4’. 
+
+---
+
+**Antes de sair deste ponto**, fecha o ciclo no quiz aqui em baixo — não é prova escolar, é treino de decisão com os pés na sua realidade.
+
+## Fechando com os pés no chão
+
+Sabor e segurança compartilham o mesmo ingrediente: método.

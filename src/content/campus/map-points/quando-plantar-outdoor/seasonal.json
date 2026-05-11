@@ -1,0 +1,20 @@
+{
+  "scenarios": [
+    {
+      "id": "inverno-frio",
+      "label": "Inverno rigoroso",
+      "summary": "Datas médias não bastam — olha previsão de geada e vento marinho.",
+      "relatedSlugs": [
+        "curso-cultivo-outdoor"
+      ]
+    },
+    {
+      "id": "seca-safra",
+      "label": "Seca na germinação direta",
+      "summary": "Sem irrigação planejada, outdoor vira loteria — ajusta solo antes do impulso emocional de plantar.",
+      "relatedSlugs": [
+        "qual-tamanho-do-vaso"
+      ]
+    }
+  ]
+}

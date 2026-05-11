@@ -1,0 +1,26 @@
+{
+  "questions": [
+    {
+      "id": "lei-q1",
+      "question": "Uso do curso face à lei?",
+      "options": [
+        "Material educativo — decisões ligais ficam com profissional habilitado",
+        "Substitui CNPJ",
+        "Autoriza qualquer plantio",
+        "Elimina fiscalização"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "id": "lei-q2",
+      "question": "Porque revisar PDFs semestralmente?",
+      "options": [
+        "Normas mudam — datas e números de artigo importam",
+        "PDFs mudam de cor sozinhos",
+        "Só para ocupar tempo",
+        "Legislação nunca muda"
+      ],
+      "correctIndex": 0
+    }
+  ]
+}

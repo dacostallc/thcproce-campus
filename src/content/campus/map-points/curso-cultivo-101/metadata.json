@@ -1,0 +1,14 @@
+{
+  "theme": "Fundamentos",
+  "tags": [
+    "botanica",
+    "ECS"
+  ],
+  "difficulty": "Iniciante",
+  "category": "Fundamentos",
+  "areaType": "curso-modulo",
+  "recommendedNext": [
+    "curso-germinacao-clones",
+    "curso-preparacao-do-solo"
+  ]
+}

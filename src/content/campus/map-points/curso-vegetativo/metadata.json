@@ -1,0 +1,20 @@
+{
+  "theme": "Crescimento",
+  "tags": [
+    "stretch",
+    "VASO"
+  ],
+  "difficulty": "Iniciante",
+  "category": "Vegetativo",
+  "areaType": "curso-modulo",
+  "prerequisites": [
+    "curso-nutrientes"
+  ],
+  "relatedAreas": [
+    "curso-podas-e-clones",
+    "qual-tamanho-do-vaso"
+  ],
+  "recommendedNext": [
+    "curso-transicao-floracao"
+  ]
+}

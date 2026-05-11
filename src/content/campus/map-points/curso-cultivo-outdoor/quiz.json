@@ -1,0 +1,26 @@
+{
+  "questions": [
+    {
+      "id": "out-q1",
+      "question": "Prioridade em solo pesado antes de fertilizar?",
+      "options": [
+        "Drenagem, aeração e vida microbiana",
+        "Triplicar PK sintético",
+        "Rega matinal em folhas velhas",
+        "Cobrir tudo com plástico preto sem furos"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "id": "out-q2",
+      "question": "Botrytis costuma correlacionar com…",
+      "options": [
+        "Folhas molhadas + flora densa + pouco vento",
+        "Excesso de vento seco",
+        "Solo carente de K imediato",
+        "LED muito perto"
+      ],
+      "correctIndex": 0
+    }
+  ]
+}

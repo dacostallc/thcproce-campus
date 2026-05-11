@@ -1,69 +1,83 @@
 ---
-mapPointId: "como-usar-melaco-de-cana"
-title: "Melado & carbo rápido"
-panelTitle: "Melado & carbo rápido"
-linkedCourseId: "cultivo-outdoor"
-shortDescription: "Melado & carbo rápido: núcleo nutrição outdoor no THCProce Campus."
-longDescription: "carbono rápido via melado com moderação. Trilha textual preparada para LMS, portal web e futuras peças audiovisuais — prioriza método, segurança e clareza jurídico‑sanitária."
-introduction: "Marcador outdoor: melado de cana e fertilidade microbiana. Ao ar livre, o solo vivo e a microbiota são aliados. Trabalhamos matéria orgânica, drenagem e observação climática — sempre dentro do que for permitido legalmente na sua região."
+mapPointId: como-usar-melaco-de-cana
+title: Melado & carbo rápido
+panelTitle: Melado & carbo rápido
+linkedCourseId: cultivo-outdoor
+shortDescription: 'Melado & carbo rápido: núcleo nutrição outdoor no THCProce Campus.'
+longDescription: 'carbono rápido via melado com moderação. Trilha textual preparada para LMS, portal web e futuras peças audiovisuais — prioriza método, segurança e clareza jurídico‑sanitária.'
+introduction: 'Marcador outdoor: melado de cana e fertilidade microbiana. Ao ar livre, o solo vivo e a microbiota são aliados. Trabalhamos matéria orgânica, drenagem e observação climática — sempre dentro do que for permitido legalmente na sua região.'
 objectives:
-  - "Compreender fundamentos e limites do tema em linguagem acessível."
-  - "Aplicar checklist práticos sem improvisação perigosa."
-  - "Relacionar observação, registo e decisão técnica gradual."
-  - "Reconhecer erros comuns e corrigi-los com método."
-  - "Manter ética, legalidade e segurança como critérios não negociáveis."
-summary: "Doçura no solo pede equilíbrio — menos é cinematografia, mais é ruído."
-difficulty: "Iniciante"
-category: "Nutrição outdoor"
+  - Compreender fundamentos e limites do tema em linguagem acessível.
+  - Aplicar checklist práticos sem improvisação perigosa.
+  - 'Relacionar observação, registro e decisão técnica gradual.'
+  - Reconhecer erros comuns e corrigi-los com método.
+  - 'Manter ética, legalidade e segurança como critérios não negociáveis.'
+summary: 'Doçura no solo pede equilíbrio — menos é cinematografia, mais é ruído.'
+difficulty: Iniciante
+category: Nutrição outdoor
 tags:
-  - "carboidratos"
-  - "solo"
-  - "moderacao"
+  - carboidratos
+  - solo
+  - moderacao
 moduleTitles:
-  - "Por que carboidratos"
-  - "Dose prudente"
-  - "Sinergias"
-  - "Armadilhas"
+  - Por que carboidratos
+  - Dose prudente
+  - Sinergias
+  - Armadilhas
 lessonTitles:
-  - "Leitura do solo úmido"
-  - "Insetos e doces"
-  - "Alternativas"
-  - "Registar cheiros e textura"
-  - "Pausa obrigatória"
+  - Leitura do solo úmido
+  - Insetos e doces
+  - Alternativas
+  - Registar cheiros e textura
+  - Pausa obrigatória
 contentVersion: 1
-locale: "pt-BR"
+locale: pt-BR
 ---
 
-# Melado & carbo rápido
+# Melaço de cana: carboidrato para microbiota — com teto
 
 > **Aviso:** Material educativo THCProce Campus. Não substitui acompanhamento médico nem assessoria jurídica. Em cultivo e pesquisa, respeite leis e licenças aplicáveis à sua situação.
 
-## Introdução
+*Doçura na rega é como açúcar no café: um cadinho organiza a mesa, um excesso vira lambança pegajosa.*
 
-Marcador outdoor: **melado de cana e fertilidade microbiana**. Ao ar livre, o solo vivo e a microbiota são aliados. Trabalhamos matéria orgânica, drenagem e observação climática — sempre dentro do que for permitido legalmente na sua região.
+## História de quem cultiva
 
-## Fundamentos
+Melaço alimenta bolacha microbiana no solo vivo e às vezes entra em soluções orgânicas — mas **carbohidrato sem disciplina** vira festa de biofilme e oscilação de pH.
 
-Integração com solo vivo, calendarização local e prevenção sanitária.
+## Na prática, assim que a coisa anda
 
-## Parte técnica
+Em flora tardia, pequenas doses diluídas podem sustentar relações micorrízicas — desde que EC final e higiene estejam controlados. Nada de garrafadas em hidro mal oxigenada.
 
-Melado como complemento, não base; atenção à fauna microbiana e à umidade do substrato;
+## Olhar de cultivador
 
-## Aplicações práticas
+Após doses altas vê-se espuma, odor fermentado ou queda brusca de oxigénio dissolvido em DWC.
 
-Pequenas doses diluídas em regas esparsas; monitorizar atratividade a insetos;
+## Ferramentas e insumos
 
-## Erros comuns
+Melaço sem enxofre industrial agressivo (ler rótulo), balança de cozinha, EC/pH.
+## Passo a passo sem heroísmo
 
-Excesso criando substrato pegajoso e mosquinhas;
+1) Começa com ppm baixo em solo ou rega drenada.
+2) Intervaliza dias — planta responde lento.
+3) Para hidro, só se souberes O2 e limpeza de linhas.
+4) Para em sinais de slime ou EC instável.
 
-## Segurança e responsabilidade
+## Erros que eu já vi na roça
 
-Respeitar intervalos de segurança em produtos; proteger nascentes e corpos hídricos.
+Melaço com suplementos químicos incompatíveis sem teste; uso foliar pegajoso atrativo a pó; dose em flora sem monitor de transpiração.
 
-Consulte sempre normas locais sobre pesquisa, cultivo autorizado e transporte. Em contexto medicinal, busque profissionais habilitados para prescrição e monitorização.
+## Filosofia de quem colhe com calma
 
-## Resumo final
+Doçura na rega pede mesma sobriedade que doçura na dieta.
 
-Doçura no solo pede equilíbrio — menos é cinematografia, mais é ruído.
+## Sua missão aqui
+
+Calcula dose para 10 L de rega com alvo de incremento mínimo — anota EC antes/depois.
+
+---
+
+**Antes de sair deste ponto**, fecha o ciclo no quiz aqui em baixo — não é prova escolar, é treino de decisão com os pés na sua realidade.
+
+## Fechando com os pés no chão
+
+Melaço é ferramenta de solo vivo; em sistema inerte exige engenharia, não esperança.

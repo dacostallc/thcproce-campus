@@ -1,0 +1,9 @@
+{
+  "title": "Janela meteorológica",
+  "description": "Dados locais na mesa.",
+  "checklist": [
+    "Data geada ref",
+    "Estado solo chuva",
+    "Plano B térmico"
+  ]
+}

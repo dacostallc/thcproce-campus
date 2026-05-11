@@ -1,0 +1,12 @@
+{
+  "scenarios": [
+    {
+      "id": "solo-encharcado",
+      "label": "Chuva forte antes da fertirrigação",
+      "summary": "Água sobra lavando sal — empurra fertirrigação após drenagem real.",
+      "relatedSlugs": [
+        "curso-preparacao-do-solo"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "scenarios": [
+    {
+      "id": "calor-flora",
+      "label": "Calor na flora inicial",
+      "summary": "Stretch estranho costuma ser VPD, não só genética — mede ambiente antes de podar à toa.",
+      "relatedSlugs": [
+        "curso-cultivo-indoor"
+      ]
+    }
+  ]
+}

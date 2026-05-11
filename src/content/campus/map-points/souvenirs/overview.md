@@ -1,69 +1,83 @@
 ---
-mapPointId: "souvenirs"
-title: "Souvenirs & loja"
-panelTitle: "Loja do campus"
-linkedCourseId: ""
-shortDescription: "Loja do campus"
-longDescription: "experiência comercial cordial e suporte ao estudante. Trilha textual preparada para LMS, portal web e futuras peças audiovisuais — prioriza método, segurança e clareza jurídico‑sanitária."
-introduction: "Este espaço do campus (Souvenirs & loja) organiza experiência e comunidade. Mantemos tom profissional: respeito, pontualidade em eventos e orientação clara quando houver transmissão ao vivo."
+mapPointId: souvenirs
+title: Souvenirs & loja
+panelTitle: Loja do campus
+linkedCourseId: ''
+shortDescription: Loja do campus
+longDescription: 'experiência comercial cordial e suporte ao estudante. Trilha textual preparada para LMS, portal web e futuras peças audiovisuais — prioriza método, segurança e clareza jurídico‑sanitária.'
+introduction: 'Este espaço do campus (Souvenirs & loja) organiza experiência e comunidade. Mantemos tom profissional: respeito, pontualidade em eventos e orientação clara quando houver transmissão ao vivo.'
 objectives:
-  - "Compreender fundamentos e limites do tema em linguagem acessível."
-  - "Aplicar checklist práticos sem improvisação perigosa."
-  - "Relacionar observação, registo e decisão técnica gradual."
-  - "Reconhecer erros comuns e corrigi-los com método."
-  - "Manter ética, legalidade e segurança como critérios não negociáveis."
-summary: "Campus também é convivência cordial — tecnologia serve ao aprendizado."
-difficulty: "Iniciante"
-category: "Campus"
+  - Compreender fundamentos e limites do tema em linguagem acessível.
+  - Aplicar checklist práticos sem improvisação perigosa.
+  - 'Relacionar observação, registro e decisão técnica gradual.'
+  - Reconhecer erros comuns e corrigi-los com método.
+  - 'Manter ética, legalidade e segurança como critérios não negociáveis.'
+summary: Campus também é convivência cordial — tecnologia serve ao aprendizado.
+difficulty: Iniciante
+category: Campus
 tags:
-  - "loja"
-  - "comunidade"
-  - "suporte"
+  - loja
+  - comunidade
+  - suporte
 moduleTitles:
-  - "Experiência do visitante"
-  - "Objetos educativos"
-  - "Pagamentos e suporte"
-  - "Ética de marca"
+  - Experiência do visitante
+  - Objetos educativos
+  - Pagamentos e suporte
+  - Ética de marca
 lessonTitles:
-  - "Peça pelo catálogo oficial"
-  - "Evitar falsificações"
-  - "Garantias e trocas"
-  - "Privacidade na compra"
-  - "Relação loja ↔ LMS"
+  - Peça pelo catálogo oficial
+  - Evitar falsificações
+  - Garantias e trocas
+  - Privacidade na compra
+  - Relação loja ↔ LMS
 contentVersion: 1
-locale: "pt-BR"
+locale: pt-BR
 ---
 
-# Souvenirs & loja
+# Souvenirs: lembrança física do compromisso com o método
 
 > **Aviso:** Material educativo THCProce Campus. Não substitui acompanhamento médico nem assessoria jurídica. Em cultivo e pesquisa, respeite leis e licenças aplicáveis à sua situação.
 
-## Introdução
+*Caneca ou caderno novo lembram promessa: menos pose, mais anotação na próxima safra.*
 
-Este espaço do campus (Souvenirs & loja) organiza experiência e comunidade. Mantemos tom profissional: respeito, pontualidade em eventos e orientação clara quando houver transmissão ao vivo.
+## História de quem cultiva
 
-## Fundamentos
+**Merch** bom lembra-te de estudar — copo, caderno ou pin servem de âncora visual para hábitos (notas, higiene, legalidade).
 
-Como navegar eventos ao vivo, registrar interesse e manter etiqueta de auditório digital.
+## Na prática, assim que a coisa anda
 
-## Parte técnica
+Objeto tátil ancora rotina: quando vês o emblema THCProce, lembras checklist de observação antes de agir.
 
-Integrações futuras com LMS para credenciais opcionais; leitura de programação diária;
+## Olhar de cultivador
 
-## Aplicações práticas
+Brindes de evento deveriam carregar data ou edição — tornam-se marcos temporais do seu percurso.
 
-Use este espaço para organizar estudo em grupo com moderadores THCProce quando disponível.
+## Ferramentas e insumos
 
-## Erros comuns
+Caderno oficial se houver, etiquetas, arquivo de autocolantes de evento.
+## Passo a passo sem heroísmo
 
-Spam, assédio ou partilha de dados pessoais em mural público;
+1) Escolhe um souvenir útil, não só decorativo.
+2) Associa objeto a hábito (ex.: abrir caderno antes de fertilizar).
+3) Não confundir consumismo com aprendizagem — compra menos, usa mais.
+4) Compartilha foto ética sem revelar local ilegal.
 
-## Segurança e responsabilidade
+## Erros que eu já vi na roça
 
-Reporte conteúdos que violem guidelines da comunidade educativa.
+Colecionar sem praticar; exibir símbolos em contexto sensível que prejudique segurança pessoal.
 
-Consulte sempre normas locais sobre pesquisa, cultivo autorizado e transporte. Em contexto medicinal, busque profissionais habilitados para prescrição e monitorização.
+## Filosofia de quem colhe com calma
 
-## Resumo final
+Cultivador minimalista investe em ferramenta e conhecimento — merch é acréscimo consciente.
 
-Campus também é convivência cordial — tecnologia serve ao aprendizado.
+## Sua missão aqui
+
+Define um hábit técnico associado ao souvenir que compraste ou ganhaste.
+
+---
+
+**Antes de sair deste ponto**, fecha o ciclo no quiz aqui em baixo — não é prova escolar, é treino de decisão com os pés na sua realidade.
+
+## Fechando com os pés no chão
+
+Memória física boa lembra processo — não ego.

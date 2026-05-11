@@ -1,0 +1,11 @@
+{
+  "xp": 15,
+  "greenCoins": 5,
+  "growerMasterProgress": 2,
+  "rarity": "raro",
+  "badge": {
+    "id": "selo-semeador-paciente",
+    "name": "Semeador paciente",
+    "description": "Espera o solo e o céu alinharem."
+  }
+}

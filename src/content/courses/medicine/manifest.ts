@@ -1,4 +1,9 @@
 import type { CourseManifest } from "@/content/courses/types";
+import {
+  courseFirstLessonTitle,
+  courseOutlineLessonCount,
+  coursePreviewLessonTitles
+} from "@/data/courseOutlines";
 
 export const MEDICINE_AREA_ID = "medicina" as const;
 
@@ -20,12 +25,10 @@ export const MEDICINE_MANIFEST: CourseManifest = {
     ] as const,
     professor: "Prof THC"
   },
-  hud: { nextLessonFallbackLabel: "Medicina · Aula 1" },
-  previewLessonTitles: [
-    "Introdução ao sistema endocanabinoide",
-    "Titulação e ajuste de dose",
-    "Interações medicamentosas comuns",
-    "Protocolos base e limites institucionais"
-  ] as const,
-  stats: { lessonCount: 10, hoursLabel: "14h" }
+  hud: { nextLessonFallbackLabel: courseFirstLessonTitle(MEDICINE_AREA_ID) },
+  previewLessonTitles: coursePreviewLessonTitles(MEDICINE_AREA_ID),
+  stats: {
+    lessonCount: courseOutlineLessonCount(MEDICINE_AREA_ID),
+    hoursLabel: "14h"
+  }
 };

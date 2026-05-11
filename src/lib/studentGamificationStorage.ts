@@ -83,6 +83,24 @@ export type MissionTelemetry = {
   missionsPanelOpenedOnceEver: boolean;
 };
 
+/** Resposta persistida por `question.id` no pacote do map-point (`quiz.json`). */
+export type MapPointQuizAnswerRecord = {
+  selectedIndex: number;
+  correct: boolean;
+  at: string;
+};
+
+/**
+ * Progresso local por pasta editorial `src/content/campus/map-points/<slug>/`
+ * (usar `resolveCampusMapPointContentFolderSlug` para alinhar com o disco).
+ */
+export type MapPointProgressEntry = {
+  missionChecklist?: boolean[];
+  quizByQuestionId?: Record<string, MapPointQuizAnswerRecord>;
+  /** Quando XP/créditos/selo foram aplicados — evita duplicar recompensas. */
+  rewardsClaimedAt?: string;
+};
+
 export type StudentProfile = {
   displayName: string;
   avatarVariant: StudentAvatarVariant;
@@ -119,6 +137,13 @@ export type StudentProfile = {
   helpfulPoints: number;
   communityRank: number;
   mentorLevel: number;
+  /**
+   * Pontos Grower Master somados pelas recompensas dos map-points (local).
+   * Futuro: espelhar `/api` ou perfil servidor.
+   */
+  growerMasterScore: number;
+  /** Histórico por slug de pasta do map-point (conteúdo editorial). */
+  mapPointProgressBySlug: Record<string, MapPointProgressEntry>;
 };
 
 type StoredV1 = { version: 1 } & StudentProfile;
@@ -217,6 +242,15 @@ export const SOUVENIR_CATALOG: Record<string, SouvenirMeta> = {
     category: "course_souvenirs",
     costCredits: 30,
     freeAtLevel: 11
+  },
+  /** Desbloqueado ao resgatar recompensas do map-point «souvenirs» (local). */
+  "pin-loja-campus": {
+    id: "pin-loja-campus",
+    title: "Pin oficial · Loja do campus",
+    rarity: "Comum",
+    category: "course_souvenirs",
+    costCredits: 0,
+    freeAtLevel: null
   }
 };
 
@@ -262,7 +296,9 @@ const DEFAULT_PROFILE: StudentProfile = {
   missionTelemetry: { ...DEFAULT_MISSION_TELEMETRY },
   helpfulPoints: 0,
   communityRank: 0,
-  mentorLevel: 0
+  mentorLevel: 0,
+  growerMasterScore: 0,
+  mapPointProgressBySlug: {}
 };
 
 function emitUpdated(): void {
@@ -308,6 +344,73 @@ function parseMissionTelemetry(raw: unknown, calendarDay: string): MissionTeleme
     storeEnteredOnceEver,
     missionsPanelOpenedOnceEver
   };
+}
+
+function normalizeMapPointProgressBySlug(raw: unknown): Record<string, MapPointProgressEntry> {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return {};
+  const out: Record<string, MapPointProgressEntry> = {};
+  const entries = Object.entries(raw).slice(0, 96);
+  for (const [k, v] of entries) {
+    if (!/^[a-z0-9-]{1,120}$/.test(k)) continue;
+    if (!v || typeof v !== "object" || Array.isArray(v)) continue;
+    const e = v as Record<string, unknown>;
+    const entry: MapPointProgressEntry = {};
+    if (Array.isArray(e.missionChecklist)) {
+      entry.missionChecklist = e.missionChecklist.map((x) => x === true).slice(0, 32);
+    }
+    if (e.quizByQuestionId && typeof e.quizByQuestionId === "object" && !Array.isArray(e.quizByQuestionId)) {
+      const qb: Record<string, MapPointQuizAnswerRecord> = {};
+      for (const [qid, ans] of Object.entries(e.quizByQuestionId as Record<string, unknown>)) {
+        const qKey = qid.slice(0, 80);
+        if (!qKey) continue;
+        if (!ans || typeof ans !== "object" || Array.isArray(ans)) continue;
+        const a = ans as Record<string, unknown>;
+        const siRaw =
+          typeof a.selectedIndex === "number" && Number.isFinite(a.selectedIndex)
+            ? Math.floor(a.selectedIndex)
+            : 0;
+        const si = Math.max(0, Math.min(3, siRaw));
+        qb[qKey] = {
+          selectedIndex: si,
+          correct: a.correct === true,
+          at:
+            typeof a.at === "string" && a.at.trim()
+              ? a.at.trim().slice(0, 48)
+              : new Date().toISOString()
+        };
+      }
+      entry.quizByQuestionId = qb;
+    }
+    if (typeof e.rewardsClaimedAt === "string" && e.rewardsClaimedAt.trim()) {
+      entry.rewardsClaimedAt = e.rewardsClaimedAt.trim().slice(0, 48);
+    }
+    out[k] = entry;
+  }
+  return out;
+}
+
+/** Combina entradas por slug sem apagar slugs existentes — uso interno + futuros patches remotos. */
+export function mergeMapPointProgressPatches(
+  cur: Record<string, MapPointProgressEntry>,
+  patch: Partial<Record<string, Partial<MapPointProgressEntry>>> | undefined
+): Record<string, MapPointProgressEntry> {
+  if (!patch) return normalizeMapPointProgressBySlug(cur);
+  const base: Record<string, MapPointProgressEntry> = { ...normalizeMapPointProgressBySlug(cur) };
+  for (const [slug, upd] of Object.entries(patch).slice(0, 48)) {
+    if (!upd || typeof upd !== "object") continue;
+    if (!/^[a-z0-9-]{1,120}$/.test(slug)) continue;
+    const prev = base[slug] ?? {};
+    const mergedQuiz =
+      upd.quizByQuestionId != null
+        ? { ...(prev.quizByQuestionId ?? {}), ...upd.quizByQuestionId }
+        : prev.quizByQuestionId;
+    base[slug] = {
+      ...prev,
+      ...upd,
+      quizByQuestionId: mergedQuiz
+    };
+  }
+  return normalizeMapPointProgressBySlug(base);
 }
 
 function normalizeProfile(raw: unknown): StudentProfile {
@@ -410,6 +513,13 @@ function normalizeProfile(raw: unknown): StudentProfile {
       ? Math.max(0, Math.floor(o.mentorLevel))
       : DEFAULT_PROFILE.mentorLevel;
 
+  const growerMasterScore =
+    typeof o.growerMasterScore === "number" && Number.isFinite(o.growerMasterScore)
+      ? Math.max(0, Math.floor(o.growerMasterScore))
+      : DEFAULT_PROFILE.growerMasterScore;
+
+  const mapPointProgressBySlug = normalizeMapPointProgressBySlug(o.mapPointProgressBySlug);
+
   let visualCosmeticsV1: StudentVisualCosmeticsV1 = {
     ...DEFAULT_VISUAL_COSMETICS_V1
   };
@@ -460,7 +570,9 @@ function normalizeProfile(raw: unknown): StudentProfile {
     missionTelemetry,
     helpfulPoints: helpPts,
     communityRank: commRank,
-    mentorLevel: mentorLv
+    mentorLevel: mentorLv,
+    growerMasterScore,
+    mapPointProgressBySlug
   };
 }
 
@@ -503,7 +615,9 @@ export function studentProfilePerfilHydrationPlaceholder(): StudentProfile {
     equippedStoreSlots: { ...seed.equippedStoreSlots },
     helpfulPoints: 0,
     communityRank: 0,
-    mentorLevel: 0
+    mentorLevel: 0,
+    growerMasterScore: 0,
+    mapPointProgressBySlug: {}
   };
 }
 
@@ -525,6 +639,12 @@ export function loadStudentProfile(): StudentProfile {
 export function saveStudentProfile(patch: Partial<StudentProfile>): StudentProfile {
   if (typeof window === "undefined") return { ...DEFAULT_PROFILE };
   const cur = loadStudentProfile();
+  const { mapPointProgressBySlug: mapPatch, ...patchRest } = patch;
+  const mergedMap =
+    mapPatch !== undefined
+      ? mergeMapPointProgressPatches(cur.mapPointProgressBySlug, mapPatch)
+      : cur.mapPointProgressBySlug;
+
   const mergedTelemetry: MissionTelemetry =
     patch.missionTelemetry != null
       ? { ...cur.missionTelemetry, ...patch.missionTelemetry }
@@ -536,7 +656,7 @@ export function saveStudentProfile(patch: Partial<StudentProfile>): StudentProfi
 
   const next: StudentProfile = normalizeProfile({
     ...cur,
-    ...patch,
+    ...patchRest,
     badges: patch.badges ?? cur.badges,
     unlockedSouvenirs: patch.unlockedSouvenirs ?? cur.unlockedSouvenirs,
     bonusInventoryIds: patch.bonusInventoryIds ?? cur.bonusInventoryIds,
@@ -557,8 +677,13 @@ export function saveStudentProfile(patch: Partial<StudentProfile>): StudentProfi
         : cur.communityRank,
     mentorLevel:
       patch.mentorLevel !== undefined && patch.mentorLevel !== null ? patch.mentorLevel : cur.mentorLevel,
+    growerMasterScore:
+      patch.growerMasterScore !== undefined && patch.growerMasterScore !== null
+        ? patch.growerMasterScore
+        : cur.growerMasterScore,
     claimedMissionIds: patch.claimedMissionIds ?? cur.claimedMissionIds,
-    missionTelemetry: mergedTelemetry
+    missionTelemetry: mergedTelemetry,
+    mapPointProgressBySlug: mergedMap
   });
   next.level = levelFromXp(next.xp);
   next.unlockedSouvenirs = applyFreeSouvenirsForLevel(next.unlockedSouvenirs, next.level);

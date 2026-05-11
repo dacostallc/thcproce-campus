@@ -46,6 +46,26 @@ npm run db:seed
 - `db push` sincroniza o schema Prisma com a base local (sem operações destrutivas por omissão além do que o Prisma aplicar ao schema).
 - `db:seed` é opcional mas recomendado para missões e itens cosméticos base (`prisma/seed.cjs`).
 
+### Migrations versionadas (`migrate`)
+
+Para ambientes que devem seguir o histórico em `prisma/migrations/` (recomendado em **produção** após adoptar migrations):
+
+```bash
+npm run db:migrate:deploy
+```
+
+(Equivalente a `npx prisma migrate deploy` — usa `DATABASE_URL` / `DIRECT_URL` do `.env` ou das variáveis na Vercel.)
+
+No **Build Command** da Vercel use **`npm run build`** (o `vercel.json` do repo fixa isto). **Não** encadeie `prisma migrate deploy && npm run build` no painel enquanto o histórico de migrations não estiver alinhado com a BD de produção — isso faz o deploy falhar se objectos já existirem (bases criadas antes com `db push`).
+
+Para aplicar migrations em produção, faça **uma vez** a partir de uma máquina com `DATABASE_URL` / `DIRECT_URL` da produção:
+
+```bash
+npm run db:migrate:deploy
+```
+
+Se aparecer erro de objecto já existente, veja [`prisma migrate resolve`](https://www.pris.ly/d/migrate-resolve) ou execute só o SQL necessário (ex.: `20260510160000_profile_avatar_symbolic` usa `IF NOT EXISTS` em `avatarType` / `avatarColor`).
+
 ## Arrancar a aplicação
 
 ```bash

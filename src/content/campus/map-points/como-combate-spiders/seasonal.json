@@ -1,0 +1,12 @@
+{
+  "scenarios": [
+    {
+      "id": "umidade-media",
+      "label": "Ambiente úmido demais",
+      "summary": "Predadores somem e pragas soft body aparecem — equilibra umidade sem sufocar a copa.",
+      "relatedSlugs": [
+        "curso-pragas-e-doencas"
+      ]
+    }
+  ]
+}

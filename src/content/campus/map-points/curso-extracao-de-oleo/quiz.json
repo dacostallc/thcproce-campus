@@ -1,0 +1,26 @@
+{
+  "questions": [
+    {
+      "id": "oil-q1",
+      "question": "Atitude defendável em área residencial sem licenças?",
+      "options": [
+        "Não improvisar laboratório de solvente — estudo só teórico ou encaminhamento profissional",
+        "Etanol aberto no fogão",
+        "Butano dentro de casa com janela entreaberta",
+        "Usar frigideira antiaderente como ‘reactor’"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "id": "oil-q2",
+      "question": "Cor verde no óleo bruto frequentemente sugere…",
+      "options": [
+        "Co-extração polar — refino ou mudança de método",
+        "Pureza absoluta",
+        "Ausência de canabinoides",
+        "Água zero problema"
+      ],
+      "correctIndex": 0
+    }
+  ]
+}

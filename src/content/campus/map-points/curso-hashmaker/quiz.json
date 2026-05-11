@@ -1,0 +1,26 @@
+{
+  "questions": [
+    {
+      "id": "hash-q1",
+      "question": "Principal inimigo de qualidade em wash?",
+      "options": [
+        "Material vegetal excessivo esmagado com agitação brutal",
+        "Gelo limpo",
+        "Sacos etiquetados",
+        "Cronómetro funcional"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "id": "hash-q2",
+      "question": "Secagem ideal tende a…",
+      "options": [
+        "Fria, escura e com ar suave — sem forçar carburar terpeno",
+        "Forno 80 °C fechado",
+        "Sol directo em telha",
+        "Toalha húmida em saco plástico"
+      ],
+      "correctIndex": 0
+    }
+  ]
+}

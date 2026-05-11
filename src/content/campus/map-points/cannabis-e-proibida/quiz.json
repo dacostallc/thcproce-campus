@@ -1,0 +1,26 @@
+{
+  "questions": [
+    {
+      "id": "leg-q1",
+      "question": "Qual atitude educa melhor sobre legalidade?",
+      "options": [
+        "Pedir diploma completo e data antes de agir",
+        "Repetir frase viral de grupo",
+        "Assumir que ‘natural’ implica permissão",
+        "Ignorar diferença entre jurisdições"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "id": "leg-q2",
+      "question": "O conteúdo do campus substitui assessoria jurídica?",
+      "options": [
+        "Não — é educativo; casos concretos vão a profissional",
+        "Sim, se confiares no mentor",
+        "Só às terças",
+        "Sim depois de 3 aulas"
+      ],
+      "correctIndex": 0
+    }
+  ]
+}

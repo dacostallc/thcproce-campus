@@ -1,0 +1,26 @@
+{
+  "questions": [
+    {
+      "id": "soil-q1",
+      "question": "Lente d'água típica?",
+      "options": [
+        "Textura com interface impermeável sem mistura",
+        "Drenagem excelente natural",
+        "Solo 100% perlita",
+        "Só falta de luz"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "id": "soil-q2",
+      "question": "Cheiro acre de anaerobiose indica…",
+      "options": [
+        "Falta de oxigénio no meio — rever aeração",
+        "Plantas de certeza felizes",
+        "Falta de magnésio",
+        "Excesso de vento"
+      ],
+      "correctIndex": 0
+    }
+  ]
+}

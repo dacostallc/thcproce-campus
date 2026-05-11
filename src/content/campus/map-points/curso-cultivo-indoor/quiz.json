@@ -1,0 +1,26 @@
+{
+  "questions": [
+    {
+      "id": "in-q1",
+      "question": "Antes de subir EC, o que validar?",
+      "options": [
+        "Transpiração foliar saudável e sem burn lumínico",
+        "Cor dos cabos elétricos",
+        "Marca do vaso",
+        "Número de seguidores no Instagram"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "id": "in-q2",
+      "question": "Ventilador foliar adequado…",
+      "options": [
+        "Mexe a copa sem flagelar brotos como chicote",
+        "Zero vento para ‘não stressar’",
+        "Soprador industrial fixo na flor",
+        "Só no solo"
+      ],
+      "correctIndex": 0
+    }
+  ]
+}

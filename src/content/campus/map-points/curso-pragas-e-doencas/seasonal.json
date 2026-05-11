@@ -1,0 +1,20 @@
+{
+  "scenarios": [
+    {
+      "id": "pragas-verao",
+      "label": "Pragas do calor",
+      "summary": "Tripes e ácaros aceleram — agenda inspeção dupla nas folhas novas.",
+      "relatedSlugs": [
+        "como-combate-acaros"
+      ]
+    },
+    {
+      "id": "fungos-chuva",
+      "label": "Fungos após chuva",
+      "summary": "Folhas molhadas sem vento são porta de entrada — ajusta estrutura antes do fungicida.",
+      "relatedSlugs": [
+        "curso-cultivo-greenhouse"
+      ]
+    }
+  ]
+}

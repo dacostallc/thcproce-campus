@@ -1,0 +1,26 @@
+{
+  "questions": [
+    {
+      "id": "sp-q1",
+      "question": "Sinal mais útil para separar ácaro de aranha predadora?",
+      "options": [
+        "Lupa no verso foliar mostra pontilhado e mobilidade vs teia orbital isolada",
+        "Cor da parede da tenda",
+        "Número de vasos no chão",
+        "Cor do fertilizante"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "id": "sp-q2",
+      "question": "Atitude defensável frente a aranha predadora em canto seco?",
+      "options": [
+        "Preservar se não houver danos foliares associados",
+        "Spray diário só por estética",
+        "Aumentar humidade a 99% fixo",
+        "Fechar tenda para sempre"
+      ],
+      "correctIndex": 0
+    }
+  ]
+}

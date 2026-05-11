@@ -1,0 +1,21 @@
+{
+  "theme": "Propagação",
+  "tags": [
+    "semente",
+    "clone"
+  ],
+  "difficulty": "Intermediário",
+  "category": "Viveiro",
+  "areaType": "curso-modulo",
+  "prerequisites": [
+    "curso-cultivo-101"
+  ],
+  "relatedAreas": [
+    "curso-sementes-feminizadas",
+    "curso-podas-e-clones"
+  ],
+  "recommendedNext": [
+    "curso-preparacao-do-solo",
+    "qual-tamanho-do-vaso"
+  ]
+}

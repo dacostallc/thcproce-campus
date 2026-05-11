@@ -1,0 +1,26 @@
+{
+  "questions": [
+    {
+      "id": "ger-q1",
+      "question": "Erro clássico em germinação?",
+      "options": [
+        "Substrato sem ar ou temperatura oscilante extrema",
+        "Etiquetar data",
+        "Usar água filtrada leve",
+        "Dar escuridão inicial moderada"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "id": "ger-q2",
+      "question": "Clone pede principalmente…",
+      "options": [
+        "UR alta com folgas de vento para não anaerobiose foliar",
+        "Solo seco",
+        "Flora imediata",
+        "Zero luz"
+      ],
+      "correctIndex": 0
+    }
+  ]
+}

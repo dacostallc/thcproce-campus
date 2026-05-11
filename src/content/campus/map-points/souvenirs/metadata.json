@@ -1,0 +1,16 @@
+{
+  "theme": "Campus life",
+  "tags": [
+    "merch",
+    "habito"
+  ],
+  "difficulty": "Iniciante",
+  "category": "Comunidade",
+  "areaType": "campus-service",
+  "relatedAreas": [
+    "campus-live-cinema"
+  ],
+  "recommendedNext": [
+    "programacao-do-dia"
+  ]
+}

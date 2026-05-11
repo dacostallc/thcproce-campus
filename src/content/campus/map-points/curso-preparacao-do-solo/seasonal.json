@@ -1,0 +1,20 @@
+{
+  "scenarios": [
+    {
+      "id": "seca-argila",
+      "label": "Seca rachando barro",
+      "summary": "Agrega orgânico segura infiltração quando volta a chuva forte.",
+      "relatedSlugs": [
+        "como-fazer-um-cha"
+      ]
+    },
+    {
+      "id": "inverno-composto",
+      "label": "Inverno devagar no compost",
+      "summary": "Decomposição lenta pede viragem assídua — não despejes mais nitrogênio só por impaciência.",
+      "relatedSlugs": [
+        "como-usar-melaco-de-cana"
+      ]
+    }
+  ]
+}

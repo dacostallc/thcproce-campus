@@ -11,6 +11,12 @@ import {
 
 const planIds = ENROLLMENT_PLANS.map((p) => p.id) as [EnrollmentPlanId, ...EnrollmentPlanId[]];
 
+const resetPasswordInput = z.object({
+  email: z.string().email("E-mail inválido"),
+  password: z.string().min(8, "Mínimo 8 caracteres").max(200),
+  passwordConfirm: z.string()
+});
+
 const registerInput = z.object({
   email: z.string().email("E-mail inválido"),
   displayName: z.string().min(2, "Nome muito curto").max(120),
@@ -28,6 +34,34 @@ const registerInput = z.object({
 });
 
 export const enrollmentRouter = router({
+  /**
+   * Só atualiza senha para perfil já existente — não pede plano nem checkout.
+   * Fluxo para donos/dev ou utilizadores que esqueceram a senha sem refazer matrícula.
+   */
+  resetPassword: publicProcedure.input(resetPasswordInput).mutation(async ({ ctx, input }) => {
+    if (input.password !== input.passwordConfirm) {
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: "As senhas não coincidem"
+      });
+    }
+    const email = input.email.trim().toLowerCase();
+    const existing = await ctx.prisma.profile.findUnique({ where: { email } });
+    if (!existing) {
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message:
+          "Não há conta com este e-mail. Para criar conta, use Matrícula (/inscrever-se)."
+      });
+    }
+    const hash = await bcrypt.hash(input.password, 12);
+    await ctx.prisma.profile.update({
+      where: { email },
+      data: { passwordHash: hash }
+    });
+    return { ok: true as const };
+  }),
+
   register: publicProcedure.input(registerInput).mutation(async ({ ctx, input }) => {
     if (input.password !== input.passwordConfirm) {
       throw new TRPCError({

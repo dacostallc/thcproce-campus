@@ -1,0 +1,12 @@
+{
+  "scenarios": [
+    {
+      "id": "acesso-saude",
+      "label": "Discussões de saúde no calor político",
+      "summary": "Épocas eleitorais incham fake news sobre cannabis medicinal — ancora-te em protocolos e fontes clínicas.",
+      "relatedSlugs": [
+        "leis-normas"
+      ]
+    }
+  ]
+}

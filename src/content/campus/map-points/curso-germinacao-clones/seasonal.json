@@ -1,0 +1,12 @@
+{
+  "scenarios": [
+    {
+      "id": "noites-frias",
+      "label": "Noites frias na germinação",
+      "summary": "Tapete térmico honesto vale mais que improviso molhado que apodrece semente.",
+      "relatedSlugs": [
+        "curso-sementes-feminizadas"
+      ]
+    }
+  ]
+}

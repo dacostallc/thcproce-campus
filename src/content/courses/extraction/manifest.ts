@@ -1,4 +1,9 @@
 import type { CourseManifest } from "@/content/courses/types";
+import {
+  courseFirstLessonTitle,
+  courseOutlineLessonCount,
+  coursePreviewLessonTitles
+} from "@/data/courseOutlines";
 
 /** Sala «Extração de Óleo» no mapa. */
 export const EXTRACTION_AREA_ID = "extracao-oleo" as const;
@@ -21,12 +26,10 @@ export const EXTRACTION_MANIFEST: CourseManifest = {
     ] as const,
     professor: "Prof THC"
   },
-  hud: { nextLessonFallbackLabel: "Extração · Aula 1" },
-  previewLessonTitles: [
-    "Decarboxilação e segurança de solventes",
-    "RSO / FECO em visão panorâmica",
-    "Cálculos de mg/ml e padronização",
-    "Winterização e controle simples de qualidade"
-  ] as const,
-  stats: { lessonCount: 10, hoursLabel: "11h" }
+  hud: { nextLessonFallbackLabel: courseFirstLessonTitle(EXTRACTION_AREA_ID) },
+  previewLessonTitles: coursePreviewLessonTitles(EXTRACTION_AREA_ID),
+  stats: {
+    lessonCount: courseOutlineLessonCount(EXTRACTION_AREA_ID),
+    hoursLabel: "11h"
+  }
 };

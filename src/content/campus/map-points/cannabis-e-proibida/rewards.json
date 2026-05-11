@@ -1,0 +1,11 @@
+{
+  "xp": 5,
+  "greenCoins": 3,
+  "growerMasterProgress": 1,
+  "rarity": "comum",
+  "badge": {
+    "id": "selo-leitor-de-fonte",
+    "name": "Leitor de fonte",
+    "description": "Para quem prefere diploma a rumor."
+  }
+}

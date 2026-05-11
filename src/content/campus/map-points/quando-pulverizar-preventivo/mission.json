@@ -1,0 +1,9 @@
+{
+  "title": "Go / No-go meteorológico",
+  "description": "Abortar quando deriva é inevitável.",
+  "checklist": [
+    "Vento medido",
+    "Chuva prevista",
+    "EPI separado"
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "questions": [
+    {
+      "id": "ac-q1",
+      "question": "Primeira alavanca cultural contra ácaro em vegetativo?",
+      "options": [
+        "Melhorar perfil de humidade/ventilação sem stressing demais a planta",
+        "Aumentar temperatura ao máximo",
+        "Regar folhas de noite fechada sem vento",
+        "Cortar toda a copa de imediato"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "id": "ac-q2",
+      "question": "Quando escalar para produto?",
+      "options": [
+        "Depois de confirmar praga, medir extensão e ler rótulo/contexto legal",
+        "No primeiro pixel amarelo sem confirmar",
+        "Só se o vizinho recomendar",
+        "Antes de olhar à lupa"
+      ],
+      "correctIndex": 0
+    }
+  ]
+}

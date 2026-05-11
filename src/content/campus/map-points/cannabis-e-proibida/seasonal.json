@@ -1,0 +1,12 @@
+{
+  "scenarios": [
+    {
+      "id": "atualizacao-normativa",
+      "label": "Mudança legislativa em debate",
+      "summary": "Época de CPI, MP ou projeto de lei exige calma: aqui refinas perguntas ao advogado; não celebramos nem panicamos sem texto.",
+      "relatedSlugs": [
+        "leis-normas"
+      ]
+    }
+  ]
+}

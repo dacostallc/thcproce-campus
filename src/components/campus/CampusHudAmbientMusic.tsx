@@ -51,7 +51,7 @@ const mapHudGlassBtn =
 const glassShell =
   "rounded-2xl border border-white/[0.12] bg-gradient-to-br from-black/[0.52] to-black/[0.34] shadow-[0_12px_44px_rgba(0,0,0,0.38)] backdrop-blur-3xl ring-1 ring-emerald-400/[0.14]";
 
-/** Above map/HUD header; below main modals (~55+) e cinema dock (~53). */
+/** Above map/HUD header; below main modals (~55+) e cinema/live dock (~38). */
 const PLAYER_Z = 51;
 
 function viewportMargins(): { top: number; left: number; right: number; bottom: number } {

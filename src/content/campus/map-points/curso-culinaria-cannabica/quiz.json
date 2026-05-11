@@ -1,0 +1,26 @@
+{
+  "questions": [
+    {
+      "id": "cul-q1",
+      "question": "Porque decarboxilar antes de infundir na gordura?",
+      "options": [
+        "Ativar formas neutras para lipídios carregarem melhor na ingestão",
+        "Só para cor verde",
+        "Para remover todo THC",
+        "Para tornar impossível dosar"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "id": "cul-q2",
+      "question": "Regra de ouro ao oferecer comível?",
+      "options": [
+        "Consentimento, contexto legal e microdose inicial com espera",
+        "Surpresa engraçada",
+        "Maior brownie do mundo",
+        "Misturar com álcool sem avisar"
+      ],
+      "correctIndex": 0
+    }
+  ]
+}

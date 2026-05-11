@@ -1,0 +1,22 @@
+{
+  "theme": "Medicina & ética",
+  "tags": [
+    "evidencia",
+    "ECS",
+    "encaminhamento"
+  ],
+  "difficulty": "Todos os níveis",
+  "category": "Medicina canabinoide",
+  "areaType": "curso-modulo",
+  "prerequisites": [
+    "curso-cultivo-101"
+  ],
+  "relatedAreas": [
+    "leis-normas",
+    "cannabis-e-proibida"
+  ],
+  "recommendedNext": [
+    "leis-normas",
+    "curso-nutrientes"
+  ]
+}

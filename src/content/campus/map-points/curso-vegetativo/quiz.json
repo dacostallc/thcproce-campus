@@ -1,0 +1,26 @@
+{
+  "questions": [
+    {
+      "id": "veg-q1",
+      "question": "Stretch excessivo frequentemente liga-se a…",
+      "options": [
+        "Luz insuficiente ou mal distribuída para a copa",
+        "Excesso de silício sempre",
+        "Rega noturna só",
+        "Cor azul 100% irrelevante"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "id": "veg-q2",
+      "question": "Relação copa/substrato desequilibrada tende a…",
+      "options": [
+        "Stress hidrico e nutricional cíclico",
+        "Flor mais cedo automaticamente",
+        "Eliminar pragas",
+        "Aumentar só terpenos sem esforço"
+      ],
+      "correctIndex": 0
+    }
+  ]
+}

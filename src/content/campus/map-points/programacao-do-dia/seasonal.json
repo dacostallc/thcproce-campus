@@ -1,0 +1,12 @@
+{
+  "scenarios": [
+    {
+      "id": "evento-chuva",
+      "label": "Evento ao ar livre com chuva",
+      "summary": "Grade campus pode mudar — seasonal hooks aqui lembram backup digital.",
+      "relatedSlugs": [
+        "campus-live-cinema"
+      ]
+    }
+  ]
+}

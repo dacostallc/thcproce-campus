@@ -1,0 +1,20 @@
+{
+  "scenarios": [
+    {
+      "id": "pragas-calor",
+      "label": "Pragas do calor",
+      "summary": "Ácaros explodem quando o ar fica seco na copa — sobe um pouco a umidade foliar com segurança e revisa ventilação.",
+      "relatedSlugs": [
+        "curso-cultivo-greenhouse"
+      ]
+    },
+    {
+      "id": "fungos-verao",
+      "label": "Fungos no verão úmido",
+      "summary": "Calor + molhar folhas à noite vira festa para fungos; alterna tática conforme o estágio fenológico.",
+      "relatedSlugs": [
+        "curso-pragas-e-doencas"
+      ]
+    }
+  ]
+}

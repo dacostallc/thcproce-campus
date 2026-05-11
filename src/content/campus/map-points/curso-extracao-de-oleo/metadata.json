@@ -1,0 +1,19 @@
+{
+  "theme": "Extratos",
+  "tags": [
+    "solvente",
+    "seguranca"
+  ],
+  "difficulty": "Avançado",
+  "category": "Laboratório",
+  "areaType": "curso-modulo",
+  "prerequisites": [
+    "curso-cultivo-101"
+  ],
+  "relatedAreas": [
+    "curso-hashmaker"
+  ],
+  "recommendedNext": [
+    "leis-normas"
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "questions": [
+    {
+      "id": "cha-q1",
+      "question": "Sinal de abortar lote de chá?",
+      "options": [
+        "Cheiro anaeróbico forte ou espuma estranha persistente",
+        "Bolhas visíveis normais",
+        "Temperatura igual à ambiente",
+        "Cor turva leve após compost o primeiro minuto"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "id": "cha-q2",
+      "question": "Primeira aplicação mais segura em iniciante?",
+      "options": [
+        "Diluída à zona radicular com planta saudável de teste",
+        "Foliar concentrado em flor",
+        "Injeção direta no caule",
+        "Sem diluição nunca"
+      ],
+      "correctIndex": 0
+    }
+  ]
+}

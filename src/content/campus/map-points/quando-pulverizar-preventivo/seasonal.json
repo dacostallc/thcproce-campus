@@ -1,0 +1,20 @@
+{
+  "scenarios": [
+    {
+      "id": "ventania",
+      "label": "Ventania e deriva",
+      "summary": "Calor com vento forte cancela pulverização — protege vizinhos e polinizadores.",
+      "relatedSlugs": [
+        "como-combate-acaros"
+      ]
+    },
+    {
+      "id": "chuva-iminente",
+      "label": "Chuva iminente",
+      "summary": "Molécula nova na folha precisa janela seca — seasonal hook para checklist meteorológico.",
+      "relatedSlugs": [
+        "curso-pragas-e-doencas"
+      ]
+    }
+  ]
+}

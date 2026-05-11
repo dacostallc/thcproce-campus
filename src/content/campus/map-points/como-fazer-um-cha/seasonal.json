@@ -1,0 +1,20 @@
+{
+  "scenarios": [
+    {
+      "id": "inverno-lento",
+      "label": "Inverno com microbiota lenta",
+      "summary": "Temperaturas baixas mudam o tempo de bolha — monitoriza cheiro com mais rigor.",
+      "relatedSlugs": [
+        "curso-preparacao-do-solo"
+      ]
+    },
+    {
+      "id": "seca",
+      "label": "Seca prolongada",
+      "summary": "Sem água limpa não há chá honesto; planeja diluição para não queimar raízes fragilizadas.",
+      "relatedSlugs": [
+        "quando-adubar-solo"
+      ]
+    }
+  ]
+}

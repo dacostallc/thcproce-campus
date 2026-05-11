@@ -100,6 +100,8 @@ import { cn } from "@/lib/utils";
 import { useStudentGamification } from "@/hooks/useStudentGamification";
 import { useCampusPresence } from "@/hooks/useCampusPresence";
 import { useCampusPresenceBreakdown } from "@/hooks/useCampusPresenceBreakdown";
+import { useCampusLivePresenceHeartbeat } from "@/hooks/useCampusLivePresenceHeartbeat";
+import type { CampusLivePresenceOnlineDto } from "@/lib/campusLivePresenceDto";
 import { useCampusSocialZoneStore } from "@/stores/campusSocialZoneStore";
 import { grantFirstCampusVisitCreditsIfNeeded } from "@/lib/studentGamificationStorage";
 import {
@@ -127,6 +129,16 @@ import {
   readCampusDebugZonesQuery,
   shouldShowCampusMapZonesPolygonDebug
 } from "@/lib/campusMapZonesDebug";
+import { CAMPUS_HOME_PATH } from "@/config/siteUrls";
+
+/** Recarga total da página em rotas `/campus*` para limpar estado cliente + lista de visitantes. 0 ou false = desliga. */
+function campusMapAutoReloadIntervalMs(): number {
+  const raw = process.env.NEXT_PUBLIC_CAMPUS_MAP_RELOAD_INTERVAL_MS;
+  if (raw === "0" || raw === "false") return 0;
+  const n = Number(raw);
+  if (Number.isFinite(n) && n > 0) return Math.max(15_000, n);
+  return 60_000;
+}
 
 const PLACEHOLDER_NIGHT = `
   radial-gradient(ellipse at 20% 30%, rgba(34, 197, 94, 0.20), transparent 45%),
@@ -759,6 +771,22 @@ export function CampusMap({
 
   useCampusEmojiReactionHotkeys();
   useCampusPresence();
+
+  const [httpPresencePeers, setHttpPresencePeers] = useState<CampusLivePresenceOnlineDto[]>([]);
+  useCampusLivePresenceHeartbeat(setHttpPresencePeers);
+
+  const campusAutoReloadMs = useMemo(() => campusMapAutoReloadIntervalMs(), []);
+
+  useEffect(() => {
+    if (campusAutoReloadMs <= 0 || typeof window === "undefined") return;
+    const onCampus =
+      pathname === CAMPUS_HOME_PATH ||
+      (pathname?.startsWith(`${CAMPUS_HOME_PATH}/`) ?? false);
+    if (!onCampus) return;
+    const id = window.setInterval(() => window.location.reload(), campusAutoReloadMs);
+    return () => window.clearInterval(id);
+  }, [pathname, campusAutoReloadMs]);
+
   const presenceBreakdown = useCampusPresenceBreakdown();
 
   return (
@@ -966,9 +994,11 @@ export function CampusMap({
                 presence={presenceBreakdown}
                 socialRegisteredOnline={campusSocialPoll?.registeredOnlineCount ?? null}
               />
-              {status === "authenticated" ? (
-                <CampusSocialPresenceDots phase={phase} peers={campusSocialPoll?.peers} />
-              ) : null}
+              <CampusSocialPresenceDots
+                phase={phase}
+                peers={status === "authenticated" ? campusSocialPoll?.peers ?? null : null}
+                httpPeers={httpPresencePeers}
+              />
             </div>
 
             <div
@@ -1078,7 +1108,7 @@ export function CampusMap({
             <CampusMapPeerLayer
               socialPeers={status === "authenticated" ? campusSocialPoll?.peers ?? null : null}
               socialPollResolved={status !== "authenticated" || campusSocialPoll !== undefined}
-              allowAmbientMock={status !== "authenticated"}
+              allowAmbientMock={false}
             />
           </div>
           </div>

@@ -1,0 +1,26 @@
+{
+  "questions": [
+    {
+      "id": "vas-q1",
+      "question": "Vaso excessivo cedo costuma…",
+      "options": [
+        "Manter anel periférico encharcado sem oxigénio",
+        "Aumentar sempre rendimento imediato",
+        "Eliminar necessidade de treliça",
+        "Substituir luz"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "id": "vas-q2",
+      "question": "Guia prático de rega indoor fiel?",
+      "options": [
+        "Peso do vaso ou sensação consistente do substrato",
+        "Calendário fixo ignorando planta",
+        "Sempre 500 ml porque sim",
+        "Só cor das folhas ignorando raiz"
+      ],
+      "correctIndex": 0
+    }
+  ]
+}

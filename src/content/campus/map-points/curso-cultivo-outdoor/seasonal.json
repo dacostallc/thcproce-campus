@@ -1,0 +1,20 @@
+{
+  "scenarios": [
+    {
+      "id": "chuvas-fortes",
+      "label": "Chuvas fortes",
+      "summary": "Lavar nutrientes do solo exige plano B de cobertura leve e fertilização fracionada.",
+      "relatedSlugs": [
+        "quando-plantar-outdoor"
+      ]
+    },
+    {
+      "id": "seca-outdoor",
+      "label": "Seca no campo",
+      "summary": "Mulching e horário de rega mudam o jogo — anota evapotranspiração real.",
+      "relatedSlugs": [
+        "qual-tamanho-do-vaso"
+      ]
+    }
+  ]
+}

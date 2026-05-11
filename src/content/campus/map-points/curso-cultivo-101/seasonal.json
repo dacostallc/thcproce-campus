@@ -1,0 +1,12 @@
+{
+  "scenarios": [
+    {
+      "id": "linha-base",
+      "label": "Arranque de safra",
+      "summary": "Novos ciclos combinam com revisão de licenças e espaço físico antes de comprar equipamento.",
+      "relatedSlugs": [
+        "curso-germinacao-clones"
+      ]
+    }
+  ]
+}

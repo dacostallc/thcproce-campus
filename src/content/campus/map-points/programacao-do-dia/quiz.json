@@ -1,0 +1,26 @@
+{
+  "questions": [
+    {
+      "id": "prog-q1",
+      "question": "Boa prática antes da live?",
+      "options": [
+        "Ler descrição e preparar pergunta específica",
+        "Entrar sem saber do que se trata",
+        "Abrir 10 tabs barulhentas",
+        "Só aparecer no final"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "id": "prog-q2",
+      "question": "Porque verificar fuso BR?",
+      "options": [
+        "Evento campus costuma ancorar em horário nacional",
+        "Fuso é mito",
+        "Todas lives são UTC intencionalmente errado",
+        "Relógio não importa"
+      ],
+      "correctIndex": 0
+    }
+  ]
+}

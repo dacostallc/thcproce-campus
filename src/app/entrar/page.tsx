@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useMemo, useState } from "react";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -20,6 +20,16 @@ function EntrarInner() {
     refParam && refParam.trim()
       ? `/inscrever-se?ref=${encodeURIComponent(refParam.trim())}`
       : "/inscrever-se";
+
+  const recuperarSenhaHref = useMemo(() => {
+    const params = new URLSearchParams();
+    if (refParam?.trim()) params.set("ref", refParam.trim());
+    if (typeof callbackUrl === "string" && callbackUrl.startsWith("/")) {
+      params.set("callbackUrl", callbackUrl);
+    }
+    const q = params.toString();
+    return q ? `/recuperar-senha?${q}` : "/recuperar-senha";
+  }, [refParam, callbackUrl]);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -104,9 +114,17 @@ function EntrarInner() {
           />
         </div>
         <div>
-          <label className="block text-xs font-semibold text-canna-300 mb-1.5 uppercase tracking-wider">
-            Senha
-          </label>
+          <div className="mb-1.5 flex items-center justify-between gap-2">
+            <label className="text-xs font-semibold text-canna-300 uppercase tracking-wider">
+              Senha
+            </label>
+            <Link
+              href={recuperarSenhaHref}
+              className="text-xs font-medium text-canna-300 underline-offset-2 hover:text-canna-200 hover:underline"
+            >
+              Esqueceu a senha?
+            </Link>
+          </div>
           <input
             type="password"
             required

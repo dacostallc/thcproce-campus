@@ -1,0 +1,26 @@
+{
+  "questions": [
+    {
+      "id": "101-q1",
+      "question": "ECS no campus aparece principalmente como…",
+      "options": [
+        "Modelo educativo de rede reguladora — não auto-diagnóstico",
+        "Lista de strains prescritas",
+        "Garantia de efeito",
+        "Substituto de receptores inventados"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "id": "101-q2",
+      "question": "Próximo passo saudável depois do 101?",
+      "options": [
+        "Escolher trilha técnica e manter registro simples",
+        "Comprar todo equipamento do marketplace num dia",
+        "Ignorar legalidade",
+        "Publicar tutorial sem contexto"
+      ],
+      "correctIndex": 0
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "xp": 30,
+  "greenCoins": 8,
+  "growerMasterProgress": 3,
+  "rarity": "épico",
+  "badge": {
+    "id": "selo-cha-oxigenado",
+    "name": "Chá oxigenado",
+    "description": "Entende bolha como metabolismo microbiano."
+  }
+}

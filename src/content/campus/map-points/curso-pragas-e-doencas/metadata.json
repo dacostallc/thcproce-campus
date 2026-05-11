@@ -1,0 +1,23 @@
+{
+  "theme": "Sanidade",
+  "tags": [
+    "IPM",
+    "fungo",
+    "inseto"
+  ],
+  "difficulty": "Intermediário",
+  "category": "Proteção fitossanitária",
+  "areaType": "curso-modulo",
+  "prerequisites": [
+    "curso-cultivo-101"
+  ],
+  "relatedAreas": [
+    "como-combate-acaros",
+    "como-combate-spiders",
+    "quando-pulverizar-preventivo"
+  ],
+  "recommendedNext": [
+    "como-combate-acaros",
+    "curso-cultivo-greenhouse"
+  ]
+}

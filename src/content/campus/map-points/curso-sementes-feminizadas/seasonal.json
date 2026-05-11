@@ -1,0 +1,12 @@
+{
+  "scenarios": [
+    {
+      "id": "oscilacao-termica",
+      "label": "Oscilação térmica na casa",
+      "summary": "Noites frias e dias quentes estressam plântulas — estabiliza microclima antes de criticar genética.",
+      "relatedSlugs": [
+        "curso-germinacao-clones"
+      ]
+    }
+  ]
+}

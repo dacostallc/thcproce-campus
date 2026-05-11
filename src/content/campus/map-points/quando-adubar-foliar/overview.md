@@ -1,69 +1,83 @@
 ---
-mapPointId: "quando-adubar-foliar"
-title: "Quando usar adubo foliar"
-panelTitle: "Quando usar adubo foliar"
-linkedCourseId: "cultivo-indoor"
-shortDescription: "Quando usar adubo foliar: núcleo nutrição indoor no THCProce Campus."
-longDescription: "pulverização foliar com critério. Trilha textual preparada para LMS, portal web e futuras peças audiovisuais — prioriza método, segurança e clareza jurídico‑sanitária."
-introduction: "Este marcador do mapa aprofunda quando e como foliar faz sentido dentro da trilha de cultivo indoor."
+mapPointId: quando-adubar-foliar
+title: Quando usar adubo foliar
+panelTitle: Quando usar adubo foliar
+linkedCourseId: cultivo-indoor
+shortDescription: 'Quando usar adubo foliar: núcleo nutrição indoor no THCProce Campus.'
+longDescription: 'pulverização foliar com critério. Trilha textual preparada para LMS, portal web e futuras peças audiovisuais — prioriza método, segurança e clareza jurídico‑sanitária.'
+introduction: Este marcador do mapa aprofunda quando e como foliar faz sentido dentro da trilha de cultivo indoor.
 objectives:
-  - "Compreender fundamentos e limites do tema em linguagem acessível."
-  - "Aplicar checklist práticos sem improvisação perigosa."
-  - "Relacionar observação, registo e decisão técnica gradual."
-  - "Reconhecer erros comuns e corrigi-los com método."
-  - "Manter ética, legalidade e segurança como critérios não negociáveis."
-summary: "Foliar é pontuação musical — não tapete contínuo."
-difficulty: "Intermediário"
-category: "Nutrição indoor"
+  - Compreender fundamentos e limites do tema em linguagem acessível.
+  - Aplicar checklist práticos sem improvisação perigosa.
+  - 'Relacionar observação, registro e decisão técnica gradual.'
+  - Reconhecer erros comuns e corrigi-los com método.
+  - 'Manter ética, legalidade e segurança como critérios não negociáveis.'
+summary: Foliar é pontuação musical — não tapete contínuo.
+difficulty: Intermediário
+category: Nutrição indoor
 tags:
-  - "foliar"
-  - "stomata"
-  - "spray"
+  - foliar
+  - stomata
+  - spray
 moduleTitles:
-  - "Fisiologia foliar"
-  - "Janelas seguras"
-  - "Receitas simples"
-  - "Stop rules"
+  - Fisiologia foliar
+  - Janelas seguras
+  - Receitas simples
+  - Stop rules
 lessonTitles:
-  - "Estômatos e luz"
-  - "Ordem de mistura"
-  - "Quando parar"
-  - "Interação com IPM"
-  - "Registar resultado"
+  - Estômatos e luz
+  - Ordem de mistura
+  - Quando parar
+  - Interação com IPM
+  - Registar resultado
 contentVersion: 1
-locale: "pt-BR"
+locale: pt-BR
 ---
 
-# Quando usar adubo foliar
+# Adubação foliar: janela de estómatos, não show de brilho
 
 > **Aviso:** Material educativo THCProce Campus. Não substitui acompanhamento médico nem assessoria jurídica. Em cultivo e pesquisa, respeite leis e licenças aplicáveis à sua situação.
 
-## Introdução
+*Foliar é cinema de curta metragem: luz, gotícula e tempo fecham o enredo.*
 
-Este marcador do mapa aprofunda **quando e como foliar faz sentido** dentro da trilha de cultivo indoor.
+## História de quem cultiva
 
-## Fundamentos
+Folha absorve — **mal**. Usa foliar para correções leves ou kick micronutriente quando ambiente colabora.
 
-Em ambiente fechado, a planta depende de você para luz, troca gasosa, temperatura, umidade e nutrição. O método consistente vence o improviso: observação diária + registo simples. Relacionamos sintomas foliares com hipóteses testáveis antes de mudanças bruscas.
+## Na prática, assim que a coisa anda
 
-## Parte técnica
+Luz forte + gotas = lupa natural que queima; T/RU extremo altera fechamento estomático.
 
-pH da solução de foliar; gotículas finas; evitar luz forte imediata; horários estáveis;
+## Olhar de cultivador
 
-## Aplicações práticas
+Resíduo branco = excesso ou incompatibility; manchas em borda após spray = osmose.
 
-Teste em ramo menor; observar 24–48h antes de generalizar;
+## Ferramentas e insumos
 
-## Erros comuns
+Pulverizador dedicado, pH da solução, EPI, água limpa.
+## Passo a passo sem heroísmo
 
-Cocktails excessivos; foliar como atalho para raiz não saudável;
+1) Escolhe janela de luz baixa ou apagada conforme produto.
+2) Testa 1 planta.
+3) Pulveriza cobertura uniforme sem runoff gotejante longo.
+4) Ventila para secar sem film aquático eterno.
 
-## Segurança e responsabilidade
+## Erros que eu já vi na roça
 
-Ventilação e máscaras quando aplicar produtos; desligar luminárias ao manusear cabos molhados.
+Calda concentrada ‘porque foliar é fraco’; mix com óleos sem compatibilidade; spray flores pegajosas.
 
-Consulte sempre normas locais sobre pesquisa, cultivo autorizado e transporte. Em contexto medicinal, busque profissionais habilitados para prescrição e monitorização.
+## Filosofia de quem colhe com calma
 
-## Resumo final
+Foliar é refinamento — quem não mede rega radical não merece medir spray.
 
-Foliar é pontuação musical — não tapete contínuo.
+## Sua missão aqui
+
+Documenta horário, T/RU, EC da calda e resultado 48h.
+
+---
+
+**Antes de sair deste ponto**, fecha o ciclo no quiz aqui em baixo — não é prova escolar, é treino de decisão com os pés na sua realidade.
+
+## Fechando com os pés no chão
+
+Gotas certas no tempo certo; resto é estrago ou desperdício.

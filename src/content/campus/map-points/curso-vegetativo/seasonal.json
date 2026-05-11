@@ -1,0 +1,12 @@
+{
+  "scenarios": [
+    {
+      "id": "verao-vegetativo",
+      "label": "Verão no vegetativo",
+      "summary": "Mais transpiração pede calendário de foliar com critério — não é festa de óleo essencial todo dia.",
+      "relatedSlugs": [
+        "quando-adubar-foliar"
+      ]
+    }
+  ]
+}

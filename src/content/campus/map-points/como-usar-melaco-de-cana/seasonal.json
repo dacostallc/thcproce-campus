@@ -1,0 +1,12 @@
+{
+  "scenarios": [
+    {
+      "id": "calor-extremo",
+      "label": "Calor extremo",
+      "summary": "Carboidrato calido pede EC mais baixo e leitura de transpiração antes de qualquer rega doce.",
+      "relatedSlugs": [
+        "curso-nutrientes"
+      ]
+    }
+  ]
+}

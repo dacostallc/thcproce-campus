@@ -1,0 +1,20 @@
+{
+  "scenarios": [
+    {
+      "id": "live-calor",
+      "label": "Calor extremo na sala",
+      "summary": "Em ondas de calor, lives sobre clima pedem mais pausas e checklist de ventilação — anota dicas sem copiar setup ilegal.",
+      "relatedSlugs": [
+        "curso-cultivo-greenhouse"
+      ]
+    },
+    {
+      "id": "live-chuva",
+      "label": "Chuva forte no outdoor",
+      "summary": "Quando o tema for outdoor, cruza com humidade e drenagem — pergunta sempre sobre solo empapado.",
+      "relatedSlugs": [
+        "curso-cultivo-outdoor"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "theme": "Genética",
+  "tags": [
+    "feminizada",
+    "fenotipo"
+  ],
+  "difficulty": "Avançado",
+  "category": "Sementes",
+  "areaType": "curso-modulo",
+  "prerequisites": [
+    "curso-germinacao-clones"
+  ],
+  "relatedAreas": [
+    "curso-podas-e-clones"
+  ],
+  "recommendedNext": [
+    "curso-vegetativo"
+  ]
+}

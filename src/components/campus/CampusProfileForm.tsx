@@ -18,6 +18,10 @@ import {
   computeLocalCoursePctFromMarks,
   type CampusProgress
 } from "@/lib/campusProgressStorage";
+import {
+  CAMPUS_MAP_POINT_REWARD_SLUG_TOTAL,
+  countMapPointsWithRewardsClaimed
+} from "@/lib/campusMapPointProgressSummary";
 import { useStudentGamification } from "@/hooks/useStudentGamification";
 import { isCampusAdminEmail } from "@/lib/campusAdmin";
 import {
@@ -113,6 +117,7 @@ export function CampusProfileForm({
   const accountHintForCard =
     hydrated && status === "authenticated" ? ("authenticated" as const) : ("guest" as const);
   const courseRows = useMemo(() => courseRowsForProfile(campus, hydrated), [campus, hydrated]);
+  const mapRewardsClaimed = useMemo(() => countMapPointsWithRewardsClaimed(gUi), [gUi]);
 
   const cardShell = isModal
     ? "rounded-xl campus-hud-glass border-white/12 bg-white/[0.03] p-4"
@@ -140,7 +145,25 @@ export function CampusProfileForm({
             helpfulPoints={gUi.helpfulPoints}
             communityRank={gUi.communityRank}
             mentorLevel={gUi.mentorLevel}
+            growerMasterScore={gUi.growerMasterScore}
           />
+
+          <div className={cn(cardShell)}>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-canna-300/85">
+              Mapa interativo
+            </p>
+            <p className="mt-2 text-sm font-semibold text-white">
+              Áreas com recompensa resgatada:{" "}
+              <span className="tabular-nums text-canna-100/95">
+                {hydrated ? mapRewardsClaimed : 0}
+              </span>{" "}
+              / {CAMPUS_MAP_POINT_REWARD_SLUG_TOTAL}
+            </p>
+            <p className="mt-2 text-xs leading-relaxed text-white/55">
+              Completa missão e quiz em cada ponto para ganhar XP, créditos e selos (uma vez por área neste
+              browser). O mesmo estado aparece no inventário e nos souvenirs quando aplicável.
+            </p>
+          </div>
 
           <div
             className={cn(

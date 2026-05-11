@@ -38,7 +38,16 @@ import type {
 import { CULINARY_MANIFEST } from "./culinary/manifest";
 import { MEDICINE_MANIFEST } from "./medicine/manifest";
 import { EXTRACTION_MANIFEST } from "./extraction/manifest";
-import { GROW_ADVANCED_MANIFEST } from "./grow-advanced/manifest";
+import { CULTIVO_GREENHOUSE_MANIFEST } from "./cultivo-greenhouse/manifest";
+import { CULTIVO_OUTDOOR_MANIFEST } from "./cultivo-outdoor/manifest";
+import { CULTIVO_INDOOR_MANIFEST } from "./cultivo-indoor/manifest";
+import { GENETICA_MANIFEST } from "./genetica/manifest";
+import { SECAGEM_CURA_MANIFEST } from "./secagem-cura/manifest";
+import { EXTRACOES_SOLVENTLESS_MANIFEST } from "./extracoes-solventless/manifest";
+import { LABORATORIO_MANIFEST } from "./laboratorio/manifest";
+import { LEGISLACAO_MANIFEST } from "./legislacao/manifest";
+import { COOPERATIVISMO_MANIFEST } from "./cooperativismo/manifest";
+import { INDUSTRIA_MANIFEST } from "./industria/manifest";
 import { getCourseLessonTheme } from "@/data/courseLessonThemes";
 import { tryGetManualLessonsForCourse } from "@/data/lessonContent";
 
@@ -117,7 +126,16 @@ registerCourse({
 registerCourse({ manifest: CULINARY_MANIFEST });
 registerCourse({ manifest: MEDICINE_MANIFEST });
 registerCourse({ manifest: EXTRACTION_MANIFEST });
-registerCourse({ manifest: GROW_ADVANCED_MANIFEST });
+registerCourse({ manifest: CULTIVO_GREENHOUSE_MANIFEST });
+registerCourse({ manifest: CULTIVO_OUTDOOR_MANIFEST });
+registerCourse({ manifest: CULTIVO_INDOOR_MANIFEST });
+registerCourse({ manifest: GENETICA_MANIFEST });
+registerCourse({ manifest: SECAGEM_CURA_MANIFEST });
+registerCourse({ manifest: EXTRACOES_SOLVENTLESS_MANIFEST });
+registerCourse({ manifest: LABORATORIO_MANIFEST });
+registerCourse({ manifest: LEGISLACAO_MANIFEST });
+registerCourse({ manifest: COOPERATIVISMO_MANIFEST });
+registerCourse({ manifest: INDUSTRIA_MANIFEST });
 
 function capabilityFor(areaId: string | undefined): RegisteredCourseCapabilities | undefined {
   if (!areaId) return undefined;

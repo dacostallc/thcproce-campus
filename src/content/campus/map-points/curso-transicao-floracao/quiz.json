@@ -1,0 +1,26 @@
+{
+  "questions": [
+    {
+      "id": "fl-q1",
+      "question": "Stretch depende fortemente de…",
+      "options": [
+        "Genética + distribuição de luz + nitrogénio residual",
+        "Só cor do vaso",
+        "Marca do ventilador",
+        "Dia da semana apenas"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "id": "fl-q2",
+      "question": "Erro ao entrar em flora com carencência grave?",
+      "options": [
+        "Amplificar sintoma e perder rendimento floral inicial",
+        "Resolver magicamente ao mudar relógio",
+        "Substituir treino",
+        "Aumentar sempre PK sem olhar"
+      ],
+      "correctIndex": 0
+    }
+  ]
+}

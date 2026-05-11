@@ -1,0 +1,12 @@
+{
+  "scenarios": [
+    {
+      "id": "calor-solvente",
+      "label": "Calor + solvente",
+      "summary": "Verão aumenta risco em laboratório caseiro — se não tens infraestrutura legal, ficas na teoria.",
+      "relatedSlugs": [
+        "leis-normas"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "questions": [
+    {
+      "id": "mur-q1",
+      "question": "O que NÃO colar no mural aberto?",
+      "options": [
+        "CPF, endereço ou dados clínicos detalhados de terceiros",
+        "Versão do browser",
+        "Minuto do bug",
+        "Descrição cordial"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "id": "mur-q2",
+      "question": "Feedback acionável inclui…",
+      "options": [
+        "Passos mínimos para reproduzir",
+        "Só insulto genérico",
+        "Caps lock infinito",
+        "Nada sobre o sintoma"
+      ],
+      "correctIndex": 0
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "scenarios": [
+    {
+      "id": "festas",
+      "label": "Mesas de fim de ano",
+      "summary": "Datas festivas pedem rotulagem honesta e doses conversadas com profissional — cozinha ética primeiro.",
+      "relatedSlugs": [
+        "curso-hashmaker"
+      ]
+    }
+  ]
+}

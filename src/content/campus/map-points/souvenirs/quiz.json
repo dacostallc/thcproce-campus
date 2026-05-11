@@ -1,0 +1,26 @@
+{
+  "questions": [
+    {
+      "id": "souv-q1",
+      "question": "Uso saudável de merch educativo?",
+      "options": [
+        "Lembrar checklist técnico antes de mexer na planta",
+        "Provar status sem estudar",
+        "Mostrar local ilegal online",
+        "Substituir licenças"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "id": "souv-q2",
+      "question": "Brinde útil > decorativo porque…",
+      "options": [
+        "Integra-se na sua rotina de campo ou estudo",
+        "Ocupa só estante",
+        "Sempre mais caro",
+        "Substitui advogado"
+      ],
+      "correctIndex": 0
+    }
+  ]
+}

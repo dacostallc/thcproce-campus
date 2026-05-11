@@ -1,4 +1,9 @@
 import type { CourseManifest } from "@/content/courses/types";
+import {
+  courseFirstLessonTitle,
+  courseOutlineLessonCount,
+  coursePreviewLessonTitles
+} from "@/data/courseOutlines";
 
 /** Alinhado a `areas[].id === "culinaria"` no mapa. */
 export const CULINARY_AREA_ID = "culinaria" as const;
@@ -22,12 +27,10 @@ export const CULINARY_MANIFEST: CourseManifest = {
     ] as const,
     professor: "Prof THC"
   },
-  hud: { nextLessonFallbackLabel: "Culinária · Aula 1" },
-  previewLessonTitles: [
-    "Da decarboxilação ao mg por porção",
-    "Manteiga e óleos infundidos",
-    "Receitas doces e salgadas com dosagem segura",
-    "Boas práticas de etiquetagem familiar"
-  ] as const,
-  stats: { lessonCount: 10, hoursLabel: "8h" }
+  hud: { nextLessonFallbackLabel: courseFirstLessonTitle(CULINARY_AREA_ID) },
+  previewLessonTitles: coursePreviewLessonTitles(CULINARY_AREA_ID),
+  stats: {
+    lessonCount: courseOutlineLessonCount(CULINARY_AREA_ID),
+    hoursLabel: "8h"
+  }
 };

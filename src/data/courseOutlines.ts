@@ -1,8 +1,14 @@
-import { CANNABIS101_OUTLINE_TITLES } from "@/content/courses/cannabis-101";
+import { CANNABIS101_OUTLINE_TITLES } from "@/content/courses/cannabis-101/lessons";
 import { CANNABIS101_AREA_ID } from "@/content/courses/cannabis-101/manifest";
 /**
- * Outline editorial por curso (pré-lançamento fundador).
- * Cannabis 101: trilha introdutória de onze aulas (conteúdo canónico em `src/content/courses/cannabis-101`).
+ * Outline editorial por curso — fonte canónica dos **títulos de cada aula** no campus.
+ *
+ * Manutenção: qualquer alteração aqui deve refletir-se em `title` da entrada correspondente
+ * em `src/data/lessonContent/courses/<curso>.ts`. Manifestos (`previewLessonTitles`, HUD,
+ * `lessonCount`) derivam disto via `coursePreviewLessonTitles` / `courseFirstLessonTitle`.
+ *
+ * Cannabis 101: árvore de módulos em `src/content/courses/cannabis-101/manifest.ts` — este array
+ * re-exporta a mesma ordem via `CANNABIS101_OUTLINE_TITLES`.
  */
 export const COURSE_OUTLINES: Record<string, readonly string[]> = {
   [CANNABIS101_AREA_ID]: CANNABIS101_OUTLINE_TITLES,
@@ -171,4 +177,28 @@ export function getOutlineForArea(areaId: string): readonly string[] | null {
 
 export function hasFullOutline(areaId: string): boolean {
   return areaId in COURSE_OUTLINES;
+}
+
+/** Primeiros `max` títulos do outline (catálogo / painéis) — alinhado a `lessonContent` e `title` de cada aula. */
+export function coursePreviewLessonTitles(areaId: string, max = 4): readonly string[] {
+  const o = COURSE_OUTLINES[areaId];
+  if (!o?.length) {
+    throw new Error(`coursePreviewLessonTitles: sem outline para «${areaId}»`);
+  }
+  const n = Math.min(max, o.length);
+  const out: string[] = [];
+  for (let i = 0; i < n; i++) out.push(o[i]!);
+  return out;
+}
+
+/** Primeira aula do outline — HUD quando não há progresso dinâmico. */
+export function courseFirstLessonTitle(areaId: string): string {
+  const o = COURSE_OUTLINES[areaId];
+  const t = o?.[0];
+  if (!t) throw new Error(`courseFirstLessonTitle: sem outline para «${areaId}»`);
+  return t;
+}
+
+export function courseOutlineLessonCount(areaId: string): number {
+  return COURSE_OUTLINES[areaId]?.length ?? 0;
 }

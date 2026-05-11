@@ -1,0 +1,16 @@
+{
+  "theme": "Eventos",
+  "tags": [
+    "agenda",
+    "pontualidade"
+  ],
+  "difficulty": "Iniciante",
+  "category": "Eventos",
+  "areaType": "campus-service",
+  "relatedAreas": [
+    "campus-live-cinema"
+  ],
+  "recommendedNext": [
+    "deixa-seu-recado"
+  ]
+}

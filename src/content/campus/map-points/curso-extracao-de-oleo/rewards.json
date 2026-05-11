@@ -1,0 +1,11 @@
+{
+  "xp": 30,
+  "greenCoins": 8,
+  "growerMasterProgress": 3,
+  "rarity": "épico",
+  "badge": {
+    "id": "selo-laboratorio-humilde",
+    "name": "Laboratório humilde",
+    "description": "Segurança antes do 'yield' de story."
+  }
+}

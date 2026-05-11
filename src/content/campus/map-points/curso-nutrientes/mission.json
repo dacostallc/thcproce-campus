@@ -1,0 +1,9 @@
+{
+  "title": "Log de solução",
+  "description": "Transformar palpite em série temporal.",
+  "checklist": [
+    "4 variáveis por rega",
+    "Notas de clima",
+    "Alerta se drift >0.5"
+  ]
+}

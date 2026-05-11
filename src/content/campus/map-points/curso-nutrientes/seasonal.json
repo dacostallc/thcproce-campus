@@ -1,0 +1,20 @@
+{
+  "scenarios": [
+    {
+      "id": "chuva-nutrientes",
+      "label": "Chuva lavando solo outdoor",
+      "summary": "Reposição fracionada evita picos de EC quando o céu não colabora.",
+      "relatedSlugs": [
+        "quando-adubar-solo"
+      ]
+    },
+    {
+      "id": "calor-transpiracao",
+      "label": "Calor e transpiração alta",
+      "summary": "Plantas bebem mais e concentram sal — folha espia antes do fertirriga.",
+      "relatedSlugs": [
+        "quando-adubar-foliar"
+      ]
+    }
+  ]
+}

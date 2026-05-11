@@ -2,8 +2,9 @@
 
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion, useDragControls, useMotionValue } from "framer-motion";
-import { ChevronLeft, ChevronRight, Clapperboard, GripHorizontal, MessageCircle, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Clapperboard, GripVertical, MessageCircle, X } from "lucide-react";
 import { useCampusHudStore } from "@/stores/campusHudStore";
+import { useCampusStore } from "@/stores/campusStore";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { CampusMapHotspotPanel } from "@/components/campus/CampusMapHotspotPanel";
@@ -13,6 +14,7 @@ import {
 } from "@/lib/campusCinemaLiveFramePositionStorage";
 import { resolveCampusCinemaVideoSrc } from "@/lib/campus/campusMediaUrl";
 import { CampusCinemaHudPreview } from "@/components/campus/CampusCinemaHudPreview";
+import { CampusLiveStreamOfflinePoster } from "@/components/campus/CampusLiveStreamOfflinePoster";
 
 type Props = {
   sky: "day" | "night";
@@ -60,12 +62,22 @@ function SectionBlock({
   );
 }
 
-/** Acima do mapa / leitor ambiente (51); abaixo de modais maiores (~55+). */
-const CINEMA_LIVE_FRAME_Z = 54;
+/**
+ * Acima do mapa / leitor ambiente (51); abaixo de modais maiores (~55+).
+ * Fica abaixo do telão do Cine drive-in (40) para não tapar a sessão.
+ */
+const CINEMA_LIVE_FRAME_Z = 38;
+
+/** ~linha do HUD fixo + gap — alinhado ao `pt` dos painéis slide-over do mapa. */
+const CINEMA_DOCK_TOP_BELOW_HUD_PX = 66;
+
+/** Ajuste fino: mais à esquerda e mais abaixo no viewport (px). */
+const CINEMA_DOCK_NUDGE_LEFT_PX = 40;
+const CINEMA_DOCK_NUDGE_DOWN_PX = 40;
 
 function cinemaLiveViewportMargins(): { top: number; left: number; right: number; bottom: number } {
   if (typeof window === "undefined") {
-    return { top: 16, left: 16, right: 16, bottom: 28 };
+    return { top: 78, left: 16, right: 16, bottom: 96 };
   }
   const narrow = window.innerWidth < 640;
   const vv = window.visualViewport;
@@ -75,21 +87,23 @@ function cinemaLiveViewportMargins(): { top: number; left: number; right: number
     : narrow
       ? 80
       : 26;
+  /** Dock superior: abaixo do header do campus e longe dos atalhos inferiores / tab mobile. */
+  const top = insetTop + CINEMA_DOCK_TOP_BELOW_HUD_PX;
   return {
-    top: insetTop,
+    top,
     left: Math.max(12, 14),
     right: Math.max(12, 14),
-    bottom: narrow ? Math.max(76, insetBottom + 20) : Math.max(24, insetBottom + 6)
+    bottom: narrow ? Math.max(96, insetBottom + 36) : Math.max(108, insetBottom + 20)
   };
 }
 
-function clampCinemaLiveFrame(
+function clampCinemaLiveFrameWithMargins(
   x: number,
   y: number,
   width: number,
-  height: number
+  height: number,
+  m: { top: number; left: number; right: number; bottom: number }
 ): { x: number; y: number } {
-  const m = cinemaLiveViewportMargins();
   const vw = typeof window !== "undefined" ? window.innerWidth : 400;
   const vh = typeof window !== "undefined" ? window.innerHeight : 800;
   const maxX = Math.max(m.left, vw - width - m.right);
@@ -100,15 +114,38 @@ function clampCinemaLiveFrame(
   };
 }
 
-/** Dock inferior: margem esquerda em ecrãs estreitos; centrado horizontalmente em desktop — evita colidir com atalhos fixos à direita. */
-function defaultCinemaLiveFramePosition(width: number, height: number): { x: number; y: number } {
-  const m = cinemaLiveViewportMargins();
+/** Dock premium: canto superior-esquerdo (ficha do mapa abre à direita). */
+function dockedCinemaLiveFrameXY(
+  width: number,
+  height: number,
+  hotspotPanelOpen: boolean,
+  savedY: number | null
+): { x: number; y: number } {
+  const mBase = cinemaLiveViewportMargins();
   const vw = typeof window !== "undefined" ? window.innerWidth : 400;
   const vh = typeof window !== "undefined" ? window.innerHeight : 800;
-  const y = Math.round(vh - height - m.bottom);
-  const wideEnoughForCenter = vw >= 960;
-  const x = wideEnoughForCenter ? Math.round((vw - width) / 2) : m.left;
-  return clampCinemaLiveFrame(x, y, width, height);
+  const narrow = vw < 640;
+
+  const padLeftBase =
+    narrow && hotspotPanelOpen ? Math.max(mBase.left, 10) : mBase.left;
+  const dockLeft = Math.max(6, padLeftBase - CINEMA_DOCK_NUDGE_LEFT_PX);
+  const dockTop = mBase.top + CINEMA_DOCK_NUDGE_DOWN_PX;
+
+  const m = {
+    ...mBase,
+    left: dockLeft,
+    top: dockTop,
+    ...(narrow && hotspotPanelOpen ? { right: Math.max(mBase.right, 10) } : {})
+  };
+
+  const xPreferred = Math.round(dockLeft);
+
+  const yDefault = m.top;
+  const yCandidate = savedY != null ? savedY : yDefault;
+  const maxY = Math.max(m.top, vh - height - m.bottom);
+  const y = Math.min(Math.max(yCandidate, m.top), maxY);
+
+  return clampCinemaLiveFrameWithMargins(xPreferred, y, width, height, m);
 }
 
 /**
@@ -124,44 +161,49 @@ function CampusMapCinemaLiveFloatingFrame({
   setCinemaExpanded: (v: boolean) => void;
   setCinemaOpen: (v: boolean) => void;
 }) {
+  const hotspotPanelOpen = Boolean(useCampusHudStore((s) => s.campusMapHotspotPanelHitId));
   const cinemaHudStaticSrc = useMemo(() => resolveCampusCinemaVideoSrc(), []);
   const shellRef = useRef<HTMLDivElement>(null);
   const dragControls = useDragControls();
   const xMv = useMotionValue(0);
   const yMv = useMotionValue(0);
+  /** Preferência vertical (px): LS na primeira montagem; depois valor actual / arrasto. */
+  const verticalAnchorRef = useRef<number | null | undefined>(undefined);
 
   const persistPosition = useCallback(() => {
     const el = shellRef.current;
     if (!el || typeof window === "undefined") return;
-    const rect = el.getBoundingClientRect();
-    const c = clampCinemaLiveFrame(rect.left, rect.top, rect.width, rect.height);
+    const w = el.offsetWidth;
+    const h = el.offsetHeight;
+    const c = dockedCinemaLiveFrameXY(w, h, hotspotPanelOpen, verticalAnchorRef.current ?? null);
     xMv.set(c.x);
     yMv.set(c.y);
-    writeCampusCinemaLiveFramePosition({ version: 1, x: c.x, y: c.y });
-  }, [xMv, yMv]);
+    verticalAnchorRef.current = c.y;
+    writeCampusCinemaLiveFramePosition({ version: 2, y: c.y });
+  }, [xMv, yMv, hotspotPanelOpen]);
 
   useLayoutEffect(() => {
     if (typeof window === "undefined") return;
 
-    const saved = readCampusCinemaLiveFramePosition();
+    if (verticalAnchorRef.current === undefined) {
+      verticalAnchorRef.current = readCampusCinemaLiveFramePosition()?.y ?? null;
+    }
 
     const apply = () => {
       const el = shellRef.current;
       if (!el) return;
       const w = el.offsetWidth;
       const h = el.offsetHeight;
-      const def = defaultCinemaLiveFramePosition(w, h);
-      const rawX = saved?.x ?? def.x;
-      const rawY = saved?.y ?? def.y;
-      const c = clampCinemaLiveFrame(rawX, rawY, w, h);
+      const c = dockedCinemaLiveFrameXY(w, h, hotspotPanelOpen, verticalAnchorRef.current ?? null);
       xMv.set(c.x);
       yMv.set(c.y);
+      verticalAnchorRef.current = c.y;
     };
 
     apply();
     const id = requestAnimationFrame(() => requestAnimationFrame(apply));
     return () => cancelAnimationFrame(id);
-  }, [cinemaExpanded, xMv, yMv]);
+  }, [cinemaExpanded, hotspotPanelOpen, xMv, yMv]);
 
   useEffect(() => {
     const onResize = () => {
@@ -169,10 +211,11 @@ function CampusMapCinemaLiveFloatingFrame({
       if (!el) return;
       const w = el.offsetWidth;
       const h = el.offsetHeight;
-      const c = clampCinemaLiveFrame(xMv.get(), yMv.get(), w, h);
+      const c = dockedCinemaLiveFrameXY(w, h, hotspotPanelOpen, verticalAnchorRef.current ?? null);
       xMv.set(c.x);
       yMv.set(c.y);
-      persistPosition();
+      verticalAnchorRef.current = c.y;
+      writeCampusCinemaLiveFramePosition({ version: 2, y: c.y });
     };
     window.addEventListener("resize", onResize);
     window.visualViewport?.addEventListener("resize", onResize);
@@ -180,11 +223,12 @@ function CampusMapCinemaLiveFloatingFrame({
       window.removeEventListener("resize", onResize);
       window.visualViewport?.removeEventListener("resize", onResize);
     };
-  }, [xMv, yMv, persistPosition]);
+  }, [xMv, yMv, hotspotPanelOpen]);
 
   const onDragEnd = useCallback(() => {
+    verticalAnchorRef.current = yMv.get();
     persistPosition();
-  }, [persistPosition]);
+  }, [persistPosition, yMv]);
 
   return (
     <motion.div
@@ -192,14 +236,20 @@ function CampusMapCinemaLiveFloatingFrame({
       role="dialog"
       aria-modal
       aria-label="Cinema e ao vivo"
-      initial={{ opacity: 0, scale: 0.94 }}
+      title={cinemaExpanded ? undefined : "Cinema e ao vivo — expandir"}
+      initial={{ opacity: 0, scale: 0.96 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.96 }}
       transition={{ type: "spring", stiffness: 380, damping: 34 }}
       className={cn(
-        "pointer-events-auto flex flex-col overflow-hidden rounded-2xl border border-white/12 shadow-[0_14px_52px_rgba(0,0,0,0.44)] backdrop-blur-2xl",
-        "max-h-[min(calc(100dvh-5.5rem-env(safe-area-inset-top)-env(safe-area-inset-bottom)),720px)]",
-        cinemaExpanded ? "w-[min(calc(100vw-1.25rem),372px)] min-w-[280px]" : "w-11 min-w-[44px]"
+        "pointer-events-auto flex flex-col overflow-hidden border border-white/14 shadow-[0_12px_40px_rgba(0,0,0,0.38)] backdrop-blur-2xl ring-1 ring-white/[0.06]",
+        hotspotPanelOpen
+          ? "max-sm:rounded-2xl sm:rounded-r-2xl sm:rounded-l-lg"
+          : "rounded-r-2xl rounded-l-lg",
+        "max-h-[min(calc(100dvh-7rem-env(safe-area-inset-top)-env(safe-area-inset-bottom)),560px)]",
+        cinemaExpanded
+          ? "w-[min(calc(100vw-1rem),340px)] min-w-[260px] max-sm:w-[min(calc(100vw-2.25rem),340px)]"
+          : "w-11 min-w-[44px]"
       )}
       style={{
         x: xMv,
@@ -210,7 +260,7 @@ function CampusMapCinemaLiveFloatingFrame({
         zIndex: CINEMA_LIVE_FRAME_Z,
         touchAction: "none",
         background:
-          "linear-gradient(195deg, rgba(255,255,255,0.08) 0%, rgba(8,12,20,0.78) 42%, rgba(4,6,12,0.92) 100%)"
+          "linear-gradient(205deg, rgba(255,255,255,0.1) 0%, rgba(8,14,22,0.72) 38%, rgba(4,8,14,0.9) 100%)"
       }}
       drag
       dragControls={dragControls}
@@ -220,31 +270,32 @@ function CampusMapCinemaLiveFloatingFrame({
       onDragEnd={onDragEnd}
       onClick={(e) => e.stopPropagation()}
     >
-      <div
-        className="flex cursor-grab touch-none items-center gap-1 border-b border-white/10 py-1.5 pl-1.5 pr-1 active:cursor-grabbing"
-        onPointerDown={(e) => dragControls.start(e)}
-      >
-        <GripHorizontal size={14} className="shrink-0 text-white/42" aria-hidden />
-        {cinemaExpanded ? (
-          <Clapperboard size={16} className="ml-0.5 shrink-0 text-amber-200/85" aria-hidden />
-        ) : null}
-        <button
-          type="button"
-          className="flex h-9 flex-1 items-center justify-center rounded-lg text-white/55 transition hover:bg-white/10 hover:text-white"
-          aria-expanded={cinemaExpanded}
-          aria-label={cinemaExpanded ? "Recolher painel" : "Expandir painel"}
-          onPointerDown={(e) => e.stopPropagation()}
-          onClick={(e) => {
-            e.stopPropagation();
-            setCinemaExpanded(!cinemaExpanded);
-          }}
+      {cinemaExpanded ? (
+        <div
+          className="flex cursor-grab touch-none items-center gap-1 border-b border-white/10 py-1 pl-1 pr-0.5 active:cursor-grabbing"
+          onPointerDown={(e) => dragControls.start(e)}
         >
-          {cinemaExpanded ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
-        </button>
-        {cinemaExpanded ? (
+          <GripVertical size={14} className="ml-0.5 shrink-0 text-white/38" aria-hidden />
+          <Clapperboard size={15} className="shrink-0 text-amber-200/88" aria-hidden />
+          <span className="min-w-0 flex-1 truncate text-[9px] font-bold uppercase tracking-[0.16em] text-emerald-200/72">
+            Ao vivo · cinema
+          </span>
           <button
             type="button"
-            className="rounded-lg p-2 text-white/45 hover:bg-white/10 hover:text-white"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-white/55 transition hover:bg-white/10 hover:text-white"
+            aria-expanded={cinemaExpanded}
+            aria-label="Recolher painel"
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={(e) => {
+              e.stopPropagation();
+              setCinemaExpanded(false);
+            }}
+          >
+            <ChevronLeft size={19} />
+          </button>
+          <button
+            type="button"
+            className="shrink-0 rounded-lg p-2 text-white/45 hover:bg-white/10 hover:text-white"
             aria-label="Fechar"
             onPointerDown={(e) => e.stopPropagation()}
             onClick={(e) => {
@@ -254,8 +305,29 @@ function CampusMapCinemaLiveFloatingFrame({
           >
             <X size={17} />
           </button>
-        ) : null}
-      </div>
+        </div>
+      ) : (
+        <div
+          className="flex cursor-grab touch-none flex-col items-center gap-1 border-b border-white/10 px-0 py-2 active:cursor-grabbing"
+          onPointerDown={(e) => dragControls.start(e)}
+        >
+          <span className="sr-only">Arrastar para mover o painel ao vivo na vertical</span>
+          <GripVertical size={14} className="text-white/38" aria-hidden />
+          <button
+            type="button"
+            className="flex h-9 w-full items-center justify-center rounded-lg text-white/55 transition hover:bg-white/10 hover:text-white"
+            aria-expanded={cinemaExpanded}
+            aria-label="Expandir painel"
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={(e) => {
+              e.stopPropagation();
+              setCinemaExpanded(true);
+            }}
+          >
+            <ChevronRight size={19} />
+          </button>
+        </div>
+      )}
       {cinemaExpanded ? (
         <div className="thin-scrollbar flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto p-3 text-[13px] text-white/82">
           <div className="space-y-2 rounded-2xl border border-white/10 bg-black/25 p-3">
@@ -263,17 +335,7 @@ function CampusMapCinemaLiveFloatingFrame({
             {cinemaHudStaticSrc ? (
               <CampusCinemaHudPreview src={cinemaHudStaticSrc} />
             ) : (
-              <div className="flex aspect-video items-center justify-center rounded-xl bg-gradient-to-br from-slate-900/90 to-black/80 px-4 text-center text-xs text-white/42">
-                Configura{" "}
-                <code className="mx-1 rounded bg-white/10 px-1 font-mono text-[10px]">
-                  NEXT_PUBLIC_CAMPUS_CDN_BASE_URL
-                </code>{" "}
-                ou{" "}
-                <code className="mx-1 rounded bg-white/10 px-1 font-mono text-[10px]">
-                  NEXT_PUBLIC_CAMPUS_CINEMA_VIDEO_SRC
-                </code>{" "}
-                para pré-visualização via CDN (ou ficheiro local em dev).
-              </div>
+              <CampusLiveStreamOfflinePoster />
             )}
           </div>
           <div className="rounded-2xl border border-amber-400/15 bg-amber-950/20 p-3">
@@ -302,7 +364,12 @@ function CampusMapCinemaLiveFloatingFrame({
           </div>
         </div>
       ) : (
-        <div className="min-h-[12px] shrink-0" aria-hidden />
+        <div className="flex flex-col items-center gap-1 pb-2 pt-1" aria-hidden>
+          <Clapperboard size={14} className="text-amber-200/72" />
+          <span className="max-h-[4.5rem] overflow-hidden text-[8px] font-semibold uppercase leading-tight tracking-wide text-white/42 [writing-mode:vertical-rl] rotate-180">
+            Live
+          </span>
+        </div>
       )}
     </motion.div>
   );
@@ -320,6 +387,7 @@ export function CampusMapInteractiveMapPanels({
   const setCinemaExpanded = useCampusHudStore((s) => s.setCampusMapCinemaLiveExpanded);
   const muralOpen = useCampusHudStore((s) => s.campusMapMuralFeedOpen);
   const setMuralOpen = useCampusHudStore((s) => s.setCampusMapMuralFeedOpen);
+  const cineDriveInOpen = useCampusStore((s) => s.isCineOpen);
 
   const [muralDraft, setMuralDraft] = useState("");
   const [muralMessages, setMuralMessages] = useState<{ id: string; text: string; at: string }[]>([
@@ -452,7 +520,7 @@ export function CampusMapInteractiveMapPanels({
       </AnimatePresence>
 
       <AnimatePresence>
-        {cinemaOpen ? (
+        {cinemaOpen && !cineDriveInOpen ? (
           <CampusMapCinemaLiveFloatingFrame
             key="campus-cinema-live-floating"
             cinemaExpanded={cinemaExpanded}

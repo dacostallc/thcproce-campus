@@ -1,0 +1,20 @@
+{
+  "theme": "Sol aberto",
+  "tags": [
+    "clima",
+    "solo"
+  ],
+  "difficulty": "Iniciante",
+  "category": "Outdoor",
+  "areaType": "curso-modulo",
+  "prerequisites": [
+    "curso-cultivo-101"
+  ],
+  "relatedAreas": [
+    "quando-plantar-outdoor",
+    "qual-tamanho-do-vaso"
+  ],
+  "recommendedNext": [
+    "curso-preparacao-do-solo"
+  ]
+}

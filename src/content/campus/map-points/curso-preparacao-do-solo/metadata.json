@@ -1,0 +1,20 @@
+{
+  "theme": "Edafologia leiga",
+  "tags": [
+    "composto",
+    "drenagem"
+  ],
+  "difficulty": "Iniciante",
+  "category": "Outdoor",
+  "areaType": "curso-modulo",
+  "prerequisites": [
+    "curso-cultivo-101"
+  ],
+  "relatedAreas": [
+    "como-fazer-um-cha",
+    "curso-nutrientes"
+  ],
+  "recommendedNext": [
+    "curso-germinacao-clones"
+  ]
+}

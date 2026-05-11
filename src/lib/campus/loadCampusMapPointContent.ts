@@ -1,6 +1,16 @@
 import fs from "fs";
 import path from "path";
 import matter from "gray-matter";
+import type {
+  CampusMapPointAmbience,
+  CampusMapPointBundleMeta,
+  CampusMapPointMission,
+  CampusMapPointQuiz,
+  CampusMapPointRewards,
+  CampusMapPointSeasonal
+} from "@/lib/campus/campusMapPointBundle.types";
+import { resolveCampusMapPointContentFolderSlug } from "@/lib/campus/campusMapPointContentSlug";
+import { readCampusMapPointBundleSlice } from "@/lib/campus/readCampusMapPointBundle";
 
 const MAP_POINT_ID_RE = /^[a-z0-9-]{1,120}$/;
 
@@ -28,6 +38,12 @@ export type CampusMapPointReaderPayload = {
   meta: CampusMapPointReaderMeta;
   /** Corpo Markdown do overview (sem o primeiro `# Título`, já extraído para o cabeçalho UI). */
   overviewMarkdown: string;
+  mission?: CampusMapPointMission;
+  quiz?: CampusMapPointQuiz;
+  rewards?: CampusMapPointRewards;
+  ambience?: CampusMapPointAmbience;
+  bundleMeta?: CampusMapPointBundleMeta;
+  seasonal?: CampusMapPointSeasonal;
 };
 
 function coerceStringArray(v: unknown): string[] | undefined {
@@ -76,7 +92,16 @@ export function loadCampusMapPointReaderPayload(mapPointId: string): CampusMapPo
   const id = mapPointId.trim();
   if (!MAP_POINT_ID_RE.test(id)) return null;
 
-  const overviewPath = path.join(process.cwd(), "src", "content", "campus", "map-points", id, "overview.md");
+  const contentSlug = resolveCampusMapPointContentFolderSlug(id);
+  const overviewPath = path.join(
+    process.cwd(),
+    "src",
+    "content",
+    "campus",
+    "map-points",
+    contentSlug,
+    "overview.md"
+  );
   if (!fs.existsSync(overviewPath)) return null;
 
   const rawFile = fs.readFileSync(overviewPath, "utf8");
@@ -86,6 +111,7 @@ export function loadCampusMapPointReaderPayload(mapPointId: string): CampusMapPo
   return {
     mapPointId: id,
     meta: normalizeMeta(id, dataObj),
-    overviewMarkdown: stripLeadingAtxH1(content.trimStart())
+    overviewMarkdown: stripLeadingAtxH1(content.trimStart()),
+    ...readCampusMapPointBundleSlice(contentSlug)
   };
 }

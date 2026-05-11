@@ -1,0 +1,12 @@
+{
+  "scenarios": [
+    {
+      "id": "mudanca-norma",
+      "label": "Projeto em tramitação",
+      "summary": "Quando a cidade debate zoning ou fiscalização, volta ao texto integral — não ao meme.",
+      "relatedSlugs": [
+        "cannabis-e-proibida"
+      ]
+    }
+  ]
+}

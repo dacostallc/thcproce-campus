@@ -98,6 +98,28 @@ if (countLeaves(CANNABIS101_MODULES) !== EXPECTED_LESSON_COUNT) {
   );
 }
 
+/** Igual a `displayTitle` em `lessons.ts` — única fonte para HUD/previews do catálogo. */
+function cannabis101LessonDisplayTitle(mod: Cannabis101Module, leaf: Cannabis101LessonLeaf): string {
+  return `${mod.title} · ${leaf.activityLabel}`;
+}
+
+function cannabis101PreviewLessonTitles(): readonly string[] {
+  const titles: string[] = [];
+  for (const mod of CANNABIS101_MODULES) {
+    for (const leaf of mod.lessons) {
+      titles.push(cannabis101LessonDisplayTitle(mod, leaf));
+      if (titles.length >= 4) return titles;
+    }
+  }
+  return titles;
+}
+
+function cannabis101FirstLessonDisplayTitle(): string {
+  const mod = CANNABIS101_MODULES[0]!;
+  const leaf = mod.lessons[0]!;
+  return cannabis101LessonDisplayTitle(mod, leaf);
+}
+
 /**
  * Marketing + estatísticas + metadados de catálogo.
  * Nota: `mapPosition` deve manter-se alinhado a `src/data/courses.ts` até haver sincronização automática.
@@ -132,15 +154,10 @@ export const CANNABIS101_MANIFEST = {
    * Prévia do painel do curso (equivalente ao modelo genérico do CoursePanel para esta área).
    * Etapa futura: CoursePanel lê isto por `areaId`.
    */
-  previewLessonTitles: [
-    "Fundamentos · Boas-vindas ao Cannabis 101",
-    "Fundamentos · O que é cannabis",
-    "Fundamentos · Cânhamo, maconha e cannabis medicinal",
-    "Química e aroma · Canabinoides principais: THC, CBD, CBG e CBN"
-  ] as const,
+  previewLessonTitles: cannabis101PreviewLessonTitles(),
   /** Textos do HUD até haver cálculo dinâmico por progresso. */
   hud: {
-    nextLessonFallbackLabel: "Próxima parada · Boas-vindas ao Cannabis 101"
+    nextLessonFallbackLabel: cannabis101FirstLessonDisplayTitle()
   },
   moodle: {
     defaultBaseUrl: "https://thcproce.com.br/escola",

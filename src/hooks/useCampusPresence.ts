@@ -82,10 +82,18 @@ export function useCampusPresence(): {
 
   const supa = useMemo(() => createSupabaseBrowser(), []);
 
+  const preferHttpPresence =
+    typeof process !== "undefined" &&
+    process.env.NEXT_PUBLIC_CAMPUS_USE_HTTP_PRESENCE !== "false";
+
   useEffect(() => {
     if (!onCampus) {
       setCampusVisitorCount(null);
       setVisitorPresenceStatus("offline");
+      return;
+    }
+
+    if (preferHttpPresence) {
       return;
     }
 
@@ -193,7 +201,7 @@ export function useCampusPresence(): {
       setCampusVisitorCount(null);
       setVisitorPresenceStatus("offline");
     };
-  }, [onCampus, supa, setCampusVisitorCount, setVisitorPresenceStatus]);
+  }, [onCampus, preferHttpPresence, supa, setCampusVisitorCount, setVisitorPresenceStatus]);
 
   return {
     onlineCount,

@@ -3,21 +3,22 @@
 import { useEffect, useMemo, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
-import { Layers, ListOrdered, Sparkles, X } from "lucide-react";
+import { Sparkles, X } from "lucide-react";
 import { areas } from "@/data/courses";
 import { CAMPUS_MAP_INTERACTIVE_AREAS } from "@/lib/campusMapAreasCatalog";
 import type { CampusMapInteractiveArea } from "@/lib/campusMapAreasInteractive.types";
 import {
   hotspotEffectiveCourseId,
-  hotspotPanelHeading,
-  hotspotShortDescription
+  hotspotPanelHeading
 } from "@/lib/campusMapHotspotResolve";
 import { summarizeInteractiveTarget } from "@/lib/campusMapInteractiveTargetSummary";
 import { getCampusMapTopicByAreaId } from "@/lib/campusMapTopicCatalog";
+import { resolveCampusMapPointContentFolderSlug } from "@/lib/campus/campusMapPointContentSlug";
 import { useCampusHudStore } from "@/stores/campusHudStore";
 import { trpc } from "@/lib/trpc/react";
 import { cn } from "@/lib/utils";
 import { CampusMapPointMarkdown } from "@/components/campus/CampusMapPointMarkdown";
+import { CampusMapPointPedagogyBlocks } from "@/components/campus/CampusMapPointPedagogyBlocks";
 import { buttonVariants } from "@/components/ui/button-variants";
 
 type Props = {
@@ -54,7 +55,6 @@ export function CampusMapHotspotPanel({ sky, showTechStripe }: Props) {
     topic?.relatedCourse ?? (effCourseId ? areas.find((a) => a.id === effCourseId) ?? null : null);
 
   const topicComingSoon = topic?.status === "coming_soon";
-  const description = hit ? hotspotShortDescription(hit, course) : "";
   const heading = hit ? hotspotPanelHeading(hit) : "";
   const payload = reader.data ?? null;
   const displayTitle =
@@ -72,7 +72,7 @@ export function CampusMapHotspotPanel({ sky, showTechStripe }: Props) {
   const close = () => setHitId(null);
 
   const progressLine =
-    "Para abrir o Cannabis 101 em modo aula dentro deste campus, usa o cartão «Comece aqui» ou o balão no mapa — este painel é só leitura do ponto.";
+    "Este painel guarda o teu progresso local (missão, quiz e recompensa) por área — usa o mesmo navegador para ver XP e selos no perfil.";
 
   const backdropTint =
     sky === "day" ? "bg-sky-950/[0.22] backdrop-blur-[12px]" : "bg-black/[0.32] backdrop-blur-[12px]";
@@ -91,10 +91,8 @@ export function CampusMapHotspotPanel({ sky, showTechStripe }: Props) {
       : "bg-[linear-gradient(165deg,rgba(255,255,255,0.11)_0%,rgba(6,22,30,0.52)_48%,rgba(8,16,24,0.62)_100%)]"
   );
 
-  const leadDescription =
-    payload?.meta.shortDescription?.trim() ||
-    payload?.meta.introduction?.trim() ||
-    description;
+  const legalNoticePt =
+    "Aviso: material educativo sobre plantas medicinais onde a lei permitir. Não substitui acompanhamento médico nem orientação jurídica.";
 
   return (
     <AnimatePresence>
@@ -150,7 +148,7 @@ export function CampusMapHotspotPanel({ sky, showTechStripe }: Props) {
                     >
                       {subtitleLine}
                     </p>
-                    {payload?.meta.category || payload?.meta.difficulty ? (
+                    {payload?.meta.category || payload?.meta.difficulty || payload?.meta.tags?.length ? (
                       <div className="mt-2 flex flex-wrap gap-1.5">
                         {payload.meta.category ? (
                           <span
@@ -176,6 +174,19 @@ export function CampusMapHotspotPanel({ sky, showTechStripe }: Props) {
                             {payload.meta.difficulty}
                           </span>
                         ) : null}
+                        {payload.meta.tags?.map((tag) => (
+                          <span
+                            key={tag}
+                            className={cn(
+                              "rounded-full border px-2 py-0.5 text-[10px] font-medium tracking-wide",
+                              sky === "day"
+                                ? "border-slate-400/28 bg-white/85 text-slate-800/88"
+                                : "border-white/12 bg-white/[0.06] text-white/78"
+                            )}
+                          >
+                            {tag}
+                          </span>
+                        ))}
                       </div>
                     ) : null}
                   </div>
@@ -192,23 +203,15 @@ export function CampusMapHotspotPanel({ sky, showTechStripe }: Props) {
 
                 <p
                   className={cn(
-                    "relative mt-4 text-[15px] leading-relaxed tracking-wide",
-                    sky === "day" ? "text-slate-800/90" : "text-white/82"
+                    "relative mt-3 rounded-xl border px-3 py-2 text-[11px] leading-snug",
+                    sky === "day"
+                      ? "border-slate-400/28 bg-white/70 text-slate-700/95"
+                      : "border-white/12 bg-black/25 text-white/72"
                   )}
+                  role="note"
                 >
-                  {leadDescription}
+                  {legalNoticePt}
                 </p>
-
-                {payload?.meta.longDescription?.trim() ? (
-                  <p
-                    className={cn(
-                      "relative mt-2 text-[13px] leading-relaxed",
-                      sky === "day" ? "text-slate-700/78" : "text-white/58"
-                    )}
-                  >
-                    {payload.meta.longDescription.trim()}
-                  </p>
-                ) : null}
 
                 {reader.isLoading ? (
                   <div className="relative mt-5 space-y-2 animate-pulse" aria-busy>
@@ -222,64 +225,21 @@ export function CampusMapHotspotPanel({ sky, showTechStripe }: Props) {
                   <div className="relative mt-5 rounded-2xl border border-white/[0.08] bg-black/18 px-3 py-3">
                     <p className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wide text-teal-200/78">
                       <Sparkles size={14} className="opacity-90" aria-hidden />
-                      Leitura do campus
+                      Micro-aula do cultivador
                     </p>
                     <div className="mt-3">
                       <CampusMapPointMarkdown markdown={payload.overviewMarkdown} sky={sky} />
                     </div>
+                    <CampusMapPointPedagogyBlocks
+                      sky={sky}
+                      progressSlug={resolveCampusMapPointContentFolderSlug(hit.id)}
+                      mission={payload.mission}
+                      quiz={payload.quiz}
+                      rewards={payload.rewards}
+                      ambience={payload.ambience}
+                      bundleMeta={payload.bundleMeta}
+                    />
                   </div>
-                ) : null}
-
-                {payload?.meta.objectives?.length ? (
-                  <div className="relative mt-4 rounded-2xl border border-white/[0.08] bg-black/16 px-3 py-3">
-                    <p className="text-[11px] font-semibold uppercase tracking-wide text-teal-200/75">
-                      Objetivos
-                    </p>
-                    <ul className="mt-2 list-disc space-y-1 pl-5 text-[13px] text-white/82">
-                      {payload.meta.objectives.map((line) => (
-                        <li key={line}>{line}</li>
-                      ))}
-                    </ul>
-                  </div>
-                ) : null}
-
-                {payload?.meta.moduleTitles?.length ? (
-                  <div className="relative mt-4 rounded-2xl border border-white/[0.08] bg-black/14 px-3 py-3">
-                    <p className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wide text-emerald-200/78">
-                      <Layers size={14} aria-hidden />
-                      Módulos
-                    </p>
-                    <ol className="mt-2 list-decimal space-y-1.5 pl-5 text-[13px] text-white/84">
-                      {payload.meta.moduleTitles.map((m) => (
-                        <li key={m}>{m}</li>
-                      ))}
-                    </ol>
-                  </div>
-                ) : null}
-
-                {payload?.meta.lessonTitles?.length ? (
-                  <div className="relative mt-4 rounded-2xl border border-white/[0.08] bg-black/14 px-3 py-3">
-                    <p className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wide text-emerald-200/78">
-                      <ListOrdered size={14} aria-hidden />
-                      Aulas
-                    </p>
-                    <ol className="mt-2 list-decimal space-y-1.5 pl-5 text-[13px] text-white/84">
-                      {payload.meta.lessonTitles.map((l) => (
-                        <li key={l}>{l}</li>
-                      ))}
-                    </ol>
-                  </div>
-                ) : null}
-
-                {payload?.meta.summary?.trim() ? (
-                  <p
-                    className={cn(
-                      "relative mt-4 rounded-xl border border-white/[0.06] px-3 py-2 text-[13px] leading-snug italic",
-                      sky === "day" ? "border-slate-400/22 bg-white/55 text-slate-800/85" : "text-white/72"
-                    )}
-                  >
-                    {payload.meta.summary.trim()}
-                  </p>
                 ) : null}
 
                 {topic && topic.whatStudentLearns.length && !payload ? (
@@ -303,7 +263,7 @@ export function CampusMapHotspotPanel({ sky, showTechStripe }: Props) {
                     <p className="mt-1 text-sm font-medium text-white/92">{course.mapLabel ?? course.name}</p>
                     {topic ? (
                       <p className="mt-1 text-[12px] text-white/58">
-                        ~{topic.estimatedMinutes} min de leitura estimada (referência)
+                        ~{topic.estimatedMinutes} min de leitura estimada
                       </p>
                     ) : null}
                   </div>

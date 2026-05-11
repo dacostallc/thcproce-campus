@@ -1,0 +1,26 @@
+{
+  "questions": [
+    {
+      "id": "nut-q1",
+      "question": "Antes de subir fertilizante, verificar…",
+      "options": [
+        "Transpiração e drenagem radicular saudáveis",
+        "Cor do t-shirt",
+        "Apenas cor da resina",
+        "Somente horóscopo"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "id": "nut-q2",
+      "question": "Drift de pH em dwc pode vir de…",
+      "options": [
+        "Atividade radicular + temperatura da solução",
+        "Cor do LED",
+        "Dia da semana",
+        "Nome da strain"
+      ],
+      "correctIndex": 0
+    }
+  ]
+}

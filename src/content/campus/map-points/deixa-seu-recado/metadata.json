@@ -1,0 +1,16 @@
+{
+  "theme": "Comunidade",
+  "tags": [
+    "feedback",
+    "moderacao"
+  ],
+  "difficulty": "Iniciante",
+  "category": "Comunidade",
+  "areaType": "campus-service",
+  "relatedAreas": [
+    "programacao-do-dia"
+  ],
+  "recommendedNext": [
+    "campus-live-cinema"
+  ]
+}

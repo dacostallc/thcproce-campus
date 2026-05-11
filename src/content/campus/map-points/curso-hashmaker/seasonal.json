@@ -1,0 +1,12 @@
+{
+  "scenarios": [
+    {
+      "id": "umidade-do-ar",
+      "label": "Umidade alta na secagem",
+      "summary": "Tempestades de verão alteram tempo de washer wash — mede RH antes de fechar frasco.",
+      "relatedSlugs": [
+        "curso-extracao-de-oleo"
+      ]
+    }
+  ]
+}

@@ -12,6 +12,7 @@ import {
   readMergedLiveBroadcastFromEnv,
   resolveCampusPrimaryPlaybackUrl
 } from "@/lib/campusLiveBroadcast";
+import { CampusLiveStreamOfflinePoster } from "@/components/campus/CampusLiveStreamOfflinePoster";
 
 const ReactPlayer = dynamic(() => import("react-player"), {
   ssr: false,
@@ -294,22 +295,12 @@ export function CineDriveIn({ liveBroadcast }: Props) {
                       </div>
                     )
                   ) : (
-                    <div className="flex flex-1 flex-col items-center justify-center gap-2 px-4 py-10 text-center">
-                      <p className="text-sm font-semibold text-canna-200">
-                        Nenhuma transmissão configurada
-                      </p>
-                      <p className="max-w-sm text-xs text-white/65">
-                        Configure{" "}
-                        <code className="rounded bg-white/10 px-1 py-px font-mono text-[10px]">
-                          NEXT_PUBLIC_CAMPUS_LIVE_YOUTUBE_URL
-                        </code>
-                        ,{" "}
-                        <code className="rounded bg-white/10 px-1 py-px font-mono text-[10px]">
-                          NEXT_PUBLIC_CAMPUS_STREAM_HLS_URL
-                        </code>{" "}
-                        ou embed Bunny/Mux nas variáveis públicas do deploy.
-                      </p>
-                    </div>
+                    <CampusLiveStreamOfflinePoster
+                      aspectVideo={false}
+                      className="min-h-[min(48vh,460px)] w-full flex-1 rounded-lg border-white/10 py-12"
+                      title="Transmissão do campus offline no momento"
+                      subtitle="Próxima live em breve. Abre a programação do dia no campus para ver horários."
+                    />
                   )}
                 </div>
 

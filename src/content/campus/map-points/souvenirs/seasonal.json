@@ -1,0 +1,12 @@
+{
+  "scenarios": [
+    {
+      "id": "festas-campus",
+      "label": "Datas festivas no campus",
+      "summary": "Edições limitadas de merch carimbam a temporada — guarda como marco do teu progresso.",
+      "relatedSlugs": [
+        "programacao-do-dia"
+      ]
+    }
+  ]
+}

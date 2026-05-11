@@ -1,0 +1,12 @@
+{
+  "scenarios": [
+    {
+      "id": "retorno-aulas",
+      "label": "Retorno de período letivo",
+      "summary": "Picos de mensagens pedem etiqueta: uma dúvida por cartão, dados mínimos.",
+      "relatedSlugs": [
+        "programacao-do-dia"
+      ]
+    }
+  ]
+}

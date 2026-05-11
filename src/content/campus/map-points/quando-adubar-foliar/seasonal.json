@@ -1,0 +1,12 @@
+{
+  "scenarios": [
+    {
+      "id": "sol-forte",
+      "label": "Sol forte no meio-dia",
+      "summary": "Calor extremo + foliar concentrado queima cera — desloca para crepúsculo autorizado.",
+      "relatedSlugs": [
+        "curso-nutrientes"
+      ]
+    }
+  ]
+}

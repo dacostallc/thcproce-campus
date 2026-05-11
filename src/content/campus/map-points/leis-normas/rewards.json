@@ -1,0 +1,11 @@
+{
+  "xp": 5,
+  "greenCoins": 3,
+  "growerMasterProgress": 1,
+  "rarity": "comum",
+  "badge": {
+    "id": "selo-bussola-normativa",
+    "name": "Bússola normativa",
+    "description": "Diploma no disco, humildade na cabeça."
+  }
+}

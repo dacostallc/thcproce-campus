@@ -1,70 +1,84 @@
 ---
-mapPointId: "curso-cultivo-indoor"
-title: "Cultivo indoor"
-panelTitle: "Salas técnica & clima selado"
-linkedCourseId: "cultivo-indoor"
-shortDescription: "Salas técnica & clima selado"
-longDescription: "sala técnica, clima e segurança elétrica. Trilha textual preparada para LMS, portal web e futuras peças audiovisuais — prioriza método, segurança e clareza jurídico‑sanitária."
-introduction: "Em ambiente fechado, a planta depende de você para luz, troca gasosa, temperatura, umidade e nutrição. O método consistente vence o improviso: observação diária + registo simples. Foco: sala técnica, clima e segurança elétrica."
+mapPointId: curso-cultivo-indoor
+title: Cultivo indoor
+panelTitle: Salas técnica & clima selado
+linkedCourseId: cultivo-indoor
+shortDescription: Salas técnica & clima selado
+longDescription: 'sala técnica, clima e segurança elétrica. Trilha textual preparada para LMS, portal web e futuras peças audiovisuais — prioriza método, segurança e clareza jurídico‑sanitária.'
+introduction: 'Em ambiente fechado, a planta depende de você para luz, troca gasosa, temperatura, umidade e nutrição. O método consistente vence o improviso: observação diária + registro simples. Foco: sala técnica, clima e segurança elétrica.'
 objectives:
-  - "Compreender fundamentos e limites do tema em linguagem acessível."
-  - "Aplicar checklist práticos sem improvisação perigosa."
-  - "Relacionar observação, registo e decisão técnica gradual."
-  - "Reconhecer erros comuns e corrigi-los com método."
-  - "Manter ética, legalidade e segurança como critérios não negociáveis."
-summary: "Indoor como orquestra — cada subsistema precisa partitura, não improviso contínuo."
-difficulty: "Intermediário"
-category: "Cultivo indoor"
+  - Compreender fundamentos e limites do tema em linguagem acessível.
+  - Aplicar checklist práticos sem improvisação perigosa.
+  - 'Relacionar observação, registro e decisão técnica gradual.'
+  - Reconhecer erros comuns e corrigi-los com método.
+  - 'Manter ética, legalidade e segurança como critérios não negociáveis.'
+summary: 'Indoor como orquestra — cada subsistema precisa partitura, não improviso contínuo.'
+difficulty: Intermediário
+category: Cultivo indoor
 tags:
-  - "LED"
-  - "clima"
-  - "seguranca-eletrica"
-  - "fluxo"
+  - LED
+  - clima
+  - seguranca-eletrica
+  - fluxo
 moduleTitles:
-  - "Camadas do ambiente"
-  - "Luz como instrumento"
-  - "Segurança e robustez"
-  - "Rotina do cultivador"
+  - Camadas do ambiente
+  - Luz como instrumento
+  - Segurança e robustez
+  - Rotina do cultivador
 lessonTitles:
-  - "Medir onde a planta ‘respira’"
-  - "Timers e falhas humanas"
-  - "Higienização periódica"
-  - "Cheiro e vizinhança — responsabilidade"
-  - "Diário técnico de 2 minutos"
+  - Medir onde a planta ‘respira’
+  - Timers e falhas humanas
+  - Higienização periódica
+  - Cheiro e vizinhança — responsabilidade
+  - Diário técnico de 2 minutos
 contentVersion: 1
-locale: "pt-BR"
+locale: pt-BR
 ---
 
-# Cultivo indoor
+# Indoor: fitossistema miniaturizado e você é o clima
 
 > **Aviso:** Material educativo THCProce Campus. Não substitui acompanhamento médico nem assessoria jurídica. Em cultivo e pesquisa, respeite leis e licenças aplicáveis à sua situação.
 
-## Introdução
+*Indoor é pequena fábrica de clima: cada botão que você gira vira decisão sobre transpiração da planta.*
 
-Em ambiente fechado, a planta depende de você para luz, troca gasosa, temperatura, umidade e nutrição. O método consistente vence o improviso: observação diária + registo simples. Foco: sala técnica, clima e segurança elétrica.
+## História de quem cultiva
 
-## Fundamentos
+Sem céu real, **PPFD, DLI, VPD e CO₂** tornam-se linguagem de sobrevivência — mas o primeiro skill é olhar folha como sensor.
 
-PPFD como linguagem de luz; VPD como ponte entre temperatura e transpiração; circadiano artificial coerente.
+## Na prática, assim que a coisa anda
 
-## Parte técnica
+LED moderno dá espectro; planta responde com morfologia. Começas por pendente certo, depois vento foliar gentil, só então nutriente agressivo.
 
-Desenho de fluxo de ar; pontos de medição; redundâncias simples em timers;
+## Olhar de cultivador
 
-## Aplicações práticas
+Pontas de folha ‘sog’ indicam stress hídrico ou luminoso dependendo da textura; caule fino demais = falta de vento ou excesso de stretch.
 
-Ronda diária com quatro olhares: folhas novas, folhas médias, substrato, odor ambiente.
+## Ferramentas e insumos
 
-## Erros comuns
+Medidor PAR básico, termohigrómetro, oscilador, extractores dimensionados.
+## Passo a passo sem heroísmo
 
-Rega por calendário sem observação; bloquear totalmente entrada de ar fresco em nome do ‘cheiro’;
+1) Mede PPFD em dossel e sombra interna.
+2) Ajusta altura do painel em passos pequenos.
+3) Calibra rega ao peso ou substrato.
+4) Só calibra EC depois de transpiração saudável.
 
-## Segurança e responsabilidade
+## Erros que eu já vi na roça
 
-Segurança elétrica; umidificadores higienizados; extintor acessível quando usar equipamento aquecido.
+Luz colada demais; VPD extremo; silêncio absoluto sem troca de ar; foliar sob LEDs fortes.
 
-Consulte sempre normas locais sobre pesquisa, cultivo autorizado e transporte. Em contexto medicinal, busque profissionais habilitados para prescrição e monitorização.
+## Filosofia de quem colhe com calma
 
-## Resumo final
+Indoor é orquestra — cada botão afina outro instrumento.
 
-Indoor como orquestra — cada subsistema precisa partitura, não improviso contínuo.
+## Sua missão aqui
+
+Faz mapa PPFD simplificado (3 pontos) e anota data.
+
+---
+
+**Antes de sair deste ponto**, fecha o ciclo no quiz aqui em baixo — não é prova escolar, é treino de decisão com os pés na sua realidade.
+
+## Fechando com os pés no chão
+
+Domínio indoor é domínio de leitura — números são treino, folha é prova.

@@ -1,0 +1,20 @@
+{
+  "theme": "Morfologia",
+  "tags": [
+    "poda",
+    "higiene"
+  ],
+  "difficulty": "Intermediário",
+  "category": "Treino vegetal",
+  "areaType": "curso-modulo",
+  "prerequisites": [
+    "curso-germinacao-clones"
+  ],
+  "relatedAreas": [
+    "curso-vegetativo",
+    "curso-transicao-floracao"
+  ],
+  "recommendedNext": [
+    "curso-vegetativo"
+  ]
+}

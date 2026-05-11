@@ -34,6 +34,8 @@ type Props = {
   helpfulPoints?: number;
   communityRank?: number;
   mentorLevel?: number;
+  /** Pontos Grower Master ganhos nos map-points (local). */
+  growerMasterScore?: number;
   compact?: boolean;
 };
 
@@ -52,6 +54,7 @@ function StudentProfileCardInner({
   helpfulPoints = 0,
   communityRank = 0,
   mentorLevel = 0,
+  growerMasterScore = 0,
   compact
 }: Props) {
   const level = levelFromXp(xp);
@@ -103,6 +106,10 @@ function StudentProfileCardInner({
               <span className="font-semibold text-white/72">{mentorLevel}</span>
             </p>
           </div>
+          <p className="text-[10px] text-emerald-200/75">
+            Grower Master (mapa local):{" "}
+            <span className="font-semibold tabular-nums text-emerald-100/92">{growerMasterScore}</span> pts
+          </p>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
             <div className="rounded-lg border border-white/10 bg-black/15 px-2 py-1.5">
               <p className="text-[9px] font-semibold uppercase tracking-wide text-white/40">Nível</p>

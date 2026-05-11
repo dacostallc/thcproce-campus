@@ -1,0 +1,11 @@
+{
+  "xp": 45,
+  "greenCoins": 12,
+  "growerMasterProgress": 4,
+  "rarity": "lendário",
+  "badge": {
+    "id": "selo-ec-paciente",
+    "name": "EC paciente",
+    "description": "Escala degraus, não penhascos."
+  }
+}

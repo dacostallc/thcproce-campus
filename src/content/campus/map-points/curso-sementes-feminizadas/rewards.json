@@ -1,0 +1,11 @@
+{
+  "xp": 30,
+  "greenCoins": 8,
+  "growerMasterProgress": 3,
+  "rarity": "épico",
+  "badge": {
+    "id": "selo-genetica-viva",
+    "name": "Genética viva",
+    "description": "Dois fenótipos, um caderno."
+  }
+}

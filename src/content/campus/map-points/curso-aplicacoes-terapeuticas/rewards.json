@@ -1,0 +1,11 @@
+{
+  "xp": 30,
+  "greenCoins": 8,
+  "growerMasterProgress": 3,
+  "rarity": "épico",
+  "badge": {
+    "id": "selo-fronteira-clinica",
+    "name": "Fronteira clínica",
+    "description": "Sabe onde a educação para e a consulta começa."
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "questions": [
+    {
+      "id": "solo-q1",
+      "question": "Antes de fertilizar solo vivo saturado?",
+      "options": [
+        "Esperar aeração/drenagem — senão anaerobiose",
+        "Dobrar dose para 'empurrar'",
+        "Colocar mais mulch molhado sem ar",
+        "Tapar completamente drenos"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "id": "solo-q2",
+      "question": "Mulch bem usado…",
+      "options": [
+        "Modula temperatura e perda de água",
+        "Substitui completamente rega profunda",
+        "Elimina necessidade de observação",
+        "Mata microbiota sempre"
+      ],
+      "correctIndex": 0
+    }
+  ]
+}

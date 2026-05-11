@@ -1,0 +1,20 @@
+{
+  "theme": "Solventless",
+  "tags": [
+    "bubble",
+    "lavagem"
+  ],
+  "difficulty": "Avançado",
+  "category": "Extrações",
+  "areaType": "curso-modulo",
+  "prerequisites": [
+    "curso-cultivo-101"
+  ],
+  "relatedAreas": [
+    "curso-extracao-de-oleo",
+    "curso-culinaria-cannabica"
+  ],
+  "recommendedNext": [
+    "leis-normas"
+  ]
+}

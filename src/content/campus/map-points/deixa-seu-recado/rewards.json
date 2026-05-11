@@ -1,0 +1,11 @@
+{
+  "xp": 5,
+  "greenCoins": 2,
+  "growerMasterProgress": 1,
+  "rarity": "comum",
+  "badge": {
+    "id": "selo-voz-respeitosa",
+    "name": "Voz respeitosa",
+    "description": "Fala com o campus, não sobre o campus."
+  }
+}

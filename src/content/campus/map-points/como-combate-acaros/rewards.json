@@ -1,0 +1,11 @@
+{
+  "xp": 30,
+  "greenCoins": 8,
+  "growerMasterProgress": 3,
+  "rarity": "épico",
+  "badge": {
+    "id": "selo-inspecao-laminar",
+    "name": "Inspeção laminar",
+    "description": "Lupa antes do gatilho — SOP de cultivador adulto."
+  }
+}

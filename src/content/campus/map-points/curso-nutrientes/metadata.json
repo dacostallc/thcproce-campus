@@ -1,0 +1,21 @@
+{
+  "theme": "Nutrição mineral",
+  "tags": [
+    "EC",
+    "pH"
+  ],
+  "difficulty": "Intermediário",
+  "category": "Nutrição",
+  "areaType": "curso-modulo",
+  "prerequisites": [
+    "curso-cultivo-101"
+  ],
+  "relatedAreas": [
+    "quando-adubar-foliar",
+    "quando-adubar-solo",
+    "como-usar-melaco-de-cana"
+  ],
+  "recommendedNext": [
+    "curso-vegetativo"
+  ]
+}

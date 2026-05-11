@@ -1,0 +1,26 @@
+{
+  "questions": [
+    {
+      "id": "live-q1",
+      "question": "Qual hábito melhora mais a sua retenção numa live técnica?",
+      "options": [
+        "Anotar fatos observáveis separados de decisões pessoais",
+        "Só gravar e rever depois sem notas",
+        "Copiar o chat na íntegra",
+        "Multitasking com redes sociais"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "id": "live-q2",
+      "question": "O que evitar ao formular dúvida pós-live?",
+      "options": [
+        "Pedir que alguém remoto resolva saúde legal ou médica pessoal",
+        "Descrever equipamento e condição ambiental com clareza",
+        "Referir aula e minuto do vídeo",
+        "Usar linguagem respeitosa e objetiva"
+      ],
+      "correctIndex": 0
+    }
+  ]
+}

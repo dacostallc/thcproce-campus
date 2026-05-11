@@ -1,0 +1,12 @@
+{
+  "scenarios": [
+    {
+      "id": "verao-eletrico",
+      "label": "Verão e conta de luz",
+      "summary": "Tarifa alta empurra LED eficiente e fotoperíodo disciplinado — planeja upgrades antes do pico.",
+      "relatedSlugs": [
+        "curso-transicao-floracao"
+      ]
+    }
+  ]
+}

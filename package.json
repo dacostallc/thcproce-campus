@@ -13,8 +13,11 @@
     "typecheck": "tsc --noEmit",
     "postinstall": "prisma generate",
     "db:push": "prisma db push",
+    "db:migrate:deploy": "prisma migrate deploy",
     "db:seed": "node prisma/seed.cjs",
-    "content:campus": "node scripts/build-campus-map-content.mjs"
+    "content:campus": "node scripts/build-campus-map-content.mjs",
+    "content:map-bundles": "node scripts/sync-campus-map-point-bundles.mjs",
+    "content:apply-decks": "node scripts/apply-map-point-decks.mjs"
   },
   "prisma": {
     "seed": "node prisma/seed.cjs"

@@ -1,0 +1,26 @@
+{
+  "questions": [
+    {
+      "id": "plant-q1",
+      "question": "Grande erro primaveril?",
+      "options": [
+        "Plantar com solo encharcado e frio que sufoca raiz",
+        "Consultar histórico pluviométrico",
+        "Endurecer clones gradualmente",
+        "Observar brotação local"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "id": "plant-q2",
+      "question": "Por que olhar geada local e não meme global?",
+      "options": [
+        "Microclimas alteram semanas críticas",
+        "Geada é igual em todos os morros",
+        "Latitude é irrelevante",
+        "Solo não importa"
+      ],
+      "correctIndex": 0
+    }
+  ]
+}

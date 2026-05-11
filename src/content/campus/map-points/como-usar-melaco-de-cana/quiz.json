@@ -1,0 +1,26 @@
+{
+  "questions": [
+    {
+      "id": "mel-q1",
+      "question": "Uso mais alinhado a solo vivo bem drenado?",
+      "options": [
+        "Diluir melaço em regas espaçadas monitorando EC e resposta foliar",
+        "Vertido puro no prato dia sim dia sim",
+        "Somente em folhas ao meio-dia",
+        "Sempre que a planta ‘parece triste’ sem medir"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "id": "mel-q2",
+      "question": "Em hidroponia de baixo oxigénio, melaço sem plano tende a…",
+      "options": [
+        "Promover biofilme e instabilidade",
+        "Substituir silício",
+        "Eliminar necessidade de limpeza",
+        "Fixar pH magicamente"
+      ],
+      "correctIndex": 0
+    }
+  ]
+}

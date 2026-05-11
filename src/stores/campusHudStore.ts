@@ -58,6 +58,9 @@ type HudState = {
   /** Painel de aula aberto no mapa — sincronizado por `CampusMap` para presença realtime. */
   campusLessonPanelOpen: boolean;
   setCampusLessonPanelOpen: (v: boolean) => void;
+  /** Pedido para voltar a reproduzir a intro cinematográfica (`CampusCinematicIntro`). */
+  campusCinematicIntroReplayNonce: number;
+  requestCampusCinematicIntroReplay: () => void;
 };
 
 export const useCampusHudStore = create<HudState>((set) => ({
@@ -112,5 +115,10 @@ export const useCampusHudStore = create<HudState>((set) => ({
   requestCampusResumeLesson: () =>
     set((s) => ({ campusResumeLessonNonce: s.campusResumeLessonNonce + 1 })),
   campusLessonPanelOpen: false,
-  setCampusLessonPanelOpen: (campusLessonPanelOpen) => set({ campusLessonPanelOpen })
+  setCampusLessonPanelOpen: (campusLessonPanelOpen) => set({ campusLessonPanelOpen }),
+  campusCinematicIntroReplayNonce: 0,
+  requestCampusCinematicIntroReplay: () =>
+    set((s) => ({
+      campusCinematicIntroReplayNonce: s.campusCinematicIntroReplayNonce + 1
+    }))
 }));

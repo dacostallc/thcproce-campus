@@ -1,0 +1,11 @@
+{
+  "xp": 5,
+  "greenCoins": 2,
+  "growerMasterProgress": 1,
+  "rarity": "comum",
+  "badge": {
+    "id": "selo-memoria-util",
+    "name": "Memória útil",
+    "description": "Brinde que vira hábito, não pó."
+  }
+}

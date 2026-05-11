@@ -10,6 +10,8 @@ export default async function AdminLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   await requireCampusAdmin();
 
+  const voiceTestEnabled = process.env.NEXT_PUBLIC_CAMPUS_VOICE_TEST_PANEL === "true";
+
   return (
     <div className="min-h-screen bg-ink-900 text-canna-50 antialiased">
       <header className="border-b border-white/10 bg-black/25">
@@ -52,6 +54,17 @@ export default async function AdminLayout({
             >
               Indicações
             </Link>
+            {voiceTestEnabled ? (
+              <>
+                <span className="text-white/25">·</span>
+                <Link
+                  href="/admin/voice-test"
+                  className="text-xs text-white/55 transition hover:text-canna-200 hover:underline"
+                >
+                  Voz (teste)
+                </Link>
+              </>
+            ) : null}
             <span className="text-white/25">·</span>
             <Link
               href="/campus"

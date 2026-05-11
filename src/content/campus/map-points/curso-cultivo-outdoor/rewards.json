@@ -1,0 +1,11 @@
+{
+  "xp": 45,
+  "greenCoins": 12,
+  "growerMasterProgress": 4,
+  "rarity": "lendário",
+  "badge": {
+    "id": "selo-calendario-local",
+    "name": "Calendário local",
+    "description": "Plantas seguem o seu céu, não o de outro país."
+  }
+}

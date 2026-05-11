@@ -1,0 +1,26 @@
+{
+  "questions": [
+    {
+      "id": "pr-q1",
+      "question": "Primeiro passo IPM?",
+      "options": [
+        "Monitorização e identificação correta",
+        "Spray largo espectro imediato",
+        "Cortar energia das luzes por dias",
+        "Pedir strain nova"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "id": "pr-q2",
+      "question": "T/RU alto com folhas molhadas prolongadas favorece…",
+      "options": [
+        "Doenças fúngicas foliares",
+        "Terpenos mais grandes",
+        "Raiz mais seca",
+        "Eliminação de trips"
+      ],
+      "correctIndex": 0
+    }
+  ]
+}

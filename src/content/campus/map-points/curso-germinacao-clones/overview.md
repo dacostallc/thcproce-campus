@@ -1,70 +1,84 @@
 ---
-mapPointId: "curso-germinacao-clones"
-title: "Germinação & clones"
-panelTitle: "Plântulas e propagação"
-linkedCourseId: "genetica"
-shortDescription: "Plântulas e propagação"
-longDescription: "propagação limpa e vigor inicial. Trilha textual preparada para LMS, portal web e futuras peças audiovisuais — prioriza método, segurança e clareza jurídico‑sanitária."
-introduction: "Propagação disciplinada reduz drift genético e doenças. Da semente ao clone, cada escolha altera vigor, uniformidade e janelas de colheita. propagação limpa e vigor inicial"
+mapPointId: curso-germinacao-clones
+title: Germinação & clones
+panelTitle: Plântulas e propagação
+linkedCourseId: genetica
+shortDescription: Plântulas e propagação
+longDescription: 'propagação limpa e vigor inicial. Trilha textual preparada para LMS, portal web e futuras peças audiovisuais — prioriza método, segurança e clareza jurídico‑sanitária.'
+introduction: 'Propagação disciplinada reduz drift genético e doenças. Da semente ao clone, cada escolha altera vigor, uniformidade e janelas de colheita. propagação limpa e vigor inicial'
 objectives:
-  - "Compreender fundamentos e limites do tema em linguagem acessível."
-  - "Aplicar checklist práticos sem improvisação perigosa."
-  - "Relacionar observação, registo e decisão técnica gradual."
-  - "Reconhecer erros comuns e corrigi-los com método."
-  - "Manter ética, legalidade e segurança como critérios não negociáveis."
-summary: "Propagação disciplinada como base de todo cultivo previsível."
-difficulty: "Intermediário"
-category: "Genética"
+  - Compreender fundamentos e limites do tema em linguagem acessível.
+  - Aplicar checklist práticos sem improvisação perigosa.
+  - 'Relacionar observação, registro e decisão técnica gradual.'
+  - Reconhecer erros comuns e corrigi-los com método.
+  - 'Manter ética, legalidade e segurança como critérios não negociáveis.'
+summary: Propagação disciplinada como base de todo cultivo previsível.
+difficulty: Intermediário
+category: Genética
 tags:
-  - "clonagem"
-  - "sementes"
-  - "sanidade"
-  - "ummidade"
+  - clonagem
+  - sementes
+  - sanidade
+  - ummidade
 moduleTitles:
-  - "Biologia da propagação"
-  - "Ambiente de mudas"
-  - "Clones com método"
-  - "Erros estruturais"
+  - Biologia da propagação
+  - Ambiente de mudas
+  - Clones com método
+  - Erros estruturais
 lessonTitles:
-  - "Umidade ≠ encharcamento"
-  - "Transplante no tempo certo"
-  - "Clones: superfícies e lâminas"
-  - "Vigor versus pressa"
-  - "Documentação genética"
+  - Umidade ≠ encharcamento
+  - Transplante no tempo certo
+  - 'Clones: superfícies e lâminas'
+  - Vigor versus pressa
+  - Documentação genética
 contentVersion: 1
-locale: "pt-BR"
+locale: pt-BR
 ---
 
-# Germinação & clones
+# Germinação e clones: unifomidade começa no propágulo
 
 > **Aviso:** Material educativo THCProce Campus. Não substitui acompanhamento médico nem assessoria jurídica. Em cultivo e pesquisa, respeite leis e licenças aplicáveis à sua situação.
 
-## Introdução
+*Plântula é arrogância molhada: ela acha que mundo é só água morna até a primeira noite fria.*
 
-Propagação disciplinada reduz drift genético e doenças. Da semente ao clone, cada escolha altera vigor, uniformidade e janelas de colheita. propagação limpa e vigor inicial
+## História de quem cultiva
 
-## Fundamentos
+Raiz nova é **negócio húmido e limpo** — nem encharcar nem secar. Umidade relativa alta e oxigénio no meio fazem milagre modesto.
 
-Sexagem conceitual; uniformidade versus heterogeneidade em populações; sanidade de clones e índice simples de vigor.
+## Na prática, assim que a coisa anda
 
-## Parte técnica
+Semente: água oxigenada temporariamente, substrato arejado, 22–26 °C típico. Corte: superfície limpa, gel plain, VPD suave.
 
-Germinação legal em substrato aerado; clones com ferramentas esterilizadas; ambiente úmido não encharcado;
+## Olhar de cultivador
 
-## Aplicações práticas
+Branco cremoso vs castanho translúcido na radícula; corte com 'malária' viral começa homogênico depois diverge.
 
-Protocolo de etiquetas (genética, data, fenótipo observado); fotografia documental para seleção futura.
+## Ferramentas e insumos
 
-## Erros comuns
+Bandeja com cúpula, manta calor opcional, scalp íris, álcool 70%, cubos retenção equilibrada.
+## Passo a passo sem heroísmo
 
-Substrato encharcado; luz forte demais em mudas; clones com ferramentas sem sanitização.
+1) Hidrata semente sem hipoxia prolongada.
+2) Enterra só até o necessário para âncora.
+3) Para clones, mantém folhas mínimas e ambiente úmido não saturado.
+4) Transplanta quando raiz tem estrutura, não apenas ponto branco.
 
-## Segurança e responsabilidade
+## Erros que eu já vi na roça
 
-Uso de materiais de propagação apenas onde permitido; não transportar material vegetal atravessando jurisdições restritivas.
+Solo denso como tijolo; névoa eterna sem renovar ar; clone em flor para mãe nova sem plano.
 
-Consulte sempre normas locais sobre pesquisa, cultivo autorizado e transporte. Em contexto medicinal, busque profissionais habilitados para prescrição e monitorização.
+## Filosofia de quem colhe com calma
 
-## Resumo final
+Propagador paciente deixa de perder genética cara em detalhes baratos.
 
-Propagação disciplinada como base de todo cultivo previsível.
+## Sua missão aqui
+
+Registra humidity dome + temperatura a cada manhã por 5 dias (tabela simples).
+
+---
+
+**Antes de sair deste ponto**, fecha o ciclo no quiz aqui em baixo — não é prova escolar, é treino de decisão com os pés na sua realidade.
+
+## Fechando com os pés no chão
+
+Vigor inicial é dívida paga com disciplina ambiental.

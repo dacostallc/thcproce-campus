@@ -1,0 +1,26 @@
+{
+  "questions": [
+    {
+      "id": "med-q1",
+      "question": "Conduta ética ao falar de doses?",
+      "options": [
+        "Encaminhar a profissional habilitado sem prescrever por mensagem",
+        "Converter mg por ‘feeling’",
+        "Copiar folhetos de loja como verdade absoluta",
+        "Pedir strain por sintoma a estranhos"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "id": "med-q2",
+      "question": "Canábis medicinal no campus é…",
+      "options": [
+        "Tema educativo com limites claros — não telemedicina improvisada",
+        "Substituto de exame físico",
+        "Autorização de cultivo pessoal automática",
+        "Lista de diagnósticos fechados"
+      ],
+      "correctIndex": 0
+    }
+  ]
+}

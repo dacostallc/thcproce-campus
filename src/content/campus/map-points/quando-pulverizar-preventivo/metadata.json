@@ -1,0 +1,20 @@
+{
+  "theme": "Sanidade",
+  "tags": [
+    "preventivo",
+    "deriva"
+  ],
+  "difficulty": "Intermediário",
+  "category": "Proteção fitossanitária",
+  "areaType": "practice-hotspot",
+  "prerequisites": [
+    "curso-pragas-e-doencas"
+  ],
+  "relatedAreas": [
+    "como-combate-acaros",
+    "como-combate-spiders"
+  ],
+  "recommendedNext": [
+    "curso-cultivo-greenhouse"
+  ]
+}

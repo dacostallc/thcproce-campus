@@ -1,0 +1,12 @@
+{
+  "scenarios": [
+    {
+      "id": "raizes-calor",
+      "label": "Raízes cozinhando no verão",
+      "summary": "Vaso pequeno demais no calor vira panela — revisa volume antes de nutriente.",
+      "relatedSlugs": [
+        "curso-cultivo-outdoor"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "xp": 30,
+  "greenCoins": 8,
+  "growerMasterProgress": 3,
+  "rarity": "épico",
+  "badge": {
+    "id": "selo-lavadouro-cirurgico",
+    "name": "Lavadouro cirúrgico",
+    "description": "Água, tempo e mãos conscientes."
+  }
+}

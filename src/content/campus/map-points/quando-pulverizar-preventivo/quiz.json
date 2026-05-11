@@ -1,0 +1,26 @@
+{
+  "questions": [
+    {
+      "id": "pulv-q1",
+      "question": "Antes do frasco, revisar…",
+      "options": [
+        "Identificação + clima mínimo + contexto legal",
+        "Só cor do frasco",
+        "Modo de ação ignorado",
+        "Nada"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "id": "pulv-q2",
+      "question": "Motivo forte para abortar pulverização?",
+      "options": [
+        "Chuva iminente ou vento forte",
+        "Folhas secas",
+        "Céu azul claro",
+        "Horário manhã"
+      ],
+      "correctIndex": 0
+    }
+  ]
+}

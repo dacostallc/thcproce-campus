@@ -1,0 +1,26 @@
+{
+  "questions": [
+    {
+      "id": "seed-q1",
+      "question": "Variância fenotípica num mesmo pack…",
+      "options": [
+        "É esperada — documenta em vez de panicar",
+        "Prova que o banco mentiu sempre",
+        "Impede cultivo",
+        "Só acontece outdoor"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "id": "seed-q2",
+      "question": "Hermafroditismo por stress light leak diferencia-se de macho genético por…",
+      "options": [
+        "Contexto de condição ambiental + padrão temporal — requer observação longitudinal",
+        "Cor das sapatilhas do grower",
+        "Única aula possível",
+        "Nada, são iguais sempre"
+      ],
+      "correctIndex": 0
+    }
+  ]
+}

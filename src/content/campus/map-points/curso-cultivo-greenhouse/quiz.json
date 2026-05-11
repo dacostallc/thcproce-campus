@@ -1,0 +1,26 @@
+{
+  "questions": [
+    {
+      "id": "gh-q1",
+      "question": "Função típica de película difusiva?",
+      "options": [
+        "Espalhar luz para tecidos internos da copa",
+        "Apagar UV completamente sempre",
+        "Substituir rega",
+        "Eliminar pragas"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "id": "gh-q2",
+      "question": "Condensação noturna excessiva sugere…",
+      "options": [
+        "Rever troca de ar ao entardecer e pontos frios",
+        "Mais água nas folhas à noite",
+        "Fechar tudo para ‘segurar orvalho’",
+        "Subir nutriente à força"
+      ],
+      "correctIndex": 0
+    }
+  ]
+}

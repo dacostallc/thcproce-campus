@@ -1,0 +1,11 @@
+{
+  "xp": 30,
+  "greenCoins": 8,
+  "growerMasterProgress": 3,
+  "rarity": "épico",
+  "badge": {
+    "id": "selo-carbo-disciplinado",
+    "name": "Carbo disciplinado",
+    "description": "Carboneia a microbiota sem enterrar o sistema."
+  }
+}

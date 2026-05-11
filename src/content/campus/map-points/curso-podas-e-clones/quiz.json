@@ -1,0 +1,26 @@
+{
+  "questions": [
+    {
+      "id": "pod-q1",
+      "question": "Entre cortes em plantas diferentes?",
+      "options": [
+        "Limpar lâmina com álcool para não vetorizar patógeno",
+        "Soprar a tesoura",
+        "Meramente secar no calção",
+        "Nada"
+      ],
+      "correctIndex": 0
+    },
+    {
+      "id": "pod-q2",
+      "question": "Desfolha tardia sem vento foliar tende a…",
+      "options": [
+        "Elevar risco de moluscos fúngicos",
+        "Aumentar sempre rendimento",
+        "Substituir treino HST",
+        "Eliminar necessidade de luz"
+      ],
+      "correctIndex": 0
+    }
+  ]
+}

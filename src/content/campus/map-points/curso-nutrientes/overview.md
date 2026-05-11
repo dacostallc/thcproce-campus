@@ -1,70 +1,84 @@
 ---
-mapPointId: "curso-nutrientes"
-title: "Nutrientes & soluções"
-panelTitle: "Nutrição em solução"
-linkedCourseId: "cultivo-indoor"
-shortDescription: "Nutrição em solução"
-longDescription: "nutrição em solução, EC/pH e leitura da planta. Trilha textual preparada para LMS, portal web e futuras peças audiovisuais — prioriza método, segurança e clareza jurídico‑sanitária."
-introduction: "Este marcador do mapa aprofunda nutrição mineral orgânica balanceada em sistema fechado dentro da trilha de cultivo indoor."
+mapPointId: curso-nutrientes
+title: Nutrientes & soluções
+panelTitle: Nutrição em solução
+linkedCourseId: cultivo-indoor
+shortDescription: Nutrição em solução
+longDescription: 'nutrição em solução, EC/pH e leitura da planta. Trilha textual preparada para LMS, portal web e futuras peças audiovisuais — prioriza método, segurança e clareza jurídico‑sanitária.'
+introduction: Este marcador do mapa aprofunda nutrição mineral orgânica balanceada em sistema fechado dentro da trilha de cultivo indoor.
 objectives:
-  - "Compreender fundamentos e limites do tema em linguagem acessível."
-  - "Aplicar checklist práticos sem improvisação perigosa."
-  - "Relacionar observação, registo e decisão técnica gradual."
-  - "Reconhecer erros comuns e corrigi-los com método."
-  - "Manter ética, legalidade e segurança como critérios não negociáveis."
-summary: "Nutrir indoor é diálogo entre números na solução e performance transpirativa — ouça os dois lados."
-difficulty: "Intermediário"
-category: "Cultivo indoor"
+  - Compreender fundamentos e limites do tema em linguagem acessível.
+  - Aplicar checklist práticos sem improvisação perigosa.
+  - 'Relacionar observação, registro e decisão técnica gradual.'
+  - Reconhecer erros comuns e corrigi-los com método.
+  - 'Manter ética, legalidade e segurança como critérios não negociáveis.'
+summary: Nutrir indoor é diálogo entre números na solução e performance transpirativa — ouça os dois lados.
+difficulty: Intermediário
+category: Cultivo indoor
 tags:
-  - "nutricao"
-  - "EC"
-  - "pH"
-  - "transpiracao"
+  - nutricao
+  - EC
+  - pH
+  - transpiracao
 moduleTitles:
-  - "Demanda vegetal"
-  - "EC/pH na prática"
-  - "Diagnóstico foliar"
-  - "Ritmo de soluções"
+  - Demanda vegetal
+  - EC/pH na prática
+  - Diagnóstico foliar
+  - Ritmo de soluções
 lessonTitles:
-  - "Quando a planta ‘pede’ menos"
-  - "Pontas novas contam histórias diferentes das velhas"
-  - "Temperatura da solução importa"
-  - "Flush conceitual sem dogma"
-  - "Regresso ao equilíbrio"
+  - Quando a planta ‘pede’ menos
+  - Pontas novas contam histórias diferentes das velhas
+  - Temperatura da solução importa
+  - Flush conceitual sem dogma
+  - Regresso ao equilíbrio
 contentVersion: 1
-locale: "pt-BR"
+locale: pt-BR
 ---
 
-# Nutrientes & soluções
+# Nutrientes: EC, pH e a ordem correta dos problemas
 
 > **Aviso:** Material educativo THCProce Campus. Não substitui acompanhamento médico nem assessoria jurídica. Em cultivo e pesquisa, respeite leis e licenças aplicáveis à sua situação.
 
-## Introdução
+*Sacola de fertilizante não ensina cultivo; ensina vício de compra se você não souber ler folha.*
 
-Este marcador do mapa aprofunda **nutrição mineral orgânica balanceada em sistema fechado** dentro da trilha de cultivo indoor.
+## História de quem cultiva
 
-## Fundamentos
+Sintoma foliar grita — mas **água, luz e raiz** falam antes do fertilizante. Sem transpiração saudável, EC vira salmoura.
 
-Em ambiente fechado, a planta depende de você para luz, troca gasosa, temperatura, umidade e nutrição. O método consistente vence o improviso: observação diária + registo simples. Relacionamos sintomas foliares com hipóteses testáveis antes de mudanças bruscas.
+## Na prática, assim que a coisa anda
 
-## Parte técnica
+EC sobe quando transpiração cai ou evaporação de água no reservatório sobe. pH deriva por atividade radicular e temperatura.
 
-Nutrir não é ‘empurrar’ fertilizante por ansiedade; é calibrar demanda da planta com condutividade elétrica (EC), pH estável e transpiração saudável — sintomas guiam, números disciplinam. Relação N-P-K como narrativa aproximada; micrones como pitadas — não como mágica.
+## Olhar de cultivador
 
-## Aplicações práticas
+Burn de borda vs burn de gotas foliares; clareamento venoso de mobilidade vs bloqueio.
 
-Cronograma de soluções começa fraco sobe conforme demanda; observe pontas novas e mais velhas; mantenha diário de EC/pH na matriz;
+## Ferramentas e insumos
 
-## Erros comuns
+Pen EC/pH calibrados, termómetro solução, jeringas de precisão, diário.
+## Passo a passo sem heroísmo
 
-Corrigir pH à pancada; ignorar temperatura da solução; fertilizar planta que não transpira por stress térmico;
+1) Confirma irrigação adequada.
+2) Mede drenagem ou runoff se usar.
+3) Sobe dose em degraus <10%.
+4) Lavagem só com estratégia (identificar excesso antes).
 
-## Segurança e responsabilidade
+## Erros que eu já vi na roça
 
-Ventilação e máscaras quando aplicar produtos; desligar luminárias ao manusear cabos molhados.
+Perseguir deficiência sem medir entrada; misturar A/B fora de ordem do rótulo; micro num reservatório quente sem oxigénio.
 
-Consulte sempre normas locais sobre pesquisa, cultivo autorizado e transporte. Em contexto medicinal, busque profissionais habilitados para prescrição e monitorização.
+## Filosofia de quem colhe com calma
 
-## Resumo final
+Nutrir é escutar raiz — folha só traduz atrasado.
 
-Nutrir indoor é diálogo entre números na solução e performance transpirativa — ouça os dois lados.
+## Sua missão aqui
+
+Cria tabela semanal EC_in / EC_out / pH_in / pH_out por 2 semanas.
+
+---
+
+**Antes de sair deste ponto**, fecha o ciclo no quiz aqui em baixo — não é prova escolar, é treino de decisão com os pés na sua realidade.
+
+## Fechando com os pés no chão
+
+Cartographer de números vence cultista de garrafas.

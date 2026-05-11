@@ -1,0 +1,20 @@
+{
+  "scenarios": [
+    {
+      "id": "calor-estufa",
+      "label": "Calor preso na estufa",
+      "summary": "Painéis e sombrite viram prioridade antes de nutriente — microclima primeiro.",
+      "relatedSlugs": [
+        "como-combate-acaros"
+      ]
+    },
+    {
+      "id": "chuva-forte",
+      "label": "Chuva batendo na estrutura",
+      "summary": "Entrada de água lateral altera VPD no chão — eleva vasos e revisa drenagem.",
+      "relatedSlugs": [
+        "curso-cultivo-outdoor"
+      ]
+    }
+  ]
+}

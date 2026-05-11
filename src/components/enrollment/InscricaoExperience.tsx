@@ -32,6 +32,7 @@ export function InscricaoExperience() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const referralFromUrl = searchParams.get("ref");
+  const redefinirSenha = searchParams.get("redefinir") === "1";
   const formRef = useRef<HTMLDivElement>(null);
   const plansRef = useRef<HTMLDivElement>(null);
   const [selectedPlanId, setSelectedPlanId] = useState<EnrollmentPlanId | null>(null);
@@ -159,6 +160,22 @@ export function InscricaoExperience() {
             configurado. Depois é só entrar para voltar ao <strong className="text-canna-200">mapa do campus</strong>.
           </p>
         </div>
+
+        {redefinirSenha ? (
+          <div
+            role="status"
+            className="mx-auto mb-10 max-w-2xl rounded-2xl border border-amber-400/40 bg-amber-950/45 px-4 py-3 text-left text-sm leading-relaxed text-amber-50 shadow-lg shadow-black/20 sm:px-5"
+          >
+            <p className="font-semibold text-amber-200">Só quer mudar a senha?</p>
+            <p className="mt-1.5 text-white/85">
+              Não precisa escolher plano nem pagar outra vez. Use o formulário dedicado{" "}
+              <Link href="/recuperar-senha" className="font-semibold text-canna-300 underline-offset-2 hover:underline">
+                Recuperar senha
+              </Link>
+              {" "}com o mesmo e-mail da conta.
+            </p>
+          </div>
+        ) : null}
 
         <div
           role="navigation"

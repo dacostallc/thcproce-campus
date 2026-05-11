@@ -1,0 +1,20 @@
+{
+  "theme": "Clima fechado",
+  "tags": [
+    "PPFD",
+    "VPD"
+  ],
+  "difficulty": "Intermediário",
+  "category": "Indoor",
+  "areaType": "curso-modulo",
+  "prerequisites": [
+    "curso-cultivo-101"
+  ],
+  "relatedAreas": [
+    "curso-cultivo-greenhouse",
+    "curso-cultivo-outdoor"
+  ],
+  "recommendedNext": [
+    "curso-nutrientes"
+  ]
+}

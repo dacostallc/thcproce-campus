@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { CampusLiveStreamOfflinePoster } from "@/components/campus/CampusLiveStreamOfflinePoster";
 import { cn } from "@/lib/utils";
 
 type Props = {
@@ -32,19 +33,11 @@ export function CampusCinemaHudPreview({ src, className }: Props) {
 
   if (broken) {
     return (
-      <div
-        className={cn(
-          "flex aspect-video flex-col items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-slate-900/90 to-black/80 px-4 text-center text-[11px] leading-snug text-white/58",
-          className
-        )}
-        role="status"
-      >
-        <p>Não foi possível carregar o vídeo.</p>
-        <p className="max-w-[14rem] text-[10px] text-white/38">
-          Confirma o ficheiro na Bunny Storage e o hostname da Pull Zone em{" "}
-          <code className="rounded bg-white/10 px-1 font-mono text-[9px]">NEXT_PUBLIC_CAMPUS_CDN_BASE_URL</code>.
-        </p>
-      </div>
+      <CampusLiveStreamOfflinePoster
+        className={className}
+        title="Não foi possível reproduzir esta pré-visualização"
+        subtitle="Transmissão do campus offline no momento. Volta mais tarde ou consulta a programação."
+      />
     );
   }
 
@@ -61,8 +54,9 @@ export function CampusCinemaHudPreview({ src, className }: Props) {
           onError={() => setBroken(true)}
         />
       ) : (
-        <div className="flex h-full min-h-[120px] items-center justify-center bg-gradient-to-br from-slate-900/90 to-black/80">
-          <span className="text-[11px] text-white/42">Pré-visualização — carrega ao deslocares até aqui</span>
+        <div className="flex h-full min-h-[120px] flex-col items-center justify-center gap-2 bg-gradient-to-br from-slate-950/88 to-black/85 px-3">
+          <span className="text-[11px] font-medium text-white/55">A preparar pré-visualização…</span>
+          <span className="text-center text-[10px] text-white/38">Interage com o painel para carregar o vídeo</span>
         </div>
       )}
     </div>

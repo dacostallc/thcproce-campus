@@ -1,0 +1,21 @@
+{
+  "theme": "Ambiente protegido",
+  "tags": [
+    "estufa",
+    "difusao"
+  ],
+  "difficulty": "Intermediário",
+  "category": "Greenhouse",
+  "areaType": "curso-modulo",
+  "prerequisites": [
+    "curso-cultivo-101"
+  ],
+  "relatedAreas": [
+    "curso-cultivo-indoor",
+    "como-combate-acaros"
+  ],
+  "recommendedNext": [
+    "curso-nutrientes",
+    "curso-pragas-e-doencas"
+  ]
+}

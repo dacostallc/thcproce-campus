@@ -1,69 +1,83 @@
 ---
-mapPointId: "como-combate-acaros"
-title: "Combate aos ácaros"
-panelTitle: "Combate aos ácaros"
-linkedCourseId: "cultivo-indoor"
-shortDescription: "Combate aos ácaros: núcleo sanidade indoor no THCProce Campus."
-longDescription: "ácaros em ambiente fechado. Trilha textual preparada para LMS, portal web e futuras peças audiovisuais — prioriza método, segurança e clareza jurídico‑sanitária."
-introduction: "Manejo integrado prioriza prevenção (higiene, ventilação, inspeção). Intervenções são escalonadas: remover foco mecânico, saneantes autorizados quando aplicável, e só depois químicos compatíveis com segurança. Foco específico: ácaros em indoor."
+mapPointId: como-combate-acaros
+title: Combate aos ácaros
+panelTitle: Combate aos ácaros
+linkedCourseId: cultivo-indoor
+shortDescription: 'Combate aos ácaros: núcleo sanidade indoor no THCProce Campus.'
+longDescription: 'ácaros em ambiente fechado. Trilha textual preparada para LMS, portal web e futuras peças audiovisuais — prioriza método, segurança e clareza jurídico‑sanitária.'
+introduction: 'Manejo integrado prioriza prevenção (higiene, ventilação, inspeção). Intervenções são escalonadas: remover foco mecânico, saneantes autorizados quando aplicável, e só depois químicos compatíveis com segurança. Foco específico: ácaros em indoor.'
 objectives:
-  - "Compreender fundamentos e limites do tema em linguagem acessível."
-  - "Aplicar checklist práticos sem improvisação perigosa."
-  - "Relacionar observação, registo e decisão técnica gradual."
-  - "Reconhecer erros comuns e corrigi-los com método."
-  - "Manter ética, legalidade e segurança como critérios não negociáveis."
-summary: "Ácaros odeiam ventilação organizada e hábito de olhar de perto."
-difficulty: "Intermediário"
-category: "Sanidade indoor"
+  - Compreender fundamentos e limites do tema em linguagem acessível.
+  - Aplicar checklist práticos sem improvisação perigosa.
+  - 'Relacionar observação, registro e decisão técnica gradual.'
+  - Reconhecer erros comuns e corrigi-los com método.
+  - 'Manter ética, legalidade e segurança como critérios não negociáveis.'
+summary: Ácaros odeiam ventilação organizada e hábito de olhar de perto.
+difficulty: Intermediário
+category: Sanidade indoor
 tags:
-  - "acaro"
-  - "IPM"
-  - "ventilacao"
+  - acaro
+  - IPM
+  - ventilacao
 moduleTitles:
-  - "Biologia resumida"
-  - "Primeiras linhas"
-  - "Escada química prudente"
-  - "Pós-intervenção"
+  - Biologia resumida
+  - Primeiras linhas
+  - Escada química prudente
+  - Pós-intervenção
 lessonTitles:
-  - "Lupa ou macro no telemóvel"
-  - "Água como ferramenta — limites"
-  - "Rotação de abordagens"
-  - "Quando chamar orientação agronómica"
-  - "Lições para o próximo ciclo"
+  - Lupa ou macro no telemóvel
+  - Água como ferramenta — limites
+  - Rotação de abordagens
+  - Quando chamar orientação agronómica
+  - Lições para o próximo ciclo
 contentVersion: 1
-locale: "pt-BR"
+locale: pt-BR
 ---
 
-# Combate aos ácaros
+# Combate a ácaros com método IPM
 
 > **Aviso:** Material educativo THCProce Campus. Não substitui acompanhamento médico nem assessoria jurídica. Em cultivo e pesquisa, respeite leis e licenças aplicáveis à sua situação.
 
-## Introdução
+*Segredo sujo de cultivador: ácaro não grita, ele rabisca a folha como quem testa caneta seca.*
 
-Manejo integrado prioriza prevenção (higiene, ventilação, inspeção). Intervenções são escalonadas: remover foco mecânico, saneantes autorizados quando aplicável, e só depois químicos compatíveis com segurança. Foco específico: **ácaros em indoor**.
+## História de quem cultiva
 
-## Fundamentos
+Ácaro quase sempre avisa: pontilhado foliar, teias finas, velocidade em clones stressados. Aqui não há “spray mágico” — há **sequência**: inspeção, ambiente, intervento mínimo eficaz.
 
-Identificação por danos típicos e inspeção na face inferior das folhas; limiar de tolerância em cultivo educativo.
+## Na prática, assim que a coisa anda
 
-## Parte técnica
+Ácaros prosperam em folhas quentes e secas; transpiração baixa e VPD alto são convites. Aumenta umidade foliar com segurança (sem molhar flores maduras) e melhora ventilação laminar.
 
-Inspeção magnética nas proximidades de nervuras; aumentar fluxo de ar sem secar extremidades; banhos de água controlados como primeira linha;
+## Olhar de cultivador
 
-## Aplicações práticas
+Lupa 60× no verso da folha média — ovos e exúvias contam a história antes das manchas grandes.
 
-Isolar plantas afetadas quando possível; folhas descartadas seladas; ciclo de revisão a cada 48h;
+## Ferramentas e insumos
 
-## Erros comuns
+Lupa, folha testemunha, aspirador para folhas caídas, EPI se usar produto registrado ao seu contexto.
+## Passo a passo sem heroísmo
 
-Ignorar estruturas adjacentes (cabos, vasos, bases); excesso de umidade estagnada;
+1) Registra % de folhas afetadas por zona da copa.
+2) Ajusta microclima (sem soprar poeira para flores).
+3) Remove material focado.
+4) Só então escalona tratamento autorizado — anota lote e ventanas meteorológicas.
 
-## Segurança e responsabilidade
+## Erros que eu já vi na roça
 
-Registrar produtos utilizados com doses e datas; usar EPI; não misturar tanques sem folha de segurança.
+Repetir mesmo modo de ação até resistência; pulverizar com vento forte; ignorar vetores (roupa, ferramentas).
 
-Consulte sempre normas locais sobre pesquisa, cultivo autorizado e transporte. Em contexto medicinal, busque profissionais habilitados para prescrição e monitorização.
+## Filosofia de quem colhe com calma
 
-## Resumo final
+Cultivador que olha primeiro economiza spray — e respeita quem respira perto da horta.
 
-Ácaros odeiam ventilação organizada e hábito de olhar de perto.
+## Sua missão aqui
+
+Faz uma ronda com lupa e anota 4 fotos mentais: verso foliar, broto jovem, entroncamento, base do vaso.
+
+---
+
+**Antes de sair deste ponto**, fecha o ciclo no quiz aqui em baixo — não é prova escolar, é treino de decisão com os pés na sua realidade.
+
+## Fechando com os pés no chão
+
+Quem conhece o micro-habitat do ácaro deixa de brigar com sintoma e passa a cortar reprodução.

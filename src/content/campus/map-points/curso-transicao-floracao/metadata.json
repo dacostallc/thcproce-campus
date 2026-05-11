@@ -1,0 +1,22 @@
+{
+  "theme": "Fotoperíodo",
+  "tags": [
+    "stretch",
+    "flip"
+  ],
+  "difficulty": "Intermediário",
+  "category": "Floracao",
+  "areaType": "curso-modulo",
+  "prerequisites": [
+    "curso-vegetativo"
+  ],
+  "relatedAreas": [
+    "curso-nutrientes",
+    "quando-adubar-foliar"
+  ],
+  "recommendedNext": [
+    "curso-nutrientes",
+    "quando-adubar-foliar",
+    "curso-hashmaker"
+  ]
+}
