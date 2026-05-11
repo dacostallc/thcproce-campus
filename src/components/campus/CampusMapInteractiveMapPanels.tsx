@@ -259,8 +259,9 @@ function CampusMapCinemaLiveFloatingFrame({
         top: 0,
         zIndex: CINEMA_LIVE_FRAME_Z,
         touchAction: "none",
-        background:
-          "linear-gradient(205deg, rgba(255,255,255,0.1) 0%, rgba(8,14,22,0.72) 38%, rgba(4,8,14,0.9) 100%)"
+        background: "rgba(255,255,255,0.07)",
+        backdropFilter: "blur(14px)",
+        WebkitBackdropFilter: "blur(14px)"
       }}
       drag
       dragControls={dragControls}
@@ -330,7 +331,7 @@ function CampusMapCinemaLiveFloatingFrame({
       )}
       {cinemaExpanded ? (
         <div className="thin-scrollbar flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto p-3 text-[13px] text-white/82">
-          <div className="space-y-2 rounded-2xl border border-white/10 bg-black/25 p-3">
+          <div className="space-y-2 rounded-2xl border border-white/14 bg-white/[0.04] p-3 backdrop-blur-sm">
             <p className="text-[10px] font-bold uppercase tracking-widest text-teal-200/75">Player</p>
             {cinemaHudStaticSrc ? (
               <CampusCinemaHudPreview src={cinemaHudStaticSrc} />

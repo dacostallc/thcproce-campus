@@ -178,6 +178,7 @@ export function CampusMap({
   const setPlayer = useCampusStore((s) => s.setPlayer);
   const setPlayerLoose = useCampusStore((s) => s.setPlayerLoose);
   const player = useCampusStore((s) => s.player);
+  const cineDriveInOpen = useCampusStore((s) => s.isCineOpen);
   const { data: session, status } = useSession();
   const utils = trpc.useUtils();
   const localGamification = useStudentGamification();
@@ -917,10 +918,12 @@ export function CampusMap({
                   style={{ background: PLACEHOLDER_NIGHT }}
                 />
               )}
-              <div
-                className="pointer-events-none absolute inset-0 z-[1] bg-gradient-to-b from-black/12 via-transparent to-black/24"
-                aria-hidden
-              />
+              {!cineDriveInOpen ? (
+                <div
+                  className="pointer-events-none absolute inset-0 z-[1] bg-gradient-to-b from-black/12 via-transparent to-black/24"
+                  aria-hidden
+                />
+              ) : null}
             </div>
 
             <div
@@ -946,31 +949,37 @@ export function CampusMap({
                   style={{ background: PLACEHOLDER_DAY }}
                 />
               )}
-              <div
-                className="pointer-events-none absolute inset-0 z-[1] bg-gradient-to-b from-sky-400/4 via-transparent to-amber-200/7"
-                aria-hidden
-              />
-              <div
-                className="pointer-events-none absolute inset-0 z-[1] bg-[radial-gradient(ellipse_at_50%_14%,rgba(255,251,235,0.075),transparent_58%)]"
-                aria-hidden
-              />
+              {!cineDriveInOpen ? (
+                <>
+                  <div
+                    className="pointer-events-none absolute inset-0 z-[1] bg-gradient-to-b from-sky-400/4 via-transparent to-amber-200/7"
+                    aria-hidden
+                  />
+                  <div
+                    className="pointer-events-none absolute inset-0 z-[1] bg-[radial-gradient(ellipse_at_50%_14%,rgba(255,251,235,0.075),transparent_58%)]"
+                    aria-hidden
+                  />
+                </>
+              ) : null}
             </div>
 
-            {!advancedMap ? (
+            {!advancedMap && !cineDriveInOpen ? (
               <div
                 className="campus-map-art-vignette pointer-events-none absolute inset-0 z-[4]"
                 aria-hidden
               />
             ) : null}
 
-            <div
-              className={cn(
-                "pointer-events-none absolute inset-0 transition-opacity duration-700 ease-out",
-                advancedMap ? "z-[4]" : "z-[5]",
-                sky === "night" ? "campus-depth-night" : "campus-depth-day"
-              )}
-              aria-hidden
-            />
+            {!cineDriveInOpen ? (
+              <div
+                className={cn(
+                  "pointer-events-none absolute inset-0 transition-opacity duration-700 ease-out",
+                  advancedMap ? "z-[4]" : "z-[5]",
+                  sky === "night" ? "campus-depth-night" : "campus-depth-day"
+                )}
+                aria-hidden
+              />
+            ) : null}
 
             {mapZonesPolygonDebug || isCampusMapAreasPolygonOverlayEnabled() ? (
               <CampusMapAreasDebugOverlay
@@ -982,7 +991,7 @@ export function CampusMap({
 
             {advancedMap ? <CampusWalkableLayer /> : null}
 
-            {advancedMap ? (
+            {advancedMap && !cineDriveInOpen ? (
               <CampusBiomeOverlays phase={sky === "day" ? "day" : "night"} />
             ) : null}
 
@@ -1001,14 +1010,18 @@ export function CampusMap({
               />
             </div>
 
-            <div
-              className="campus-map-cinematic-ledge-top pointer-events-none absolute inset-x-0 top-0 z-[7]"
-              aria-hidden
-            />
-            <div
-              className="campus-map-cinematic-ledge-bottom pointer-events-none absolute inset-x-0 bottom-0 z-[7]"
-              aria-hidden
-            />
+            {!cineDriveInOpen ? (
+              <>
+                <div
+                  className="campus-map-cinematic-ledge-top pointer-events-none absolute inset-x-0 top-0 z-[7]"
+                  aria-hidden
+                />
+                <div
+                  className="campus-map-cinematic-ledge-bottom pointer-events-none absolute inset-x-0 bottom-0 z-[7]"
+                  aria-hidden
+                />
+              </>
+            ) : null}
           </CampusMapErrorBoundary>
 
           {advancedMap ? (
@@ -1016,15 +1029,17 @@ export function CampusMap({
               <div className="absolute inset-0 z-[8]">
                 <MapWalkLayer onWalkTo={setPlayer} />
               </div>
-              <CampusFogZonesLayer
-                isNight={sky === "night"}
-                unlockCtx={unlockCtx}
-                liveActive={livePulse}
-                areaProgress={progress?.areas}
-                onSelectArea={handleSelectArea}
-                onWalkTo={setPlayer}
-                hideNativeCursor={customCursor}
-              />
+              {!cineDriveInOpen ? (
+                <CampusFogZonesLayer
+                  isNight={sky === "night"}
+                  unlockCtx={unlockCtx}
+                  liveActive={livePulse}
+                  areaProgress={progress?.areas}
+                  onSelectArea={handleSelectArea}
+                  onWalkTo={setPlayer}
+                  hideNativeCursor={customCursor}
+                />
+              ) : null}
               <CampusMapCustomCursor active={customCursor} />
             </>
           ) : (

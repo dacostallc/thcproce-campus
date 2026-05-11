@@ -42,7 +42,7 @@ export function CampusCinemaHudPreview({ src, className }: Props) {
   }
 
   return (
-    <div ref={wrapRef} className={cn("relative aspect-video overflow-hidden rounded-xl bg-black", className)}>
+    <div ref={wrapRef} className={cn("relative aspect-video overflow-hidden rounded-xl bg-transparent", className)}>
       {shouldLoad ? (
         <video
           key={src}
@@ -54,9 +54,13 @@ export function CampusCinemaHudPreview({ src, className }: Props) {
           onError={() => setBroken(true)}
         />
       ) : (
-        <div className="flex h-full min-h-[120px] flex-col items-center justify-center gap-2 bg-gradient-to-br from-slate-950/88 to-black/85 px-3">
-          <span className="text-[11px] font-medium text-white/55">A preparar pré-visualização…</span>
-          <span className="text-center text-[10px] text-white/38">Interage com o painel para carregar o vídeo</span>
+        <div className="flex h-full min-h-[120px] flex-col items-center justify-center gap-2 bg-transparent px-3">
+          <span className="text-[11px] font-medium text-white/65 drop-shadow-[0_1px_8px_rgba(0,0,0,0.55)]">
+            A preparar pré-visualização…
+          </span>
+          <span className="text-center text-[10px] text-white/45 drop-shadow-[0_1px_6px_rgba(0,0,0,0.5)]">
+            Interage com o painel para carregar o vídeo
+          </span>
         </div>
       )}
     </div>

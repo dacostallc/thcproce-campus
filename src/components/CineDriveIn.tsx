@@ -2,10 +2,9 @@
 
 import dynamic from "next/dynamic";
 import { AnimatePresence, motion } from "framer-motion";
-import { Radio, Users, X } from "lucide-react";
+import { Radio, X } from "lucide-react";
 import { useMemo } from "react";
 import { useCampusStore } from "@/stores/campusStore";
-import { useCampusPresenceStore } from "@/stores/campusPresenceStore";
 import type { MergedLiveBroadcast } from "@/lib/campusLiveBroadcast";
 import {
   deriveEffectiveCampusStreamState,
@@ -17,7 +16,7 @@ import { CampusLiveStreamOfflinePoster } from "@/components/campus/CampusLiveStr
 const ReactPlayer = dynamic(() => import("react-player"), {
   ssr: false,
   loading: () => (
-    <div className="flex h-full min-h-[200px] flex-1 items-center justify-center rounded-xl bg-black/40 text-xs text-white/60">
+    <div className="flex h-full min-h-[200px] flex-1 items-center justify-center rounded-xl bg-transparent text-xs text-white/75 drop-shadow-[0_1px_8px_rgba(0,0,0,0.65)]">
       A carregar o player…
     </div>
   )
@@ -35,24 +34,24 @@ function streamStateBadgePt(state: ReturnType<typeof deriveEffectiveCampusStream
   if (state === "live") {
     return {
       label: "Ao vivo",
-      className: "border-emerald-400/45 bg-emerald-950/55 text-emerald-100"
+      className: "border-emerald-400/55 bg-emerald-500/18 text-emerald-50 backdrop-blur-sm"
     };
   }
   if (state === "scheduled") {
     return {
       label: "Programado",
-      className: "border-sky-400/40 bg-sky-950/45 text-sky-100"
+      className: "border-sky-400/45 bg-sky-500/14 text-sky-50 backdrop-blur-sm"
     };
   }
   return {
     label: "Offline",
-    className: "border-white/15 bg-black/40 text-white/65"
+    className: "border-white/20 bg-white/10 text-white/80 backdrop-blur-sm"
   };
 }
 
 /**
- * Cine THCProce — player preparado para YouTube Live, HLS/Bunny e Mux;
- * estados editoriais, chat placeholder e contagem aproximada de espectadores (presence).
+ * Cine THCProce — player para YouTube Live, HLS/Bunny e Mux; chat à direita.
+ * Sem backdrop escuro sobre o mapa — o campus permanece visível atrás do cartão do player.
  */
 export function CineDriveIn({ liveBroadcast }: Props) {
   const merged = useMemo(
@@ -68,17 +67,6 @@ export function CineDriveIn({ liveBroadcast }: Props) {
   const closeCineDriveIn = useCampusStore((s) => s.closeCineDriveIn);
   const auditoriumFull = useCampusStore((s) => s.cinemaAuditoriumFull);
   const cinemaSeatIndex = useCampusStore((s) => s.cinemaSeatIndex);
-
-  const peersObj = useCampusPresenceStore((s) => s.othersByUid);
-
-  const viewerApprox = useMemo(() => {
-    let n = 0;
-    for (const p of Object.values(peersObj)) {
-      if (p.inCinema) n++;
-    }
-    if (isOpen) n += 1;
-    return n;
-  }, [peersObj, isOpen]);
 
   const showStandingBanner = auditoriumFull && cinemaSeatIndex === null;
 
@@ -115,108 +103,6 @@ export function CineDriveIn({ liveBroadcast }: Props) {
           role="dialog"
         >
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-0 pointer-events-auto bg-gradient-to-b from-black/42 via-black/26 to-transparent"
-            aria-hidden
-            onClick={() => closeCineDriveIn()}
-          />
-
-          <motion.div
-            className="pointer-events-none fixed left-1/2 top-[6%] z-[25] block h-[min(58vh,620px)] w-[min(99vw,1420px)] -translate-x-1/2 md:h-[min(62vh,700px)]"
-            aria-hidden
-            animate={{
-              opacity: [0.4, 0.72, 0.48, 0.68],
-              scale: [1, 1.012, 0.994, 1.006],
-              rotate: [-0.3, 0.35, -0.2, 0.15]
-            }}
-            transition={{
-              repeat: Infinity,
-              repeatType: "mirror",
-              duration: 10.8,
-              ease: "easeInOut"
-            }}
-            style={{
-              background: [
-                "radial-gradient(ellipse 92% 78% at 50% -2%, rgba(252,251,247,0.22) 0%, rgba(52,211,153,0.28) 22%, rgba(16,163,124,0.12) 48%, transparent 74%)",
-                "radial-gradient(ellipse 70% 60% at 46% 4%, rgba(224,247,239,0.18) 0%, transparent 55%)",
-                "radial-gradient(ellipse 95% 80% at 52% -6%, rgba(167,251,229,0.08) 0%, transparent 42%)"
-              ].join(", "),
-              filter: "saturate(1.06)"
-            }}
-          />
-
-          <motion.div
-            className="pointer-events-none fixed left-1/2 top-[6%] z-[26] block h-[min(58vh,620px)] w-[min(99vw,1420px)] -translate-x-1/2 mix-blend-screen md:h-[min(62vh,700px)]"
-            aria-hidden
-            animate={{
-              opacity: [0.08, 0.22, 0.14, 0.22]
-            }}
-            transition={{
-              repeat: Infinity,
-              repeatType: "mirror",
-              duration: 6.4,
-              ease: "easeInOut",
-              delay: 0.45
-            }}
-            style={{
-              background:
-                "radial-gradient(ellipse 78% 52% at 50% 2%, rgba(250,250,250,0.42) 0%, rgba(110,231,183,0.1) 36%, transparent 68%)"
-            }}
-          />
-
-          <div
-            className="pointer-events-none fixed inset-x-0 bottom-0 top-[calc(10%+min(58vh,620px))] z-[38] md:top-[calc(11%+min(62vh,700px))]"
-            aria-hidden
-          >
-            <motion.div
-              className="mx-auto h-full max-w-[1200px]"
-              animate={{
-                opacity: [0.52, 0.82, 0.58, 0.74]
-              }}
-              transition={{
-                repeat: Infinity,
-                repeatType: "mirror",
-                duration: 8.2,
-                ease: "easeInOut"
-              }}
-              style={{
-                background:
-                  "linear-gradient(to bottom, rgba(248,250,252,0.07) 0%, rgba(34,197,94,0.1) 12%, rgba(45,212,191,0.05) 22%, transparent 72%)",
-                maskImage:
-                  "radial-gradient(ellipse 92% 100% at 50% -10%, black 52%, transparent 88%)",
-                WebkitMaskImage:
-                  "radial-gradient(ellipse 92% 100% at 50% -10%, black 52%, transparent 88%)"
-              }}
-            />
-
-            <motion.div
-              className="pointer-events-none absolute inset-0 mx-auto max-w-[1200px]"
-              animate={{
-                opacity: [0.16, 0.34, 0.18, 0.3],
-                rotate: [-0.2, 0.25, -0.1, 0.15]
-              }}
-              transition={{
-                repeat: Infinity,
-                repeatType: "mirror",
-                duration: 7.6,
-                ease: [0.4, 0, 0.2, 1]
-              }}
-              style={{
-                background:
-                  "linear-gradient(to bottom, rgba(240,253,244,0.09) 0%, rgba(16,185,129,0.07) 20%, transparent 78%)",
-                mixBlendMode: "soft-light",
-                maskImage:
-                  "radial-gradient(ellipse 88% 100% at 50% -8%, black 48%, transparent 86%)",
-                WebkitMaskImage:
-                  "radial-gradient(ellipse 88% 100% at 50% -8%, black 48%, transparent 86%)"
-              }}
-            />
-          </div>
-
-          <motion.div
             className="pointer-events-auto fixed left-1/2 top-[8%] z-[41] flex h-[min(62vh,660px)] max-h-[calc(100vh-6rem)] w-[min(96vw,min(1200px,calc(100vw-0.75rem)))] flex-col origin-top -translate-x-1/2 md:top-[9%] md:h-[min(70vh,760px)] md:w-[min(94vw,min(1320px,calc(100vw-2rem)))] lg:h-[min(74vh,820px)] lg:w-[min(92vw,min(1440px,calc(100vw-3rem)))]"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -225,10 +111,10 @@ export function CineDriveIn({ liveBroadcast }: Props) {
             onClick={(e) => e.stopPropagation()}
           >
             <motion.div
-              className="relative flex h-full min-h-0 w-full min-w-0 flex-col rounded-2xl border-2 border-canna-400/70 bg-black/30 p-2.5 shadow-[0_0_32px_rgba(74,222,128,0.45),0_0_4px_rgba(74,222,128,0.9)_inset] sm:rounded-3xl sm:p-3 md:p-4"
+              className="relative flex h-full min-h-0 w-full min-w-0 flex-col rounded-2xl border border-white/22 bg-white/[0.06] p-2.5 shadow-[0_8px_40px_rgba(0,0,0,0.12)] ring-1 ring-canna-400/25 sm:rounded-3xl sm:p-3 md:p-4"
               style={{
-                WebkitBackdropFilter: "blur(14px)",
-                backdropFilter: "blur(14px)"
+                WebkitBackdropFilter: "blur(12px)",
+                backdropFilter: "blur(12px)"
               }}
               initial={{ opacity: 0, y: -10, scale: 0.98 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -238,7 +124,7 @@ export function CineDriveIn({ liveBroadcast }: Props) {
               <button
                 type="button"
                 onClick={() => closeCineDriveIn()}
-                className="absolute right-2.5 top-2.5 z-[2] flex h-10 w-10 items-center justify-center rounded-xl border border-canna-400/40 bg-black/55 text-white/95 shadow-[0_0_12px_rgba(74,222,128,0.35)] transition hover:bg-canna-600/35 hover:border-canna-300/60 focus-visible:outline focus-visible:ring-2 focus-visible:ring-canna-400/80 md:right-3 md:top-3"
+                className="absolute right-2.5 top-2.5 z-[2] flex h-10 w-10 items-center justify-center rounded-xl border border-white/25 bg-white/15 text-white/95 shadow-md backdrop-blur-md transition hover:bg-white/25 hover:border-white/35 focus-visible:outline focus-visible:ring-2 focus-visible:ring-canna-400/80 md:right-3 md:top-3"
                 aria-label="Fechar Cine THCProce"
               >
                 <X size={20} strokeWidth={2.4} />
@@ -248,26 +134,23 @@ export function CineDriveIn({ liveBroadcast }: Props) {
                 Cine THCProce — transmissão ao vivo
               </h2>
 
-              <div className="mb-2 flex flex-wrap items-center justify-between gap-2 pr-10">
+              <div className="mb-2 flex flex-wrap items-center gap-2 pr-10">
                 <span
                   className={`inline-flex items-center gap-1 rounded-lg border px-2 py-1 text-[10px] font-bold uppercase tracking-[0.14em] ${badge.className}`}
                 >
                   <Radio size={12} aria-hidden />
                   {badge.label}
                 </span>
-                <span className="inline-flex items-center gap-1 rounded-lg border border-white/12 bg-black/35 px-2 py-1 text-[10px] font-semibold text-white/75">
-                  <Users size={12} className="text-canna-200/90" aria-hidden />
-                  ~{viewerApprox} espectadores
-                </span>
               </div>
               {scheduledLabel && streamState !== "live" ? (
-                <p className="mb-2 text-center text-[10px] text-white/55">
-                  Próxima janela anunciada: <span className="text-canna-100/90">{scheduledLabel}</span>
+                <p className="mb-2 text-center text-[10px] text-white/75 drop-shadow-[0_1px_6px_rgba(0,0,0,0.5)]">
+                  Próxima janela anunciada:{" "}
+                  <span className="text-canna-100/95">{scheduledLabel}</span>
                 </p>
               ) : null}
 
               <div className="relative grid min-h-0 flex-1 grid-cols-1 gap-2 overflow-hidden md:grid-cols-[1fr_min(28%,240px)]">
-                <div className="relative flex min-h-0 flex-col overflow-hidden rounded-xl border border-white/12 bg-black/18">
+                <div className="relative flex min-h-0 flex-col overflow-hidden rounded-xl border border-white/15 bg-transparent">
                   {playbackUrl ? (
                     useIframeEmbed ? (
                       <iframe
@@ -304,12 +187,12 @@ export function CineDriveIn({ liveBroadcast }: Props) {
                   )}
                 </div>
 
-                <div className="pointer-events-auto flex max-h-[220px] min-h-[140px] flex-col rounded-xl border border-white/10 bg-black/25 md:max-h-none">
-                  <p className="border-b border-white/[0.07] px-2 py-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-white/45">
+                <div className="pointer-events-auto flex max-h-[220px] min-h-[140px] flex-col rounded-xl border border-white/15 bg-white/[0.06] backdrop-blur-md md:max-h-none">
+                  <p className="border-b border-white/[0.08] px-2 py-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-white/55">
                     Chat ao vivo (placeholder)
                   </p>
                   <div className="flex flex-1 flex-col gap-2 p-2">
-                    <div className="flex-1 overflow-hidden rounded-lg bg-black/30 px-2 py-2 text-[10px] leading-relaxed text-white/40">
+                    <div className="flex-1 overflow-hidden rounded-lg bg-white/[0.05] px-2 py-2 text-[10px] leading-relaxed text-white/55">
                       Mensagens em tempo real ligam ao backend depois — canal único por sala/live.
                     </div>
                     <label className="sr-only" htmlFor="cine-chat-placeholder">
@@ -320,7 +203,7 @@ export function CineDriveIn({ liveBroadcast }: Props) {
                       rows={2}
                       disabled
                       placeholder="Em breve: enviar mensagem…"
-                      className="resize-none rounded-lg border border-white/10 bg-black/35 px-2 py-1.5 text-[11px] text-white/55 placeholder:text-white/30"
+                      className="resize-none rounded-lg border border-white/12 bg-white/[0.06] px-2 py-1.5 text-[11px] text-white/65 placeholder:text-white/35"
                     />
                   </div>
                 </div>
@@ -334,27 +217,6 @@ export function CineDriveIn({ liveBroadcast }: Props) {
                   Auditório lotado! Você está assistindo em pé na lateral.
                 </p>
               ) : null}
-
-              <p className="mt-2 shrink-0 text-center text-[10px] font-medium uppercase tracking-[0.2em] text-white/55">
-                Assentos e avatares abaixo continuam sincronizados
-              </p>
-              <p className="mt-1 text-center text-[10px] text-white/42">
-                Reações (mapa ou aqui): <span className="text-white/62">1</span>
-                {" · "}
-                <span aria-hidden className="text-white/82">
-                  🔥{" "}
-                </span>
-                <span className="text-white/62">2</span>
-                {" · "}
-                <span aria-hidden className="text-white/82">
-                  👏{" "}
-                </span>
-                <span className="text-white/62">3</span>
-                {" · "}
-                <span aria-hidden className="text-white/82">
-                  🌱
-                </span>
-              </p>
             </motion.div>
           </motion.div>
         </motion.div>

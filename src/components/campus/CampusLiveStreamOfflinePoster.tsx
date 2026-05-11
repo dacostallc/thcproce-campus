@@ -23,8 +23,8 @@ export function CampusLiveStreamOfflinePoster({
   return (
     <div
       className={cn(
-        "relative flex flex-col items-center justify-center overflow-hidden rounded-xl border border-white/12 px-4 py-8 text-center shadow-inner shadow-black/20",
-        "bg-[linear-gradient(155deg,rgba(15,23,42,0.94)_0%,rgba(8,14,26,0.9)_42%,rgba(4,8,18,0.96)_100%)]",
+        "relative flex flex-col items-center justify-center overflow-hidden rounded-xl border border-white/18 px-4 py-8 text-center backdrop-blur-[2px]",
+        "bg-transparent shadow-none",
         aspectVideo && "aspect-video",
         className
       )}
@@ -32,22 +32,22 @@ export function CampusLiveStreamOfflinePoster({
       aria-live="polite"
     >
       <div
-        className="pointer-events-none absolute inset-0 opacity-[0.85]"
+        className="pointer-events-none absolute inset-0 opacity-40"
         aria-hidden
         style={{
           background:
-            "radial-gradient(ellipse 85% 55% at 50% -5%, rgba(52,211,153,0.14), transparent 58%), radial-gradient(ellipse 50% 40% at 92% 88%, rgba(250,204,21,0.07), transparent 52%), linear-gradient(118deg, transparent 36%, rgba(255,255,255,0.04) 50%, transparent 64%)"
+            "radial-gradient(ellipse 85% 55% at 50% -5%, rgba(52,211,153,0.12), transparent 58%)"
         }}
       />
       <Radio
-        className="relative mb-3 h-9 w-9 text-emerald-300/60 sm:h-10 sm:w-10"
+        className="relative mb-3 h-9 w-9 text-emerald-300/75 sm:h-10 sm:w-10 drop-shadow-[0_1px_8px_rgba(0,0,0,0.55)]"
         strokeWidth={1.35}
         aria-hidden
       />
-      <p className="relative z-[1] max-w-[17rem] text-[13px] font-semibold leading-snug text-white/90">
+      <p className="relative z-[1] max-w-[17rem] text-[13px] font-semibold leading-snug text-white/92 drop-shadow-[0_1px_10px_rgba(0,0,0,0.65)]">
         {title}
       </p>
-      <p className="relative z-[1] mt-2 max-w-[16rem] text-[11px] leading-relaxed text-white/52">
+      <p className="relative z-[1] mt-2 max-w-[16rem] text-[11px] leading-relaxed text-white/65 drop-shadow-[0_1px_8px_rgba(0,0,0,0.55)]">
         {subtitle}
       </p>
     </div>
