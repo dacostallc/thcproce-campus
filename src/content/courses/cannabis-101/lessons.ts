@@ -53,7 +53,7 @@ function buildLesson(node: Cannabis101LessonNode): LessonStreamContent {
     quiz: body.quiz,
     media: body.media,
     materials: [
-      `${courseName} — versão completa (vídeos longos, provas oficiais, PDF caprichados) na sala digital THCProce`,
+      `${courseName} — vídeos completos, PDFs e provas com validade institucional na sala digital THCProce (este painel: leitura densa aplicável no campus)`,
       url
     ],
     references: [url],

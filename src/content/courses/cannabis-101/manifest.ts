@@ -15,19 +15,26 @@ export type Cannabis101Module = {
 };
 
 /**
- * Cannabis 101 — trilha introdutória em português: conceitos, corpo, uso responsável,
- * panorama legal de alto nível e encaminhamento às trilhas avançadas do campus.
+ * Cannabis 101 — trilha introdutória em português: método de estudo, planta→COA, categorias
+ * regulatórias, farmacologia introdutória, redução de danos, vias, pesquisa jurídica séria,
+ * contrato ético e matriz de encaminhamento às salas do campus.
  */
 export const CANNABIS101_MODULES: readonly Cannabis101Module[] = [
   {
     id: "fundamentos",
     title: "Fundamentos",
     lessons: [
-      { id: "c101-l01-boas-vindas", activityLabel: "Boas-vindas ao Cannabis 101" },
-      { id: "c101-l02-o-que-e-cannabis", activityLabel: "O que é cannabis" },
+      {
+        id: "c101-l01-boas-vindas",
+        activityLabel: "Boas-vindas: cenário real, checklist THCProce e glossário inicial"
+      },
+      {
+        id: "c101-l02-o-que-e-cannabis",
+        activityLabel: "Cannabis como planta mensurável (ponte para COA)"
+      },
       {
         id: "c101-l03-canhamo-maconha-medicinal",
-        activityLabel: "Cânhamo, maconha e cannabis medicinal"
+        activityLabel: "Três mundos: industrial, medicinal regulado e informal"
       }
     ]
   },
@@ -37,9 +44,9 @@ export const CANNABIS101_MODULES: readonly Cannabis101Module[] = [
     lessons: [
       {
         id: "c101-l04-canabinoides",
-        activityLabel: "Canabinoides principais: THC, CBD, CBG e CBN"
+        activityLabel: "Canabinoides e leitura rigorosa de COA"
       },
-      { id: "c101-l05-terpenos", activityLabel: "Terpenos e aroma" }
+      { id: "c101-l05-terpenos", activityLabel: "Terpenos: conservação e ciência sem hype" }
     ]
   },
   {
@@ -48,15 +55,15 @@ export const CANNABIS101_MODULES: readonly Cannabis101Module[] = [
     lessons: [
       {
         id: "c101-l06-sistema-endocanabinoide",
-        activityLabel: "Sistema endocanabinoide, em linguagem simples"
+        activityLabel: "ECS: consulta preparada, 48 h versus urgência"
       },
       {
         id: "c101-l07-usos-e-reducao-de-danos",
-        activityLabel: "Uso medicinal, adulto e redução de danos"
+        activityLabel: "Redução de danos e ética ao orientar terceiros"
       },
       {
         id: "c101-l08-formas-consumo",
-        activityLabel: "Formas de consumo e início de efeito (uso responsável)"
+        activityLabel: "Vias de consumo e linha do tempo oral × ingestão"
       }
     ]
   },
@@ -66,11 +73,11 @@ export const CANNABIS101_MODULES: readonly Cannabis101Module[] = [
     lessons: [
       {
         id: "c101-l09-legalidade-br-eua",
-        activityLabel: "Legalidade: panoramas Brasil e EUA (visão geral)"
+        activityLabel: "Legalidade BR/EUA: investigação guiada e fichas datadas"
       },
       {
         id: "c101-l10-seguranca-limites",
-        activityLabel: "Segurança, responsabilidade e limites deste curso"
+        activityLabel: "O que o curso entrega, limites duros e segurança"
       }
     ]
   },
@@ -80,7 +87,7 @@ export const CANNABIS101_MODULES: readonly Cannabis101Module[] = [
     lessons: [
       {
         id: "c101-l11-proximas-trilhas",
-        activityLabel: "Próximos passos: cultivo, extração e medicina canabinoide"
+        activityLabel: "Matriz de trilhas: ids reais dos cursos no campus"
       }
     ]
   }
@@ -129,18 +136,18 @@ export const CANNABIS101_MANIFEST = {
   displayName: "Cannabis 101",
   marketing: {
     short:
-      "Fundamentos aplicáveis: botânica útil, leitura de laudos, conservação, corpo, redução de danos e lei — em português BR, tom científico",
+      "Método THCProce no painel: checklist de fontes, planta→COA, três mundos regulatórios, ECS, danos, vias, lei em fonte primária e matriz de próximos cursos — PT-BR, tom técnico",
     category: "Anfiteatro" as const,
     level: "Iniciante" as const,
     color: "amber" as AreaColor,
     mapPosition: { x: 86, y: 36 } as const,
     description:
-      "Cannabis 101 combina ciência com protocolos que você usa na vida real: ler COA e rótulos, pensar colheita e pós-colheita, preservar terpenos, preparar consultas médicas, comparar vias de uso sem improvisos perigosos, pesquisar lei em fonte primária e fechar com segurança doméstica e ética digital. É conteúdo educativo em PT-BR — não substitui prescritor, farmacêutico ou advogado e não ensina evadir fiscalização. Cultivo solvente e medicina avançada ficam nas salas especializadas; vídeos longos e certificações institucionais continuam na sala digital THCProce.",
+      "Cannabis 101 combina ciência com protocolos aplicáveis: checklist THCProce para fontes, leitura de COA e rótulos, genótipo versus fenótipo na prática, três mundos regulatórios com perguntas copiáveis para consulta, terpenos sem slogans milagrosos, ECS com sinais para 48 h versus urgência, redução de danos com ética ao ajudar terceiros, linha do tempo de vias, pesquisa jurídica com ficha datada (manchete versus ementa), contrato explícito do que o curso oferece e matriz de ids das salas seguintes. É educação em PT-BR — não substitui prescritor, farmacêutico ou advogado. Vídeos longos e avaliações institucionais ficam na sala digital THCProce; o painel do campus prioriza texto denso.",
     highlights: [
-      "Onze aulas densas com objetivos, passo a passo, exemplos, erros comuns, glossário embutido e quiz coerente — foco em aplicação responsável",
-      "Temas práticos: leitura de laudos, conservação volátil, checklists de redução de danos, higiene de pesquisa jurídica e limites explícitos",
-      "Ponte para salas de cultivo (onde permitido), solventless e medicina canabinoide avançada com pré-requisitos de segurança",
-      "Aviso permanente: não é consultório, escritório jurídico nem manual de condutas ilegais"
+      "Onze aulas com âncoras narrativas (ex.: cenário Ana), checklists copiáveis, exercício de COA fictício, glossário inicial e quizzes alinhados ao texto",
+      "Pontes explícitas entre aulas (planta→COA→vias; ECS→danos; lei→limites éticos) para fluxo pedagógico contínuo",
+      "Matriz de encaminhamento com slugs reais (cultivo-indoor, extracao-oleo, medicina…) e avisos de segurança antes das salas avançadas",
+      "Aviso permanente: não é consultório, escritório jurídico nem guia de condutas ilegais"
     ] as const,
     professor: "Equipa THCProce"
   },
