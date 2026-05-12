@@ -15,6 +15,8 @@ import {
   StreamQuizQuestion,
   type LessonQuizAcademicContext
 } from "@/components/campus/LessonRichTabs";
+import { LessonTextReaderControls } from "@/components/campus/LessonTextReaderControls";
+import { getLessonSlideSpeakableText } from "@/lib/lessonTextReader";
 
 type Props = {
   content: LessonRichContent;
@@ -69,6 +71,14 @@ export function ClassroomLessonView({
   const safeIdx = slides.length ? Math.min(idx, slides.length - 1) : 0;
   const slide: ClassroomSlide | undefined = slides[safeIdx];
   const lastSlide = Math.max(0, slides.length - 1);
+
+  const emptySlideSpeech =
+    "Não há texto disponível para esta aula neste ambiente. Use o Moodle ou aguarde a sincronização do conteúdo.";
+  const slideDeckFingerprint = useMemo(
+    () => slides.map((s) => s.id).join("\0"),
+    [slides],
+  );
+  const readerStepKey = `${lessonOrdinal.current}-${slideDeckFingerprint}-${safeIdx}-${slide?.id ?? "empty"}`;
 
   const accentBorder =
     accent === "amber"
@@ -125,17 +135,20 @@ export function ClassroomLessonView({
                 </div>
               </motion.div>
             ) : (
-              <motion.p
+              <motion.div
                 key="empty"
                 initial={slideMotion.initial}
                 animate={slideMotion.animate}
                 exit={slideMotion.exit}
                 transition={slideMotion.transition}
-                className="pointer-events-auto mx-auto max-w-[42rem] px-2 text-center text-sm leading-relaxed text-white/55"
+                className="pointer-events-auto mx-auto flex max-w-[42rem] flex-col items-center gap-3 px-2"
               >
-                Não há texto disponível para esta aula neste ambiente. Use o Moodle ou aguarde a
-                sincronização do conteúdo.
-              </motion.p>
+                <LessonTextReaderControls text={emptySlideSpeech} stepKey={readerStepKey} />
+                <p className="text-center text-sm leading-relaxed text-white/55">
+                  Não há texto disponível para esta aula neste ambiente. Use o Moodle ou aguarde a
+                  sincronização do conteúdo.
+                </p>
+              </motion.div>
             )}
           </AnimatePresence>
         </div>
