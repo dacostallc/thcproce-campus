@@ -58,3 +58,6 @@ test-results/
 
 # --- Vercel CLI (metadata local; deploy oficial via Git) ---
 .vercel
+
+# Dump WS Moodle (opcional; pode conter conteúdo interno)
+docs/moodle-export/*.json

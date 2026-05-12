@@ -14,7 +14,9 @@ Este app consome REST em [`src/lib/moodle/ws.ts`](../src/lib/moodle/ws.ts). Sem 
 
    - `core_enrol_get_users_courses`
    - `core_completion_get_course_completion_status`
-   - (Futuro, para copiar outline/texto para o campus sem drift) `core_course_get_contents` — requer mapear secções → itens e permissões de leitura adequadas no token.
+   - `core_course_get_contents` — outline do curso no Moodle (secções, módulos, URLs, descrições).
+   - `mod_page_get_pages_by_courses` — texto das atividades **Página** (recomendado para export Cannabis 101).
+   - Ver **[MOODLE_CANNABIS101_EXPORT.md](./MOODLE_CANNABIS101_EXPORT.md)** e `npm run moodle:export:c101`.
 
 3. Opcional futuro SSO: token de usuário ou plugin OAuth.
 

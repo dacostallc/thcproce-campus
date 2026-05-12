@@ -17,7 +17,8 @@
     "db:seed": "node prisma/seed.cjs",
     "content:campus": "node scripts/build-campus-map-content.mjs",
     "content:map-bundles": "node scripts/sync-campus-map-point-bundles.mjs",
-    "content:apply-decks": "node scripts/apply-map-point-decks.mjs"
+    "content:apply-decks": "node scripts/apply-map-point-decks.mjs",
+    "moodle:export:c101": "node scripts/moodle-export-cannabis101.mjs"
   },
   "prisma": {
     "seed": "node prisma/seed.cjs"
