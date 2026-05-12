@@ -7,7 +7,6 @@ import { SessionProvider } from "next-auth/react";
 import superjson from "superjson";
 import { trpc } from "@/lib/trpc/react";
 import { initSentryClient } from "@/lib/sentry";
-import { CampusAudioProvider } from "@/contexts/CampusAudioContext";
 function getBaseUrl() {
   if (typeof window !== "undefined") return "";
   if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
@@ -48,9 +47,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <SessionProvider>
       <trpc.Provider client={client} queryClient={qc}>
-        <QueryClientProvider client={qc}>
-          <CampusAudioProvider>{children}</CampusAudioProvider>
-        </QueryClientProvider>
+        <QueryClientProvider client={qc}>{children}</QueryClientProvider>
       </trpc.Provider>
     </SessionProvider>
   );

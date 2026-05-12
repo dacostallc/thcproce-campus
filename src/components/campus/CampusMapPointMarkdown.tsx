@@ -1,6 +1,7 @@
 "use client";
 
 import type { Components } from "react-markdown";
+import Link from "next/link";
 import ReactMarkdown from "react-markdown";
 import { cn } from "@/lib/utils";
 
@@ -9,22 +10,72 @@ type Props = {
   sky: "day" | "night";
 };
 
+/** Bloqueia esquemas perigosos; devolve URL utilizável ou null. */
+function safeMarkdownHref(href: unknown): string | null {
+  if (typeof href !== "string") return null;
+  const h = href.trim();
+  if (!h) return null;
+  const lower = h.toLowerCase();
+  if (
+    lower.startsWith("javascript:") ||
+    lower.startsWith("data:") ||
+    lower.startsWith("vbscript:")
+  ) {
+    return null;
+  }
+  return h;
+}
+
 export function CampusMapPointMarkdown({ markdown, sky }: Props) {
   const isDay = sky === "day";
 
+  const linkClass = cn(
+    "font-medium underline underline-offset-[3px] decoration-white/35 transition-colors hover:decoration-white/65",
+    isDay ? "text-emerald-900/95 hover:text-emerald-950" : "text-canna-200/95 hover:text-white"
+  );
+
   const components: Components = {
-    /** Modo leitura no campus: sem navegação (Moodle, externos ou outras rotas). */
-    a: ({ children }) => (
-      <span
-        className={cn(
-          "font-medium border-b border-dotted border-white/25",
-          isDay ? "text-emerald-900/95" : "text-canna-200/95"
-        )}
-        title="Referência — links desativados na leitura do mapa"
-      >
-        {children}
-      </span>
-    ),
+    a: ({ href, children }) => {
+      const safe = safeMarkdownHref(href);
+      if (!safe) {
+        return (
+          <span className={cn(linkClass, "cursor-not-allowed opacity-70")} title="Link inválido">
+            {children}
+          </span>
+        );
+      }
+      const external =
+        safe.startsWith("http://") ||
+        safe.startsWith("https://") ||
+        safe.startsWith("//");
+      const specialScheme =
+        safe.toLowerCase().startsWith("mailto:") || safe.toLowerCase().startsWith("tel:");
+      if (specialScheme) {
+        return (
+          <a href={safe} className={linkClass}>
+            {children}
+          </a>
+        );
+      }
+      if (external) {
+        const url = safe.startsWith("//") ? `https:${safe}` : safe;
+        return (
+          <a
+            href={url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={linkClass}
+          >
+            {children}
+          </a>
+        );
+      }
+      return (
+        <Link href={safe} className={linkClass}>
+          {children}
+        </Link>
+      );
+    },
     blockquote: ({ children }) => (
       <blockquote
         className={cn(
