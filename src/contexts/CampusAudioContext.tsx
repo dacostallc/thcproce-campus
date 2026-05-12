@@ -118,6 +118,8 @@ export function CampusAudioProvider({ children }: { children: ReactNode }) {
   const ambientPrefsHydratedRef = useRef(false);
   const prevSrcRef = useRef<string | null>(null);
   const errorSkipRef = useRef(0);
+  /** Evita avançar várias faixas em sequência por erros HTML5/autoplay espúrios */
+  const lastSkipAdvanceMsRef = useRef(0);
 
   const tracksRef = useRef(tracks);
   const trackIndexRef = useRef(trackIndex);
@@ -215,6 +217,12 @@ export function CampusAudioProvider({ children }: { children: ReactNode }) {
       setPlaying(false);
       return;
     }
+    const now = Date.now();
+    if (now - lastSkipAdvanceMsRef.current < 3200) {
+      errorSkipRef.current = Math.max(0, errorSkipRef.current - 1);
+      return;
+    }
+    lastSkipAdvanceMsRef.current = now;
     setTrackIndex((idx) => {
       const len = list.length;
       if (len <= 0) return idx;

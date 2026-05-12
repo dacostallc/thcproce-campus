@@ -19,12 +19,27 @@ function toAbsUrl(src: string): string {
   }
 }
 
+/** Chave estável para saber se a faixa mudou — só pathname+search evita remount por diferença cosmética no href. */
+function audioUrlKey(src: string): string {
+  try {
+    const u = new URL(src, typeof window !== "undefined" ? window.location.origin : "http://localhost");
+    return `${u.pathname}${u.search}`;
+  } catch {
+    return src;
+  }
+}
+
 /**
  * Motor Howler singleton para o campus — HTML5 para ficheiros grandes e mobile.
  */
 export class CampusHowlerEngine {
   private howl: Howl | null = null;
   private loadedAbsUrl: string | null = null;
+  /** Igual a `audioUrlKey(loadedAbsUrl)` — comparação principal para evitar Howl novo sem mudança real de faixa */
+  private loadedUrlKey: string | null = null;
+  /** Relógio de parede: ignorar `end` espúrio no início/meio (bugs HTML5 / buffer). */
+  private playStartedAtMs = 0;
+  private lastKnownDuration = 0;
   private handlers: CampusHowlerHandlers = {
     onNaturalEnd: () => {},
     onLoadOrPlayError: () => {}
@@ -32,6 +47,8 @@ export class CampusHowlerEngine {
   private destroyed = false;
   /** Evita montar Howl obsoleto após sync rápidos */
   private syncGen = 0;
+  /** Limita recuperações após `end` espúrio repetido (HTML5) */
+  private endRecoveryAttempts = 0;
 
   setHandlers(next: Partial<CampusHowlerHandlers>): void {
     this.handlers = { ...this.handlers, ...next };
@@ -46,6 +63,7 @@ export class CampusHowlerEngine {
   private unloadHowl(): void {
     if (!this.howl) {
       this.loadedAbsUrl = null;
+      this.loadedUrlKey = null;
       return;
     }
     try {
@@ -56,6 +74,7 @@ export class CampusHowlerEngine {
     }
     this.howl = null;
     this.loadedAbsUrl = null;
+    this.loadedUrlKey = null;
   }
 
   /** Para e liberta o decoder sem destruir o singleton (playlist vazia / logout de áudio). */
@@ -74,6 +93,8 @@ export class CampusHowlerEngine {
     } catch {
       /* noop */
     }
+    this.playStartedAtMs = Date.now();
+    this.endRecoveryAttempts = 0;
     const id = h.play();
     if (id !== undefined && volume01 > 0.001) {
       h.volume(0, id);
@@ -113,14 +134,63 @@ export class CampusHowlerEngine {
 
   private mountHowl(absUrl: string, playing: boolean, volume01: number, gen: number): void {
     if (this.destroyed || gen !== this.syncGen) return;
+    this.endRecoveryAttempts = 0;
     this.loadedAbsUrl = absUrl;
+    this.loadedUrlKey = audioUrlKey(absUrl);
     const h = new Howl({
       src: [absUrl],
       html5: true,
-      preload: "metadata",
+      /** Carregar o ficheiro completo reduz cortes e `ended` prematuro em fluxos HTML5. */
+      preload: true,
       volume: playing ? 0 : volume01,
       onend: () => {
         if (this.destroyed) return;
+        const hh = this.howl;
+        if (!hh) return;
+
+        let dur = this.lastKnownDuration;
+        try {
+          const d = hh.duration();
+          if (Number.isFinite(d) && d > 0) dur = d;
+        } catch {
+          /* noop */
+        }
+
+        let seekPos = 0;
+        try {
+          const s = hh.seek();
+          if (typeof s === "number" && Number.isFinite(s)) seekPos = s;
+        } catch {
+          /* noop */
+        }
+
+        const elapsedMs = Date.now() - this.playStartedAtMs;
+        const durMs = dur > 0 ? dur * 1000 : 0;
+
+        /** `ended` no meio da faixa ou muito cedo vs duração → ignorar uma vez e tentar continuar */
+        const suspiciousMid =
+          dur > 8 &&
+          seekPos > 2 &&
+          seekPos < dur - 2.5;
+        const suspiciousEarly =
+          dur > 12 && durMs > 0 && elapsedMs > 0 && elapsedMs < durMs * 0.55;
+
+        if (suspiciousMid || suspiciousEarly) {
+          if (this.endRecoveryAttempts >= 6) {
+            this.endRecoveryAttempts = 0;
+            this.handlers.onNaturalEnd();
+            return;
+          }
+          this.endRecoveryAttempts += 1;
+          try {
+            hh.play();
+          } catch {
+            /* noop */
+          }
+          return;
+        }
+
+        this.endRecoveryAttempts = 0;
         this.handlers.onNaturalEnd();
       },
       onloaderror: () => {
@@ -136,10 +206,17 @@ export class CampusHowlerEngine {
 
     h.once("load", () => {
       if (this.destroyed || gen !== this.syncGen) return;
+      try {
+        const d = h.duration();
+        if (Number.isFinite(d) && d > 0) this.lastKnownDuration = d;
+      } catch {
+        /* noop */
+      }
       if (!playing) {
         h.volume(volume01);
         return;
       }
+      this.playStartedAtMs = Date.now();
       const id = h.play();
       if (id !== undefined && volume01 > 0.001) {
         h.volume(0, id);
@@ -157,9 +234,11 @@ export class CampusHowlerEngine {
   sync(opts: { src: string; playing: boolean; volume01: number; urlChanged: boolean }): void {
     if (this.destroyed) return;
     const absUrl = toAbsUrl(opts.src);
+    const nextKey = audioUrlKey(absUrl);
     const { playing, volume01, urlChanged } = opts;
 
-    const needsNewHowl = urlChanged || !this.howl || this.loadedAbsUrl !== absUrl;
+    const needsNewHowl =
+      urlChanged || !this.howl || !this.loadedUrlKey || this.loadedUrlKey !== nextKey;
 
     if (needsNewHowl) {
       const gen = ++this.syncGen;
@@ -176,10 +255,13 @@ export class CampusHowlerEngine {
     h.volume(volume01);
 
     if (playing && !h.playing()) {
+      this.playStartedAtMs = Date.now();
       const id = h.play();
       if (id !== undefined && volume01 > 0.001) {
         h.volume(0, id);
         h.fade(0, volume01, CAMPUS_HOWL_FADE_MS, id);
+      } else if (id !== undefined) {
+        h.volume(volume01, id);
       }
     } else if (!playing && h.playing()) {
       h.pause();
