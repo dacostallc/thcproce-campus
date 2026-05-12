@@ -26,7 +26,7 @@ export const CANNABIS101_MODULES: readonly Cannabis101Module[] = [
     lessons: [
       {
         id: "c101-l01-boas-vindas",
-        activityLabel: "Boas-vindas: cenário real, checklist THCProce e glossário inicial"
+        activityLabel: "Abertura: cenário real + checklist para redes (THC/CBD) + glossário vivo"
       },
       {
         id: "c101-l02-o-que-e-cannabis",

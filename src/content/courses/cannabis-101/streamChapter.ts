@@ -1,7 +1,8 @@
 import { CANNABIS101_MODULES } from "./manifest";
 
 const MODULE_TAGLINES: Record<string, string> = {
-  fundamentos: "Primeiros passos: o que é a planta, o nome correto e os contextos em que ela aparece na sociedade.",
+  fundamentos:
+    "Contrato de abertura: ler posts e vídeos sobre THC, CBD, óleo e lei sem confundir captura de tela com fonte primária — depois entramos na planta e no laboratório.",
   "quimica-sensorial":
     "O que há dentro da flor além do cheiro bonito — canabinoides e terpenos, sem promessas milagrosas.",
   "corpo-e-uso":
