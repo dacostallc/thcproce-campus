@@ -131,13 +131,13 @@ import {
 } from "@/lib/campusMapZonesDebug";
 import { CAMPUS_HOME_PATH } from "@/config/siteUrls";
 
-/** Recarga total da página em rotas `/campus*` para limpar estado cliente + lista de visitantes. 0 ou false = desliga. */
+/** Recarga total da página em rotas `/campus*` (opcional). Por defeito desligado — reload corta áudio/UI em cliente. Defina ms positivos para ativar (mín. 15s). */
 function campusMapAutoReloadIntervalMs(): number {
   const raw = process.env.NEXT_PUBLIC_CAMPUS_MAP_RELOAD_INTERVAL_MS;
-  if (raw === "0" || raw === "false") return 0;
+  if (raw === undefined || raw === "" || raw === "0" || raw === "false") return 0;
   const n = Number(raw);
   if (Number.isFinite(n) && n > 0) return Math.max(15_000, n);
-  return 60_000;
+  return 0;
 }
 
 const PLACEHOLDER_NIGHT = `
