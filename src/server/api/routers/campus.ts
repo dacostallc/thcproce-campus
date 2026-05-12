@@ -1144,6 +1144,27 @@ export const campusRouter = router({
     )
     .query(async ({ input }) => {
       const r = await resolveCampusLessonDbContent(input.areaId, input.lessonIndex);
+      // #region agent log
+      void fetch("http://127.0.0.1:7921/ingest/fedeaed6-2db0-4def-b356-f5bb89b86d65", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "91f9aa" },
+        body: JSON.stringify({
+          sessionId: "91f9aa",
+          runId: "lesson-content-pre",
+          hypothesisId: "H3",
+          location: "campus.ts:lessonFromDb",
+          message: "campus lesson DB resolve",
+          data: {
+            areaId: input.areaId,
+            lessonIndex: input.lessonIndex,
+            mode: r.mode,
+            reason: r.mode === "legacy" ? r.reason : null,
+            blockCount: r.mode === "db" ? r.lesson.blocks.length : null
+          },
+          timestamp: Date.now()
+        })
+      }).catch(() => {});
+      // #endregion
       if (r.mode !== "db") return null;
       return {
         title: r.lesson.title,

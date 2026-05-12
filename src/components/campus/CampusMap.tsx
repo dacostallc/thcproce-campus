@@ -1158,40 +1158,42 @@ export function CampusMap({
         <CampusMapInteractiveMapPanels sky={phase} showHotspotTechStripe={mapZonesPolygonDebug} />
       ) : null}
 
-      <div
-        className={cn(
-          "pointer-events-none fixed z-[28] flex max-w-[min(22rem,calc(100vw-1.25rem))] flex-col items-end gap-2",
-          "max-sm:left-3 max-sm:right-3 max-sm:max-w-none",
-          "bottom-[calc(4.75rem+env(safe-area-inset-bottom))] right-3 sm:bottom-6 sm:right-4 sm:max-w-[min(340px,calc(100vw-2rem))]"
-        )}
-        aria-label="Atalhos do mapa"
-      >
-        <button
-          type="button"
-          className="pointer-events-auto flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/[0.14] bg-black/[0.18] text-amber-200/95 shadow-[0_4px_22px_rgba(0,0,0,0.2)] ring-1 ring-amber-400/18 backdrop-blur-2xl transition hover:border-emerald-300/35 hover:bg-white/[0.12] hover:text-white"
-          aria-label="Abrir loja do campus"
-          title="Loja"
-          onClick={() => {
-            markMissionStoreEntered();
-            setCampusStoreOpen(true);
-          }}
+      {campusLesson == null ? (
+        <div
+          className={cn(
+            "pointer-events-none fixed z-[28] flex max-w-[min(22rem,calc(100vw-1.25rem))] flex-col items-end gap-2",
+            "max-sm:left-3 max-sm:right-3 max-sm:max-w-none",
+            "bottom-[calc(4.75rem+env(safe-area-inset-bottom))] right-3 sm:bottom-6 sm:right-4 sm:max-w-[min(340px,calc(100vw-2rem))]"
+          )}
+          aria-label="Atalhos do mapa"
         >
-          <ShoppingBag size={15} strokeWidth={2} aria-hidden />
-        </button>
-        {!advancedMap ? (
-          <CampusStartHereCard
-            advancedMap={advancedMap}
-            openCannabis101={openCannabis101FromBeacon}
-            openResumeLesson={openResumeLesson}
+          <button
+            type="button"
+            className="pointer-events-auto flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/[0.14] bg-black/[0.18] text-amber-200/95 shadow-[0_4px_22px_rgba(0,0,0,0.2)] ring-1 ring-amber-400/18 backdrop-blur-2xl transition hover:border-emerald-300/35 hover:bg-white/[0.12] hover:text-white"
+            aria-label="Abrir loja do campus"
+            title="Loja"
+            onClick={() => {
+              markMissionStoreEntered();
+              setCampusStoreOpen(true);
+            }}
+          >
+            <ShoppingBag size={15} strokeWidth={2} aria-hidden />
+          </button>
+          {!advancedMap ? (
+            <CampusStartHereCard
+              advancedMap={advancedMap}
+              openCannabis101={openCannabis101FromBeacon}
+              openResumeLesson={openResumeLesson}
+              embed
+            />
+          ) : null}
+          <CampusResumeChip
+            lessonPanelOpen={campusLesson != null}
+            onContinue={openResumeLesson}
             embed
           />
-        ) : null}
-        <CampusResumeChip
-          lessonPanelOpen={campusLesson != null}
-          onContinue={openResumeLesson}
-          embed
-        />
-      </div>
+        </div>
+      ) : null}
 
       <CoursePanel
         area={selected}

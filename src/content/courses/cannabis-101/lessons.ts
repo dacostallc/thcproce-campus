@@ -57,7 +57,8 @@ function buildLesson(node: Cannabis101LessonNode): LessonStreamContent {
       url
     ],
     references: [url],
-    professorNotes: body.professorNotes
+    professorNotes: body.professorNotes,
+    ...(body.pedagogy ? { pedagogy: body.pedagogy } : {})
   };
 }
 

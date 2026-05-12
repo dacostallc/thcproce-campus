@@ -108,10 +108,47 @@ export function loadCampusMapPointReaderPayload(mapPointId: string): CampusMapPo
   const { data, content } = matter(rawFile);
   const dataObj = data && typeof data === "object" && !Array.isArray(data) ? (data as Record<string, unknown>) : {};
 
+  const slice = readCampusMapPointBundleSlice(contentSlug);
+  const overviewMarkdown = stripLeadingAtxH1(content.trimStart());
+  let overviewMtimeMs: number | null = null;
+  try {
+    overviewMtimeMs = fs.statSync(overviewPath).mtimeMs;
+  } catch {
+    overviewMtimeMs = null;
+  }
+
+  // #region agent log
+  void fetch("http://127.0.0.1:7921/ingest/fedeaed6-2db0-4def-b356-f5bb89b86d65", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "91f9aa" },
+    body: JSON.stringify({
+      sessionId: "91f9aa",
+      runId: "lesson-content-pre",
+      hypothesisId: "H2-H4-H5",
+      location: "loadCampusMapPointContent.ts:loadCampusMapPointReaderPayload",
+      message: "map point payload read from disk",
+      data: {
+        mapPointId: id,
+        contentSlug,
+        slugMismatch: id !== contentSlug,
+        overviewMtimeMs,
+        overviewChars: overviewMarkdown.length,
+        rawFileChars: rawFile.length,
+        contentVersion: typeof dataObj.contentVersion === "number" ? dataObj.contentVersion : null,
+        hasMission: Boolean(slice.mission),
+        hasQuiz: Boolean(slice.quiz),
+        hasRewards: Boolean(slice.rewards),
+        hasSeasonal: Boolean(slice.seasonal)
+      },
+      timestamp: Date.now()
+    })
+  }).catch(() => {});
+  // #endregion
+
   return {
     mapPointId: id,
     meta: normalizeMeta(id, dataObj),
-    overviewMarkdown: stripLeadingAtxH1(content.trimStart()),
-    ...readCampusMapPointBundleSlice(contentSlug)
+    overviewMarkdown,
+    ...slice
   };
 }

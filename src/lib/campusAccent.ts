@@ -14,7 +14,7 @@ export type CampusPanelAccent = {
 
 const PANEL: Record<AreaColor, CampusPanelAccent> = {
   amber: {
-    dialog: "border-amber-500/35 bg-[#040a07]/98",
+    dialog: "border-amber-500/35 bg-[#040a07]",
     headerBar: "border-amber-500/15 bg-[#030806] py-2.5 sm:py-3",
     asideLeft:
       "border-amber-500/20 bg-[#030806]/98 md:border-r",
@@ -25,7 +25,7 @@ const PANEL: Record<AreaColor, CampusPanelAccent> = {
     railActiveRow: "bg-amber-500/20 font-semibold text-white"
   },
   canna: {
-    dialog: "border-canna-400/35 bg-[#030806]/98 backdrop-blur-md",
+    dialog: "border-canna-400/35 bg-[#030806]",
     headerBar: "border-canna-500/15 bg-[#020a06] py-2.5 sm:py-3",
     asideLeft: "border-canna-500/20 bg-[#020806]/98 md:border-r",
     asideRight: "border-canna-500/20 bg-[#030a07]/95 md:border-l",
@@ -35,7 +35,7 @@ const PANEL: Record<AreaColor, CampusPanelAccent> = {
     railActiveRow: "bg-canna-500/20 font-semibold text-white"
   },
   purple: {
-    dialog: "border-purple-400/35 bg-[#0a0612]/98 backdrop-blur-md",
+    dialog: "border-purple-400/35 bg-[#0a0612]",
     headerBar: "border-purple-500/15 bg-[#080512] py-2.5 sm:py-3",
     asideLeft: "border-purple-500/20 bg-[#080512]/98 md:border-r",
     asideRight: "border-purple-500/20 bg-[#070510]/95 md:border-l",
@@ -45,7 +45,7 @@ const PANEL: Record<AreaColor, CampusPanelAccent> = {
     railActiveRow: "bg-purple-500/20 font-semibold text-white"
   },
   cyan: {
-    dialog: "border-cyan-400/35 bg-[#030c10]/98 backdrop-blur-md",
+    dialog: "border-cyan-400/35 bg-[#030c10]",
     headerBar: "border-cyan-500/15 bg-[#020c0f] py-2.5 sm:py-3",
     asideLeft: "border-cyan-500/20 bg-[#020c0f]/98 md:border-r",
     asideRight: "border-cyan-500/20 bg-[#030a0d]/95 md:border-l",
@@ -55,7 +55,7 @@ const PANEL: Record<AreaColor, CampusPanelAccent> = {
     railActiveRow: "bg-cyan-500/20 font-semibold text-white"
   },
   rose: {
-    dialog: "border-rose-400/35 bg-[#100608]/98 backdrop-blur-md",
+    dialog: "border-rose-400/35 bg-[#100608]",
     headerBar: "border-rose-500/15 bg-[#0d0508] py-2.5 sm:py-3",
     asideLeft: "border-rose-500/20 bg-[#0c0508]/98 md:border-r",
     asideRight: "border-rose-500/20 bg-[#0a0407]/95 md:border-l",

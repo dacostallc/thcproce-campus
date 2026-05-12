@@ -124,6 +124,8 @@ export function HUD() {
   const campusMissionsOpen = useCampusHudStore((s) => s.campusMissionsOpen);
   const setCampusMissionsOpen = useCampusHudStore((s) => s.setCampusMissionsOpen);
   const requestCampusResumeLesson = useCampusHudStore((s) => s.requestCampusResumeLesson);
+  const campusLessonPanelOpen = useCampusHudStore((s) => s.campusLessonPanelOpen);
+  const lessonFocus = campusNavActive && campusLessonPanelOpen;
 
   const { data: session, status } = useSession();
   const campusAdmin = isCampusAdminEmail(session?.user?.email ?? null);
@@ -187,6 +189,15 @@ export function HUD() {
   const [campusPresenceOpen, setCampusPresenceOpen] = useState(false);
   const campusMoreWrapRef = useRef<HTMLDivElement>(null);
   const campusNotifWrapRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!lessonFocus) return;
+    setCampusMoreOpen(false);
+    setCampusNotifOpen(false);
+    setLeaderboardOpen(false);
+    setCampusPresenceOpen(false);
+    setCampusMissionsOpen(false);
+  }, [lessonFocus]);
 
   useEffect(() => {
     if (!campusMoreOpen) return;
@@ -314,7 +325,7 @@ export function HUD() {
     <>
       <StudentRewardToast />
       <MissionRewardToast />
-      <LiveHudNotifications campusNavActive={campusNavActive} />
+      <LiveHudNotifications campusNavActive={campusNavActive && !lessonFocus} />
 
       {campusNavActive ? (
         <>
@@ -338,11 +349,15 @@ export function HUD() {
                   <MapPin size={13} className="shrink-0 text-amber-200/90" aria-hidden />
                   <span className="whitespace-nowrap">Mapa</span>
                 </Link>
-                <CampusLocalGamificationHudPill onOpenProfile={() => setCampusProfileOpen(true)} />
+                {!lessonFocus ? (
+                  <CampusLocalGamificationHudPill onOpenProfile={() => setCampusProfileOpen(true)} />
+                ) : null}
               </div>
 
               <div className="pointer-events-auto flex shrink-0 items-center gap-1 sm:gap-1.5">
-                <div className="pointer-events-auto relative" ref={campusMoreWrapRef}>
+                {!lessonFocus ? (
+                  <>
+                    <div className="pointer-events-auto relative" ref={campusMoreWrapRef}>
                   <button
                     type="button"
                     className={mapHudGlassBtn}
@@ -564,6 +579,8 @@ export function HUD() {
                     ) : null}
                   </AnimatePresence>
                 </div>
+                  </>
+                ) : null}
 
                 {status === "authenticated" ? (
                   <button
@@ -617,7 +634,7 @@ export function HUD() {
         </>
       ) : null}
 
-      {campusNavActive ? (
+      {campusNavActive && !lessonFocus ? (
         <div
           className={cn(
             "pointer-events-none fixed z-[25] flex flex-col items-start gap-1.5",
@@ -659,7 +676,7 @@ export function HUD() {
         </div>
       ) : null}
 
-      {campusNavActive ? (
+      {campusNavActive && !lessonFocus ? (
         <nav
           className="pointer-events-none fixed inset-x-0 bottom-0 z-[40] border-t border-white/[0.07] bg-black/[0.22] pb-[env(safe-area-inset-bottom)] backdrop-blur-2xl sm:hidden"
           aria-label="Navegação rápida"
@@ -1028,7 +1045,7 @@ export function HUD() {
       />
 
       <AnimatePresence>
-        {campusMissionsOpen ? (
+        {campusMissionsOpen && !lessonFocus ? (
           <>
             <motion.div
               initial={{ opacity: 0 }}
@@ -1067,7 +1084,7 @@ export function HUD() {
       </AnimatePresence>
 
       <AnimatePresence>
-        {leaderboardOpen ? (
+        {leaderboardOpen && !lessonFocus ? (
           <>
             <motion.div
               initial={{ opacity: 0 }}

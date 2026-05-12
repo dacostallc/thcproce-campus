@@ -1,6 +1,9 @@
 import type { LessonMediaHints, LessonQuizItem } from "@/data/lessonContent/types";
 
 export type { LessonMediaHints, LessonQuizItem } from "@/data/lessonContent/types";
+import type { LessonPedagogyExtras } from "@/data/lessonPedagogy.types";
+
+export type { LessonPedagogyExtras };
 
 /**
  * Conteúdo renderizado na sala (abas + modo stream).
@@ -20,4 +23,6 @@ export type LessonRichContent = {
   media?: LessonMediaHints;
   /** Título editorial explícito (opcional; o painel já usa o outline). */
   displayTitle?: string;
+  /** Blocos estruturados opcionais (map-points / futuras migrações por curso). */
+  pedagogy?: LessonPedagogyExtras;
 };

@@ -50,8 +50,8 @@ export function CampusCineHotspot() {
         style={{
           left: `${CAMPUS_CINE_POSITION.x}%`,
           top: `${CAMPUS_CINE_POSITION.y}%`,
-          width: "min(40vw, 248px)",
-          height: "min(34vw, 198px)"
+          width: "min(20vw, 124px)",
+          height: "min(17vw, 99px)"
         }}
       />
       <motion.button
@@ -65,9 +65,9 @@ export function CampusCineHotspot() {
         style={{
           left: `${CAMPUS_CINE_POSITION.x}%`,
           top: `${CAMPUS_CINE_POSITION.y}%`,
-          minWidth: "min(22vw, 140px)",
-          minHeight: "min(26vw, 160px)",
-          width: "11%",
+          minWidth: "min(11vw, 70px)",
+          minHeight: "min(13vw, 80px)",
+          width: "5.5%",
           aspectRatio: "4 / 5"
         }}
         aria-label={
@@ -108,13 +108,13 @@ export function CampusCineHotspot() {
             <span
               aria-hidden
               className={cn(
-                "pointer-events-none absolute -inset-2 z-0 rounded-[1.05rem]",
+                "pointer-events-none absolute -inset-1 z-0 rounded-[0.65rem]",
                 "motion-reduce:animate-none motion-safe:animate-campusCineHalo motion-safe:[will-change:opacity,transform]",
                 "bg-[radial-gradient(ellipse_at_50%_52%,rgba(74,222,128,0.11),rgba(250,204,21,0.035),transparent_72%)] blur-[1px] mix-blend-screen"
               )}
             />
             <motion.span
-              className="relative z-[1] block h-full min-h-[100px] w-full overflow-hidden rounded-xl campus-hud-glass"
+              className="relative z-[1] block h-full min-h-[50px] w-full overflow-hidden rounded-lg campus-hud-glass"
               animate={{ scale: [1, 1.035, 1], opacity: [0.94, 1, 0.94] }}
               transition={{ repeat: Infinity, duration: 2.4, ease: "easeInOut" }}
             >
@@ -122,9 +122,9 @@ export function CampusCineHotspot() {
             </motion.span>
           </>
         ) : (
-          <span className="flex size-full flex-col items-center justify-center rounded-xl px-1">
-            <Film className="text-white/50" size={28} aria-hidden />
-            <span className="mt-1 text-center text-[8px] font-bold uppercase tracking-wider text-white/70">
+          <span className="flex size-full flex-col items-center justify-center rounded-lg px-0.5">
+            <Film className="text-white/50" size={14} aria-hidden />
+            <span className="mt-0.5 text-center text-[7px] font-bold uppercase tracking-wider text-white/70">
               Cine THCProce
             </span>
           </span>
@@ -161,8 +161,8 @@ function TelaoLayer() {
       {!showImg ? (
         <span className="pointer-events-none absolute inset-0 z-[1] flex items-center justify-center">
           <Film
-            size={42}
-            className="text-canna-300/90 opacity-95 saturate-[0.9] drop-shadow-[0_0_10px_rgba(80,255,160,0.28)]"
+            size={21}
+            className="text-canna-300/90 opacity-95 saturate-[0.9] drop-shadow-[0_0_6px_rgba(80,255,160,0.28)]"
             aria-hidden
           />
         </span>
@@ -175,8 +175,8 @@ function TelaoLayer() {
         />
       ) : null}
 
-      <span className="pointer-events-none absolute bottom-2 left-0 right-0 z-[2] flex justify-center">
-        <span className="rounded-full border border-red-400/40 bg-red-950/58 px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.18em] text-red-50 shadow-[0_0_12px_rgba(239,68,68,0.22)] backdrop-blur-sm [text-shadow:0_1px_2px_rgba(0,0,0,0.65),0_0_10px_rgba(0,0,0,0.35)]">
+      <span className="pointer-events-none absolute bottom-1 left-0 right-0 z-[2] flex justify-center">
+        <span className="rounded-full border border-red-400/40 bg-red-950/58 px-1.5 py-[1px] text-[7px] font-bold uppercase tracking-[0.14em] text-red-50 shadow-[0_0_8px_rgba(239,68,68,0.22)] backdrop-blur-sm [text-shadow:0_1px_2px_rgba(0,0,0,0.65),0_0_6px_rgba(0,0,0,0.35)]">
           Live agora
         </span>
       </span>

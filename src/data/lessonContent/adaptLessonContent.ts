@@ -17,6 +17,7 @@ export function lessonStreamToRich(lc: LessonStreamContent): LessonRichContent {
       correctIndex: q.correctIndex
     })),
     media: { ...lc.media },
-    displayTitle: lc.title
+    displayTitle: lc.title,
+    ...(lc.pedagogy ? { pedagogy: { ...lc.pedagogy } } : {})
   };
 }

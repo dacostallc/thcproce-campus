@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import { motion } from "framer-motion";
 import {
   BookOpen,
   Bookmark,
   ClipboardList,
+  Crosshair,
   GraduationCap,
   Library,
   StickyNote,
@@ -31,6 +32,9 @@ import {
 import { adjustCreditsByWithApplied } from "@/lib/studentGamificationStorage";
 import { completeCampusMissionPhase2IfNeeded } from "@/lib/campusMissionsPhase2Storage";
 import { bumpAcademicQuizAnswered } from "@/lib/campusAcademicHistoryStorage";
+import { buildLessonPedagogyViewModel } from "@/lib/lessonPedagogyViewModel";
+import type { LessonPedagogyProgressMeta } from "@/lib/lessonPedagogyViewModel";
+import { LessonPedagogyExperience } from "@/components/campus/pedagogy/LessonPedagogyExperience";
 
 type StreamPal = {
   articleBorder: string;
@@ -138,6 +142,8 @@ type Props = {
   skipIntroSection?: boolean;
   /** Quiz inline: pontuação local (+/- créditos) e persistência de tentativas. */
   lessonQuizContext?: LessonQuizAcademicContext | null;
+  /** Progressão / ponte para próxima aula — experiência pedagógica stream. */
+  lessonPedagogyMeta?: Partial<LessonPedagogyProgressMeta> | null;
 };
 
 function SectionTitle({
@@ -190,20 +196,27 @@ function formatLessonQuizScoreLine(creditsDeltaApplied: number, correct: boolean
 
 type StreamQuizQuestionProps = {
   q: LessonQuizItem;
-  index: number;
+  /** Número mostrado ao aluno (1-based). */
+  displayOrdinal: number;
+  /** Índice na lista completa de questões da aula — chaves de persistência / créditos. */
+  quizStorageIndex: number;
   /** Cannabis 101: feedback textual mais “premium” e menos jargon de sala de aula. */
   cinematicHints?: boolean;
   quizContext?: LessonQuizAcademicContext | null;
+  /** Modo sala de aula: omitir linha de créditos / pontuação. */
+  classroomMode?: boolean;
 };
 
-function StreamQuizBlock({
+export function StreamQuizBlock({
   items,
   cinematicHints,
-  quizContext
+  quizContext,
+  classroomMode
 }: {
   items: LessonQuizItem[];
   cinematicHints?: boolean;
   quizContext?: LessonQuizAcademicContext | null;
+  classroomMode?: boolean;
 }) {
   return (
     <div className="space-y-5">
@@ -211,22 +224,29 @@ function StreamQuizBlock({
         <StreamQuizQuestion
           key={qi}
           q={q}
-          index={qi}
+          displayOrdinal={qi + 1}
+          quizStorageIndex={qi}
           cinematicHints={cinematicHints}
           quizContext={quizContext}
+          classroomMode={classroomMode}
         />
       ))}
     </div>
   );
 }
 
-function StreamQuizQuestion({
+export function StreamQuizQuestion({
   q,
-  index,
+  displayOrdinal,
+  quizStorageIndex,
   cinematicHints,
-  quizContext
+  quizContext,
+  classroomMode
 }: StreamQuizQuestionProps) {
-  const questionId = useMemo(() => buildInlineLessonQuizQuestionId(index, q.question), [index, q.question]);
+  const questionId = useMemo(
+    () => buildInlineLessonQuizQuestionId(quizStorageIndex, q.question),
+    [quizStorageIndex, q.question]
+  );
   const compositeKey =
     quizContext != null
       ? lessonQuizAttemptStorageKey(quizContext.areaId, quizContext.lessonIndex, questionId)
@@ -269,7 +289,7 @@ function StreamQuizQuestion({
     <div className="rounded-xl border border-white/14 bg-black/40 px-4 py-3.5 transition duration-200 hover:-translate-y-px hover:border-amber-500/20 hover:shadow-md hover:shadow-black/30">
       <p className="mb-2 text-sm font-semibold leading-snug text-white/90">
         <span className="mr-2 inline-flex size-6 shrink-0 items-center justify-center rounded-md bg-emerald-500/15 text-[11px] font-bold text-emerald-200">
-          {index + 1}
+          {displayOrdinal}
         </span>
         {q.question}
       </p>
@@ -297,7 +317,7 @@ function StreamQuizQuestion({
       </div>
       {done ? (
         <div className="mt-2 space-y-1">
-          {scoreLine ? (
+          {scoreLine && !classroomMode ? (
             <p
               className={cn(
                 "text-xs font-semibold",
@@ -365,7 +385,8 @@ export function LessonRichTabs({
   streamAccent = "canna",
   streamChapter = null,
   skipIntroSection = false,
-  lessonQuizContext = null
+  lessonQuizContext = null,
+  lessonPedagogyMeta = null
 }: Props) {
   const [tab, setTab] = useState<TabId>("conteudo");
   const [notes, setNotes] = useState("");
@@ -420,6 +441,30 @@ export function LessonRichTabs({
 
   const bodyParagraphs = useMemo(() => splitBodyParagraphs(content.body), [content.body]);
 
+  const pedagogyVm = useMemo(() => {
+    if (!stream) return null;
+    const meta: LessonPedagogyProgressMeta = {
+      lessonIndex:
+        lessonPedagogyMeta?.lessonIndex ?? Math.max(0, (streamChapter?.globalLesson ?? 1) - 1),
+      totalLessons: lessonPedagogyMeta?.totalLessons ?? streamChapter?.globalTotal ?? 1,
+      moduleTitle: lessonPedagogyMeta?.moduleTitle ?? streamChapter?.moduleTitle ?? null,
+      nextLessonTitle: lessonPedagogyMeta?.nextLessonTitle ?? null
+    };
+    return buildLessonPedagogyViewModel(content, meta, { skipHumanOpening: skipIntroSection });
+  }, [stream, content, lessonPedagogyMeta, streamChapter, skipIntroSection]);
+
+  const renderPedagogyHeading = useCallback(
+    (_key: string, label: string) =>
+      c ? (
+        <SectionTitle palette={pal} icon={<Crosshair className="size-3.5 opacity-90" aria-hidden />}>
+          {label}
+        </SectionTitle>
+      ) : (
+        <h2 className={cn(pal.sectionTitle, "flex flex-wrap items-center gap-2")}>{label}</h2>
+      ),
+    [c, pal]
+  );
+
   if (stream) {
     return (
       <motion.article
@@ -470,158 +515,18 @@ export function LessonRichTabs({
           </motion.header>
         ) : null}
 
-        {!skipIntroSection ? (
-          <section className={cn("border-b pb-8 sm:pb-11", pal.sectionBorder)}>
-            {c ? (
-              <SectionTitle palette={pal} icon={<BookOpen className="size-3.5 opacity-90" aria-hidden />}>
-                {CAN101_STREAM_SECTION.intro}
-              </SectionTitle>
-            ) : (
-              <h2 className={pal.sectionTitle}>Introdução</h2>
-            )}
-            <div className={cn("space-y-5 sm:space-y-6", bodyProse)}>
-              <motion.p
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.08 }}
-                className={bodyLead}
-              >
-                {content.intro}
-              </motion.p>
-            </div>
-          </section>
+        {pedagogyVm ? (
+          <LessonPedagogyExperience
+            vm={pedagogyVm}
+            pal={{
+              sectionBorder: pal.sectionBorder,
+              sectionTitle: pal.sectionTitle,
+              badgeNum: pal.badgeNum
+            }}
+            cinematic101={c}
+            sectionHeadingRenderer={renderPedagogyHeading}
+          />
         ) : null}
-
-        <section className={cn("border-b py-8 sm:py-11", pal.sectionBorder)}>
-          {c ? (
-            <SectionTitle palette={pal} icon={<LayoutGrid className="size-3.5 opacity-90" aria-hidden />}>
-              {CAN101_STREAM_SECTION.body}
-            </SectionTitle>
-          ) : (
-            <h2 className={pal.sectionTitle}>Desenvolvimento</h2>
-          )}
-          <div className={cn("space-y-6 sm:space-y-8", bodyProse)}>
-            {bodyParagraphs.length ? (
-              bodyParagraphs.map((p, i) => (
-                <motion.p
-                  key={i}
-                  initial={{ opacity: 0, y: 6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: Math.min(0.05 * i, 0.35) }}
-                  className={cn(
-                    c && "border-l-2 border-amber-500/20 pl-4 sm:pl-5 leading-[1.82]",
-                    /* Preserva quebras \n dentro do bloco (checklists e listas em texto plano). */
-                    c && "whitespace-pre-line",
-                    i === 0 && c && "text-[16px] sm:text-[17px] font-medium text-white/[0.98]"
-                  )}
-                >
-                  {p}
-                </motion.p>
-              ))
-            ) : (
-              <p className="text-white/50">
-                {c
-                  ? "O texto completo deste episódio ainda tá entrando no campus — enquanto isso, aproveita a abertura, os objetivos e os links em Materiais pra não ficar no vácuo."
-                  : "Conteúdo principal será exibido aqui quando o campo textual da aula estiver preenchido."}
-              </p>
-            )}
-          </div>
-        </section>
-
-        {c ? (
-          <>
-            <section className={cn("border-b py-8 sm:py-11", pal.sectionBorder)}>
-              <SectionTitle palette={pal} icon={<Bookmark className="size-3.5 opacity-90" aria-hidden />}>
-                {CAN101_STREAM_SECTION.summary}
-              </SectionTitle>
-              <div
-                className={cn(
-                  "relative overflow-hidden rounded-2xl border px-5 py-5 sm:px-7 sm:py-6",
-                  "border-amber-400/40 bg-gradient-to-br from-[#1a2823] via-[#101c18] to-[#070f0d] shadow-[0_0_48px_rgba(180,120,50,0.08)]"
-                )}
-              >
-                <div
-                  className="pointer-events-none absolute right-0 top-0 size-32 bg-gradient-to-bl from-amber-400/10 to-transparent blur-2xl"
-                  aria-hidden
-                />
-                <p className="relative text-[14px] sm:text-[16px] leading-relaxed text-amber-50/[0.93]">
-                  {content.summary}
-                </p>
-              </div>
-            </section>
-
-            <section className={cn("border-b py-8 sm:py-11", pal.sectionBorder)}>
-              <SectionTitle palette={pal} icon={<Target className="size-3.5 opacity-90" aria-hidden />}>
-                {CAN101_STREAM_SECTION.objectives}
-              </SectionTitle>
-              <ul className="grid gap-3 sm:gap-4">
-                {content.objectives.map((o, i) => (
-                  <motion.li
-                    key={i}
-                    initial={{ opacity: 0, x: -8 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.04 * i }}
-                    className={cn(
-                      "flex gap-3 rounded-2xl border px-4 py-3.5 sm:px-5 sm:py-4 text-[14px] sm:text-[15px] leading-relaxed text-white/[0.9] transition duration-200",
-                      "border-amber-500/25 bg-gradient-to-br from-[#0c1610]/95 to-black/50 shadow-lg shadow-black/25 ring-1 ring-amber-500/10 hover:border-amber-400/40 hover:ring-amber-400/15"
-                    )}
-                  >
-                    <span
-                      className={cn(
-                        "mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-xl font-bold",
-                        pal.badgeNum
-                      )}
-                    >
-                      {i + 1}
-                    </span>
-                    <span className="min-w-0 pt-0.5">{o}</span>
-                  </motion.li>
-                ))}
-              </ul>
-            </section>
-          </>
-        ) : (
-          <>
-            <section className={cn("border-b py-8 sm:py-11", pal.sectionBorder)}>
-              <h2 className={pal.sectionTitle}>Objetivos da aula</h2>
-              <ul className="grid gap-3 sm:gap-4">
-                {content.objectives.map((o, i) => (
-                  <motion.li
-                    key={i}
-                    initial={{ opacity: 0, x: -8 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.04 * i }}
-                    className="flex gap-3 rounded-2xl border border-white/10 bg-black/25 px-4 py-3.5 sm:px-5 sm:py-4 text-[14px] sm:text-[15px] leading-relaxed text-white/[0.9] transition duration-200"
-                  >
-                    <span
-                      className={cn(
-                        "mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-xl font-bold",
-                        pal.badgeNum
-                      )}
-                    >
-                      {i + 1}
-                    </span>
-                    <span className="min-w-0 pt-0.5">{o}</span>
-                  </motion.li>
-                ))}
-              </ul>
-            </section>
-
-            <section className={cn("border-b py-8 sm:py-11", pal.sectionBorder)}>
-              <h2 className={pal.sectionTitle}>Resumo final</h2>
-              <div
-                className={cn(
-                  "relative overflow-hidden rounded-2xl border px-5 py-5 sm:px-7 sm:py-6",
-                  "border-white/14 bg-black/35"
-                )}
-              >
-                <p className="relative text-[14px] sm:text-[16px] leading-relaxed text-white/[0.9]">
-                  {content.summary}
-                </p>
-              </div>
-            </section>
-          </>
-        )}
 
         {content.quiz?.length ? (
           <section className={cn("border-b py-8 sm:py-11", pal.sectionBorder)}>
@@ -706,23 +611,25 @@ export function LessonRichTabs({
           </ul>
         </section>
 
-        <section className={cn("border-b py-8 sm:py-11", pal.sectionBorder)}>
-          {c ? (
-            <SectionTitle palette={pal} icon={<GraduationCap className="size-3.5 opacity-90" aria-hidden />}>
-              {CAN101_STREAM_SECTION.prof}
-            </SectionTitle>
-          ) : (
-            <h2 className={pal.sectionTitle}>Notas do professor</h2>
-          )}
-          <div
-            className={cn(
-              "rounded-xl px-4 py-3.5 text-[14px] leading-relaxed text-white/[0.88] sm:px-5 sm:py-4",
-              pal.profBox
+        {!pedagogyVm?.facilitatorNotesIntegrated ? (
+          <section className={cn("border-b py-8 sm:py-11", pal.sectionBorder)}>
+            {c ? (
+              <SectionTitle palette={pal} icon={<GraduationCap className="size-3.5 opacity-90" aria-hidden />}>
+                {CAN101_STREAM_SECTION.prof}
+              </SectionTitle>
+            ) : (
+              <h2 className={pal.sectionTitle}>Notas do professor</h2>
             )}
-          >
-            {content.professorNotes}
-          </div>
-        </section>
+            <div
+              className={cn(
+                "rounded-xl px-4 py-3.5 text-[14px] leading-relaxed text-white/[0.88] sm:px-5 sm:py-4",
+                pal.profBox
+              )}
+            >
+              {content.professorNotes}
+            </div>
+          </section>
+        ) : null}
 
         <section className="pt-8 sm:pt-11">
           {c ? (

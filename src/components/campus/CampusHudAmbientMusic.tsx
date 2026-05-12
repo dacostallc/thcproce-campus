@@ -22,7 +22,10 @@ import {
   Volume2,
   VolumeX
 } from "lucide-react";
+import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { CAMPUS_HOME_PATH } from "@/config/siteUrls";
+import { useCampusHudStore } from "@/stores/campusHudStore";
 import {
   HUD_AMBIENT_DEFAULT_VOLUME,
   hudAmbientPlaylistFromApiRows,
@@ -122,6 +125,12 @@ function maxAmbientErrorSkips(trackCount: number): number {
 }
 
 export function CampusHudAmbientMusic() {
+  const pathname = usePathname();
+  const campusLessonPanelOpen = useCampusHudStore((s) => s.campusLessonPanelOpen);
+  const campusNavActive =
+    pathname === CAMPUS_HOME_PATH || pathname.startsWith(`${CAMPUS_HOME_PATH}/`);
+  const lessonFocus = campusNavActive && campusLessonPanelOpen;
+
   const shellRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const errorSkipRef = useRef(0);
@@ -500,10 +509,10 @@ export function CampusHudAmbientMusic() {
       position: "fixed" as const,
       left: 0,
       top: 0,
-      zIndex: PLAYER_Z,
+      zIndex: lessonFocus ? 40 : PLAYER_Z,
       touchAction: "none" as const
     },
-    drag: true as const,
+    drag: lessonFocus ? false : (true as const),
     dragControls,
     dragListener: false,
     dragMomentum: false,
@@ -760,6 +769,7 @@ export function CampusHudAmbientMusic() {
         className={cn(
           glassShell,
           "pointer-events-auto",
+          lessonFocus && "invisible pointer-events-none select-none",
           !catalogResolved
             ? "w-[min(20rem,calc(100vw-1.5rem))] max-w-[calc(100vw-1.25rem)] p-3"
             : mini
@@ -771,6 +781,7 @@ export function CampusHudAmbientMusic() {
         )}
         role={!catalogResolved ? "status" : "region"}
         aria-busy={!catalogResolved}
+        aria-hidden={lessonFocus || undefined}
         aria-label={
           !catalogResolved
             ? "A preparar leitor de áudio"

@@ -1,5 +1,6 @@
 import type { LessonQuizItem } from "@/data/lessonContent/types";
 import type { LessonMediaHints } from "@/data/lessonContent/types";
+import type { LessonPedagogyExtras } from "@/data/lessonPedagogy.types";
 
 function q(
   question: string,
@@ -35,6 +36,8 @@ export type Cannabis101LessonBody = {
   quiz: readonly LessonQuizItem[];
   professorNotes: string;
   media: LessonMediaHints;
+  /** Texto da experiência stream — briefing, checkpoints, tom de sala THCProce. */
+  pedagogy?: LessonPedagogyExtras;
 };
 
 /** Fonte canónica do texto das aulas Cannabis 101 no painel do campus: `lessonBodies` → `lessons.ts` → `getLessonRichContent`. Moodle/embed não alimenta este painel. */
@@ -46,10 +49,10 @@ const FOOTNOTE_MATERIALS =
 export const CANNABIS101_LESSON_BODIES: Record<string, Cannabis101LessonBody> = {
   "c101-l01-boas-vindas": {
     introduction:
-      "Bem-vindo ao Cannabis 101 na THCProce. Antes de flores, tricomas e laboratório, precisamos da mesma ferramenta que atravessa todas as trilhas: saber quando redes sociais trocam evidência por empurrão de produto. Mini-cenário: Ana recebe no feed um corte vertical sobre um óleo — música empática, \"natural\", mil curtidas e o destino do link é uma loja. Ela quer saber \"se serve\" e \"se pode\". Esta sessão não diz sim ou não ao caso dela (isso é médico e quadro legal individuais); ensina o freio mental para não propagar achismo nem comprar narrativa por estética.",
+      "Antes de flor e laboratório, o problema que mais aparece na vida real é outro: rede social empurrando produto com cara de ciência.\n\nEu não dou sim ou não sobre o seu caso — isso é médico e lei individual.\n\nO que eu faço é te dar um freio mental forte: você sai daqui sabendo separar evidência de narrativa bonita.",
     body: [
       "O Cannabis 101 assume três compromissos que você verá repetidos: linguagem técnica quando falamos de planta e química; redução de danos sem romantizar uso informal; respeito ao ordenamento brasileiro sem jurismo de grupo. Autoprescrição, doses para terceiros e influencer como \"fonte científica\" ficam fora do contrato.",
-      "Quando surgir áudio, reel ou thread sobre óleo, flor, THC ou CBD, passe esta lista antes de acreditar ou compartilhar — vale guardar no bloco de notas.\n\n• Está diante do documento integral (lei, portaria, estudo, bula, COA) ou só de um recorte?\n\n• Data da norma ou publicação; instituição; financiamento ou marca por trás?\n\n• Promessa de cura, dose para outras pessoas, \"legalização genérica\" ou atalho fiscal? Pause até validar com profissional habilitado e fonte primária.\n\n• Se isto for verdade, que alteração concreta faz na sua vida (marcar consulta, pedir COA, reler rótulo, não cultivar onde não pode)?",
+      "Quando surgir áudio, reel ou thread sobre óleo, flor, THC ou CBD, use esta lista antes de acreditar ou compartilhar — vale guardar no bloco de notas.\n\n• Está diante do documento integral (lei, portaria, estudo, bula, COA) ou só de um recorte?\n\n• Data da norma ou publicação; instituição; financiamento ou marca por trás?\n\n• Promessa de cura, dose para outras pessoas, \"legalização genérica\" ou atalho fiscal? Pause até validar com profissional habilitado e fonte primária.\n\n• Se isto for verdade, que alteração concreta faz na sua vida (marcar consulta, pedir COA, reler rótulo, não cultivar onde não pode)?",
       "Rotina que sustenta as próximas dez aulas.\n\n• Bloco de tempo sem multitarefa — vocabulário exige atenção.\n\n• Três perguntas antes de ler (planta ou produto? qual canabinoide aparece? qual evidência ou lei?).\n\n• Sublinhe onde o texto diz \"onde isto aplica-se\" (cozinha segura, laudo, conversa clínica, cultivo só onde permitido).\n\n• Ao terminar: uma ação — pergunta ao médico, verificação de fonte, lista de dúvidas.\n\n• Nenhuma ficha substitui receita nem parecer jurídico individual.",
       "Armadilhas frequentes no ecossistema cannabis: review patrocinado por marca de vaporizador; \"CBD acalma\" sem população nem dose; Europa/Brazil misturados num mesmo vídeo; produtor formal sem alinhar lote, COA e ficha técnica. Em cada caso: registe fonte, data e nível de evidência.",
       "Evite fingir domínio por velocidade de leitura, copiar doses de estranhos, usar meme como texto legal ou esconder uso do médico.",
@@ -91,17 +94,41 @@ export const CANNABIS101_LESSON_BODIES: Record<string, Cannabis101LessonBody> = 
       )
     ],
     professorNotes:
-      "Contrato oral de sala: perguntas bem-vindas; autopromoção irresponsável não. Indique apoio psicológico institucional se existir.",
-    media: MEDIA_INTRO
+      "Contrato oral de sala: perguntas bem-vindas; autopromoção irresponsável não. Indico apoio psicológico institucional se existir.",
+    media: MEDIA_INTRO,
+    pedagogy: {
+      practicalObjectiveLead: "Treinar o olhar: o que é evidência de verdade e o que é empurrão de produto.",
+      practicalExplanation:
+        "O Cannabis 101 segura três combinados — e você vai ver isso repetido:\n\nLinguagem técnica quando falamos de planta e química. Redução de danos sem romantizar uso informal. Respeito à lei brasileira sem virar jurídico de grupo de WhatsApp.\n\nAutoprescrição, dose pra terceiro e influencer como «fonte científica» ficam fora do combinado.",
+      stepByStep: [
+        "Toda vez que aparecer áudio, reel ou thread sobre óleo, flor, THC ou CBD, roda esta checklist antes de acreditar ou compartilhar.",
+        "Você está vendo o documento inteiro (lei, portaria, estudo, bula, COA) ou só um recorte bonito?",
+        "Qual a data da norma ou da publicação? Qual instituição? Quem financiou ou qual marca está por trás?",
+        "Tem promessa de cura, dose pra outras pessoas, «legalização genérica» ou atalho fiscal? Para até validar com profissional habilitado e fonte primária.",
+        "Se isso for verdade: que mudança concreta faz na sua vida — marcar consulta, pedir COA, reler rótulo, não cultivar onde não pode?"
+      ],
+      realExample:
+        "Ana vê um corte vertical sobre um óleo — música empática, «natural», monte de curtida — e o link cai na loja. A pergunta certa não é «serve pra mim?» num story; é «qual é a evidência e qual é o meu quadro clínico e jurídico?», com profissional na conversa.",
+      commonMistakes:
+        "Review patrocinado por marca de vaporizador fingindo neutro. «CBD acalma» sem população nem dose. Misturar cenário da Europa com Brasil no mesmo vídeo. Produtor sério sem alinhar lote, COA e ficha técnica.",
+      professionalObservation:
+        "Na minha sala não existe pergunta ridícula; existe autopromoção irresponsável que eu corto. Se alguém precisar de apoio psicológico institucional, eu indico caminho — sem moralismo.",
+      operationalSummary:
+        "Rotina que sustenta as próximas aulas: bloco de tempo sem multitarefa — vocabulário aqui pede atenção.\n\nTrês perguntas antes de ler: planta ou produto? Qual canabinoide aparece? Qual evidência ou lei?\n\nAo terminar cada aula: uma ação só — pergunta ao médico, checagem de fonte ou lista de dúvidas datadas.",
+      exercise:
+        "Num papel físico: uma coisa que você recusa a fazer neste curso (passar dose a terceiros; cultivar fora da lei) e uma habilidade que vai treinar (pedir e ler COA; levar perguntas objetivas ao médico). Guarda o papel — é o seu combinado com o conteúdo.",
+      nextLessonBridge:
+        "Próxima parada: Cannabis sativa L. como organismo de verdade — não como slogan de embalagem."
+    }
   },
 
   "c101-l02-o-que-e-cannabis": {
     introduction:
-      "Cannabis sativa L. não é slogan — é organismo vivo cujo manejo altera química da inflorescência. Pense como agrônomo consciente e consumidor informado: genética, ambiente, colheita e pós-colheita são alavancas mensuráveis. Mais à frente, na aula sobre canabinoides e COA, você lerá como essa variabilidade aparece em números de laboratório.",
+      "Cannabis sativa L. não é slogan de Instagram — é planta viva. Quem mexe no manejo mexe na química da inflorescência.\n\nPensa comigo como agrônomo de verdade e como consumidor esperto: genética, ambiente, colheita e pós-colheita são alavanca mensurável.\n\nDaqui a pouco, na aula de canabinoides e COA, você vai ler isso em número de laboratório — hoje a gente ancora o porquê.",
     body: [
       "OBJETIVO. Relacionar estrutura botânica básica, ciclo reprodutivo das flores femininas e fatores de cultivo com o perfil químico observável em laboratório.",
       "EXPLICAÇÃO. Glândulas tricomáticas nas brácteas acumulam resina rica em canabinoides e terpenos. O momento da colheita altera a proporção de precursores ácidos versus formas neutras após decarboxilação térmica ou tempo. Substrato com boa drenagem e raízes oxigenadas sustentam metabolismo secundário — daí \"substrato equilibrado\" em manuais sérios de horticultura onde o cultivo é permitido.",
-      "O MESMO GENÓTIPO NÃO GARANTE O MESMO RESULTADO. Duas plantas com etiqueta genética parecida podem divergir forte se uma viveu estufa controlada e outra campo úmido; se uma foi colhida cedo e outra tardia; se secagens diferiram em temperatura e oxigénio. Por isso laboratório reporta lote e método — tema central quando formos ler THCA, THC total e estabilidade química na aula de canabinoides.",
+      "O MESMO GENÓTIPO NÃO GARANTE O MESMO RESULTADO. Duas plantas com etiqueta genética parecida podem divergir forte se uma viveu estufa controlada e outra campo úmido; se uma foi colhida cedo e outra tardia; se secagens diferiram em temperatura e oxigênio. Por isso laboratório reporta lote e método — tema central quando formos ler THCA, THC total e estabilidade química na aula de canabinoides.",
       "PASSO A PASSO — avaliar qualidade de informação sobre uma cultivar (sem julgar legalidade local).\n\n1. Peça nome botânico ou registro, não só apelido de rede social.\n\n2. Peça dados de colheita: indoor/outdoor, clima, idade fenológica.\n\n3. Busque COA com data e laboratório credenciado quando o produto for legalmente comercializado.\n\n4. Compare dois lotes com nome parecido: se química diverge muito, questione padronização ou rótulo genérico.",
       "EXEMPLOS. Duas \"Purple\" podem ter terpenos diferentes em estufa versus campo; óleo com 30 mg/mL no rótulo precisa casar com método analítico declarado; semente de fibra não conversa com flor medicinal regulada.",
       "ERROS COMUNS. Analogia vaga sem métricas; ignorar que fotoperíodo e estresse hídrico moderado alteram expressão química; assumir cor como proxy de potência.",
@@ -145,12 +172,35 @@ export const CANNABIS101_LESSON_BODIES: Record<string, Cannabis101LessonBody> = 
     ],
     professorNotes:
       "Se possível, planta demonstrativa não cannabis (tomateiro, manjericão) e observação microscópica de tricomas como paralelo seguro.",
-    media: MEDIA_STANDARD
+    media: MEDIA_STANDARD,
+    pedagogy: {
+      practicalObjectiveLead: "Ligar flor, cultivo e laudo: mesmo nome genético não é mesmo resultado químico.",
+      practicalExplanation:
+        "Tricomas glandulares nas brácteas guardam resina rica em canabinoides e terpenos.\n\nColheita e pós-colheite mudam a proporção entre precursores ácidos e formas neutras depois de calor ou tempo.\n\nSubstrato com drenagem séria e raiz oxigenada sustenta metabolismo secundário — é por isso que manual bom de horticultura fala em substrato equilibrado onde cultivo é permitido.",
+      stepByStep: [
+        "Avaliar informação sobre uma cultivar (sem julgar legalidade local): peça nome botânico ou registro, não só apelido de rede social.",
+        "Peça contexto de colheita: indoor ou outdoor, clima, idade fenológica.",
+        "Busque COA com data e laboratório credenciado quando o produto for legalmente comercializado.",
+        "Compare dois lotes com nome parecido: se a química diverge muito, questione padronização ou rótulo genérico."
+      ],
+      realExample:
+        "Duas linhas «Purple» podem cheirar diferente em estufa fechada versus campo aberto. Óleo com 30 mg/mL no rótulo precisa bater com o método analítico declarado. Semente de fibra não conversa com flor medicinal regulada — são mundos diferentes.",
+      commonMistakes:
+        "Analogia vaga sem número. Ignorar que fotoperíodo e estresse hídrico moderado mudam expressão química. Achar que cor da flor é proxy de potência.",
+      professionalObservation:
+        "Eu gosto de mostrar planta que não seja cannabis quando a política aperta — tomateiro, manjericão — e treinar olho no microscópio. O aluno entende tricoma como estrutura, não como moda.",
+      operationalSummary:
+        "Cannabis é planta mensurável: genótipo sozinho não segura resultado sem registro de ambiente e processo.\n\nVocê já está se preparando pra ler COA e aceitar variação real entre sessões de uso.",
+      exercise:
+        "Monte duas colunas no caderno: «mesmo nome genético» × «mesmo perfil químico garantido». Liste o que teria de ser igual pra segunda coluna ser verdade (ambiente, colheita, análise de lote).",
+      nextLessonBridge:
+        "Na próxima aula a gente separa cânhamo, maconha e cannabis medicinal sem misturar política com botânica."
+    }
   },
 
   "c101-l03-canhamo-maconha-medicinal": {
     introduction:
-      "Cânhamo, maconha e cannabis medicinal travam políticas porque misturam botânica, lei e estigma. Trate como analista de rótulo e categoria — não como manchete. Normas mudam: sempre registre a data da sua pesquisa em fonte oficial.",
+      "Cânhamo, maconha e cannabis medicinal brigam na política porque misturam botânica, lei e estigma — e cada um usa a mesma palavra pra mundos diferentes.\n\nAqui você vai trabalhar como analista de rótulo e categoria, não como manchete de capa.\n\nNorma muda: anota sempre a data em que você leu a fonte oficial.",
     body: [
       "OBJETIVO. Separar cadeias típicas de baixo THC (fibra, semente, cosméticos com limites), mercados informais de flores psicoativas e programas medicinais com prescrição e rastreabilidade.",
       "EXPLICAÇÃO. No Brasil, canabinoides prescritos seguem canais específicos (importação autorizada, registrados quando existirem). Decisões judiciais individuais criam camadas que mudam — cite sempre quando leu. Nos EUA, permissão estadual não apaga tensões federais em vários domínios.",
@@ -197,17 +247,41 @@ export const CANNABIS101_LESSON_BODIES: Record<string, Cannabis101LessonBody> = 
     ],
     professorNotes:
       "Datas nos slides. Evite nomes reais de pacientes. Reforce confidencialidade e estigma.",
-    media: MEDIA_STANDARD
+    media: MEDIA_STANDARD,
+    pedagogy: {
+      practicalObjectiveLead: "Separar três mundos: baixo THC industrial, medicinal regulado e informal sem rastreio.",
+      practicalExplanation:
+        "No Brasil, canabinoides prescritos seguem canais específicos — importação autorizada, registrados quando existirem. Decisões judiciais individuais acrescentam camada que muda; quando citar, diga quando leu.\n\nNos EUA, permissão estadual não apaga tensão federal em vários cantos da vida real.",
+      stepByStep: [
+        "Ler rótulo ou resumo de portaria: primeiro classifique — alimento, cosmético, suplemento vedado localmente ou medicamento.",
+        "Leia THC e CBD com unidade honesta (mg por dose, % massa/massa).",
+        "Busque selo GMP ou canal autorizado quando couber.",
+        "Cruze com prescritor — rótulo não substitui monitoramento clínico.",
+        "Leve pra consulta: interações com remédios atuais; horários pra registrar; sinais de alarme; onde achar informação oficial sobre importação ou dispensação."
+      ],
+      realExample:
+        "Óleo importado regulado versus frasco informal sem origem. Flor medicinal com rastreio versus flor «de amigo». Cosmético com CBD sem dose terapêutica declarada — são categorias diferentes, não só «tem CBD».",
+      commonMistakes:
+        "Achar que «CBD de shopping» resolve quadro psiquiátrico grave sem avaliação. Confundir decisão judicial individual com política geral do país. Assumir que UE igual Brasil.",
+      professionalObservation:
+        "Eu atualizo data nos slides todo semestre e corto nome de paciente sem piedade — exemplo vale; exposição não.",
+      operationalSummary:
+        "Três mundos em uma linha cada:\n\nMundo A — baixo THC industrial/alimento/fibra: olho no limite legal de THC declarado.\n\nMundo B — medicinal regulado: prescrição, rótulo com teores, canal autorizado, rastreio de lote quando existir.\n\nMundo C — informal sem rastreio: sem COA confiável e sem supervisão clínica estruturada — risco legal e sanitário alto.",
+      exercise:
+        "Desenhe três caixas — Baixo THC industrial; Medicinal regulado; Informal sem rastreio — e escreva uma pergunta em cada que só profissional habilitado fecha de verdade.",
+      nextLessonBridge:
+        "A seguir: canabinoides no papel — THCA, THC total, LOD/LOQ — pra você ler COA sem pirar."
+    }
   },
 
   "c101-l04-canabinoides": {
     introduction:
-      "THC, CBD, CBG e CBN não são encantamentos — são moléculas com assinatura em COA. Esta aula é o seu laboratório textual: porcentagens, mg/g, LOD/LOQ e degradação por oxidação. Conecta diretamente ao que vimos na aula da planta: colheita e armazenagem alteram o que o laudo pode mostrar.",
+      "THC, CBD, CBG, CBN — não são encantamento de marketer; são moléculas com endereço no COA.\n\nEsta aula é laboratório em texto: porcentagem, mg/g, LOD/LOQ, oxidação.\n\nConecta direto com a aula da planta: colheita e armazenagem mudam o que o laudo mostra.",
     body: [
       "OBJETIVO. Interpretar laudos quantitativos básicos e relacionar armazenamento com perfil de canabinoides, sem promessa clínica.",
-      "EXPLICAÇÃO. COA lista THCA, CBDA, THC total e CBD total estimados por soma após decarboxilação teórica — cada laboratório declara equação; compare sempre método e unidade. LOD/LOQ informam confiança em valores baixos. THCA alto exposto a luz e oxigénio pode migrar para THC neutro e oxidar a CBN — literatura descreve envelhecimento químico mensurável.",
+      "EXPLICAÇÃO. COA lista THCA, CBDA, THC total e CBD total estimados por soma após decarboxilação teórica — cada laboratório declara equação; compare sempre método e unidade. LOD/LOQ informam confiança em valores baixos. THCA alto exposto a luz e oxigênio pode migrar para THC neutro e oxidar a CBN — literatura descreve envelhecimento químico mensurável.",
       "PERGUNTAS ÚTEIS AO LABORATÓRIO OU FORNECEDOR (quando legalmente aplicável).\n\n• Qual acreditação e qual versão de método para potência?\n\n• Unidade é massa seca da flor ou produto acabado?\n\n• Há painel de segurança (pesticidas, metais, micotoxinas) neste lote?\n\n• Como reproduzir o mesmo ensaio em lote futuro?",
-      "EXERCÍCIO FICTÍCIO — DUAS LINHAS DE COA (números ilustrativos, não prescrevem uso).\n\nLote 1: THCA 22 %; THC total declarado 19 %; data há 40 dias; armazenagem mal vedada.\n\nLote 2: THCA 22 %; THC total declarado 18,5 %; CBN subiu vs relatório anterior do mesmo cultivar; data há 120 dias.\n\nPergunta de raciocínio: o que mudar primeiro na hipótese — genética ou tempo/oxigénio? Por quê?",
+      "EXERCÍCIO FICTÍCIO — DUAS LINHAS DE COA (números ilustrativos, não prescrevem uso).\n\nLote 1: THCA 22 %; THC total declarado 19 %; data há 40 dias; armazenagem mal vedada.\n\nLote 2: THCA 22 %; THC total declarado 18,5 %; CBN subiu vs relatório anterior do mesmo cultivar; data há 120 dias.\n\nPergunta de raciocínio: o que mudar primeiro na hipótese — genética ou tempo/oxigênio? Por quê?",
       "PASSO A PASSO — ler COA de produto legal.\n\n1. Laboratório, acreditação, data.\n\n2. Unidade (% massa seca vs mg por unidade).\n\n3. THC total vs THCA isolado — entender precursor.\n\n4. Contaminantes antes de celebrar potência.\n\n5. Guardar PDF com número de lote se acompanha titulação clínica autorizada.",
       "EXEMPLOS. Flor potente com micotoxina acima do permitido reprova; óleo 25 mg/dose pode variar ± faixa do método; CBN alto sugere estoque velho ou armazenagem ruim.",
       "ERROS COMUNS. Comparar países sem converter unidades; ignorar umidade da amostra; \"full spectrum\" sem dados numéricos.",
@@ -221,14 +295,14 @@ export const CANNABIS101_LESSON_BODIES: Record<string, Cannabis101LessonBody> = 
       "Relacionar oxidação e tempo com aumento relativo de CBN descrito na literatura."
     ],
     closingSummary:
-      "Faça download de COA público anónimo e circule: THC total; data; LOD de contaminantes. O que não entender vira pergunta ao farmacêutico ou prescritor.",
+      "Faça download de COA público anônimo e circule: THC total; data; LOD de contaminantes. O que não entender vira pergunta ao farmacêutico ou prescritor.",
     quiz: [
       q(
         "Por que CBN frequentemente sobe em amostras antigas mal guardadas?",
         2,
         "Porque laboratórios sempre adulteram resultados",
         "Porque CBD vira automaticamente vitamina",
-        "Porque THC pode oxidar-se formando mais CBN ao longo do tempo sob luz/oxigénio",
+        "Porque THC pode oxidar-se formando mais CBN ao longo do tempo sob luz/oxigênio",
         "Porque terpenos viram THC mágico"
       ),
       q(
@@ -250,18 +324,43 @@ export const CANNABIS101_LESSON_BODIES: Record<string, Cannabis101LessonBody> = 
     ],
     professorNotes:
       "Slide com COA anonimizado real. Conversão de unidades simbólica — sem ensinar fraude em ensaio.",
-    media: MEDIA_STANDARD
+    media: MEDIA_STANDARD,
+    pedagogy: {
+      practicalObjectiveLead: "Ler COA sem glossário na mão e saber o que pergunta ao laboratório.",
+      practicalExplanation:
+        "COA lista THCA, CBDA, THC total e CBD total estimados por soma após decarboxilação teórica — cada laboratório declara equação; compare método e unidade.\n\nLOD e LOQ dizem até onde você pode confiar em número baixo.\n\nTHCA alto exposto a luz e oxigênio pode migrar pra THC neutro e oxidar a CBN — envelhecimento químico mensurável na literatura.",
+      stepByStep: [
+        "Laboratório, credencial, data do laudo.",
+        "Unidade clara: % massa seca versus mg por unidade de produto.",
+        "THC total versus THCA isolado — entender precursor antes de celebrar potência.",
+        "Painel de segurança antes de só festejar potência: contaminantes importam.",
+        "Guardar PDF com número de lote se você acompanha titulação clínica autorizada.",
+        "Pergunte quando couber: qual método de potência; unidade é flor seca ou produto acabado; há painel de pesticidas, metais, micotoxinas neste lote?"
+      ],
+      realExample:
+        "Exercício fictício com dois lotes: mesmo THCA inicial; um mal vedado há 40 dias, outro envelhecido com CBN subindo versus relatório anterior. O primeiro suspeito a ajustar não é a genética — é tempo, luz e oxigênio.",
+      commonMistakes:
+        "Comparar países sem converter unidade. Ignorar umidade da amostra. «Full spectrum» bonito no rótulo sem dado numérico.",
+      professionalObservation:
+        "Eu projeto slide com COA anonimizado de verdade: aluno sente cheiro de papel técnico, não de promessa.",
+      operationalSummary:
+        "COA é documento técnico, não outdoor.\n\nArmazenagem ruim altera química observável — você já sabe olhar potência e segurança no mesmo arquivo.",
+      exercise:
+        "Baixe um COA público anônimo e circule com caneta: THC total; data; LOD de contaminantes. O que não entender vira pergunta pro farmacêutico ou prescritor.",
+      nextLessonBridge:
+        "Terpenos na próxima — aroma, conservação e fim do papo de «esse terpeno cura» sem evidência."
+    }
   },
 
   "c101-l05-terpenos": {
     introduction:
-      "Terpenos são voláteis: ditam aroma e parte da percepção. Leia como processista — temperatura, oxigénio, luz e tempo são controles de conservação, não moda. Esta aula corta o hábito de transformar nome de terpeno em promessa clínica.",
+      "Terpeno é volátil — manda no aroma e num pedaço importante da percepção.\n\nOlha como processista: temperatura, oxigênio, luz e tempo são controle de conservação; não são modinha de Instagram.\n\nEsta aula corta o vício de virar nome de terpeno em promessa clínica.",
     body: [
       "OBJETIVO. Correlacionar compostos voláteis com percepção, protocolos caseiros de conservação (onde legal possuir flor seca) e sanidade frente a claims milagrosos.",
       "CIÊNCIA SEM HYPE. Mirceno tende a notas herbáceas; limoneno cítrico; pineno resinoso; linalool floral. Cromatografia mede µg/g — o nariz não é GC-MS. Declarações terapêuticas por terpeno isolado costumam extrapolar evidência; aqui usamos terpenos para entender fragilidade química e qualidade sensorial, não para prescrever tratamento.",
       "EXEMPLO LOTE A VS LOTE B (fictício). Mesmo nome comercial; Lote A secagem lenta em escuro com vedante real mantém topo cítrico; Lote B secagem quente e pote transparente no parapeito perde voláteis leves — mesmo THC total no papel pode parecer \"flat\" ao usuário. Nariz não substitui COA, mas discordância nariz×rótulo merece investigação de processo.",
       "EXPLICAÇÃO. Secagem lenta em escuro com ar suave preserva monoterpenos sensíveis que evaporam acima de ~30–35 °C prolongados (faixa ilustrativa — matriz e equipamento importam).",
-      "PASSO A PASSO — conservação doméstica responsável (produto legal).\n\n1. Recipiente opaco com vedante sério.\n\n2. Reguladores de humidade conforme orientação clínica ou protocolo local — decisão médica, não escolar.\n\n3. Evite geladeira se não controlar condensação — risco de mofo.\n\n4. Abrir o pote o mínimo; oxigénio fragmenta terpenos.",
+      "PASSO A PASSO — conservação doméstica responsável (produto legal).\n\n1. Recipiente opaco com vedante sério.\n\n2. Reguladores de humidade conforme orientação clínica ou protocolo local — decisão médica, não escolar.\n\n3. Evite geladeira se não controlar condensação — risco de mofo.\n\n4. Abrir o pote o mínimo; oxigênio fragmenta terpenos.",
       "EXEMPLOS. Vidro âmbar melhor que pote claro na janela; concentrado aquecido no bolso perde topo aromático; café ao lado contamina odor.",
       "ERROS COMUNS. Congelar sem embalar; misturar genéticas sem etiqueta; confundir cheiro forte com potência alta.",
       "TERMOS. Evaporação — perda física de voláteis. Oxidação — alteração química. Cura — redistribuição de umidade após secagem inicial.",
@@ -270,11 +369,11 @@ export const CANNABIS101_LESSON_BODIES: Record<string, Cannabis101LessonBody> = 
     ].join("\n\n"),
     objectives: [
       "Nomear três terpenos frequentes e associá-los a notas aromáticas.",
-      "Descrever como calor, luz e oxigénio degradam voláteis.",
+      "Descrever como calor, luz e oxigênio degradam voláteis.",
       "Rejeitar narrativa de cura baseada só no nome de um terpeno sem evidência clínica específica."
     ],
     closingSummary:
-      "Liste quatro controles (luz, temperatura, oxigénio, umidade) e diga qual sacrificaria primeiro se morasse em lugar muito úmido — e por quê.",
+      "Liste quatro controles (luz, temperatura, oxigênio, umidade) e diga qual sacrificaria primeiro se morasse em lugar muito úmido — e por quê.",
     quiz: [
       q(
         "Secagem muito quente e rápida tende a:",
@@ -295,7 +394,7 @@ export const CANNABIS101_LESSON_BODIES: Record<string, Cannabis101LessonBody> = 
       q(
         "Recipiente opaco com vedante visa principalmente:",
         0,
-        "Reduzir luz e oxigénio que degradam compostos voláteis",
+        "Reduzir luz e oxigênio que degradam compostos voláteis",
         "Impedir leitura do rótulo",
         "Substituir orientação médica",
         "Aumentar THC por telepatia"
@@ -303,12 +402,36 @@ export const CANNABIS101_LESSON_BODIES: Record<string, Cannabis101LessonBody> = 
     ],
     professorNotes:
       "Estações com especiarias para treinar nariz sem cannabis, se política permitir.",
-    media: MEDIA_INTRO
+    media: MEDIA_INTRO,
+    pedagogy: {
+      practicalObjectiveLead: "Nomear voláteis com pé no chão e defender conservação sem hype terapêutico.",
+      practicalExplanation:
+        "Mirceno tende a nota herbácea; limoneno cítrico; pineno resinoso; linalool floral.\n\nCromatografia mede µg/g — o nariz não é cromatógrafo.\n\nTerpeno aqui explica fragilidade química e qualidade sensorial; não substitui evidência clínica nem prescrição.",
+      stepByStep: [
+        "Recipiente opaco com vedante sério — corta luz e oxigênio que fragmentam monoterpenos.",
+        "Reguladores de umidade seguem orientação clínica ou protocolo local — decisão médica.",
+        "Evite geladeira se não controlar condensação — mofo entra fácil.",
+        "Abra o pote o mínimo possível — cada abertura é oxidação e perda de topo aromático.",
+        "Secagem lenta em escuro com ar suave preserva voláteis sensíveis que evaporam com calor prolongado acima de faixa ilustrativa ~30–35 °C — matriz e equipamento mudam o número."
+      ],
+      realExample:
+        "Mesmo nome comercial, dois lotes: A secou devagar no escuro com vedante real — mantém topo cítrico. B secou quente, ficou em pote transparente no parapeito — perde volátil leve. THC total pode parecer parecido no papel e mesmo assim o B cheira «flat». Nariz não substitui COA; discordância nariz × rótulo pede investigação de processo.",
+      commonMistakes:
+        "Congelar sem embalar direito. Misturar genéticas sem etiqueta. Confundir cheiro forte com potência alta.",
+      professionalObservation:
+        "Quando política não deixa cheiro de flor na sala, eu monto estação de especiarias — treina nariz sem drama institucional.",
+      operationalSummary:
+        "Terpenos são ingredientes frágeis: técnica de armazenamento define o que sobra pro nariz.\n\nCalor, luz e oxigênio são seus três inimigos declarados.",
+      exercise:
+        "Liste quatro controles — luz, temperatura, oxigênio, umidade — e diga qual você sacrificaria primeiro se morasse em lugar muito úmido, e por quê.",
+      nextLessonBridge:
+        "Depois do nariz, o sistema endocanabinoide — mapa pra você fazer pergunta melhor na consulta."
+    }
   },
 
   "c101-l06-sistema-endocanabinoide": {
     introduction:
-      "O sistema endocanabinoide modula dor, humor, sono e inflamação via receptores e ligantes endógenos — linguagem de feedback biológico, não \"modo turbo\". Use o mapa ECS para fazer perguntas melhores na consulta e para entender por que vias de consumo (aula seguinte sobre formas de uso) e sedação (aula de redução de danos) mudam risco.",
+      "ECS não é «modo turbo» do corpo — é rede de feedback que mexe com dor, humor, sono, inflamação.\n\nCanabinóide de fora perturba esse equilíbrio; por isso farmacologia importa tanto quanto «natural».\n\nUse este mapa pra chegar na consulta com pergunta melhor — e pra entender por que via de uso e sedação mudam risco de verdade.",
     body: [
       "OBJETIVO. Descrever CB1/CB2 como interfaces de sinalização e listar sinais que devem ser comunicados ao prescritor quando canabinoides fazem parte de tratamento autorizado.",
       "EXPLICAÇÃO. CB1 concentrado no SNC modula neurotransmissão; CB2 mais presente em tecido imune associa-se, em modelos experimentais, a modulação inflamatória. Canabinoides exógenos perturbam equilíbrio — daí taquicardia, hipotensão ortostática ou sonolência com variabilidade individual.",
@@ -324,7 +447,7 @@ export const CANNABIS101_LESSON_BODIES: Record<string, Cannabis101LessonBody> = 
     objectives: [
       "Definir ECS como rede moduladora com exemplos fisiológicos cotidianos.",
       "Montar checklist de informações para consulta sobre canabinoides.",
-      "Distinguir sinais que pedem contacto prioritário versus emergência imediata."
+      "Distinguir sinais que pedem contato prioritário versus emergência imediata."
     ],
     closingSummary:
       "Cinco linhas de \"relato estruturado\" após uma semana de uso autorizado: sintomas-alvo, horários, eventos leves, sono, hidratação — levar impresso.",
@@ -356,15 +479,41 @@ export const CANNABIS101_LESSON_BODIES: Record<string, Cannabis101LessonBody> = 
     ],
     professorNotes:
       "Convide farmacêutico nos minutos finais se permitido. Sem humor grosseiro sobre intoxicação.",
-    media: { ...MEDIA_STANDARD, needsInfographic: true }
+    media: { ...MEDIA_STANDARD, needsInfographic: true },
+    pedagogy: {
+      practicalObjectiveLead: "Ver CB1/CB2 como interface técnica — cooperar com prescritor, não fingir precisão caseira.",
+      practicalExplanation:
+        "CB1 concentrado no SNC mexe com neurotransmissão; CB2 mais ligado a tecido imune aparece em modelos com modulação inflamatória.\n\nCanabinóide exógeno bagunça equilíbrio — daí taquicardia, hipotensão ortostática ou sonolência com variabilidade brutal entre pessoas.",
+      stepByStep: [
+        "Montar pasta pra consulta: medicamentos atuais com dose e horário.",
+        "Sintomas-alvo em escala simples — dor ou sono 0 a 10.",
+        "Eventos estranhos com data — não esconda pra parecer durão.",
+        "Pergunte explicitamente sobre anticoagulante, antiepiléptico, ansiolítico.",
+        "Não corta psicofármaco sozinho quando entrar canabinóide — isso é decisão médica.",
+        "Prioridade em até 48 h se aparecer palpitação ou tontura novas persistentes, sonolência que quebra trabalho seguro ou cuidado com criança, náusea ou vômito incomum após mudar formulação.",
+        "Emergência imediata se tiver dor torácica, falta de ar súbita, confusão nova ou pensamento de autolesão — liga emergência ou CVV conforme seu protocolo local, use ou não cannabis."
+      ],
+      realExample:
+        "Quem usa varfarina precisa INR mais vigilante; clobazam mexe com clearance de CBD em estudo; THC pode estourar taquicardia ansiosa transitória. São exemplos de por que «natural» não fecha conversa com prescritor.",
+      commonMistakes:
+        "Achar que «é planta» dispensam farmacologia. Tratar ECS como interruptor único liga/desliga. Esperar que esta aula substitua semiologia médica.",
+      professionalObservation:
+        "Eu fecho com farmacêutico quando a instituição deixa — dez minutos economizam retrabalho clínico depois. Piadinha sobre chapéu eu corto na hora.",
+      operationalSummary:
+        "Mapa ECS serve pra cooperar — não pra automedicar com cara de quem sabe tudo.\n\nVariabilidade entre pessoas é o argumento técnico a favor de titulação e acompanhamento quando o uso é autorizado.",
+      exercise:
+        "Escreve cinco linhas de «relato estruturado» como se tivesse uma semana de uso autorizado: sintoma-alvo, horários, eventos leves, sono, hidratação — leva impresso na próxima consulta.",
+      nextLessonBridge:
+        "Próxima aula: redução de danos em cenário real — checklist em vez de heroísmo."
+    }
   },
 
   "c101-l07-usos-e-reducao-de-danos": {
     introduction:
-      "Redução de danos é engenharia de risco quando há exposição real a psicoativos — não \"liberar geral\". Você monta cenários com checklist. Importante: partilhar informação pública de segurança não é prescrever dose; orientar terceiros sobre quantidade ou combinação ultrapassa o papel deste curso.",
+      "Redução de danos é engenharia de risco quando já existe exposição a psicoativo — não é «liberar geral» nem aesthetic de festival.\n\nAqui você monta cenário com checklist; eu não prescrevo dose nem mistura pra terceiro.\n\nCompartilhar número de emergência e material neutro é uma coisa; virar consultório ambulante de dose é outra.",
     body: [
       "OBJETIVO. Construir protocolos situacionais (evento, estrada, lar com crianças) que reduzam trauma, sobrecarga subjetiva intensa e consequências jurídicas, sem romantizar uso.",
-      "ÉTICA AO \"AJUDAR\" ALGUÉM. Pode indicar números de emergência, incentivar conversa com profissional e partilhar materiais educativos neutros. Não copie doses, não recomende misturas sedativas, não incentive condução ou trabalho perigoso sob influência — mesmo que \"todo mundo faça\".",
+      "ÉTICA AO \"AJUDAR\" ALGUÉM. Pode indicar números de emergência, incentivar conversa com profissional e compartilhar materiais educativos neutros. Não copie doses, não recomende misturas sedativas, não incentive condução ou trabalho perigoso sob influência — mesmo que \"todo mundo faça\".",
       "EXPLICAÇÃO. Baixa dose inicial com supervisão clínica quando aplicável reduz episódios \"too much\". Mistura com álcool ou benzodiazepínicos aumenta sedação e queda. Dirigir sob THC onde proibido ou com tolerância zero é risco jurídico e de vida.",
       "CENÁRIO EVENTO (uso onde legal para adultos).\n\n1. Limite prévio por escrito.\n\n2. Água e alimento leve disponíveis.\n\n3. Pessoa sóbria de confiança.\n\n4. Endereço de emergência salvo.\n\n5. Produto em embalagem original rotulada.",
       "CENÁRIO LAR COM CRIANÇAS.\n\n1. Armário trancado alto.\n\n2. Embalagem à prova de criança.\n\n3. Linguagem honesta — nunca \"doce\".\n\n4. Descarte conforme farmácia/local.",
@@ -376,7 +525,7 @@ export const CANNABIS101_LESSON_BODIES: Record<string, Cannabis101LessonBody> = 
     objectives: [
       "Redigir checklist de redução de danos para dois cenários distintos.",
       "Explicar por que misturas com depressores do SNC são especialmente perigosas.",
-      "Distinguir partilha educativa segura de orientação clandestina sobre dose ou mistura."
+      "Distinguir compartilhamento educativo seguro de orientação clandestina sobre dose ou mistura."
     ],
     closingSummary:
       "Troque com colega um item que cada checklist esqueceu — objetivo é cobrir risco social real.",
@@ -408,12 +557,35 @@ export const CANNABIS101_LESSON_BODIES: Record<string, Cannabis101LessonBody> = 
     ],
     professorNotes:
       "Cartão com emergência regional e CVV. Zero glamourização de uso excessivo.",
-    media: MEDIA_STANDARD
+    media: MEDIA_STANDARD,
+    pedagogy: {
+      practicalObjectiveLead: "Protocolos por cenário — evento, estrada, lar com criança — sem romantizar uso.",
+      practicalExplanation:
+        "Dose baixa no começo com supervisão clínica quando existe reduz episódio «demais». Mistura com álcool ou benzodiazepínico empurra sedação e queda.\n\nDirigir sob THC onde é proibido ou com tolerância zero é risco jurídico e de vida — sem paleativa.",
+      stepByStep: [
+        "Cenário evento (onde legal pra adulto): limite por escrito antes; água e comida leve; pessoa sóbria de confiança; endereço de emergência salvo; produto na embalagem original rotulada.",
+        "Cenário lar com criança: armário alto trancado; embalagem à prova de criança; linguagem honesta sobre risco — nunca «doce»; descarte conforme farmácia ou regra local.",
+        "Sinais pra acionar ajuda formal de verdade: confusão nova; dor torácica ou falta de ar; pensamento de autolesão ou violência; vômito que não para ou desidratação forte.",
+        "Ética ao «ajudar»: pode passar telefone de emergência, empurrar conversa com profissional, dividir material educativo neutro. Não copia dose de strangers, não recomenda coquetel sedativo, não incentiva direção ou máquina perigosa sob influência."
+      ],
+      realExample:
+        "Comestível sem rótulo indo parar em PS; carteira de motorista perdida por teste de saliva; interação com psicofármaco que a pessoa «esqueceu» de contar pro médico.",
+      commonMistakes:
+        "Achar que todo mundo mistura então é seguro. Ensinar dose pelo WhatsApp como se fosse recipe. Glamour em uso pesado.",
+      professionalObservation:
+        "Eu levo cartão físico com CVV e emergência regional — papel na mão gruda mais que slide bonito.",
+      operationalSummary:
+        "Dois mundos: adulto fora de casa e guardião em casa — ambos pedem transparência e ajuda formal quando escala.\n\nRedução de danos honra risco real; não empurra narrativa de machão.",
+      exercise:
+        "Escreve dois checklists rápidos — festa segura e casa com criança — e troca um item com colega pra ver o que cada um esqueceu.",
+      nextLessonBridge:
+        "Formas de consumo na sequência: mesma molécula, via diferente — curva e armadilha mudam."
+    }
   },
 
   "c101-l08-formas-consumo": {
     introduction:
-      "Via de administração redesenha curva tempo × efeito e risco pulmonar ou gastrointestinal. Você compara inalação térmica, combustão, ingestão oral e tópica — ligando à leitura de COA da aula de canabinoides (potência no papel não diz velocidade no organismo).",
+      "Via de administração redesenha a curva tempo × efeito — e também o drama pulmonar ou intestinal.\n\nInalação térmica, combustão, oral e tópico não são «preferência estética»; são farmacologia básica.\n\nPotência bonita no COA não diz velocidade no organismo — esta aula amarra os dois papéis.",
     body: [
       "OBJETIVO. Comparar vias quanto a início, duração e armadilhas clássicas.",
       "EXPLICAÇÃO. Inalação atinge picos mais rápidos; primeira passagem hepática na ingestão atrasa pico e aumenta variabilidade enzimática. Tópicos frequentemente não geram níveis sistémicos altos — marketing costuma superestimar absorção sistémica.",
@@ -461,15 +633,37 @@ export const CANNABIS101_LESSON_BODIES: Record<string, Cannabis101LessonBody> = 
     ],
     professorNotes:
       "Proibir tutorial de solvente. Curvas esquemáticas sem doses numéricas irresponsáveis.",
-    media: MEDIA_STANDARD
+    media: MEDIA_STANDARD,
+    pedagogy: {
+      practicalObjectiveLead: "Comparar início, duração e armadilha clássica de cada via.",
+      practicalExplanation:
+        "Inalação sobe rápido no corpo; oral atrasa pico por primeira passagem hepática e variável enzimática explode entre pessoas.\n\nTópico cosmético raramente gera pico sistêmico alto — marketing costuma mentir bonito sobre absorção.",
+      stepByStep: [
+        "Via oral (onde permitido): anota horário da primeira dose pequena; espera pelo menos 120 minutos antes de complementar salvo orientação médica diferente; sem álcool na mesma curva de aprendizado; ambiente calmo na primeira vez.",
+        "Inalação térmica vs combustão: vapor reduz mas não zera irritante respiratório; quem tem DPOC ou asma não inala sem pneumologista; limpa equipamento pra fugir de biofilme.",
+        "Erro clássico oral: reforça dose antes de 1h30–2h porque «não bateu» — primeira onda ainda subindo e a segunda vira sobrecarga."
+      ],
+      realExample:
+        "Turista manda brownie inteiro porque «demorou». Idoso com enzimas brigando com remédio. Vídeo de dab improvisado — risco térmico e químico junto.",
+      commonMistakes:
+        "Converter mg oral em mg inalado na unha. Acreditar que vape descartável é «só vapor». Extrato caseiro com solvente improvisado — incêndio.",
+      professionalObservation:
+        "Slide só com formato de curva, sem número irresponsável de dose — aluno aprende forma, não copypaste perigoso.",
+      operationalSummary:
+        "Escolher via é aceitar troca velocidade × previsibilidade.\n\nCOA fala potência química; não substitui entender curva no corpo.",
+      exercise:
+        "Desenha eixo 0–8 h com duas curvas grosseiras — oral e inalação — e marca onde a galera costuma tomar segunda dose cedo demais.",
+      nextLessonBridge:
+        "Legalidade Brasil/EUA em seguida — papel oficial ganha de headline."
+    }
   },
 
   "c101-l09-legalidade-br-eua": {
     introduction:
-      "Lei é texto que muda; jurisprudência cria precedentes. Formato desta aula: investigação guiada — você coleta fontes datadas e sabe quando pagar advogado. Conecta-se à aula de categorias regulatórias: lá vimos rótulo; aqui vemos onde verificar norma.",
+      "Lei é texto que muda; jurisprudência cria precedente que às vezes aperta ou afina o texto.\n\nEsta aula é expediente de pesquisa: você coleta fonte datada e sabe quando para de improvisar e paga advogado.\n\nLembra da aula de categorias? Lá foi rótulo; aqui é onde norma mora de verdade.",
     body: [
       "OBJETIVO. Executar protocolo multi-fonte Brasil/EUA sem equivalências falsas.",
-      "PROTOCOLO BRASIL.\n\n1. Palavra-chave em domínio `.gov.br` oficial.\n\n2. Conferir data da matéria com data da lei hiperligada.\n\n3. Preferir PDF do Diário Oficial.\n\n4. Caso judicial: leia ementa integral — manchete pode omitir limite.",
+      "PROTOCOLO BRASIL.\n\n1. Palavra-chave em domínio `.gov.br` oficial.\n\n2. Conferir data da matéria com data da lei referenciada no link.\n\n3. Preferir PDF do Diário Oficial.\n\n4. Caso judicial: leia ementa integral — manchete pode omitir limite.",
       "PROTOCOLO EUA (turismo ou negócio).\n\n1. Estado + \"cannabis statute\".\n\n2. Limites flora vs extrato — conversões diferem.\n\n3. Aeroportos e transporte interestadual seguem regras federais em muitos pontos.",
       "MODELO DE FICHA DE PESQUISA (copiar).\n\n1. Pergunta jurídica em uma frase.\n\n2. URL oficial copiado.\n\n3. Data da norma ou decisão.\n\n4. Data em que você consultou.\n\n5. Lacuna que só advogado fecha (caso concreto).",
       "ERRO-TIPO — MANCHETE VS EMENTA. Jornal diz \"Supremo liberou cultivo\" mas ementa limita a hipótese específica; quem só lê título constrói plano ilegal. Sempre abrir documento.",
@@ -490,7 +684,7 @@ export const CANNABIS101_LESSON_BODIES: Record<string, Cannabis101LessonBody> = 
         0,
         "Não — ensina higiene de pesquisa e quando escalar",
         "Sim para crimes federais nos EUA",
-        "Sim para contratos internacionais multimillionários",
+        "Sim para contratos internacionais multimilionários",
         "Sim se você usou Ctrl+F no Twitter"
       ),
       q(
@@ -512,12 +706,35 @@ export const CANNABIS101_LESSON_BODIES: Record<string, Cannabis101LessonBody> = 
     ],
     professorNotes:
       "Atualizar URLs a cada semestre; sessão opcional com advogado voluntário.",
-    media: { ...MEDIA_STANDARD, needsInfographic: true }
+    media: { ...MEDIA_STANDARD, needsInfographic: true },
+    pedagogy: {
+      practicalObjectiveLead: "Pesquisar Brasil e EUA sem equiparar cenário nem confiar em manchete.",
+      practicalExplanation:
+        "Brasil: palavra-chave em `.gov.br` sério; data da matéria tem que casar com lei hiperlinkada; PDF do Diário Oficial manda; decisão judicial pede ementa inteira.\n\nEUA: estado específico + «cannabis statute»; aeroporto e interestadual costumam ter camada federal espirrando na vida real.",
+      stepByStep: [
+        "Montar ficha: pergunta jurídica numa frase; URL oficial copiado; data da norma ou decisão; data em que você leu; campo «só advogado fecha» pra caso concreto.",
+        "Brasil: domínio oficial primeiro; Twitter por último.",
+        "EUA: limite de flor versus extrato não é plug-and-play entre estados.",
+        "Erro clássico: headline diz «liberou cultivo» mas ementa limita hipótese — abra o PDF antes de planejar."
+      ],
+      realExample:
+        "Importação regulada pela Anvisa não é a mesma coisa que familiar enfiando frasco na mala. Colorado adult-use não resolve conta em banco federal. Servidor pode ser testado mesmo com receita na mão — são mundos que coexistem.",
+      commonMistakes:
+        "Assumir Amsterdam == seu endereço. Acreditar que lei estadual americana apagou federal em banco e emprego.",
+      professionalObservation:
+        "Eu marco revisão de URL no calendário acadêmico; lei muta e slide velho vira desinformação bem intencionada.",
+      operationalSummary:
+        "Você para de depender de headline e chega no consultório jurídico com pacote organizado — economiza tempo e dinheiro.",
+      exercise:
+        "Preenche a ficha modelo e deixa um campo vazio de propósito — a lacuna que só interpretação profissional fecha.",
+      nextLessonBridge:
+        "Último módulo curto: segurança, limites do curso e como se comportar online sem virar problema."
+    }
   },
 
   "c101-l10-seguranca-limites": {
     introduction:
-      "Esta aula fecha o arco ético: o que o Cannabis 101 entrega com rigor e o que está fora de escopo. É complementar à boas-vindas (método) e à redução de danos (cenários), mas focada em políticas editoriais, menores, saúde mental e comunicação online.",
+      "Fechamos o arco ético com conversa de adulto: o que esse curso entrega com rigor — e o que você não pode fingir que ele promete.\n\nIsso conversa com boas-vindas e com redução de danos; aqui o foco é política editorial, menores, saúde mental e postagem.\n\nMenos ambiguidade no combinado, menos acidente previsível na vida real.",
     body: [
       "O QUE ESTE CURSO OFERECE. Alfabetização técnica: ler COA, entender vias, reconhecer voláteis, preparar perguntas clínicas, pesquisar lei em fonte primária, aplicar redução de danos responsável e encaminhar para salas avançadas do campus com pré-requisitos claros.",
       "O QUE ESTE CURSO NÃO FAZ. Não prescreve, não promete cura, não ensina crime nem evasão de fiscalização, não substitui psiquiatria ou advocacia.",
@@ -564,17 +781,40 @@ export const CANNABIS101_LESSON_BODIES: Record<string, Cannabis101LessonBody> = 
     ],
     professorNotes:
       "Folha CAPS/CVV e política escolar sobre substâncias. Sem culpar vítimas.",
-    media: MEDIA_INTRO
+    media: MEDIA_INTRO,
+    pedagogy: {
+      practicalObjectiveLead: "Assinar de alto a baixo o que o 101 cobre — e o que continua sendo trabalho de médico, advogado ou psiquiatra.",
+      practicalExplanation:
+        "O curso entrega alfabetização técnica: COA, via de uso, terpeno com pé no chão, pergunta clínica, lei em fonte primária, redução de danos com rigor.\n\nEle não prescreve, não promete cura, não ensina crime nem gambiarra fiscal, não substitui psiquiatria nem escritório de advocacia.",
+      stepByStep: [
+        "Casa segura: inventário honesto de psicoativo incluindo álcool.",
+        "Trava física e digital pra menor — conversa franca com rede de apoio sobre tratamento autorizado.",
+        "Internet: sem filmar terceiro alterado sem consentimento; sem tutorial de solvente ou explosivo; separar opinião de evidência quando compartilhar.",
+        "Histórico de psicose ou bipolaridade sem tratamento estruturado: conversa psiquiátrica antes de brincar com THC recreativo — é farmacologia de risco, não sermão."
+      ],
+      realExample:
+        "Ansiedade forte parada no quarto sem ajuda; adolescente achando produto «legal» porque estava mal guardado; post irresponsável virando processo ou demissão.",
+      commonMistakes:
+        "Virar guru de dose em grupo fechado. Tratar dever de cuidado como frescura. Confundir likes com evidência.",
+      professionalObservation:
+        "Eu deixo folha de CAPS e CVV na mesa — política pública também é técnica de redução de danos.",
+      operationalSummary:
+        "Dever de cuidado: não piorar risco alheio com conselho mole.\n\nGatilho: estímulo que pode reativar quadro psiquiátrico — comunica pro profissional, não pro story.",
+      exercise:
+        "Escreve uma frase de política pessoal de postagem — exemplo: «só compartilho comunicado oficial ou artigo com método explícito citado».",
+      nextLessonBridge:
+        "Última parada: escolher próxima trilha no campus com critério de segurança."
+    }
   },
 
   "c101-l11-proximas-trilhas": {
     introduction:
-      "Fecho orientador: você escolhe trilhas avançadas no campus com critérios de segurança jurídica, física e biossegurança. Formato: matriz decisória com ids reais dos cursos THCProce.",
+      "Chegamos no fecho orientador: mapa não é decoração — é decisão de pra onde você vai sem se machucar.\n\nVocê escolhe trilha avançada olhando lei, corpo e biossegurança, não só hype de nome bonito.\n\nMatriz abaixo usa ids reais do campus THCProce; guarda isso como índice de vida.",
     body: [
       "OBJETIVO. Selecionar próximo módulo usando objetivo declarado, pré-requisitos e riscos típicos.",
       "MATRIZ DECISÓRIA (IDS DE CURSO NO MAPA).\n\n• Cultivo coberto / estufa — cultivo-greenhouse.\n\n• Campo aberto — cultivo-outdoor.\n\n• Sala fechada LED — cultivo-indoor.\n\n• Pós-colheita — secagem-cura.\n\n• Hash ice/rosin — extracoes-solventless.\n\n• Óleos e solventes (ciência + ética + segurança) — extracao-oleo.\n\n• Bancada analítica — laboratorio.\n\n• Medicina aprofundada — medicina.\n\n• Cozinha infundida — culinaria.\n\n• Genética — genetica.\n\n• Direito e políticas — legislacao.\n\n• Cooperativas — cooperativismo.\n\n• Indústria e carreira — industria.",
       "PREPARAÇÃO FÍSICA GENÉRICA. Área ventilada para aromas fortes; kit EPI básico (luvas nitrílicas, óculos, máscara PFF2 para poeiras se política permitir) antes mesmo de aulas teóricas de extração.",
-      "PASSO A PASSO — escolha de carreira.\n\n1. Declare objetivo: pesquisa agronómica licenciada, apoio a paciente, comunicação científica, extração industrial.\n\n2. Liste lacunas (matemática de solução nutritiva, bioestatística, ética).\n\n3. Escolha uma trilha principal e uma paralela leve para manter base.",
+      "PASSO A PASSO — escolha de carreira.\n\n1. Declare objetivo: pesquisa agronômica licenciada, apoio a paciente, comunicação científica, extração industrial.\n\n2. Liste lacunas (matemática de solução nutritiva, bioestatística, ética).\n\n3. Escolha uma trilha principal e uma paralela leve para manter base.",
       "RISCOS SEM FORMAÇÃO ADICIONAL. Solventes hidrocarbonetos — incêndio; comunicação de doses sem contexto — responsabilidade ética; consultoria sem atualizar portarias — multa a cliente.",
       "REVISÃO. Antes de indoor/outdoor, releia checklist da aula da planta e quiz da aula de COA — coerência técnica.",
       "SÍNTESE. Curiosidade madura evita acidente previsível; retorno periódico ao 101 mantém ética.",
@@ -615,6 +855,30 @@ export const CANNABIS101_LESSON_BODIES: Record<string, Cannabis101LessonBody> = 
     ],
     professorNotes:
       "Roadmap visual do campus; coordenadores das salas fazem pitch de 90 s cada.",
-    media: MEDIA_INTRO
+    media: MEDIA_INTRO,
+    pedagogy: {
+      practicalObjectiveLead: "Escolher próximo curso com objetivo escrito, pré-requisito e risco declarados.",
+      practicalExplanation:
+        "Matriz rápida no mapa: cultivo coberto/estufa (`cultivo-greenhouse`); campo (`cultivo-outdoor`); indoor LED (`cultivo-indoor`); pós-colheita (`secagem-cura`); solventless (`extracoes-solventless`); óleos e solventes (`extracao-oleo`); bancada (`laboratorio`); medicina (`medicina`); cozinha (`culinaria`); genética (`genetica`); legislação (`legislacao`); cooperativismo (`cooperativismo`); indústria (`industria`).\n\nVentilação pra aroma forte e EPI básico (luva nitrílica, óculos, máscara PFF2 pra poeira se política permitir) vêm antes até de teoria pesada de extração.",
+      stepByStep: [
+        "Escreve objetivo em uma linha — pesquisa agronômica licenciada, apoio a paciente, ciência, extração industrial.",
+        "Lista lacuna técnica — nutrição de solução, bioestatística, ética — antes de se matricular em tudo ao mesmo tempo.",
+        "Escolhe uma trilha principal e uma paralela leve pra não perder base.",
+        "Antes de indoor/outdoor pesado, releia planta + COA deste 101 — coerência evita buraco técnico.",
+        "Sem formação extra: solvente hidrocarboneto vira incêndio; dose sem contexto vira ética; consultoria sem atualizar portaria vira multa pro cliente."
+      ],
+      realExample:
+        "Quem pula 101 e vai direto pra solvente improvisado arrisca fogo e sanção; quem volta ao 101 como âncora atualiza ética quando lei muda.",
+      commonMistakes:
+        "Achar que paixão substitui NR e diário de ambiente. Confundir pitch de marketing com pré-requisito técnico.",
+      professionalObservation:
+        "Eu peço pros coordenadores darem pitch de 90 s cada — aluno ouve vocês humanos, não só lista em pdf.",
+      operationalSummary:
+        "Curiosidade madura evita acidente previsível; revisitar este 101 de tempos em tempos mantém o nariz no ético.",
+      exercise:
+        "Escolhe um id da matriz, um manual oficial ou livro-texto pros próximos 30 dias e coloca lembrete na agenda — compromisso visível contigo mesmo.",
+      nextLessonBridge:
+        "Volta pro mapa quando quiser; o 101 continua aqui como contrato técnico com você mesmo."
+    }
   }
 };

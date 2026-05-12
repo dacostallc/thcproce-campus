@@ -3,6 +3,8 @@
  * (`courses/*.ts`) sem alterar o componente de interface.
  */
 
+import type { LessonPedagogyExtras } from "@/data/lessonPedagogy.types";
+
 export type LessonQuizItem = {
   question: string;
   /** Quatro alternativas; `correctIndex` aponta para a correta. */
@@ -41,4 +43,6 @@ export type LessonStreamContent = {
   materials: readonly string[];
   references: readonly string[];
   professorNotes: string;
+  /** Experiência campus — secções imersivas opcionais. */
+  pedagogy?: LessonPedagogyExtras;
 };

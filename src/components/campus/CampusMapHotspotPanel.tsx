@@ -45,6 +45,34 @@ export function CampusMapHotspotPanel({ sky, showTechStripe }: Props) {
   );
 
   useEffect(() => {
+    if (!hit?.id || !reader.data) return;
+    const slug = resolveCampusMapPointContentFolderSlug(hit.id);
+    // #region agent log
+    void fetch("http://127.0.0.1:7921/ingest/fedeaed6-2db0-4def-b356-f5bb89b86d65", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "91f9aa" },
+      body: JSON.stringify({
+        sessionId: "91f9aa",
+        runId: "lesson-content-pre",
+        hypothesisId: "H1-H5",
+        location: "CampusMapHotspotPanel.tsx:reader.data",
+        message: "client mapPoint reader cache snapshot",
+        data: {
+          hitId: hit.id,
+          contentSlug: slug,
+          fetchStatus: reader.fetchStatus,
+          dataUpdatedAt: reader.dataUpdatedAt,
+          staleTimeMs: 300_000,
+          overviewChars: reader.data.overviewMarkdown?.length ?? 0,
+          contentVersion: reader.data.meta?.contentVersion ?? null
+        },
+        timestamp: Date.now()
+      })
+    }).catch(() => {});
+    // #endregion
+  }, [hit?.id, reader.data, reader.dataUpdatedAt, reader.fetchStatus]);
+
+  useEffect(() => {
     if (!hit) return;
     queueMicrotask(() => closeBtnRef.current?.focus());
   }, [hit]);
