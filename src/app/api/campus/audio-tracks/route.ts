@@ -24,11 +24,23 @@ function safeReadDir(absDir: string): string[] {
 }
 
 function audioFilenames(names: string[]): string[] {
-  return names.filter((n) => /\.(mp3|wav)$/i.test(n));
+  return names.filter((n) => /\.(mp3|wav|ogg|m4a|opus|flac)$/i.test(n));
+}
+
+function dedupeTracks(tracks: CampusAudioTrackDto[]): CampusAudioTrackDto[] {
+  const seen = new Set<string>();
+  const out: CampusAudioTrackDto[] = [];
+  for (const t of tracks) {
+    if (seen.has(t.url)) continue;
+    seen.add(t.url);
+    out.push(t);
+  }
+  return out;
 }
 
 /**
- * Lista `.mp3` / `.wav` em `public/audio/ambience`, `radio`, `cinema` e legado `mp3`.
+ * Lista áudio em `public/audio/ambience`, `radio`, `cinema`, `mp3` (legado) **e**
+ * ficheiros soltos directamente em `public/audio/` (muitos autor colocam MP3 na raiz).
  * Deploy: copiar assets para estas pastas (servidas estaticamente em produção).
  */
 export async function GET() {
@@ -37,12 +49,13 @@ export async function GET() {
   const scan = (category: CampusAudioCategory, segments: string[]) => {
     const dir = path.join(AUDIO_ROOT, ...segments);
     const files = audioFilenames(safeReadDir(dir)).sort((a, b) => a.localeCompare(b, "pt"));
-    const prefix = `/audio/${segments.join("/")}`;
+    const baseUrl =
+      segments.length === 0 ? "/audio" : `/audio/${segments.join("/")}`;
     for (const filename of files) {
       tracks.push({
         category,
         filename,
-        url: `${prefix}/${encodeURIComponent(filename)}`
+        url: `${baseUrl}/${encodeURIComponent(filename)}`
       });
     }
   };
@@ -51,6 +64,17 @@ export async function GET() {
   scan("radio", ["radio"]);
   scan("cinema", ["cinema"]);
   scan("legacy", ["mp3"]);
+  /** Raiz `public/audio/` — aparece como ambiente no HUD (URLs `/audio/ficheiro.mp3`). */
+  scan("ambience", []);
 
-  return NextResponse.json({ tracks });
+  return NextResponse.json(
+    { tracks: dedupeTracks(tracks) },
+    {
+      headers: {
+        "Cache-Control": "private, no-store, no-cache, must-revalidate, max-age=0",
+        Pragma: "no-cache",
+        Expires: "0"
+      }
+    }
+  );
 }

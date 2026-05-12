@@ -156,21 +156,19 @@ export class CampusHowlerEngine {
    */
   sync(opts: { src: string; playing: boolean; volume01: number; urlChanged: boolean }): void {
     if (this.destroyed) return;
-    const gen = ++this.syncGen;
     const absUrl = toAbsUrl(opts.src);
     const { playing, volume01, urlChanged } = opts;
 
     const needsNewHowl = urlChanged || !this.howl || this.loadedAbsUrl !== absUrl;
 
     if (needsNewHowl) {
+      const gen = ++this.syncGen;
       this.fadeOutAndUnload(() => {
         if (this.destroyed || gen !== this.syncGen) return;
         this.mountHowl(absUrl, playing, volume01, gen);
       });
       return;
     }
-
-    if (gen !== this.syncGen) return;
 
     const h = this.howl;
     if (!h) return;

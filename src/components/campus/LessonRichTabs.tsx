@@ -394,9 +394,14 @@ export function LessonRichTabs({
   const campusStream = variant === "campus" && layout === "stream";
   const stream = layout === "stream" && (c || campusStream);
   const pal = c ? STREAM_PALETTE.amber : STREAM_PALETTE[streamAccent];
+  /** Fundo opaco para leitura — evita o mapa/cenário a bleed atrás do texto */
+  const lessonCanvas = c ? "bg-[#071412]" : "bg-[#0a1210]";
   const wrap = c
-    ? "border-amber-500/25 bg-[#050d0a]/80 shadow-[0_0_40px_rgba(0,0,0,0.35)]"
-    : "border-white/10 bg-black/20";
+    ? cn(
+        "border-amber-500/35 shadow-[0_0_40px_rgba(0,0,0,0.35)]",
+        lessonCanvas
+      )
+    : cn("border-white/10", lessonCanvas);
   const tabBar = c ? "border-amber-500/20" : "border-white/10";
   const activeTab = c
     ? "bg-amber-500/20 text-amber-100 border border-amber-400/40"
@@ -405,9 +410,12 @@ export function LessonRichTabs({
     ? "text-white/50 hover:bg-amber-500/10 hover:text-white/90 border border-transparent"
     : "text-white/55 hover:bg-white/5 hover:text-white/90 border border-transparent";
 
-  const bodyProse = "text-[15px] sm:text-[16px] leading-[1.78] text-white/[0.9] lg:text-[16px] lg:leading-[1.8]";
+  const bodyProse = cn(
+    "text-[15px] sm:text-[16px] leading-[1.78] lg:text-[16px] lg:leading-[1.8]",
+    c ? "text-white/[0.96]" : "text-white/[0.9]"
+  );
   const bodyLead = c
-    ? "text-[16px] sm:text-[17px] font-medium leading-[1.72] text-white/[0.94]"
+    ? "text-[16px] sm:text-[17px] font-medium leading-[1.72] text-white/[0.98]"
     : bodyProse;
 
   const bodyParagraphs = useMemo(() => splitBodyParagraphs(content.body), [content.body]);
@@ -423,8 +431,8 @@ export function LessonRichTabs({
           "mx-auto w-full max-w-[min(72ch,100%)] rounded-[1.25rem] border px-4 py-6 sm:px-9 sm:py-9 lg:max-w-[76ch] lg:px-11 lg:py-11 shadow-[0_28px_90px_rgba(0,0,0,0.55)]",
           pal.articleBorder,
           c
-            ? "bg-[#040907]/96 ring-1 ring-amber-500/15"
-            : "bg-[#050b08]/92 ring-1 ring-white/[0.06]"
+            ? cn("ring-1 ring-amber-500/25 shadow-black/40", lessonCanvas)
+            : cn("ring-1 ring-white/[0.08]", lessonCanvas)
         )}
       >
         {c && streamChapter ? (
@@ -432,7 +440,7 @@ export function LessonRichTabs({
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.06, duration: 0.35 }}
-            className="relative mb-8 overflow-hidden rounded-2xl border border-amber-500/35 bg-gradient-to-br from-amber-950/55 via-[#06120c]/95 to-black/85 px-4 py-5 sm:px-6 sm:py-6"
+            className="relative mb-8 overflow-hidden rounded-2xl border border-amber-500/40 bg-gradient-to-br from-[#152622] via-[#0e1815] to-[#070f0d] px-4 py-5 sm:px-6 sm:py-6"
           >
             <div
               className="pointer-events-none absolute -right-16 -top-16 size-48 rounded-full bg-amber-400/20 blur-3xl"
@@ -502,7 +510,9 @@ export function LessonRichTabs({
                   transition={{ delay: Math.min(0.05 * i, 0.35) }}
                   className={cn(
                     c && "border-l-2 border-amber-500/20 pl-4 sm:pl-5 leading-[1.82]",
-                    i === 0 && c && "text-[16px] sm:text-[17px] font-medium text-white/[0.94]"
+                    /* Preserva quebras \n dentro do bloco (checklists e listas em texto plano). */
+                    c && "whitespace-pre-line",
+                    i === 0 && c && "text-[16px] sm:text-[17px] font-medium text-white/[0.98]"
                   )}
                 >
                   {p}
@@ -527,7 +537,7 @@ export function LessonRichTabs({
               <div
                 className={cn(
                   "relative overflow-hidden rounded-2xl border px-5 py-5 sm:px-7 sm:py-6",
-                  "border-amber-400/35 bg-gradient-to-br from-amber-950/45 via-[#050c08] to-black/80 shadow-[0_0_48px_rgba(180,120,50,0.12)]"
+                  "border-amber-400/40 bg-gradient-to-br from-[#1a2823] via-[#101c18] to-[#070f0d] shadow-[0_0_48px_rgba(180,120,50,0.08)]"
                 )}
               >
                 <div
@@ -732,7 +742,8 @@ export function LessonRichTabs({
             onChange={(e) => setNotes(e.target.value)}
             rows={6}
             className={cn(
-              "w-full rounded-xl border border-white/12 bg-black/40 px-3 py-3 text-[14px] text-white placeholder:text-white/30 transition focus:outline-none focus:ring-2 sm:px-4 sm:py-3.5",
+              "w-full rounded-xl border px-3 py-3 text-[14px] text-white placeholder:text-white/30 transition focus:outline-none focus:ring-2 sm:px-4 sm:py-3.5",
+              c ? "border-white/18 bg-[#050c0a]" : "border-white/12 bg-black/40",
               pal.textareaFocus
             )}
             placeholder="Anotações, dúvidas, próximos passos…"
@@ -746,9 +757,11 @@ export function LessonRichTabs({
     <div className={cn("rounded-2xl border shadow-inner overflow-hidden", wrap)}>
       <div
         className={cn(
-          "flex flex-wrap gap-1 p-2 sm:p-2.5 border-b bg-black/25",
+          "flex flex-wrap gap-1 p-2 sm:p-2.5 border-b",
+          !c && "bg-black/25",
+          c && "bg-[#050c0a]",
           tabBar,
-          c && "glass-hud rounded-none border-amber-500/15"
+          c && "rounded-none border-b-amber-500/25"
         )}
       >
         {TABS.map((t) => {
@@ -777,7 +790,7 @@ export function LessonRichTabs({
           initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.2 }}
-          className="space-y-3 text-white/85"
+          className={cn("space-y-3", c ? "text-white/[0.93]" : "text-white/85")}
         >
           {tab === "conteudo" && (
             <div className="space-y-4 text-sm leading-relaxed">
@@ -796,14 +809,19 @@ export function LessonRichTabs({
                   </p>
                   <div className="space-y-3">
                     {bodyParagraphs.map((p, i) => (
-                      <p key={i} className="text-white/88">
+                      <p key={i} className={cn("text-white/88", c && "whitespace-pre-line text-white/[0.93]")}>
                         {p}
                       </p>
                     ))}
                   </div>
                 </div>
               ) : null}
-              <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+              <div
+                className={cn(
+                  "rounded-xl border p-4",
+                  c ? "border-amber-500/25 bg-[#0c1614]" : "border-white/10 bg-white/5"
+                )}
+              >
                 <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-canna-300/90">
                   {c ? CAN101_STREAM_SECTION.summary : "Resumo final"}
                 </p>

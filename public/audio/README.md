@@ -9,7 +9,9 @@ Coloca ficheiros estáticos em `public/audio/` para serem servidos em `https://<
 - `public/audio/cinema/` — trilhas “cinema”
 - `public/audio/mp3/` — legado (ainda listado pela API como categoria `legacy`)
 
-Formatos suportados pelo scanner: `.mp3`, `.wav`.
+Também são listados **ficheiros colocados directamente em `public/audio/`** (raiz), tratados como ambiente no HUD.
+
+Formatos suportados pelo scanner: `.mp3`, `.wav`, `.ogg`, `.m4a`, `.opus`, `.flac` (suporte de reprodução depende do navegador).
 
 ## Deploy
 

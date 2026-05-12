@@ -37,6 +37,8 @@ export type Cannabis101LessonBody = {
   media: LessonMediaHints;
 };
 
+/** Fonte canónica do texto das aulas Cannabis 101 no painel do campus: `lessonBodies` → `lessons.ts` → `getLessonRichContent`. Moodle/embed não alimenta este painel. */
+
 /** Nota institucional única — substitui o parágrafo longo repetido em todas as aulas. */
 const FOOTNOTE_MATERIALS =
   "Nota institucional: vídeos completos, PDFs e provas com validade formal ficam na sala digital THCProce; neste painel mantemos texto denso para estudo rápido no campus.";
@@ -44,15 +46,15 @@ const FOOTNOTE_MATERIALS =
 export const CANNABIS101_LESSON_BODIES: Record<string, Cannabis101LessonBody> = {
   "c101-l01-boas-vindas": {
     introduction:
-      "Mini-cenário: Ana quer saber se um óleo é \"seguro\" porque viu um post com mil curtidas. O post cita \"estudo\", mas o link vai para loja. Esta aula ensina a travar esse impulso e trabalhar como técnica consciente — objetivo, fonte datada, limite claro. Não é preciso histórico na área; é preciso método.",
+      "Cannabis 101 começa por uma competência que atravessa todas as aulas: ler afirmações sobre THC, CBD, flor, óleo e legislação sem confundir hype com dado verificável. Mini-cenário: Ana viu um vídeo sobre um óleo rico em canabinoides — mil curtidas, promessa de \"natural\" e um link que abre loja. Ela quer saber se é seguro e legal para o contexto dela. Esta aula não entrega veredito clínico nem consultoria jurídica; entrega um método para não ser enganada por embalagem bonita ou captura de tela de estudo.",
     body: [
-      "OBJETIVO. Estudar cannabis em contexto escolar THCProce sem autoprescrição, sem jurismo improvisado e sem confundir marketing com evidência.",
-      "CHECKLIST THCPROCE — ANTES DE CREDITAR UMA FONTE (pode copiar para notas).\n\n1. Tenho o documento integral ou o portal oficial, ou só um print?\n\n2. Qual a data da norma ou do artigo e quem financiou a pesquisa?\n\n3. O texto promete cura, dose para terceiros ou \"jeitinho\" legal? Se sim, trate como alerta vermelho até validar com profissional habilitado.\n\n4. Consigo explicar em uma frase o que muda na minha conduta se acreditar nesta fonte?",
-      "ROTINA DE ESTUDO (repetir nas próximas aulas).\n\n1. Bloqueie multitarefa pelo tempo estimado no topo.\n\n2. Escreva três perguntas antes de ler.\n\n3. Marque no texto onde aparece \"onde aplicar\" (cozinha segura, conversa com médico, leitura de laudo).\n\n4. Ao terminar: uma ação concreta — verificação, lista ou consulta agendada — não só \"entendi\".\n\n5. Reforce limites: nenhuma aula substitui receituário individualizado nem autorização legal específica.",
-      "EXEMPLOS. Estudante confunde blog patrocinado com revisão sistemática; outro assume que \"natural\" ignora interação medicamentosa; produtor licenciado precisa padronizar fichas técnicas internas. Em todos: registrar fonte, data e nível de evidência.",
-      "ERROS COMUNS. Velocidade de leitura fingindo domínio; copiar doses de terceiros; tratar meme jurídico como norma; omitir uso de substâncias ao médico por vergonha.",
-      "GLOSSÁRIO INICIAL (acúmulo ao longo do 101). COA — certificado de análise. LOD/LOQ — limite de detecção / quantificação. THCA/CBDA — formas ácidas precursoras. THC/CBD — formas neutras após calor ou tempo. CB1/CB2 — receptores principais do sistema endocanabinoide. Fonte primária — lei publicada, regulamento ou artigo integral indexado, não resumo de terceiros sem citação.",
-      "SÍNTESE. Você sai com protocolo repetível: perguntas → leitura focada → registro de aplicação → quiz honesto → dúvidas datadas para fonte primária.",
+      "Esta primeira sessão coloca você no ritmo do Cannabis 101: falar da planta e dos canabinoides com linguagem técnica, cuidar de redução de danos sem romantizar uso informal e respeitar o marco legal brasileiro. Aqui não há espaço para autoprescrição, jurismo de grupo nem para tratar post de influencer como revisão científica.",
+      "Quando aparecer um post viral sobre óleo, flor, THC ou CBD, vale usar esta checklist antes de acreditar ou repassar. Copie para suas notas.\n\n• Você está vendo o documento integral (lei, portaria, estudo, bula, COA) ou só um print?\n\n• Qual é a data da norma ou do estudo, qual instituição publicou e há conflito de interesse (marca, clínica patrocinada)?\n\n• O texto promete cura, dose para outras pessoas, \"maconha liberada\" genérica ou atalho fiscal? Trate como alerta até conversar com profissional habilitado e conferir fonte primária.\n\n• Em uma frase: o que você mudaria na sua conduta se esta informação for verdadeira (consulta médica, pedido de COA, conferência de rótulo, horários etc.)?",
+      "Ao longo do curso, tente manter este hábito.\n\n• Reserve um bloco de tempo sem multitarefa — vocabulário de cannabis é minucioso.\n\n• Antes de cada leitura, escreva três perguntas (por exemplo: qual parte da planta?, qual canabinoide no rótulo?, que evidência ou norma o texto cita?).\n\n• Marque onde o material diz onde isso vale na vida real (cozinha segura, laudo, conversa com médico, cultivo só onde for permitido).\n\n• Ao terminar: uma ação concreta — pergunta ao médico, checagem de fonte ou lista de dúvidas — e não só \"entendi\".\n\n• Lembrete: nenhuma aula substitui receita individualizada nem orientação jurídica formal.",
+      "Exemplos que aparecem na vida real: blog de marca de vaporizador vendido como \"ciência\"; promessa de que \"CBD resolve ansiedade\" sem dose nem tipo de estudo; vídeo que mistura legislação europeia com Brasil; produtor que precisa alinhar lote, ficha técnica e COA datado. Em todos os casos, registre fonte, data e nível de evidência.",
+      "Evite correr o texto fingindo domínio, copiar doses de terceiros, tratar meme jurídico como lei ou omitir uso de substâncias do médico por vergonha.",
+      "Glossário inicial (vamos expandir nas próximas aulas). COA — certificado de análise. LOD/LOQ — limite de detecção / quantificação. THCA/CBDA — formas ácidas precursoras. THC/CBD — formas neutras após calor ou tempo. CB1/CB2 — receptores principais do sistema endocanabinoide. Fonte primária — lei publicada, regulamento ou artigo integral indexado, não resumo de terceiros sem citação.",
+      "Para fechar: você sai com um fluxo simples — perguntas → leitura focada → nota de onde aplicar → quiz honesto → dúvidas datadas para checar na fonte primária.",
       FOOTNOTE_MATERIALS
     ].join("\n\n"),
     objectives: [

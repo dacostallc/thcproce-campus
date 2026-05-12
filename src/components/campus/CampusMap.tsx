@@ -178,7 +178,6 @@ export function CampusMap({
   const setPlayer = useCampusStore((s) => s.setPlayer);
   const setPlayerLoose = useCampusStore((s) => s.setPlayerLoose);
   const player = useCampusStore((s) => s.player);
-  const cineDriveInOpen = useCampusStore((s) => s.isCineOpen);
   const { data: session, status } = useSession();
   const utils = trpc.useUtils();
   const localGamification = useStudentGamification();
@@ -894,6 +893,12 @@ export function CampusMap({
               bgDaySrc={bgDaySrc}
               campusMapAlignmentPreview={campusMapUsesContainLayout}
             >
+            {/*
+             * Camadas do palco (grades, biome, fog SVG, vinhetas, depth) devem ser **idênticas** com ou sem `isCineOpen`.
+             * Condicionar ao cinema desmontava `CampusFogZonesLayer` / `CampusBiomeOverlays` enquanto a arte base ficava —
+             * os polígonos de névoa deixavam de corresponder ao fundo → blocos escuros (“chunks”).
+             * O UI do cinema (`CineDriveIn`, z≈40+) empilha-se por cima sem alterar esta árvore.
+             */}
             {/* Fundos estáticos (<img>): sem Opacity inicial do Framer no pai — evita tela só com bg-ink-900. */}
             <div
               className={cn(
@@ -918,12 +923,10 @@ export function CampusMap({
                   style={{ background: PLACEHOLDER_NIGHT }}
                 />
               )}
-              {!cineDriveInOpen ? (
-                <div
-                  className="pointer-events-none absolute inset-0 z-[1] bg-gradient-to-b from-black/12 via-transparent to-black/24"
-                  aria-hidden
-                />
-              ) : null}
+              <div
+                className="pointer-events-none absolute inset-0 z-[1] bg-gradient-to-b from-black/12 via-transparent to-black/24"
+                aria-hidden
+              />
             </div>
 
             <div
@@ -949,37 +952,31 @@ export function CampusMap({
                   style={{ background: PLACEHOLDER_DAY }}
                 />
               )}
-              {!cineDriveInOpen ? (
-                <>
-                  <div
-                    className="pointer-events-none absolute inset-0 z-[1] bg-gradient-to-b from-sky-400/4 via-transparent to-amber-200/7"
-                    aria-hidden
-                  />
-                  <div
-                    className="pointer-events-none absolute inset-0 z-[1] bg-[radial-gradient(ellipse_at_50%_14%,rgba(255,251,235,0.075),transparent_58%)]"
-                    aria-hidden
-                  />
-                </>
-              ) : null}
+              <div
+                className="pointer-events-none absolute inset-0 z-[1] bg-gradient-to-b from-sky-400/4 via-transparent to-amber-200/7"
+                aria-hidden
+              />
+              <div
+                className="pointer-events-none absolute inset-0 z-[1] bg-[radial-gradient(ellipse_at_50%_14%,rgba(255,251,235,0.075),transparent_58%)]"
+                aria-hidden
+              />
             </div>
 
-            {!advancedMap && !cineDriveInOpen ? (
+            {!advancedMap ? (
               <div
                 className="campus-map-art-vignette pointer-events-none absolute inset-0 z-[4]"
                 aria-hidden
               />
             ) : null}
 
-            {!cineDriveInOpen ? (
-              <div
-                className={cn(
-                  "pointer-events-none absolute inset-0 transition-opacity duration-700 ease-out",
-                  advancedMap ? "z-[4]" : "z-[5]",
-                  sky === "night" ? "campus-depth-night" : "campus-depth-day"
-                )}
-                aria-hidden
-              />
-            ) : null}
+            <div
+              className={cn(
+                "pointer-events-none absolute inset-0 transition-opacity duration-700 ease-out",
+                advancedMap ? "z-[4]" : "z-[5]",
+                sky === "night" ? "campus-depth-night" : "campus-depth-day"
+              )}
+              aria-hidden
+            />
 
             {mapZonesPolygonDebug || isCampusMapAreasPolygonOverlayEnabled() ? (
               <CampusMapAreasDebugOverlay
@@ -991,7 +988,7 @@ export function CampusMap({
 
             {advancedMap ? <CampusWalkableLayer /> : null}
 
-            {advancedMap && !cineDriveInOpen ? (
+            {advancedMap ? (
               <CampusBiomeOverlays phase={sky === "day" ? "day" : "night"} />
             ) : null}
 
@@ -1010,18 +1007,14 @@ export function CampusMap({
               />
             </div>
 
-            {!cineDriveInOpen ? (
-              <>
-                <div
-                  className="campus-map-cinematic-ledge-top pointer-events-none absolute inset-x-0 top-0 z-[7]"
-                  aria-hidden
-                />
-                <div
-                  className="campus-map-cinematic-ledge-bottom pointer-events-none absolute inset-x-0 bottom-0 z-[7]"
-                  aria-hidden
-                />
-              </>
-            ) : null}
+            <div
+              className="campus-map-cinematic-ledge-top pointer-events-none absolute inset-x-0 top-0 z-[7]"
+              aria-hidden
+            />
+            <div
+              className="campus-map-cinematic-ledge-bottom pointer-events-none absolute inset-x-0 bottom-0 z-[7]"
+              aria-hidden
+            />
           </CampusMapErrorBoundary>
 
           {advancedMap ? (
@@ -1029,17 +1022,15 @@ export function CampusMap({
               <div className="absolute inset-0 z-[8]">
                 <MapWalkLayer onWalkTo={setPlayer} />
               </div>
-              {!cineDriveInOpen ? (
-                <CampusFogZonesLayer
-                  isNight={sky === "night"}
-                  unlockCtx={unlockCtx}
-                  liveActive={livePulse}
-                  areaProgress={progress?.areas}
-                  onSelectArea={handleSelectArea}
-                  onWalkTo={setPlayer}
-                  hideNativeCursor={customCursor}
-                />
-              ) : null}
+              <CampusFogZonesLayer
+                isNight={sky === "night"}
+                unlockCtx={unlockCtx}
+                liveActive={livePulse}
+                areaProgress={progress?.areas}
+                onSelectArea={handleSelectArea}
+                onWalkTo={setPlayer}
+                hideNativeCursor={customCursor}
+              />
               <CampusMapCustomCursor active={customCursor} />
             </>
           ) : (

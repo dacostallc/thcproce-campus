@@ -704,7 +704,7 @@ export function LessonPanel({
                       <>
                         {cannabisIntroSnippet ? (
                           <div
-                            className="rounded-xl border border-amber-500/20 bg-black/35 px-3.5 py-3 shadow-inner shadow-black/20 ring-1 ring-amber-500/10 sm:px-4 sm:py-3.5"
+                            className="rounded-xl border border-amber-500/30 bg-[#0c1614] px-3.5 py-3 shadow-inner shadow-black/30 ring-1 ring-amber-500/15 sm:px-4 sm:py-3.5"
                             role="note"
                           >
                             <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-amber-200/75">
@@ -717,7 +717,7 @@ export function LessonPanel({
                         ) : null}
                         {titles.length ? (
                           <div
-                            className="rounded-xl border border-amber-500/20 bg-amber-950/20 px-3 py-2.5"
+                            className="rounded-xl border border-amber-500/25 bg-[#0c1614] px-3 py-2.5"
                             aria-label={`Progresso: ${doneSet.size} de ${titles.length} aulas concluídas`}
                           >
                             <div className="flex items-center justify-between text-[11px] text-white/55">

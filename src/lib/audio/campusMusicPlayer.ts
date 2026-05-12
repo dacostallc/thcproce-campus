@@ -58,7 +58,7 @@ function clampVol(v: number): number {
  * capitaliza palavras (pt-BR) — ex.: `vim-pra-california.mp3` → `Vim Pra Califórnia`.
  */
 export function humanizeCampusMusicFilename(filename: string): string {
-  const base = filename.replace(/\.mp3$/i, "").trim();
+  const base = filename.replace(/\.(mp3|wav|ogg|m4a|opus|flac)$/i, "").trim();
   const spaced = base
     .replace(/[-_]+/g, " ")
     .replace(/[^\p{L}\p{N}\s.'’]/gu, " ")
@@ -210,7 +210,10 @@ export class CampusMusicPlayer {
       this.muted = persisted?.muted ?? false;
 
       try {
-        const res = await fetch(API_TRACKS, { cache: "no-store" });
+        const res = await fetch(`${API_TRACKS}?_=${Date.now()}`, {
+          cache: "no-store",
+          headers: { Pragma: "no-cache" }
+        });
         if (!res.ok) throw new Error(`tracks ${res.status}`);
         const data = (await res.json()) as { tracks?: CampusMusicTrack[] };
         this.playlist = Array.isArray(data.tracks) ? data.tracks : [];

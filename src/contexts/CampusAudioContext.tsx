@@ -115,6 +115,7 @@ export function CampusAudioProvider({ children }: { children: ReactNode }) {
   const [repeatMode, setRepeatMode] = useState<HudAmbientRepeatMode>("all");
 
   const resumeAttemptedRef = useRef(false);
+  const ambientPrefsHydratedRef = useRef(false);
   const prevSrcRef = useRef<string | null>(null);
   const errorSkipRef = useRef(0);
 
@@ -132,8 +133,6 @@ export function CampusAudioProvider({ children }: { children: ReactNode }) {
   mutedRef.current = muted;
   volumeRef.current = volume;
 
-  const effectiveVol = useCallback(() => (muted ? 0 : volume), [muted, volume]);
-
   useEffect(() => {
     const ac = new AbortController();
     void (async () => {
@@ -147,6 +146,14 @@ export function CampusAudioProvider({ children }: { children: ReactNode }) {
         const candidates = hudAmbientPlaylistFromApiRows(coerceRows(json?.tracks));
         if (ac.signal.aborted) return;
         setTracks(candidates);
+        if (candidates.length > 0) {
+          ambientPrefsHydratedRef.current = true;
+          setVolume(readHudAmbientVolume01());
+          setMuted(readHudAmbientMuted());
+          setShuffle(readHudAmbientShuffle());
+          setRepeatMode(readHudAmbientRepeat());
+          setTrackIndex(readHudAmbientTrackIndex(candidates.length));
+        }
       } catch {
         if (!ac.signal.aborted) setTracks([]);
       } finally {
@@ -158,13 +165,8 @@ export function CampusAudioProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!catalogResolved) return;
-    setVolume(readHudAmbientVolume01());
-    setMuted(readHudAmbientMuted());
-    setShuffle(readHudAmbientShuffle());
-    setRepeatMode(readHudAmbientRepeat());
-    if (tracks.length > 0) {
-      setTrackIndex(readHudAmbientTrackIndex(tracks.length));
-    }
+    if (tracks.length > 0) return;
+    ambientPrefsHydratedRef.current = false;
   }, [catalogResolved, tracks.length]);
 
   useEffect(() => {
@@ -239,18 +241,19 @@ export function CampusAudioProvider({ children }: { children: ReactNode }) {
   }, [advanceAfterNaturalEnd, skipOnLoadError]);
 
   const current = tracks[trackIndex] ?? null;
+  const currentSrc = current?.src ?? "";
 
   useEffect(() => {
-    if (!catalogResolved || tracks.length === 0 || !current) return;
-    const urlChanged = prevSrcRef.current !== current.src;
-    prevSrcRef.current = current.src;
+    if (!catalogResolved || tracks.length === 0 || !currentSrc) return;
+    const urlChanged = prevSrcRef.current !== currentSrc;
+    prevSrcRef.current = currentSrc;
     getCampusHowlerEngine().sync({
-      src: current.src,
+      src: currentSrc,
       playing,
-      volume01: effectiveVol(),
+      volume01: muted ? 0 : volume,
       urlChanged
     });
-  }, [catalogResolved, tracks.length, current, playing, effectiveVol]);
+  }, [catalogResolved, tracks.length, currentSrc, playing, muted, volume]);
 
   useEffect(() => {
     if (!catalogResolved || tracks.length === 0) return;

@@ -31,7 +31,15 @@ function hexToRgb(hex: string): { r: number; g: number; b: number } {
       : h;
   const n = parseInt(v, 16);
   if (Number.isNaN(n) || v.length !== 6) return { r: 74, g: 222, b: 128 };
-  return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
+  let r = (n >> 16) & 255;
+  let g = (n >> 8) & 255;
+  let b = n & 255;
+  /** Evita fills tipo «bloco preto» quando a cor é válida mas demasiado escura (SVG fog). */
+  const lum = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  if (lum < 48) {
+    return { r: 74, g: 222, b: 128 };
+  }
+  return { r, g, b };
 }
 
 /**
