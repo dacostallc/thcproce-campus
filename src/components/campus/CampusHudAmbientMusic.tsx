@@ -358,6 +358,12 @@ export function CampusHudAmbientMusic() {
         <span className="min-w-0 flex-1 truncate text-[9px] font-bold uppercase tracking-[0.12em] text-emerald-200/82">
           Ambiente · Rádio · Cinema
         </span>
+        <span
+          className="shrink-0 rounded-md border border-emerald-400/28 bg-emerald-500/[0.12] px-1 py-0.5 text-[7px] font-bold uppercase tracking-[0.14em] text-emerald-200/95"
+          title="Motor Howler.js — áudio global; mantém-se ao mudar de página no campus"
+        >
+          Howler
+        </span>
         <button
           type="button"
           className="rounded-lg p-1 text-white/55 transition hover:bg-white/10 hover:text-white"
