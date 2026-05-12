@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-  startTransition
-} from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, startTransition } from "react";
 import { AnimatePresence, motion, useDragControls, useMotionValue } from "framer-motion";
 import {
   ChevronDown,
@@ -17,27 +10,16 @@ import {
   Minimize2,
   Pause,
   Play,
+  Repeat,
+  Repeat1,
+  Shuffle,
   SkipBack,
   SkipForward,
   Volume2,
   VolumeX
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import {
-  HUD_AMBIENT_DEFAULT_VOLUME,
-  hudAmbientPlaylistFromApiRows,
-  probeHudAmbientTracks,
-  readHudAmbientAutoplayIntent,
-  readHudAmbientMuted,
-  readHudAmbientTrackIndex,
-  readHudAmbientVolume01,
-  writeHudAmbientAutoplayIntent,
-  writeHudAmbientMuted,
-  writeHudAmbientTrackIndex,
-  writeHudAmbientVolume01,
-  type HudAmbientResolvedTrack,
-  type HudAmbientTrackRow
-} from "@/lib/campusHudAmbientMusic";
+import { useCampusAudio } from "@/contexts/CampusAudioContext";
 import {
   coerceCampusMediaPlayerMode,
   readCampusMediaPlayerPosition,
@@ -90,105 +72,39 @@ function defaultPosition(width: number, height: number): { x: number; y: number 
   };
 }
 
-function coerceRows(raw: unknown): HudAmbientTrackRow[] {
-  if (!Array.isArray(raw)) return [];
-  const out: HudAmbientTrackRow[] = [];
-  for (const item of raw) {
-    if (!item || typeof item !== "object") continue;
-    const o = item as Record<string, unknown>;
-    const category = o.category;
-    const filename = o.filename;
-    const url = o.url;
-    if (
-      (category === "ambience" ||
-        category === "radio" ||
-        category === "cinema" ||
-        category === "legacy") &&
-      typeof filename === "string" &&
-      typeof url === "string"
-    ) {
-      out.push({ category, filename, url });
-    }
-  }
-  return out;
-}
-
 /**
- * Ambiente / rádio / cinema — overlay flutuante draggable com lazy-load de áudio.
+ * Ambiente / rádio / cinema — overlay flutuante draggable; áudio global via Howler (`CampusAudioProvider`).
  */
-/** Falhas consecutivas ao carregar/reproduzir faixas — evita ciclo infinito se tudo falhar. */
-function maxAmbientErrorSkips(trackCount: number): number {
-  return Math.max(6, trackCount * 3 + 2);
-}
-
 export function CampusHudAmbientMusic() {
   const shellRef = useRef<HTMLDivElement>(null);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const errorSkipRef = useRef(0);
-  const playingRef = useRef(false);
-  const resumeAttemptedRef = useRef(false);
-  const tracksRef = useRef<HudAmbientResolvedTrack[]>([]);
   const dragControls = useDragControls();
 
   const xMv = useMotionValue(0);
   const yMv = useMotionValue(0);
+
+  const {
+    tracks,
+    catalogResolved,
+    playing,
+    volume,
+    muted,
+    shuffle,
+    repeatMode,
+    current,
+    togglePlay,
+    goNext,
+    goPrev,
+    toggleMute,
+    setVolume01,
+    toggleShuffle,
+    cycleRepeat
+  } = useCampusAudio();
 
   const savedInitial =
     typeof window !== "undefined" ? readCampusMediaPlayerPosition() : null;
   const [playerMode, setPlayerMode] = useState<CampusMediaPlayerMode>(() =>
     coerceCampusMediaPlayerMode(savedInitial ?? {})
   );
-
-  const [tracks, setTracks] = useState<HudAmbientResolvedTrack[]>([]);
-  const [catalogResolved, setCatalogResolved] = useState(false);
-  const [trackIndex, setTrackIndex] = useState(0);
-  const [volume, setVolume] = useState(HUD_AMBIENT_DEFAULT_VOLUME);
-  const [muted, setMuted] = useState(false);
-  const [playing, setPlaying] = useState(false);
-
-  playingRef.current = playing;
-  tracksRef.current = tracks;
-
-  useEffect(() => {
-    const ac = new AbortController();
-    void (async () => {
-      try {
-        const res = await fetch("/api/campus/audio-tracks", {
-          signal: ac.signal,
-          cache: "no-store"
-        });
-        const json = (await res.json()) as { tracks?: unknown };
-        const candidates = hudAmbientPlaylistFromApiRows(coerceRows(json?.tracks));
-        const alive =
-          candidates.length === 0 ? [] : await probeHudAmbientTracks(candidates, ac.signal);
-        if (ac.signal.aborted) return;
-        setTracks(alive);
-      } catch {
-        if (!ac.signal.aborted) setTracks([]);
-      } finally {
-        if (!ac.signal.aborted) setCatalogResolved(true);
-      }
-    })();
-    return () => ac.abort();
-  }, []);
-
-  useEffect(() => {
-    if (!catalogResolved) return;
-    const vol = readHudAmbientVolume01();
-    const mu = readHudAmbientMuted();
-    setVolume(vol);
-    setMuted(mu);
-    if (tracks.length > 0) {
-      setTrackIndex(readHudAmbientTrackIndex(tracks.length));
-    }
-  }, [catalogResolved, tracks.length]);
-
-  useEffect(() => {
-    if (!catalogResolved || tracks.length > 0) return;
-    resumeAttemptedRef.current = false;
-    writeHudAmbientAutoplayIntent(false);
-    setPlaying(false);
-  }, [catalogResolved, tracks.length]);
 
   const persistPositionWithMode = useCallback(
     (mode: CampusMediaPlayerMode) => {
@@ -258,234 +174,6 @@ export function CampusHudAmbientMusic() {
     return () => cancelAnimationFrame(id);
   }, [playerMode, persistPositionWithMode]);
 
-  const current = tracks[trackIndex] ?? null;
-
-  useEffect(() => {
-    const el = audioRef.current;
-    if (!el || !current) return;
-
-    let cancelled = false;
-
-    const applyVol = () => {
-      el.volume = volume;
-      el.muted = muted;
-    };
-
-    let abs: string;
-    try {
-      abs = new URL(current.src, window.location.origin).href;
-    } catch {
-      abs = current.src;
-    }
-
-    let prevAbs = "";
-    try {
-      prevAbs =
-        el.src && el.src.trim() !== ""
-          ? new URL(el.src, window.location.origin).href
-          : "";
-    } catch {
-      prevAbs = el.src ?? "";
-    }
-
-    const tryResumePlayback = () => {
-      if (cancelled) return;
-      if (!playingRef.current || !readHudAmbientAutoplayIntent()) return;
-      void el.play().catch(() => {
-        if (!cancelled) {
-          setPlaying(false);
-          writeHudAmbientAutoplayIntent(false);
-        }
-      });
-    };
-
-    applyVol();
-
-    if (prevAbs === abs && prevAbs !== "") {
-      if (el.paused && !el.ended) {
-        tryResumePlayback();
-      }
-      return () => {
-        cancelled = true;
-      };
-    }
-
-    const onCanPlayOnce = () => {
-      if (cancelled) return;
-      applyVol();
-      tryResumePlayback();
-    };
-
-    el.addEventListener("canplay", onCanPlayOnce, { once: true });
-    el.src = current.src;
-
-    const raf = requestAnimationFrame(() => {
-      if (cancelled) return;
-      if (el.readyState >= HTMLMediaElement.HAVE_FUTURE_DATA) {
-        el.removeEventListener("canplay", onCanPlayOnce);
-        onCanPlayOnce();
-      }
-    });
-
-    return () => {
-      cancelled = true;
-      cancelAnimationFrame(raf);
-      el.removeEventListener("canplay", onCanPlayOnce);
-    };
-  }, [current?.src, muted, volume]);
-
-  useEffect(() => {
-    const el = audioRef.current;
-    if (!el || tracks.length === 0) return;
-
-    const advanceToNextTrack = () => {
-      startTransition(() => {
-        setTrackIndex((i) => {
-          const len = tracksRef.current.length;
-          if (len <= 0) return i;
-          const next = (i + 1) % len;
-          writeHudAmbientTrackIndex(next);
-          return next;
-        });
-      });
-    };
-
-    const onPlay = () => {
-      errorSkipRef.current = 0;
-      setPlaying(true);
-    };
-
-    const onPause = () => {
-      if (el.ended) return;
-      if (el.error != null) return;
-      setPlaying(false);
-    };
-
-    const onEnded = () => {
-      if (!readHudAmbientAutoplayIntent()) {
-        setPlaying(false);
-        return;
-      }
-
-      const list = tracksRef.current;
-      if (list.length === 0) return;
-
-      if (list.length === 1) {
-        errorSkipRef.current = 0;
-        el.currentTime = 0;
-        requestAnimationFrame(() => {
-          void el.play().catch(() => {
-            setPlaying(false);
-            writeHudAmbientAutoplayIntent(false);
-          });
-        });
-        return;
-      }
-
-      advanceToNextTrack();
-    };
-
-    const onError = () => {
-      const list = tracksRef.current;
-      const cap = maxAmbientErrorSkips(list.length);
-      errorSkipRef.current += 1;
-      if (errorSkipRef.current > cap || list.length === 0) {
-        setPlaying(false);
-        writeHudAmbientAutoplayIntent(false);
-        errorSkipRef.current = 0;
-        return;
-      }
-      if (!readHudAmbientAutoplayIntent()) {
-        setPlaying(false);
-        return;
-      }
-      advanceToNextTrack();
-    };
-
-    el.addEventListener("play", onPlay);
-    el.addEventListener("pause", onPause);
-    el.addEventListener("ended", onEnded);
-    el.addEventListener("error", onError);
-
-    return () => {
-      el.removeEventListener("play", onPlay);
-      el.removeEventListener("pause", onPause);
-      el.removeEventListener("ended", onEnded);
-      el.removeEventListener("error", onError);
-    };
-  }, [tracks.length]);
-
-  useEffect(() => {
-    if (tracks.length === 0) return;
-    writeHudAmbientTrackIndex(trackIndex);
-  }, [trackIndex, tracks.length]);
-
-  useEffect(() => {
-    if (!catalogResolved || tracks.length === 0 || !current) return;
-    if (!readHudAmbientAutoplayIntent()) return;
-    if (resumeAttemptedRef.current) return;
-    resumeAttemptedRef.current = true;
-    const el = audioRef.current;
-    if (!el) return;
-    const id = window.requestAnimationFrame(() => {
-      void el.play().catch(() => {
-        writeHudAmbientAutoplayIntent(false);
-        setPlaying(false);
-      });
-    });
-    return () => cancelAnimationFrame(id);
-  }, [catalogResolved, tracks.length, current?.src]);
-
-  const togglePlay = useCallback(() => {
-    const el = audioRef.current;
-    if (!el || tracks.length === 0) return;
-    if (playingRef.current) {
-      writeHudAmbientAutoplayIntent(false);
-      el.pause();
-      return;
-    }
-    writeHudAmbientAutoplayIntent(true);
-    void el.play().catch(() => {});
-  }, [tracks.length]);
-
-  const toggleMute = useCallback(() => {
-    startTransition(() => {
-      setMuted((m) => {
-        const next = !m;
-        writeHudAmbientMuted(next);
-        return next;
-      });
-    });
-  }, []);
-
-  const goPrev = useCallback(() => {
-    if (tracks.length === 0) return;
-    startTransition(() => {
-      setTrackIndex((i) => {
-        const next = (i - 1 + tracks.length) % tracks.length;
-        writeHudAmbientTrackIndex(next);
-        return next;
-      });
-    });
-  }, [tracks.length]);
-
-  const goNext = useCallback(() => {
-    if (tracks.length === 0) return;
-    startTransition(() => {
-      setTrackIndex((i) => {
-        const next = (i + 1) % tracks.length;
-        writeHudAmbientTrackIndex(next);
-        return next;
-      });
-    });
-  }, [tracks.length]);
-
-  const onVolumeInput = useCallback((next: number) => {
-    const v = Math.min(1, Math.max(0, next));
-    setVolume(v);
-    writeHudAmbientVolume01(v);
-  }, []);
-
   const onDragEnd = useCallback(() => {
     persistPositionWithMode(playerMode);
   }, [persistPositionWithMode, playerMode]);
@@ -533,13 +221,12 @@ export function CampusHudAmbientMusic() {
         </div>
       </div>
       <p className="mt-3 px-0.5 text-[9px] leading-relaxed text-white/38">
-        A ler lista em /api/campus/audio-tracks e validar ficheiros…
+        A carregar lista de faixas…
       </p>
     </>
   );
 
   const trackLabel = current?.title ?? "—";
-  const showAudio = catalogResolved && tracks.length > 0;
   const hasTracks = tracks.length > 0;
 
   const volumeControls = (marginClass?: string) => (
@@ -569,13 +256,66 @@ export function CampusHudAmbientMusic() {
           max={100}
           step={1}
           value={Math.round(volume * 100)}
-          onChange={(e) => onVolumeInput(Number(e.target.value) / 100)}
+          onChange={(e) => setVolume01(Number(e.target.value) / 100)}
           onPointerDown={(e) => e.stopPropagation()}
           className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-white/12 accent-emerald-400"
         />
       </label>
     </div>
   );
+
+  const repeatLabel =
+    repeatMode === "one"
+      ? "Repetir uma faixa"
+      : repeatMode === "all"
+        ? "Repetir todas"
+        : "Sem repetir";
+
+  const transportExtras = expanded ? (
+    <div className="mt-2 flex items-center justify-center gap-1">
+      <button
+        type="button"
+        disabled={!hasTracks}
+        className={cn(
+          mapHudGlassBtn,
+          "h-8 w-8",
+          shuffle && "border-emerald-400/40 bg-emerald-500/15",
+          !hasTracks && "cursor-not-allowed opacity-40"
+        )}
+        aria-label={shuffle ? "Desligar ordem aleatória" : "Ordem aleatória"}
+        aria-pressed={shuffle}
+        onPointerDown={(e) => e.stopPropagation()}
+        onClick={(e) => {
+          e.stopPropagation();
+          toggleShuffle();
+        }}
+      >
+        <Shuffle size={15} aria-hidden />
+      </button>
+      <button
+        type="button"
+        disabled={!hasTracks}
+        className={cn(
+          mapHudGlassBtn,
+          "h-8 w-8",
+          repeatMode !== "off" && "border-emerald-400/40 bg-emerald-500/15",
+          !hasTracks && "cursor-not-allowed opacity-40"
+        )}
+        aria-label={repeatLabel}
+        onPointerDown={(e) => e.stopPropagation()}
+        onClick={(e) => {
+          e.stopPropagation();
+          cycleRepeat();
+        }}
+      >
+        {repeatMode === "one" ? (
+          <Repeat1 size={15} aria-hidden />
+        ) : (
+          <Repeat size={15} className={repeatMode === "all" ? "" : "opacity-55"} aria-hidden />
+        )}
+      </button>
+    </div>
+  ) : null;
 
   const miniBody = (
     <>
@@ -715,6 +455,8 @@ export function CampusHudAmbientMusic() {
         </button>
       </div>
 
+      {transportExtras}
+
       {!expanded && !hasTracks ? (
         <div className="mt-2 border-t border-white/[0.07] pt-2">{volumeControls()}</div>
       ) : null}
@@ -732,14 +474,13 @@ export function CampusHudAmbientMusic() {
             <p className="mt-2 text-[9px] leading-relaxed text-white/42">
               {hasTracks ? (
                 <>
-                  Ficheiros servidos de /public/audio (preload leve). O navegador pode bloquear autoplay até interagires
-                  com play. Arrasta pela barra superior — não interfere com o mapa.
+                  Lista via /api/campus/audio-tracks · reprodução Howler.js (HTML5). O navegador pode bloquear autoplay
+                  até interagires com play. Arrasta pela barra superior — não interfere com o mapa.
                 </>
               ) : (
                 <>
-                  Nenhuma faixa válida na playlist (ou ficheiros em falta no servidor). Sem pedidos extra a URLs
-                  inventadas — só entram ficheiros listados pela API e confirmados. Quando adicionares áudio, atualiza a
-                  página.
+                  Nenhuma faixa válida na playlist (ou ficheiros em falta no servidor). Quando adicionares áudio,
+                  atualiza a página.
                 </>
               )}
             </p>
@@ -750,39 +491,34 @@ export function CampusHudAmbientMusic() {
   );
 
   return (
-    <>
-      {showAudio ? (
-        <audio ref={audioRef} preload="metadata" playsInline className="hidden" aria-hidden />
-      ) : null}
-      <motion.div
-        ref={shellRef}
-        {...shellMotionProps}
-        className={cn(
-          glassShell,
-          "pointer-events-auto",
-          !catalogResolved
-            ? "w-[min(20rem,calc(100vw-1.5rem))] max-w-[calc(100vw-1.25rem)] p-3"
+    <motion.div
+      ref={shellRef}
+      {...shellMotionProps}
+      className={cn(
+        glassShell,
+        "pointer-events-auto",
+        !catalogResolved
+          ? "w-[min(20rem,calc(100vw-1.5rem))] max-w-[calc(100vw-1.25rem)] p-3"
+          : mini
+            ? "relative flex h-14 w-14 max-h-[min(3.5rem,calc(100vw-1rem))] max-w-[min(3.5rem,calc(100vw-1rem))] flex-col items-center justify-center rounded-full p-0 ring-emerald-400/18"
+            : cn(
+                "w-[min(20rem,calc(100vw-1.5rem))] max-w-[calc(100vw-1.25rem)] overflow-hidden",
+                expanded ? "p-3" : "p-2"
+              )
+      )}
+      role={!catalogResolved ? "status" : "region"}
+      aria-busy={!catalogResolved}
+      aria-label={
+        !catalogResolved
+          ? "A preparar leitor de áudio"
+          : tracks.length === 0
+            ? "Leitor de áudio — sem faixas"
             : mini
-              ? "relative flex h-14 w-14 max-h-[min(3.5rem,calc(100vw-1rem))] max-w-[min(3.5rem,calc(100vw-1rem))] flex-col items-center justify-center rounded-full p-0 ring-emerald-400/18"
-              : cn(
-                  "w-[min(20rem,calc(100vw-1.5rem))] max-w-[calc(100vw-1.25rem)] overflow-hidden",
-                  expanded ? "p-3" : "p-2"
-                )
-        )}
-        role={!catalogResolved ? "status" : "region"}
-        aria-busy={!catalogResolved}
-        aria-label={
-          !catalogResolved
-            ? "A preparar leitor de áudio"
-            : tracks.length === 0
-              ? "Leitor de áudio — sem faixas"
-              : mini
-                ? "Leitor ambiente minimizado"
-                : "Música ambiente do campus"
-        }
-      >
-        {!catalogResolved ? loadingBody : mini ? miniBody : cardBody}
-      </motion.div>
-    </>
+              ? "Leitor ambiente minimizado"
+              : "Música ambiente do campus"
+      }
+    >
+      {!catalogResolved ? loadingBody : mini ? miniBody : cardBody}
+    </motion.div>
   );
 }
