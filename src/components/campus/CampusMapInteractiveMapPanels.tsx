@@ -149,7 +149,7 @@ function dockedCinemaLiveFrameXY(
 }
 
 /**
- * Painel HUD «Cinema e ao vivo» (zona `campus-cinema` / target `cinema_live_rail`).
+ * Painel HUD «Cinema e ao vivo» (zona `campus-live-cinema` / target `cinema_live_rail`).
  * Não confundir com: `CampusHudAmbientMusic`, `CineDriveIn`, nem cartões/peers no mapa.
  */
 function CampusMapCinemaLiveFloatingFrame({

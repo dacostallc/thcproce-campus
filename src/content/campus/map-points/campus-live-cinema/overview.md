@@ -1,5 +1,5 @@
 ---
-mapPointId: campus-cinema
+mapPointId: campus-live-cinema
 title: Cinema THCProce
 panelTitle: Cinema THCProce
 linkedCourseId: ''

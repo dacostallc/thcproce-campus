@@ -618,7 +618,7 @@ export const CAMPUS_LEGACY_HIT_ID_TO_ZONE_LABEL: Partial<
   "cannabis-e-proibida": "biblioteca_ciencia_legal",
   "deixa-seu-recado": "comunidade_social",
   "programacao-do-dia": "arena_eventos",
-  "campus-cinema": "cinema"
+  "campus-live-cinema": "cinema"
 };
 
 /** Fallback quando só há `courseId` (sem hit específico ou hit não mapeado). */

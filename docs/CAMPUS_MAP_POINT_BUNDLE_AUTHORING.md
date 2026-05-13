@@ -36,7 +36,7 @@ O `slug` deve ser `[a-z0-9-]{1,120}` (alinhado com ids dos hotspots interativos)
 
 
 
-**Alias de pasta:** o hotspot `campus-cinema` lê conteúdo em `map-points/campus-live-cinema/` (ver `resolveCampusMapPointContentFolderSlug`). Mantém-se o id do mapa; só a pasta editorial difere.
+**Cinema:** hotspot `campus-live-cinema` ↔ pasta `map-points/campus-live-cinema/` (ids alinhados; aliases opcionais em `resolveCampusMapPointContentFolderSlug`).
 
 
 
