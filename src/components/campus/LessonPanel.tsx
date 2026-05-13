@@ -1,5 +1,11 @@
 "use client";
 
+/**
+ * Conteúdo da aula: **Cannabis 101** usa primeiro Markdown em `content/courses/cannabis-101/lessons`
+ * (sem `lessonFromDb`). Demais áreas: blocos Prisma quando existem; senão Markdown estático se houver
+ * ficheiro; senão repositório (`lessonContent`); senão Moodle (legado); senão placeholder de sincronização.
+ */
+
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, CheckCircle2, HardHat } from "lucide-react";
@@ -8,10 +14,19 @@ import type { Area } from "@/data/courses";
 import { cn } from "@/lib/utils";
 import { BlockRenderer } from "@/components/campus/blocks/BlockRenderer";
 import { CampusLessonVideo } from "./CampusLessonVideo";
-import { Cannabis101CinematicOpening } from "./Cannabis101CinematicOpening";
 import { ClassroomLessonView } from "./ClassroomLessonView";
 import { getLessonTitlesForArea } from "@/data/lessonOutline";
-import { getLessonRichContent } from "@/data/lessonRichContent";
+import { areaUsesMoodleLessonSnippet } from "@/content/courses";
+import {
+  buildPanelLessonRichContent,
+  type PanelLessonContentResult,
+} from "@/lib/campus/buildPanelLessonRichContent";
+import { lessonStreamToRich, tryGetManualLessonsForCourse } from "@/data/lessonContent";
+import { LessonStaticReadingShell } from "@/components/campus/LessonStaticReadingShell";
+import type {
+  LessonCinematicHudModel,
+  LessonProgressionSnapshot
+} from "@/components/campus/lesson-cinema/lessonCinematicTypes";
 import { setLastLessonIndex } from "@/lib/campusLastLesson";
 import {
   persistLessonMarkUpdate,
@@ -24,7 +39,6 @@ import { markCannabis101FirstLessonBegun, notifyCannabis101StartHintListeners } 
 import { trpc } from "@/lib/trpc/react";
 import { Button } from "@/components/ui/button";
 import { getCampusPanelAccent } from "@/lib/campusAccent";
-import { awardXp, watchAwardStorageKey } from "@/lib/studentGamificationStorage";
 import { grantLessonCompletionReward } from "@/lib/studentLessonCompletionRewards";
 import { grantCampusAreaCompletionCollectibleIfNeeded } from "@/lib/campusModuleCertificateRewards";
 import { useRewardToastStore } from "@/stores/rewardToastStore";
@@ -42,6 +56,7 @@ import {
   getLessonEstimatedMinutesForArea
 } from "@/lib/lessonAcademicRules";
 import { completeCampusMissionPhase2IfNeeded } from "@/lib/campusMissionsPhase2Storage";
+import { XP_REWARD_COMPLETE_LESSON } from "@/lib/progression/xp";
 
 function formatDwellRemaining(ms: number): string {
   const s = Math.max(0, Math.ceil(ms / 1000));
@@ -82,8 +97,6 @@ function mergeLs(areaId: string, lessonIdx: number): number[] {
   return m[areaId]!;
 }
 
-const C101_OPENING_SESSION_KEY = "thc-c101-opening-dismissed";
-
 type Props = {
   open: boolean;
   area: Area | null;
@@ -112,6 +125,11 @@ export function LessonPanel({
     staleTime: 30_000
   });
 
+  const { data: myProg } = trpc.campus.myProgress.useQuery(undefined, {
+    enabled: open && status === "authenticated",
+    staleTime: 30_000
+  });
+
   const markSeen = trpc.campus.lessonMarkSeen.useMutation({
     onSuccess: () => {
       void utils.campus.lessonProgressMine.invalidate();
@@ -119,16 +137,15 @@ export function LessonPanel({
     }
   });
 
-  const [localTick, setLocalTick] = useState(0);
-  const [markCelebration, setMarkCelebration] = useState(false);
-  const [c101OpeningDismissed, setC101OpeningDismissed] = useState(() => {
-    if (typeof window === "undefined") return false;
-    try {
-      return sessionStorage.getItem(C101_OPENING_SESSION_KEY) === "1";
-    } catch {
-      return false;
+  const lessonFirstOpen = trpc.campus.lessonFirstOpen.useMutation({
+    onSuccess: () => {
+      void utils.campus.myProgress.invalidate();
     }
   });
+
+  const lessonFirstOpenOnceKeyRef = useRef<string | null>(null);
+  const [localTick, setLocalTick] = useState(0);
+  const [markCelebration, setMarkCelebration] = useState(false);
   useEffect(() => {
     if (!markCelebration) return;
     const t = window.setTimeout(() => setMarkCelebration(false), 820);
@@ -152,15 +169,10 @@ export function LessonPanel({
   }, [area, serverDone, localDoneAll, localTick, status]);
 
   const clampedLesson = titles.length ? Math.min(Math.max(0, lessonIndex), titles.length - 1) : 0;
+  const isCannabis101Room = area?.id === CANNABIS101_AREA_ID;
 
-  useEffect(() => {
-    if (!open || area?.id !== CANNABIS101_AREA_ID || clampedLesson !== 0) return;
-    try {
-      setC101OpeningDismissed(sessionStorage.getItem(C101_OPENING_SESSION_KEY) === "1");
-    } catch {
-      /* noop */
-    }
-  }, [open, area?.id, clampedLesson]);
+  const trailProgressPct =
+    titles.length > 0 ? Math.min(100, Math.round((doneSet.size / titles.length) * 100)) : 0;
 
   useEffect(() => {
     if (!open || !area) return;
@@ -193,17 +205,12 @@ export function LessonPanel({
   }, [open, area?.id, clampedLesson]);
 
   useEffect(() => {
-    if (!open || !area) return;
-    const key = watchAwardStorageKey(area.id, clampedLesson);
-    try {
-      if (typeof window === "undefined") return;
-      if (localStorage.getItem(key) === "1") return;
-      localStorage.setItem(key, "1");
-    } catch {
-      return;
-    }
-    awardXp(10, "lesson_panel_open");
-  }, [open, area?.id, clampedLesson]);
+    if (!open || !area || status !== "authenticated") return;
+    const key = `${area.id}:${clampedLesson}`;
+    if (lessonFirstOpenOnceKeyRef.current === key) return;
+    lessonFirstOpenOnceKeyRef.current = key;
+    lessonFirstOpen.mutate({ areaId: area.id, lessonIndex: clampedLesson });
+  }, [open, area, clampedLesson, status, lessonFirstOpen]);
 
   const dwellRef = useRef(0);
   const [dwellLiveMs, setDwellLiveMs] = useState(0);
@@ -294,40 +301,179 @@ export function LessonPanel({
 
   const already = doneSet.has(clampedLesson);
 
-  const lessonTitle = titles[clampedLesson] ?? "Conteúdo";
-
-  const richContent = useMemo(
-    () => (area ? getLessonRichContent(area, clampedLesson, lessonTitle) : null),
-    [area, clampedLesson, lessonTitle],
-  );
+  /** Título só para casar módulos no WS (outline local); não é corpo da aula. */
+  const moodleMatchTitle = titles[clampedLesson] ?? `Aula ${clampedLesson + 1}`;
 
   const dbLessonQ = trpc.campus.lessonFromDb.useQuery(
     { areaId: area?.id ?? "", lessonIndex: clampedLesson },
-    { enabled: open && Boolean(area), staleTime: 60_000 },
+    { enabled: open && Boolean(area) && !isCannabis101Room, staleTime: 60_000 },
   );
 
-  const showDbBlocks =
+  const moodleSnippetSupported = Boolean(area && areaUsesMoodleLessonSnippet(area.id));
+
+  const moodleSnippetQ = trpc.campus.moodleLessonSnippet.useQuery(
+    { areaId: area?.id ?? "", lessonIndex: clampedLesson, lessonTitle: moodleMatchTitle },
+    {
+      enabled: open && Boolean(area) && moodleSnippetSupported,
+      staleTime: 60_000,
+    },
+  );
+
+  /** Cannabis 101: Markdown estático ganha a blocos Prisma; restantes cursos mantêm DB primeiro. */
+  const showDbBlockRenderer =
+    !isCannabis101Room &&
     !dbLessonQ.isFetching &&
     !dbLessonQ.isError &&
     Boolean(dbLessonQ.data?.blocks?.length);
+
+  const staticLessonLoadEnabled =
+    open &&
+    Boolean(area) &&
+    (isCannabis101Room || (!dbLessonQ.isFetching && !showDbBlockRenderer));
+
+  const staticLessonQ = trpc.campus.staticLessonMarkdown.useQuery(
+    { areaId: area?.id ?? "", lessonIndex: clampedLesson },
+    { enabled: staticLessonLoadEnabled, staleTime: 300_000 },
+  );
+
+  const staticPrefetchOpts = useMemo(
+    () => ({ staleTime: 300_000 }) as const,
+    [],
+  );
+
+  useEffect(() => {
+    if (!open || !area || !staticLessonLoadEnabled || titles.length === 0) return;
+    if (!staticLessonQ.isSuccess) return;
+    const id = area.id;
+    if (clampedLesson > 0) {
+      void utils.campus.staticLessonMarkdown.prefetch(
+        { areaId: id, lessonIndex: clampedLesson - 1 },
+        staticPrefetchOpts,
+      );
+    }
+    if (clampedLesson < titles.length - 1) {
+      void utils.campus.staticLessonMarkdown.prefetch(
+        { areaId: id, lessonIndex: clampedLesson + 1 },
+        staticPrefetchOpts,
+      );
+    }
+  }, [
+    area,
+    clampedLesson,
+    open,
+    staticLessonLoadEnabled,
+    staticLessonQ.isSuccess,
+    staticPrefetchOpts,
+    titles.length,
+    utils,
+  ]);
+
+  const staticLessonPayload = staticLessonQ.data?.found ? staticLessonQ.data : null;
+
+  const displayLessonTitle =
+    staticLessonPayload?.title.trim() ||
+    (isCannabis101Room
+      ? ""
+      : dbLessonQ.data?.title?.trim() || "") ||
+    (moodleSnippetQ.data?.ok === true ? moodleSnippetQ.data.moduleName?.trim() : "") ||
+    moodleMatchTitle;
+
+  const cinematicHud = useMemo((): LessonCinematicHudModel | undefined => {
+    if (!isCannabis101Room || !area || !staticLessonPayload) return undefined;
+
+    const remainingMs = Math.max(0, requiredDwellMs - dwellLiveMs);
+    const dwellMet = dwellLiveMs >= requiredDwellMs;
+    const dwellPct =
+      requiredDwellMs > 0 ? Math.min(100, (dwellLiveMs / requiredDwellMs) * 100) : 100;
+    const completeBlocked = !already && !dwellMet;
+    const dwellRemainingLabel = dwellMet
+      ? "Permanência mínima cumprida — podes concluir."
+      : `Faltam ${formatDwellRemaining(remainingMs)} · o tempo acumula se você sair e voltar`;
+
+    const progression: LessonProgressionSnapshot | null =
+      status === "authenticated" && myProg
+        ? {
+            xp: myProg.xp,
+            levelLabel: myProg.levelLabel,
+            souvenirCredits: myProg.souvenirCredits,
+            progressPercent: myProg.progressPercent,
+            nextTierLabel: myProg.nextTierLabel,
+            nextTierMinXp: myProg.nextTierMinXp,
+            streak: myProg.streak
+          }
+        : null;
+
+    return {
+      areaName: area.name,
+      lessonTitleForCrumb: displayLessonTitle,
+      isAuthenticated: status === "authenticated",
+      progression,
+      trailProgressPct,
+      doneInArea: doneSet.size,
+      totalLessons: titles.length,
+      dwellLiveMs,
+      dwellRequiredMs: requiredDwellMs,
+      dwellPct,
+      dwellRemainingLabel,
+      alreadyComplete: already,
+      completeBlocked,
+      onMarkComplete: markCurrent,
+      markCompletePending: markSeen.isPending
+    };
+  }, [
+    isCannabis101Room,
+    area,
+    staticLessonPayload,
+    displayLessonTitle,
+    status,
+    myProg,
+    trailProgressPct,
+    doneSet,
+    titles.length,
+    dwellLiveMs,
+    requiredDwellMs,
+    already,
+    markCurrent,
+    markSeen.isPending
+  ]);
+
+  const manualLessonStream = useMemo(() => {
+    if (!area) return undefined;
+    const manual = tryGetManualLessonsForCourse(area.id);
+    if (!manual || clampedLesson < 0 || clampedLesson >= manual.length) return undefined;
+    return manual[clampedLesson];
+  }, [area, clampedLesson]);
+
+  const panelLesson = useMemo((): PanelLessonContentResult | null => {
+    if (!area) return null;
+    const manual = tryGetManualLessonsForCourse(area.id);
+    if (manual && clampedLesson >= 0 && clampedLesson < manual.length) {
+      const stream = manual[clampedLesson]!;
+      const rich = lessonStreamToRich(stream);
+      const charCount =
+        (rich.intro?.length ?? 0) +
+        (rich.body?.length ?? 0) +
+        (rich.summary?.length ?? 0) +
+        rich.objectives.join("").length +
+        rich.materials.join("").length +
+        rich.references.join("").length +
+        (rich.professorNotes?.length ?? 0);
+      return {
+        content: rich,
+        source: "repository",
+        charCount,
+      };
+    }
+    return buildPanelLessonRichContent({
+      moodleSnippet: moodleSnippetQ.data ?? null,
+      moodleSnippetEnabledForArea: moodleSnippetSupported,
+    });
+  }, [area, clampedLesson, moodleSnippetQ.data, moodleSnippetSupported]);
 
   const accent = area?.color ?? "canna";
   const panel = getCampusPanelAccent(accent);
   const underConstruction =
     area != null && isCampusAreaConstruction(area.id) && !campusAdmin;
-  const isCannabis101Room = area?.id === CANNABIS101_AREA_ID;
-
-  const showC101Cinematic =
-    isCannabis101Room && clampedLesson === 0 && !c101OpeningDismissed && !underConstruction;
-
-  const dismissC101Opening = useCallback(() => {
-    try {
-      sessionStorage.setItem(C101_OPENING_SESSION_KEY, "1");
-    } catch {
-      /* noop */
-    }
-    setC101OpeningDismissed(true);
-  }, []);
 
   const renderMarkLessonToolbar = (_courseArea: Area) => {
     const dwellMet = dwellLiveMs >= requiredDwellMs;
@@ -367,6 +513,36 @@ export function LessonPanel({
           </div>
         ) : null}
 
+        <div
+          className={cn(
+            "rounded-xl border px-3 py-2 backdrop-blur-sm",
+            isCannabis101Room
+              ? "border-amber-500/15 bg-[#0f1814]/85"
+              : "border-white/[0.07] bg-black/20"
+          )}
+        >
+          <p className="text-[10px] leading-relaxed text-white/55">
+            {already ? (
+              <>
+                Esta aula já entrou no teu progresso. A primeira conclusão contou como base{" "}
+                <span className="font-semibold tabular-nums text-white/70">
+                  +{XP_REWARD_COMPLETE_LESSON} XP
+                </span>{" "}
+                (mais possíveis bónus de sequência na conta).
+              </>
+            ) : (
+              <>
+                Primeira marcação nesta aula:&nbsp;
+                <span className="font-semibold tabular-nums text-white/70">
+                  +{XP_REWARD_COMPLETE_LESSON} XP
+                </span>{" "}
+                na progressão quando a conta estiver ligada — fora da sessão, o campus mantém este valor
+                localmente até sincronizar.
+              </>
+            )}
+          </p>
+        </div>
+
         <motion.div
           animate={
             markCelebration
@@ -394,16 +570,16 @@ export function LessonPanel({
                 ? "Esta aula já está concluída no seu progresso."
                 : completeBlocked
                   ? `Permanência mínima na aula antes de concluir (faltam ${formatDwellRemaining(remainingMs)}).`
-                  : "Regista a conclusão da aula e recebe a recompensa de fecho (uma vez)."
+                  : `Concluir e registar +${XP_REWARD_COMPLETE_LESSON} XP de base ao marcar pela primeira vez.`
             }
           >
             {already ? (
               <>
-                <CheckCircle2 size={16} /> Aula concluída
+                <CheckCircle2 size={16} /> Concluída
               </>
             ) : (
               <>
-                <CheckCircle2 size={16} /> Marcar como concluída
+                <CheckCircle2 size={16} /> Concluir
               </>
             )}
           </Button>
@@ -432,17 +608,39 @@ export function LessonPanel({
             exit={{ y: 20, opacity: 0 }}
             transition={{ type: "spring", stiffness: 260, damping: 30 }}
             className={cn(
-              "fixed inset-2 sm:inset-4 md:inset-6 z-[45] flex max-h-[calc(100svh-1rem)] min-h-0 flex-col overflow-hidden rounded-2xl border shadow-2xl pointer-events-auto !bg-[#060a08]",
+              "fixed left-1/2 top-1/2 z-[45] flex h-[min(88vh,calc(100dvh-1.25rem))] max-h-[min(88vh,calc(100dvh-1.25rem))] w-[92vw] max-w-[min(92vw,1400px)] min-h-0 -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-xl border border-[#5c4a22]/45 pointer-events-auto shadow-[0_32px_120px_rgba(0,0,0,0.82),0_0_0_1px_rgba(0,0,0,0.55),inset_0_1px_0_rgba(255,255,255,0.05)] backdrop-blur-[8px] !bg-[#050505]/96",
               panel.dialog
             )}
             onClick={(e) => e.stopPropagation()}
           >
             <header
               className={cn(
-                "shrink-0 border-b px-4 py-3 sm:px-6 !bg-[#050806]",
+                "shrink-0 border-b px-4 py-4 sm:px-6 sm:py-5 !bg-[#050806]/90",
                 panel.headerBar
               )}
             >
+              <div
+                role="progressbar"
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-valuenow={trailProgressPct}
+                aria-valuetext={`progresso nesta área ${trailProgressPct} por cento`}
+                aria-label={`Progresso nesta área (${trailProgressPct} por cento, ${doneSet.size} de ${
+                  titles.length || 0
+                } aulas concluídas)`}
+                className="mb-4 h-[2px] w-full overflow-hidden rounded-full bg-white/[0.08]"
+              >
+                <div
+                  className={cn(
+                    "h-full rounded-full bg-gradient-to-r transition-[width] duration-500 ease-out",
+                    isCannabis101Room
+                      ? "from-amber-600/95 to-amber-400/80"
+                      : "from-emerald-600/90 to-teal-400/75"
+                  )}
+                  style={{ width: `${trailProgressPct}%` }}
+                />
+              </div>
+
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div className="min-w-0 flex-1">
                   <p className="text-[10px] uppercase tracking-[0.22em] text-white/50">{area.name}</p>
@@ -454,15 +652,28 @@ export function LessonPanel({
                   >
                     Aula {clampedLesson + 1} de {titles.length || "—"}
                   </p>
-                  <h2
-                    id="lesson-panel-title"
-                    className={cn(
-                      "mt-1 text-base font-semibold leading-snug text-white sm:text-lg",
-                      isCannabis101Room && "font-semibold tracking-tight text-white sm:text-xl"
-                    )}
-                  >
-                    {lessonTitle}
-                  </h2>
+                  {isCannabis101Room ? (
+                    <>
+                      <span id="lesson-panel-title" className="sr-only">
+                        {displayLessonTitle} — {area.name}
+                      </span>
+                      <p
+                        className="mt-2 text-sm font-medium leading-snug text-white/80 sm:text-base"
+                        aria-hidden
+                      >
+                        Janela do curso · leitura e vídeo
+                      </p>
+                    </>
+                  ) : (
+                    <h2
+                      id="lesson-panel-title"
+                      className={cn(
+                        "mt-2 text-balance text-base font-semibold leading-snug text-white sm:text-lg"
+                      )}
+                    >
+                      {displayLessonTitle}
+                    </h2>
+                  )}
                 </div>
                 <button
                   type="button"
@@ -479,16 +690,6 @@ export function LessonPanel({
               data-lesson-scroll-root
               className="relative flex min-h-0 flex-1 flex-col overflow-hidden px-4 py-4 sm:px-6 sm:py-5"
             >
-              {showC101Cinematic ? (
-                <div className="mx-auto mb-3 w-full max-w-3xl shrink-0 overflow-hidden rounded-xl border border-white/10 bg-[#080c0a]">
-                  <div className="max-h-[min(36svh,320px)] min-h-0 overflow-y-auto scrollbar-thin">
-                    <Cannabis101CinematicOpening onEnterLesson={dismissC101Opening} />
-                  </div>
-                </div>
-              ) : null}
-
-              <div id="c101-after-cinematic" className="scroll-mt-3" />
-
               {underConstruction ? (
                 <div
                   className={cn(
@@ -509,53 +710,90 @@ export function LessonPanel({
               ) : null}
 
               <h1 id="campus-lesson-heading" className="sr-only">
-                {lessonTitle}
+                {displayLessonTitle}
               </h1>
-              {area.short ? (
-                <p
-                  className={cn(
-                    "mb-3 shrink-0 text-center text-[13px] leading-relaxed text-white/45 sm:text-left",
-                    isCannabis101Room && "text-amber-100/45"
-                  )}
-                >
-                  {area.short}
-                </p>
-              ) : null}
 
               {!underConstruction ? (
-                <div className="shrink-0">{renderMarkLessonToolbar(area)}</div>
+                <div className="shrink-0">
+                  {isCannabis101Room && staticLessonPayload ? null : renderMarkLessonToolbar(area)}
+                </div>
               ) : null}
 
-              {dbLessonQ.isFetching ? (
+              {dbLessonQ.isFetching && !isCannabis101Room ? (
                 <p className="mb-2 shrink-0 text-xs text-white/45">A sincronizar conteúdo da aula…</p>
               ) : null}
 
-              {showDbBlocks ? (
-                <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-emerald-500/25 bg-[#0a100e] p-3 sm:p-4">
-                  <div
-                    className="shrink-0 rounded-xl border border-emerald-500/20 bg-[#0a1814] px-3 py-2 text-[11px] text-emerald-100/90"
-                    role="status"
-                  >
-                    Conteúdo desta aula: <strong>CMS</strong> (piloto). Slugs:{" "}
-                    <span className="font-mono text-[10px] opacity-90">
-                      {dbLessonQ.data!.courseSlug}/{dbLessonQ.data!.moduleSlug}/
-                      {dbLessonQ.data!.lessonSlug}
-                    </span>
-                  </div>
-                  <div className="mt-2 min-h-0 flex-1 overflow-y-auto scrollbar-thin pr-1">
+              {!dbLessonQ.isFetching && showDbBlockRenderer ? (
+                <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-white/[0.08] bg-[#08120e]/92 p-3 shadow-inner backdrop-blur-sm sm:p-4">
+                  <div className="mt-0 min-h-0 flex-1 overflow-y-auto scrollbar-thin pr-1">
                     <BlockRenderer blocks={dbLessonQ.data!.blocks} />
                   </div>
                 </div>
               ) : null}
 
-              {!showDbBlocks && richContent ? (
+              {staticLessonLoadEnabled && staticLessonQ.isFetching ? (
+                <p className="mb-2 shrink-0 text-xs text-white/45">Preparando a leitura da aula…</p>
+              ) : null}
+
+              {staticLessonLoadEnabled &&
+              staticLessonPayload &&
+              area &&
+              !staticLessonQ.isFetching &&
+              (isCannabis101Room || !dbLessonQ.isFetching) ? (
+                <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+                  <LessonStaticReadingShell
+                    key={`static-${area.id}-${clampedLesson}`}
+                    markdown={staticLessonPayload.markdownContent}
+                    accent={accent}
+                    quiz={manualLessonStream?.quiz}
+                    quizContext={{ areaId: area.id, lessonIndex: clampedLesson }}
+                    lessonOrdinal={{ current: clampedLesson + 1, total: titles.length }}
+                    onPrevLesson={() => clampedLesson >= 1 && onSelectLesson(clampedLesson - 1)}
+                    onNextLesson={() =>
+                      clampedLesson < titles.length - 1 && onSelectLesson(clampedLesson + 1)
+                    }
+                    prevLessonDisabled={clampedLesson < 1}
+                    nextLessonDisabled={titles.length === 0 || clampedLesson >= titles.length - 1}
+                    onExitLesson={onClose}
+                    isCannabis101Room={isCannabis101Room}
+                    lessonFrameTitle={displayLessonTitle}
+                    lessonNav={
+                      isCannabis101Room
+                        ? {
+                            titles,
+                            currentIndex: clampedLesson,
+                            onSelectLesson,
+                            doneIndices: doneSet
+                          }
+                        : undefined
+                    }
+                    cinematicHud={cinematicHud}
+                    supplement={
+                      <CampusLessonVideo
+                        areaId={area.id}
+                        areaName={area.name}
+                        lessonTitle={displayLessonTitle}
+                        lessonVisual="compact"
+                        hideFallback
+                        whenNone={isCannabis101Room ? "large" : "compact"}
+                      />
+                    }
+                  />
+                </div>
+              ) : null}
+
+              {(isCannabis101Room || !dbLessonQ.isFetching) &&
+              !showDbBlockRenderer &&
+              !staticLessonQ.isFetching &&
+              !staticLessonPayload &&
+              panelLesson ? (
                 <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
                   <ClassroomLessonView
                     key={`${area.id}-${clampedLesson}`}
-                    content={richContent}
+                    content={panelLesson.content}
                     accent={accent}
                     quizContext={{ areaId: area.id, lessonIndex: clampedLesson }}
-                    lessonQuizCinematic={isCannabis101Room}
+                    lessonQuizCinematic={false}
                     lessonOrdinal={{ current: clampedLesson + 1, total: titles.length }}
                     onPrevLesson={() => clampedLesson >= 1 && onSelectLesson(clampedLesson - 1)}
                     onNextLesson={() =>
@@ -568,7 +806,7 @@ export function LessonPanel({
                       <CampusLessonVideo
                         areaId={area.id}
                         areaName={area.name}
-                        lessonTitle={lessonTitle}
+                        lessonTitle={displayLessonTitle}
                         lessonVisual="compact"
                         hideFallback
                         whenNone="compact"
