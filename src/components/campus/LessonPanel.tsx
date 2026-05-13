@@ -6,7 +6,8 @@
  * ficheiro; senão repositório (`lessonContent`); senão Moodle (legado); senão placeholder de sincronização.
  */
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, CheckCircle2, HardHat } from "lucide-react";
 import { useSession } from "next-auth/react";
@@ -475,6 +476,12 @@ export function LessonPanel({
   const underConstruction =
     area != null && isCampusAreaConstruction(area.id) && !campusAdmin;
 
+  /** Portal no `body`: `fixed` relativo ao viewport; z acima do painel de hotspot do mapa (z-52). */
+  const [lessonModalHost, setLessonModalHost] = useState<HTMLElement | null>(null);
+  useLayoutEffect(() => {
+    setLessonModalHost(document.body);
+  }, []);
+
   const renderMarkLessonToolbar = (_courseArea: Area) => {
     const dwellMet = dwellLiveMs >= requiredDwellMs;
     const remainingMs = Math.max(0, requiredDwellMs - dwellLiveMs);
@@ -588,7 +595,7 @@ export function LessonPanel({
     );
   };
 
-  return (
+  const lessonModal = (
     <AnimatePresence>
       {open && area ? (
         <>
@@ -596,7 +603,7 @@ export function LessonPanel({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[44] pointer-events-auto bg-black/70"
+            className="fixed inset-0 z-[90] pointer-events-auto bg-black/70"
             onClick={onClose}
           />
           <motion.div
@@ -608,7 +615,7 @@ export function LessonPanel({
             exit={{ y: 20, opacity: 0 }}
             transition={{ type: "spring", stiffness: 260, damping: 30 }}
             className={cn(
-              "fixed left-1/2 top-1/2 z-[45] flex h-[min(88vh,calc(100dvh-1.25rem))] max-h-[min(88vh,calc(100dvh-1.25rem))] w-[92vw] max-w-[min(92vw,1400px)] min-h-0 -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-xl border border-[#5c4a22]/45 pointer-events-auto shadow-[0_32px_120px_rgba(0,0,0,0.82),0_0_0_1px_rgba(0,0,0,0.55),inset_0_1px_0_rgba(255,255,255,0.05)] backdrop-blur-[8px] !bg-[#050505]/96",
+              "fixed left-1/2 top-1/2 z-[91] flex h-[min(88vh,calc(100dvh-1.25rem))] max-h-[min(88vh,calc(100dvh-1.25rem))] w-[92vw] max-w-[min(92vw,1400px)] min-h-0 -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-xl border border-[#5c4a22]/45 pointer-events-auto shadow-[0_32px_120px_rgba(0,0,0,0.82),0_0_0_1px_rgba(0,0,0,0.55),inset_0_1px_0_rgba(255,255,255,0.05)] backdrop-blur-[8px] !bg-[#050505]/96",
               panel.dialog
             )}
             onClick={(e) => e.stopPropagation()}
@@ -821,4 +828,8 @@ export function LessonPanel({
       ) : null}
     </AnimatePresence>
   );
+
+  if (!lessonModalHost) return null;
+
+  return createPortal(lessonModal, lessonModalHost);
 }
