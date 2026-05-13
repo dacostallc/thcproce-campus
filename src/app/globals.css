@@ -1265,3 +1265,14 @@ html, body {
     opacity: 0.06 !important;
   }
 }
+
+/**
+ * Stack isolado para o modal de aula (React portal). Acima de toda a UI do campus
+ * (hotspot z-52, welcome z-73, tour z-63, HUD z-20–60). Sem `transform` aqui —
+ * filhos `position:fixed` continuam relativos ao viewport.
+ */
+#campus-lesson-modal-root {
+  position: relative;
+  z-index: 10000;
+  isolation: isolate;
+}

@@ -6,10 +6,9 @@
  * ficheiro; senão repositório (`lessonContent`); senão Moodle (legado); senão placeholder de sincronização.
  */
 
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { createPortal } from "react-dom";
-import { motion, AnimatePresence } from "framer-motion";
-import { X, CheckCircle2, HardHat } from "lucide-react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { motion } from "framer-motion";
+import { CheckCircle2, HardHat } from "lucide-react";
 import { useSession } from "next-auth/react";
 import type { Area } from "@/data/courses";
 import { cn } from "@/lib/utils";
@@ -57,6 +56,11 @@ import {
   getLessonEstimatedMinutesForArea
 } from "@/lib/lessonAcademicRules";
 import { completeCampusMissionPhase2IfNeeded } from "@/lib/campusMissionsPhase2Storage";
+import {
+  buildLessonExperienceSlots,
+  resolveLessonExperienceKind
+} from "@/components/campus/lesson-experience/buildLessonExperienceSlots";
+import { LessonExperienceShell } from "@/components/campus/lesson-experience/LessonExperienceShell";
 import { XP_REWARD_COMPLETE_LESSON } from "@/lib/progression/xp";
 
 function formatDwellRemaining(ms: number): string {
@@ -476,12 +480,6 @@ export function LessonPanel({
   const underConstruction =
     area != null && isCampusAreaConstruction(area.id) && !campusAdmin;
 
-  /** Portal no `body`: `fixed` relativo ao viewport; z acima do painel de hotspot do mapa (z-52). */
-  const [lessonModalHost, setLessonModalHost] = useState<HTMLElement | null>(null);
-  useLayoutEffect(() => {
-    setLessonModalHost(document.body);
-  }, []);
-
   const renderMarkLessonToolbar = (_courseArea: Area) => {
     const dwellMet = dwellLiveMs >= requiredDwellMs;
     const remainingMs = Math.max(0, requiredDwellMs - dwellLiveMs);
@@ -595,241 +593,160 @@ export function LessonPanel({
     );
   };
 
-  const lessonModal = (
-    <AnimatePresence>
-      {open && area ? (
-        <>
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[90] pointer-events-auto bg-black/70"
-            onClick={onClose}
-          />
-          <motion.div
-            role="dialog"
-            aria-modal
-            aria-labelledby="lesson-panel-title"
-            initial={{ y: 24, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: 20, opacity: 0 }}
-            transition={{ type: "spring", stiffness: 260, damping: 30 }}
+  const slots = area
+    ? buildLessonExperienceSlots(
+      resolveLessonExperienceKind(
+        underConstruction,
+        isCannabis101Room,
+        Boolean(staticLessonPayload)
+      ),
+      {
+        area,
+        headerBarClassName: panel.headerBar,
+        trailProgressPct,
+        doneCount: doneSet.size,
+        totalLessons: titles.length,
+        lessonOrdinalOneBased: clampedLesson + 1,
+        isCannabis101Room,
+        displayLessonTitle,
+        onClose
+      },
+      {
+        constructionNotice: underConstruction ? (
+          <div
             className={cn(
-              "fixed left-1/2 top-1/2 z-[91] flex h-[min(88vh,calc(100dvh-1.25rem))] max-h-[min(88vh,calc(100dvh-1.25rem))] w-[92vw] max-w-[min(92vw,1400px)] min-h-0 -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-xl border border-[#5c4a22]/45 pointer-events-auto shadow-[0_32px_120px_rgba(0,0,0,0.82),0_0_0_1px_rgba(0,0,0,0.55),inset_0_1px_0_rgba(255,255,255,0.05)] backdrop-blur-[8px] !bg-[#050505]/96",
-              panel.dialog
+              "mb-3 flex shrink-0 items-start gap-2 rounded-xl border px-3 py-2.5 text-xs leading-relaxed text-white/85",
+              isCannabis101Room
+                ? "border-amber-500/25 bg-amber-950/20"
+                : "border-white/12 bg-[#0a100e]"
             )}
-            onClick={(e) => e.stopPropagation()}
+            role="status"
           >
-            <header
-              className={cn(
-                "shrink-0 border-b px-4 py-4 sm:px-6 sm:py-5 !bg-[#050806]/90",
-                panel.headerBar
-              )}
-            >
-              <div
-                role="progressbar"
-                aria-valuemin={0}
-                aria-valuemax={100}
-                aria-valuenow={trailProgressPct}
-                aria-valuetext={`progresso nesta área ${trailProgressPct} por cento`}
-                aria-label={`Progresso nesta área (${trailProgressPct} por cento, ${doneSet.size} de ${
-                  titles.length || 0
-                } aulas concluídas)`}
-                className="mb-4 h-[2px] w-full overflow-hidden rounded-full bg-white/[0.08]"
-              >
-                <div
-                  className={cn(
-                    "h-full rounded-full bg-gradient-to-r transition-[width] duration-500 ease-out",
-                    isCannabis101Room
-                      ? "from-amber-600/95 to-amber-400/80"
-                      : "from-emerald-600/90 to-teal-400/75"
-                  )}
-                  style={{ width: `${trailProgressPct}%` }}
-                />
+            <HardHat className="mt-0.5 size-4 shrink-0 text-amber-200/90" aria-hidden />
+            <p>
+              <span className="font-semibold text-white">Área em construção colaborativa.</span>{" "}
+              O conteúdo deste curso entra em calendário durante o pré-lançamento fundador — use o
+              que já está liberado e acompanhe novidades na sala oficial de formação.
+            </p>
+          </div>
+        ) : null,
+        srHeading: (
+          <h1 id="campus-lesson-heading" className="sr-only">
+            {displayLessonTitle}
+          </h1>
+        ),
+        markToolbarSlot: !underConstruction ? (
+          <div className="shrink-0">
+            {isCannabis101Room && staticLessonPayload ? null : renderMarkLessonToolbar(area)}
+          </div>
+        ) : null,
+        dbSyncLine:
+          dbLessonQ.isFetching && !isCannabis101Room ? (
+            <p className="mb-2 shrink-0 text-xs text-white/45">A sincronizar conteúdo da aula…</p>
+          ) : null,
+        dbBlockRenderer:
+          !dbLessonQ.isFetching && showDbBlockRenderer ? (
+            <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-white/[0.08] bg-[#08120e]/92 p-3 shadow-inner backdrop-blur-sm sm:p-4">
+              <div className="mt-0 min-h-0 flex-1 overflow-y-auto scrollbar-thin pr-1">
+                <BlockRenderer blocks={dbLessonQ.data!.blocks} />
               </div>
-
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div className="min-w-0 flex-1">
-                  <p className="text-[10px] uppercase tracking-[0.22em] text-white/50">{area.name}</p>
-                  <p
-                    className={cn(
-                      "mt-0.5 text-[10px] uppercase tracking-[0.16em] text-white/38",
-                      isCannabis101Room && "tracking-[0.2em] text-amber-200/50"
-                    )}
-                  >
-                    Aula {clampedLesson + 1} de {titles.length || "—"}
-                  </p>
-                  {isCannabis101Room ? (
-                    <>
-                      <span id="lesson-panel-title" className="sr-only">
-                        {displayLessonTitle} — {area.name}
-                      </span>
-                      <p
-                        className="mt-2 text-sm font-medium leading-snug text-white/80 sm:text-base"
-                        aria-hidden
-                      >
-                        Janela do curso · leitura e vídeo
-                      </p>
-                    </>
-                  ) : (
-                    <h2
-                      id="lesson-panel-title"
-                      className={cn(
-                        "mt-2 text-balance text-base font-semibold leading-snug text-white sm:text-lg"
-                      )}
-                    >
-                      {displayLessonTitle}
-                    </h2>
-                  )}
-                </div>
-                <button
-                  type="button"
-                  onClick={onClose}
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/12 bg-[#0a100e] text-white hover:bg-white/10"
-                  aria-label="Fechar aula e voltar ao campus"
-                >
-                  <X size={20} />
-                </button>
-              </div>
-            </header>
-
-            <div
-              data-lesson-scroll-root
-              className="relative flex min-h-0 flex-1 flex-col overflow-hidden px-4 py-4 sm:px-6 sm:py-5"
-            >
-              {underConstruction ? (
-                <div
-                  className={cn(
-                    "mb-3 flex shrink-0 items-start gap-2 rounded-xl border px-3 py-2.5 text-xs leading-relaxed text-white/85",
-                    isCannabis101Room
-                      ? "border-amber-500/25 bg-amber-950/20"
-                      : "border-white/12 bg-[#0a100e]"
-                  )}
-                  role="status"
-                >
-                  <HardHat className="mt-0.5 size-4 shrink-0 text-amber-200/90" aria-hidden />
-                  <p>
-                    <span className="font-semibold text-white">Área em construção colaborativa.</span>{" "}
-                    O conteúdo deste curso entra em calendário durante o pré-lançamento fundador — use o
-                    que já está liberado e acompanhe novidades na sala oficial de formação.
-                  </p>
-                </div>
-              ) : null}
-
-              <h1 id="campus-lesson-heading" className="sr-only">
-                {displayLessonTitle}
-              </h1>
-
-              {!underConstruction ? (
-                <div className="shrink-0">
-                  {isCannabis101Room && staticLessonPayload ? null : renderMarkLessonToolbar(area)}
-                </div>
-              ) : null}
-
-              {dbLessonQ.isFetching && !isCannabis101Room ? (
-                <p className="mb-2 shrink-0 text-xs text-white/45">A sincronizar conteúdo da aula…</p>
-              ) : null}
-
-              {!dbLessonQ.isFetching && showDbBlockRenderer ? (
-                <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-white/[0.08] bg-[#08120e]/92 p-3 shadow-inner backdrop-blur-sm sm:p-4">
-                  <div className="mt-0 min-h-0 flex-1 overflow-y-auto scrollbar-thin pr-1">
-                    <BlockRenderer blocks={dbLessonQ.data!.blocks} />
-                  </div>
-                </div>
-              ) : null}
-
-              {staticLessonLoadEnabled && staticLessonQ.isFetching ? (
-                <p className="mb-2 shrink-0 text-xs text-white/45">Preparando a leitura da aula…</p>
-              ) : null}
-
-              {staticLessonLoadEnabled &&
-              staticLessonPayload &&
-              area &&
-              !staticLessonQ.isFetching &&
-              (isCannabis101Room || !dbLessonQ.isFetching) ? (
-                <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-                  <LessonStaticReadingShell
-                    key={`static-${area.id}-${clampedLesson}`}
-                    markdown={staticLessonPayload.markdownContent}
-                    accent={accent}
-                    quiz={manualLessonStream?.quiz}
-                    quizContext={{ areaId: area.id, lessonIndex: clampedLesson }}
-                    lessonOrdinal={{ current: clampedLesson + 1, total: titles.length }}
-                    onPrevLesson={() => clampedLesson >= 1 && onSelectLesson(clampedLesson - 1)}
-                    onNextLesson={() =>
-                      clampedLesson < titles.length - 1 && onSelectLesson(clampedLesson + 1)
-                    }
-                    prevLessonDisabled={clampedLesson < 1}
-                    nextLessonDisabled={titles.length === 0 || clampedLesson >= titles.length - 1}
-                    onExitLesson={onClose}
-                    isCannabis101Room={isCannabis101Room}
-                    lessonFrameTitle={displayLessonTitle}
-                    lessonNav={
-                      isCannabis101Room
-                        ? {
-                            titles,
-                            currentIndex: clampedLesson,
-                            onSelectLesson,
-                            doneIndices: doneSet
-                          }
-                        : undefined
-                    }
-                    cinematicHud={cinematicHud}
-                    supplement={
-                      <CampusLessonVideo
-                        areaId={area.id}
-                        areaName={area.name}
-                        lessonTitle={displayLessonTitle}
-                        lessonVisual="compact"
-                        hideFallback
-                        whenNone={isCannabis101Room ? "large" : "compact"}
-                      />
-                    }
-                  />
-                </div>
-              ) : null}
-
-              {(isCannabis101Room || !dbLessonQ.isFetching) &&
-              !showDbBlockRenderer &&
-              !staticLessonQ.isFetching &&
-              !staticLessonPayload &&
-              panelLesson ? (
-                <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-                  <ClassroomLessonView
-                    key={`${area.id}-${clampedLesson}`}
-                    content={panelLesson.content}
-                    accent={accent}
-                    quizContext={{ areaId: area.id, lessonIndex: clampedLesson }}
-                    lessonQuizCinematic={false}
-                    lessonOrdinal={{ current: clampedLesson + 1, total: titles.length }}
-                    onPrevLesson={() => clampedLesson >= 1 && onSelectLesson(clampedLesson - 1)}
-                    onNextLesson={() =>
-                      clampedLesson < titles.length - 1 && onSelectLesson(clampedLesson + 1)
-                    }
-                    prevLessonDisabled={clampedLesson < 1}
-                    nextLessonDisabled={titles.length === 0 || clampedLesson >= titles.length - 1}
-                    onExitLesson={onClose}
-                    supplement={
-                      <CampusLessonVideo
-                        areaId={area.id}
-                        areaName={area.name}
-                        lessonTitle={displayLessonTitle}
-                        lessonVisual="compact"
-                        hideFallback
-                        whenNone="compact"
-                      />
-                    }
-                  />
-                </div>
-              ) : null}
             </div>
-          </motion.div>
-        </>
-      ) : null}
-    </AnimatePresence>
+          ) : null,
+        staticLoadingLine:
+          staticLessonLoadEnabled && staticLessonQ.isFetching ? (
+            <p className="mb-2 shrink-0 text-xs text-white/45">Preparando a leitura da aula…</p>
+          ) : null,
+        staticReadingShell:
+          staticLessonLoadEnabled &&
+          staticLessonPayload &&
+          !staticLessonQ.isFetching &&
+          (isCannabis101Room || !dbLessonQ.isFetching) ? (
+            <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+              <LessonStaticReadingShell
+                key={`static-${area.id}-${clampedLesson}`}
+                markdown={staticLessonPayload.markdownContent}
+                accent={accent}
+                quiz={manualLessonStream?.quiz}
+                quizContext={{ areaId: area.id, lessonIndex: clampedLesson }}
+                lessonOrdinal={{ current: clampedLesson + 1, total: titles.length }}
+                onPrevLesson={() => clampedLesson >= 1 && onSelectLesson(clampedLesson - 1)}
+                onNextLesson={() =>
+                  clampedLesson < titles.length - 1 && onSelectLesson(clampedLesson + 1)
+                }
+                prevLessonDisabled={clampedLesson < 1}
+                nextLessonDisabled={titles.length === 0 || clampedLesson >= titles.length - 1}
+                onExitLesson={onClose}
+                isCannabis101Room={isCannabis101Room}
+                lessonFrameTitle={displayLessonTitle}
+                lessonNav={
+                  isCannabis101Room
+                    ? {
+                        titles,
+                        currentIndex: clampedLesson,
+                        onSelectLesson,
+                        doneIndices: doneSet
+                      }
+                    : undefined
+                }
+                cinematicHud={cinematicHud}
+                supplement={
+                  <CampusLessonVideo
+                    areaId={area.id}
+                    areaName={area.name}
+                    lessonTitle={displayLessonTitle}
+                    lessonVisual="compact"
+                    hideFallback
+                    whenNone={isCannabis101Room ? "large" : "compact"}
+                  />
+                }
+              />
+            </div>
+          ) : null,
+        classroomLessonView:
+          (isCannabis101Room || !dbLessonQ.isFetching) &&
+          !showDbBlockRenderer &&
+          !staticLessonQ.isFetching &&
+          !staticLessonPayload &&
+          panelLesson ? (
+            <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+              <ClassroomLessonView
+                key={`${area.id}-${clampedLesson}`}
+                content={panelLesson.content}
+                accent={accent}
+                quizContext={{ areaId: area.id, lessonIndex: clampedLesson }}
+                lessonQuizCinematic={false}
+                lessonOrdinal={{ current: clampedLesson + 1, total: titles.length }}
+                onPrevLesson={() => clampedLesson >= 1 && onSelectLesson(clampedLesson - 1)}
+                onNextLesson={() =>
+                  clampedLesson < titles.length - 1 && onSelectLesson(clampedLesson + 1)
+                }
+                prevLessonDisabled={clampedLesson < 1}
+                nextLessonDisabled={titles.length === 0 || clampedLesson >= titles.length - 1}
+                onExitLesson={onClose}
+                supplement={
+                  <CampusLessonVideo
+                    areaId={area.id}
+                    areaName={area.name}
+                    lessonTitle={displayLessonTitle}
+                    lessonVisual="compact"
+                    hideFallback
+                    whenNone="compact"
+                  />
+                }
+              />
+            </div>
+          ) : null
+      }
+    )
+    : null;
+
+  return (
+    <LessonExperienceShell
+      open={Boolean(open && area)}
+      onClose={onClose}
+      frameClassName={panel.dialog}
+      chromeHeader={slots ? slots.chromeHeader : null}
+      body={slots ? slots.body : null}
+    />
   );
-
-  if (!lessonModalHost) return null;
-
-  return createPortal(lessonModal, lessonModalHost);
 }

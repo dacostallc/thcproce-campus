@@ -1,0 +1,420 @@
+/**
+ * Protótipo visual das aulas estáticas — leitura confortável, contraste forte,
+ * responsivo. Usado dentro de `.lesson-static-surface` no painel do campus.
+ */
+
+.lesson-static-content {
+  --lesson-static-fg: #0f1f18;
+  --lesson-static-muted: rgba(15, 31, 24, 0.68);
+  --lesson-static-border: rgba(15, 31, 24, 0.12);
+  --lesson-static-accent: #0d6e4d;
+  --lesson-static-accent-soft: rgba(13, 110, 77, 0.12);
+  --lesson-static-quote-bg: rgba(13, 110, 77, 0.09);
+  --lesson-static-code-bg: rgba(15, 31, 24, 0.06);
+
+  box-sizing: border-box;
+  max-width: 42rem;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 0.125rem;
+  padding-right: 0.125rem;
+
+  color: var(--lesson-static-fg);
+  font-size: 1.0625rem;
+  line-height: 1.78;
+  word-break: break-word;
+}
+
+@media (max-width: 640px) {
+  .lesson-static-content {
+    font-size: 0.98rem;
+    line-height: 1.74;
+    max-width: 100%;
+  }
+}
+
+.lesson-static-content > *:first-child {
+  margin-top: 0;
+}
+
+/* Título de abertura da aula (único H1 de topo) */
+.lesson-static-content > h1:first-of-type {
+  margin: 0 0 1.25rem;
+  padding-bottom: 0.85rem;
+  font-size: clamp(1.35rem, 2.8vw, 1.7rem);
+  font-weight: 750;
+  letter-spacing: -0.025em;
+  line-height: 1.22;
+  color: #0a1814;
+  border-bottom: 2px solid var(--lesson-static-accent-soft);
+}
+
+.lesson-static-content h1:not(:first-of-type) {
+  margin: 1.35rem 0 0.65rem;
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.28;
+  color: var(--lesson-static-fg);
+}
+
+.lesson-static-content h2 {
+  margin: 2rem 0 0.85rem;
+  padding-bottom: 0.4rem;
+  font-size: 1.22rem;
+  font-weight: 680;
+  letter-spacing: -0.018em;
+  border-bottom: 1px solid var(--lesson-static-border);
+  color: #143a2e;
+}
+
+.lesson-static-content h2:first-of-type {
+  margin-top: 0.5rem;
+}
+
+.lesson-static-content h3 {
+  margin: 1.65rem 0 0.55rem;
+  font-size: 1.08rem;
+  font-weight: 650;
+  line-height: 1.35;
+  color: #174a3a;
+}
+
+/* Primeiro parágrafo após o título de secção inicial — gancho de leitura */
+.lesson-static-content > h1 + h2 + p {
+  font-size: 1.075rem;
+  line-height: 1.82;
+  color: #122620;
+}
+
+.lesson-static-content h4 {
+  margin: 1.15rem 0 0.45rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--lesson-static-muted);
+}
+
+.lesson-static-content p {
+  margin: 0.7rem 0;
+}
+
+.lesson-static-content ul,
+.lesson-static-content ol {
+  margin: 0.75rem 0;
+  padding-left: 1.4rem;
+}
+
+.lesson-static-content li {
+  margin: 0.32rem 0;
+}
+
+.lesson-static-content li::marker {
+  color: var(--lesson-static-accent);
+}
+
+.lesson-static-content li > p {
+  margin: 0.35rem 0;
+}
+
+.lesson-static-content hr {
+  margin: 2rem 0;
+  border: none;
+  border-top: 1px solid var(--lesson-static-border);
+}
+
+.lesson-static-content blockquote {
+  margin: 1.15rem 0;
+  padding: 0.95rem 1.1rem;
+  border-left: 4px solid var(--lesson-static-accent);
+  border-radius: 0 0.55rem 0.55rem 0;
+  background: var(--lesson-static-quote-bg);
+  color: #153028;
+  font-style: normal;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5) inset;
+}
+
+/* Destaque do professor após resumo (hr → blockquote com «Nota do professor») */
+.lesson-static-content hr + blockquote:has(strong) {
+  border-left-color: #9a7324;
+  background: linear-gradient(135deg, rgba(154, 115, 36, 0.11) 0%, rgba(154, 115, 36, 0.05) 100%);
+}
+
+/* «Para refletir» */
+.lesson-static-content h2 + blockquote {
+  margin-top: 0.35rem;
+  border-left-color: #4a5a9e;
+  background: rgba(74, 90, 158, 0.09);
+  color: #1e2540;
+}
+
+.lesson-static-content blockquote p {
+  margin: 0.4rem 0;
+}
+
+.lesson-static-content strong {
+  font-weight: 650;
+  color: #0b291e;
+}
+
+.lesson-static-content a {
+  color: #0b7a56;
+  font-weight: 500;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: rgba(11, 122, 86, 0.35);
+  transition: color 0.15s ease, text-decoration-color 0.15s ease;
+}
+
+.lesson-static-content a:hover {
+  color: #065d42;
+  text-decoration-color: rgba(6, 93, 66, 0.55);
+}
+
+.lesson-static-content code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New",
+    monospace;
+  font-size: 0.88em;
+  padding: 0.12rem 0.35rem;
+  border-radius: 0.28rem;
+  background: var(--lesson-static-code-bg);
+  color: #0b3250;
+}
+
+.lesson-static-content pre {
+  margin: 1.1rem 0;
+  padding: 1rem 1.1rem;
+  overflow-x: auto;
+  border-radius: 0.65rem;
+  border: 1px solid var(--lesson-static-border);
+  background: #f6faf8;
+  font-size: 0.88rem;
+  line-height: 1.55;
+  -webkit-overflow-scrolling: touch;
+}
+
+.lesson-static-content pre code {
+  padding: 0;
+  background: none;
+  color: inherit;
+  font-size: inherit;
+}
+
+.lesson-static-content table {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  margin: 1.25rem 0;
+  border-collapse: collapse;
+  font-size: 0.94rem;
+  border-radius: 0.55rem;
+  overflow-x: auto;
+  border: 1px solid var(--lesson-static-border);
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (min-width: 768px) {
+  .lesson-static-content table {
+    display: table;
+  }
+}
+
+.lesson-static-content thead {
+  background: var(--lesson-static-accent-soft);
+}
+
+.lesson-static-content th,
+.lesson-static-content td {
+  padding: 0.6rem 0.85rem;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--lesson-static-border);
+  min-width: 5.5rem;
+}
+
+.lesson-static-content tbody tr:last-child th,
+.lesson-static-content tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.lesson-static-content img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 1.1rem auto;
+  border-radius: 0.5rem;
+  box-shadow: 0 8px 28px rgba(15, 31, 24, 0.12);
+}
+
+.lesson-static-surface {
+  background: linear-gradient(165deg, #f7faf8 0%, #eef5f1 100%);
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85);
+}
+
+/* ─── Cannabis 101: «janela do curso» (tema escuro, contraste tipo wireframe LMS) ─── */
+.lesson-static-surface.lesson-static-course-frame-dark {
+  background: linear-gradient(165deg, #101816 0%, #0a0f0d 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.lesson-static-course-frame-dark .lesson-static-content {
+  --lesson-static-fg: #e2eae6;
+  --lesson-static-muted: rgba(226, 234, 230, 0.62);
+  --lesson-static-border: rgba(255, 255, 255, 0.1);
+  --lesson-static-accent: #34d399;
+  --lesson-static-accent-soft: rgba(52, 211, 153, 0.14);
+  --lesson-static-quote-bg: rgba(52, 211, 153, 0.08);
+  --lesson-static-code-bg: rgba(0, 0, 0, 0.35);
+}
+
+.lesson-static-course-frame-dark .lesson-static-content > h1:first-of-type {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.lesson-static-course-frame-dark .lesson-static-content h1:not(:first-of-type) {
+  color: #f0faf6;
+}
+
+.lesson-static-course-frame-dark .lesson-static-content h2 {
+  color: #b8e6d4;
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+.lesson-static-course-frame-dark .lesson-static-content h3 {
+  color: #9edcc4;
+}
+
+.lesson-static-course-frame-dark .lesson-static-content h4 {
+  color: var(--lesson-static-muted);
+}
+
+.lesson-static-course-frame-dark .lesson-static-content strong {
+  color: #f5fffa;
+}
+
+.lesson-static-course-frame-dark .lesson-static-content a {
+  color: #6ee7b7;
+  text-decoration-color: rgba(110, 231, 183, 0.35);
+}
+
+.lesson-static-course-frame-dark .lesson-static-content a:hover {
+  color: #a7f3d0;
+  text-decoration-color: rgba(167, 243, 208, 0.5);
+}
+
+.lesson-static-course-frame-dark .lesson-static-content code {
+  color: #a5d4ff;
+  background: var(--lesson-static-code-bg);
+}
+
+.lesson-static-course-frame-dark .lesson-static-content pre {
+  background: #050807;
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.lesson-static-course-frame-dark .lesson-static-content blockquote {
+  color: #dbece4;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04) inset;
+}
+
+.lesson-static-course-frame-dark .lesson-static-content hr + blockquote:has(strong) {
+  border-left-color: #d4a84b;
+  background: linear-gradient(135deg, rgba(212, 168, 75, 0.12) 0%, rgba(212, 168, 75, 0.05) 100%);
+}
+
+.lesson-static-course-frame-dark .lesson-static-content h2 + blockquote {
+  border-left-color: #818cf8;
+  background: rgba(129, 140, 248, 0.1);
+  color: #e0e4ff;
+}
+
+.lesson-static-course-frame-dark .lesson-static-content > h1 + h2 + p {
+  color: #dbe8e2;
+}
+
+.lesson-static-course-frame-dark .lesson-static-content img {
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.45);
+}
+
+@media (max-width: 640px) {
+  .lesson-static-surface {
+    padding-left: 0.15rem;
+    padding-right: 0.15rem;
+  }
+}
+
+/* ─── Cannabis 101 · layout cinematográfico (scroll + tipografia) ─── */
+.lesson-cinema-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(184, 134, 11, 0.35) rgba(255, 255, 255, 0.04);
+}
+
+.lesson-cinema-scroll::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.lesson-cinema-scroll::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 4px;
+}
+
+.lesson-cinema-scroll::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(184, 134, 11, 0.45), rgba(107, 84, 32, 0.4));
+  border-radius: 4px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.lesson-cinematic-floating-inner {
+  background: linear-gradient(168deg, rgba(14, 14, 14, 0.92) 0%, rgba(6, 8, 7, 0.96) 100%);
+}
+
+.lesson-cinema-video-stage {
+  background: radial-gradient(ellipse 120% 80% at 50% 0%, rgba(40, 32, 18, 0.45), transparent 55%),
+    #050505;
+}
+
+/**
+ * Refino tipográfico só com classe extra (o Markdown continua `.lesson-static-content`).
+ */
+.lesson-static-content.lesson-static-content--cinematic {
+  max-width: 100%;
+  font-size: clamp(1rem, 0.42vw + 0.94rem, 1.08rem);
+  line-height: 1.82;
+  letter-spacing: 0.01em;
+}
+
+.lesson-static-content.lesson-static-content--cinematic h2 {
+  margin-top: 2.35rem;
+  font-size: clamp(1.05rem, 1.5vw + 0.85rem, 1.28rem);
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  border-bottom-width: 1px;
+  padding-bottom: 0.55rem;
+}
+
+.lesson-static-content.lesson-static-content--cinematic h3 {
+  margin-top: 1.85rem;
+  font-size: 1.04rem;
+}
+
+.lesson-static-content.lesson-static-content--cinematic p {
+  margin: 0.85rem 0;
+}
+
+.lesson-static-content.lesson-static-content--cinematic ul,
+.lesson-static-content.lesson-static-content--cinematic ol {
+  margin: 1rem 0;
+}
