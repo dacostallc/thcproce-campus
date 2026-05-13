@@ -33,7 +33,32 @@ export const CANNABIS101_MODULES: readonly Cannabis101Module[] = [
         activityLabel: "História e origens: da Ásia Central à ciência moderna"
       },
       {
-        id: "c101-l03-canhamo-maconha-medicinal",
+        id: "c101-l03-indica-sativa-ruderalis",
+        activityLabel: "Indica, Sativa e Ruderalis: morfologia, origem e cultivo"
+      },
+      {
+        id: "c101-l04-hibridos-genotipos",
+        activityLabel: "Híbridos e genótipos: F1–F3, landraces, clones e estabilização"
+      },
+      {
+        id: "c101-l05-escolha-local-cultivo",
+        activityLabel: "Escolha do local: indoor, outdoor e estufa frente ao clima e à realidade"
+      },
+      {
+        id: "c101-l06-selecao-sementes",
+        activityLabel: "Seleção de sementes: regulares, feminizadas, autoflower e qualidade"
+      },
+      {
+        id: "c101-l17-germinacao-plantio",
+        activityLabel:
+          "Germinação e plantio: da semente adormecida à primeira muda saudável (~18 min)"
+      },
+      {
+        id: "c101-l07-preparacao-solo",
+        activityLabel: "Preparação do solo: substrato, pH, NPK, drenagem e solo vivo"
+      },
+      {
+        id: "c101-l08-canhamo-maconha-medicinal",
         activityLabel: "Três mundos: industrial, medicinal regulado e informal"
       }
     ]
@@ -43,10 +68,10 @@ export const CANNABIS101_MODULES: readonly Cannabis101Module[] = [
     title: "Química e aroma",
     lessons: [
       {
-        id: "c101-l04-canabinoides",
+        id: "c101-l09-canabinoides",
         activityLabel: "Canabinoides e leitura rigorosa de COA"
       },
-      { id: "c101-l05-terpenos", activityLabel: "Terpenos: conservação e ciência sem hype" }
+      { id: "c101-l10-terpenos", activityLabel: "Terpenos: conservação e ciência sem hype" }
     ]
   },
   {
@@ -54,16 +79,16 @@ export const CANNABIS101_MODULES: readonly Cannabis101Module[] = [
     title: "Corpo, contextos e consumo",
     lessons: [
       {
-        id: "c101-l06-sistema-endocanabinoide",
+        id: "c101-l11-sistema-endocanabinoide",
         activityLabel:
           "Significado medicinal e recreativo: SEC, THC, CBD, entourage e uso consciente"
       },
       {
-        id: "c101-l07-usos-e-reducao-de-danos",
+        id: "c101-l12-usos-e-reducao-de-danos",
         activityLabel: "Redução de danos e ética ao orientar terceiros"
       },
       {
-        id: "c101-l08-formas-consumo",
+        id: "c101-l13-formas-consumo",
         activityLabel: "Vias de consumo e linha do tempo oral × ingestão"
       }
     ]
@@ -73,12 +98,12 @@ export const CANNABIS101_MODULES: readonly Cannabis101Module[] = [
     title: "Legalidade e responsabilidade",
     lessons: [
       {
-        id: "c101-l09-legalidade-br-eua",
+        id: "c101-l14-legalidade-br-eua",
         activityLabel:
           "Legalidade do cultivo: Brasil, HC medicinal, ANVISA (RDC 660) e panorama global"
       },
       {
-        id: "c101-l10-seguranca-limites",
+        id: "c101-l15-seguranca-limites",
         activityLabel: "O que o curso entrega, limites duros e segurança"
       }
     ]
@@ -88,14 +113,14 @@ export const CANNABIS101_MODULES: readonly Cannabis101Module[] = [
     title: "Continuando a jornada",
     lessons: [
       {
-        id: "c101-l11-proximas-trilhas",
+        id: "c101-l16-proximas-trilhas",
         activityLabel: "Matriz de trilhas: ids reais dos cursos no campus"
       }
     ]
   }
 ] as const;
 
-const EXPECTED_LESSON_COUNT = 11;
+const EXPECTED_LESSON_COUNT = 17;
 
 function countLeaves(mods: readonly Cannabis101Module[]): number {
   return mods.reduce((acc, m) => acc + m.lessons.length, 0);
@@ -146,7 +171,7 @@ export const CANNABIS101_MANIFEST = {
     description:
       "Cannabis 101 combina ciência com protocolos aplicáveis: checklist THCProce para fontes, leitura de COA e rótulos, genótipo versus fenótipo na prática, três mundos regulatórios com perguntas copiáveis para consulta, terpenos sem slogans milagrosos, ECS com sinais para 48 h versus urgência, redução de danos com ética ao ajudar terceiros, linha do tempo de vias, pesquisa jurídica com ficha datada (manchete versus ementa), contrato explícito do que o curso oferece e matriz de ids das salas seguintes. É educação em PT-BR — não substitui prescritor, farmacêutico ou advogado. Vídeos longos e avaliações institucionais ficam na sala digital THCProce; o painel do campus prioriza texto denso.",
     highlights: [
-      "Onze aulas com âncoras narrativas (ex.: cenário Ana), checklists copiáveis, exercício de COA fictício, glossário inicial e quizzes alinhados ao texto",
+      "Dezessete aulas com âncoras narrativas (ex.: cenário Ana), checklists copiáveis, exercício de COA fictício, glossário inicial e quizzes alinhados ao texto",
       "Pontes explícitas entre aulas (planta→COA→vias; ECS→danos; lei→limites éticos) para fluxo pedagógico contínuo",
       "Matriz de encaminhamento com slugs reais (cultivo-indoor, extracao-oleo, medicina…) e avisos de segurança antes das salas avançadas",
       "Aviso permanente: não é consultório, escritório jurídico nem guia de condutas ilegais"

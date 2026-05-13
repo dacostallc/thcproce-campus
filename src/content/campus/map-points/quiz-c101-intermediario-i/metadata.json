@@ -1,0 +1,10 @@
+{
+  "theme": "Cannabis 101",
+  "tags": ["quiz", "genetica", "fenotipo", "autoflower", "historia"],
+  "difficulty": "Intermediário",
+  "category": "Fundamentos",
+  "areaType": "practice-hotspot",
+  "prerequisites": ["curso-cultivo-101"],
+  "relatedAreas": ["curso-cultivo-101", "curso-germinacao-clones"],
+  "recommendedNext": ["curso-germinacao-clones", "curso-sementes-feminizadas"]
+}

@@ -19,6 +19,8 @@ export const TIERS = {
 
 /** @type {Record<string, ProgressionTierKey>} */
 export const progressionTierBySlug = {
+  "quiz-c101-intermediario-i": "pratica",
+  "quiz-c101-intermediario-ii": "pratica",
   "campus-live-cinema": "campus",
   "cannabis-e-proibida": "info",
   "como-combate-acaros": "tecnica",
@@ -89,7 +91,12 @@ export const journeyBySlug = {
     recommendedNext: ["curso-hashmaker"]
   },
   "curso-cultivo-101": {
-    recommendedNext: ["curso-germinacao-clones", "curso-preparacao-do-solo"]
+    recommendedNext: [
+      "quiz-c101-intermediario-i",
+      "quiz-c101-intermediario-ii",
+      "curso-germinacao-clones",
+      "curso-preparacao-do-solo"
+    ]
   },
   "curso-cultivo-greenhouse": {
     prerequisites: ["curso-cultivo-101"],
@@ -188,6 +195,25 @@ export const journeyBySlug = {
     prerequisites: ["curso-pragas-e-doencas"],
     relatedAreas: ["como-combate-acaros", "como-combate-spiders"],
     recommendedNext: ["curso-cultivo-greenhouse"]
+  },
+  "quiz-c101-intermediario-i": {
+    prerequisites: ["curso-cultivo-101"],
+    relatedAreas: ["curso-cultivo-101", "curso-germinacao-clones", "quiz-c101-intermediario-ii"],
+    recommendedNext: [
+      "quiz-c101-intermediario-ii",
+      "curso-germinacao-clones",
+      "curso-sementes-feminizadas"
+    ]
+  },
+  "quiz-c101-intermediario-ii": {
+    prerequisites: ["curso-cultivo-101"],
+    relatedAreas: [
+      "curso-cultivo-101",
+      "quiz-c101-intermediario-i",
+      "curso-preparacao-do-solo",
+      "curso-cultivo-outdoor"
+    ],
+    recommendedNext: ["curso-preparacao-do-solo", "curso-cultivo-outdoor", "curso-germinacao-clones"]
   },
   "souvenirs": {
     relatedAreas: ["campus-live-cinema"],

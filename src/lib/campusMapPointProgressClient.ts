@@ -11,6 +11,17 @@ import {
   type StudentProfile
 } from "@/lib/studentGamificationStorage";
 
+/** Map-points cujo quiz aplica moedas por clique (+gain correta / −loss errada), com reversão ao mudar de opção. */
+const MAP_POINT_PER_ANSWER_COINS: Readonly<Record<string, { gain: number; loss: number }>> = {
+  "quiz-c101-intermediario-i": { gain: 2, loss: 2 },
+  "quiz-c101-intermediario-ii": { gain: 2, loss: 2 }
+};
+
+/** Regra de moedas por clique no quiz deste map-point, se existir. */
+export function getMapPointQuizPerAnswerCoinRule(slug: string): { gain: number; loss: number } | null {
+  return MAP_POINT_PER_ANSWER_COINS[slug] ?? null;
+}
+
 export function alignMissionChecklist(mission: CampusMapPointMission, stored?: boolean[]): boolean[] {
   const n = mission.checklist.length;
   if (n === 0) return [];
@@ -63,12 +74,22 @@ export function persistMapPointQuizAnswer(
   const cur = loadStudentProfile();
   const prev = cur.mapPointProgressBySlug[slug] ?? {};
   const quizByQuestionId = { ...(prev.quizByQuestionId ?? {}) };
+  const coinRule = MAP_POINT_PER_ANSWER_COINS[slug];
+  let credits = cur.credits;
+  if (coinRule && coinRule.gain > 0 && coinRule.loss > 0) {
+    const prevAns = prev.quizByQuestionId?.[questionId];
+    const undo =
+      prevAns != null ? (prevAns.correct ? -coinRule.gain : coinRule.loss) : 0;
+    const apply = correct ? coinRule.gain : -coinRule.loss;
+    credits = Math.max(0, cur.credits + undo + apply);
+  }
   quizByQuestionId[questionId] = {
     selectedIndex: Math.max(0, Math.min(3, Math.floor(selectedIndex))),
     correct,
     at: new Date().toISOString()
   };
   return saveStudentProfile({
+    credits,
     mapPointProgressBySlug: {
       [slug]: { ...prev, quizByQuestionId }
     }

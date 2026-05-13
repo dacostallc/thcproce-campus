@@ -1,0 +1,66 @@
+{
+  "title": "Quiz THCProce — Solo, Genética e Ambientes de Cultivo",
+  "subtitle": "🎯 Nível Intermediário · 🪙 Ao responder: acerto +2 moedas · erro −2 moedas (ajuste ao mudar de opção). Recompensa extra do mapa ao concluir — ver quadro abaixo.",
+  "questions": [
+    {
+      "id": "c101-int2-q1",
+      "question": "Qual é a principal função da perlita no substrato?",
+      "options": [
+        "Aumentar automaticamente o THC",
+        "Melhorar drenagem e oxigenação das raízes",
+        "Alterar o sexo da planta",
+        "Reduzir o fotoperíodo"
+      ],
+      "correctIndex": 1,
+      "explanation": "A perlita cria espaços de ar no substrato, melhorando drenagem e evitando compactação excessiva."
+    },
+    {
+      "id": "c101-int2-q2",
+      "question": "Por que a Cannabis Ruderalis foi tão importante para a criação das autoflowering modernas?",
+      "options": [
+        "Porque possui naturalmente muito CBD",
+        "Porque cresce apenas indoor",
+        "Porque floresce automaticamente pela idade da planta",
+        "Porque não precisa de água"
+      ],
+      "correctIndex": 2,
+      "explanation": "A Ruderalis desenvolveu autofloração natural em regiões frias com verões curtos."
+    },
+    {
+      "id": "c101-int2-q3",
+      "question": "O que pode acontecer quando o pH do substrato está fora da faixa ideal?",
+      "options": [
+        "A planta cresce mais rápido automaticamente",
+        "Os nutrientes podem ficar bloqueados para absorção",
+        "A cannabis vira autoflower",
+        "O solo produz mais nitrogênio sozinho"
+      ],
+      "correctIndex": 1,
+      "explanation": "Mesmo com nutrientes presentes, pH inadequado pode causar lockout nutricional."
+    },
+    {
+      "id": "c101-int2-q4",
+      "question": "Qual é uma das maiores vantagens do cultivo outdoor no Brasil?",
+      "options": [
+        "Não precisar regar nunca",
+        "O clima tropical e alta incidência solar",
+        "Crescimento sem nutrientes",
+        "Ausência total de fungos"
+      ],
+      "correctIndex": 1,
+      "explanation": "O clima brasileiro favorece muito o crescimento outdoor devido à intensidade solar e calor."
+    },
+    {
+      "id": "c101-int2-q5",
+      "question": "O que significa \"fenótipo\" no cultivo de cannabis?",
+      "options": [
+        "O nome comercial da strain",
+        "A quantidade de THC da planta",
+        "A expressão visível das características genéticas",
+        "O sistema de irrigação utilizado"
+      ],
+      "correctIndex": 2,
+      "explanation": "Fenótipo é a forma como a genética se manifesta na planta: aroma, estrutura, cor, resina, altura e comportamento."
+    }
+  ]
+}

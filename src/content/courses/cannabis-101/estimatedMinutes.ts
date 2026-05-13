@@ -6,7 +6,7 @@ import { CANNABIS101_LESSON_NODES } from "./lessons";
  * Tempos revisados para texto aplicável (leitura + anotações); revisitar após gravação de vídeos.
  */
 export const CANNABIS101_LESSON_ESTIMATED_MINUTES: readonly number[] = [
-  14, 22, 20, 26, 22, 21, 24, 23, 22, 18, 16
+  14, 22, 15, 18, 18, 15, 18, 20, 20, 26, 22, 21, 24, 23, 22, 18, 16
 ] as const;
 
 export function getCannabis101LessonEstimatedMinutes(lessonIndex: number): number | null {

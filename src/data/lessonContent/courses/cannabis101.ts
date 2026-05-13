@@ -1,5 +1,5 @@
 /**
- * Cannabis 101 — onze aulas introdutórias (fonte canônica: `@/content/courses/cannabis-101`).
+ * Cannabis 101 — dezessete aulas introdutórias (fonte canônica: `@/content/courses/cannabis-101`).
  * Fonte canônica: `@/content/courses/cannabis-101`.
  */
 export {

@@ -17,6 +17,10 @@ export const decksBySlug = {
     "*Remédio não é hashtag — aqui a gente separa ciência, lei e respeito ao corpo que não é nosso.*",
   "curso-culinaria-cannabica":
     "*Panela quente pede matemática leve e ética pesada: dose conversada com quem entende de saúde.*",
+  "quiz-c101-intermediario-i":
+    "*Intermediário não é pressa — é saber que rótulo bonito não substitui laboratório nem bom senso legal.*",
+  "quiz-c101-intermediario-ii":
+    "*Solo que não drena vira poça de história triste; outdoor bonito ainda pede observação e lei na mesa.*",
   "curso-cultivo-101":
     "*Toda mesa de cultivo digna começa com três coisas baratas: caneta, luz boa e vergonha saudável de não saber tudo.*",
   "curso-cultivo-greenhouse":

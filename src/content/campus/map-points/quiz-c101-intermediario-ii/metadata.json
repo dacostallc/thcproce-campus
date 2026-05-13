@@ -1,0 +1,15 @@
+{
+  "theme": "Cannabis 101",
+  "tags": ["quiz", "solo", "substrato", "genetica", "ruderalis", "outdoor", "fenotipo", "ph"],
+  "difficulty": "Intermediário",
+  "category": "Fundamentos",
+  "areaType": "practice-hotspot",
+  "prerequisites": ["curso-cultivo-101"],
+  "relatedAreas": [
+    "curso-cultivo-101",
+    "quiz-c101-intermediario-i",
+    "curso-preparacao-do-solo",
+    "curso-cultivo-outdoor"
+  ],
+  "recommendedNext": ["curso-preparacao-do-solo", "curso-cultivo-outdoor", "curso-germinacao-clones"]
+}

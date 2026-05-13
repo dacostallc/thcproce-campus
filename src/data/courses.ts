@@ -42,13 +42,13 @@ const AREA_FALLBACK_ROWS: Area[] = [
     description:
       "No campus THC Academy, o **Cannabis 101** é a sala introdutória em português: o que é a planta, cânhamo e contextos de uso, canabinoides e terpenos, sistema endocanabinoide, consumo responsável, formas de administração e um panorama legal de alto nível (Brasil e EUA), sem consultoria jurídica nem promessas terapêuticas. Aprofundamentos em cultivo, extrações e medicina canabinoide estão nas salas vizinhas. Materiais formais e certificação, quando existirem, continuam na sala digital THCProce.",
     highlights: [
-      "Onze aulas com resumo, pontos-chave, reflexão e quiz de três perguntas em cada tópico",
+      "Dezessete aulas com resumo, pontos-chave, reflexão e quiz de três perguntas em cada tópico",
       "Conteúdo pensado para iniciantes: linguagem acolhedora, ciência sem sensacionalismo e redução de danos",
       "Ponte explícita para trilhas de cultivo, solventless, óleo e medicina quando quiser continuar",
       "Não substitui orientação médica, jurídica ou profissional do seu caso; confirme leis e tratamentos com quem está habilitado"
     ],
     professor: "Equipa THCProce",
-    lessons: 11,
+    lessons: 17,
     hours: "≈6h (estimativa + materiais na sala oficial)"
   },
   {

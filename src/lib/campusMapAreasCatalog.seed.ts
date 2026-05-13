@@ -34,11 +34,43 @@ export const CAMPUS_MAP_INTERACTIVE_AREAS: CampusMapInteractiveArea[] = [
     metadata: { imageMapAlt: "entrar-no-site" }
   },
   {
+    id: "quiz-c101-intermediario-i",
+    title: "Quiz 101 · Intermediário I",
+    panelTitle: "Quiz THCProce — Cannabis 101 · Intermediário I",
+    shortDescription:
+      "Cinco questões sobre perfil químico, F2, clones, história e autoflower — moedas por resposta no ato do clique.",
+    courseSlug: "cannabis-101",
+    lessonSlug: "c101-l07-preparacao-solo",
+    coords: "432,318,24",
+    shape: "circle",
+    type: "lesson",
+    status: "open",
+    target: { kind: "course", courseId: "cannabis-101" },
+    metadata: { imageMapAlt: "quiz-c101-intermediario-i" },
+    lighting: { preset: "topic" }
+  },
+  {
+    id: "quiz-c101-intermediario-ii",
+    title: "Quiz 101 · Intermediário II",
+    panelTitle: "Quiz THCProce — Solo, Genética e Ambientes de Cultivo",
+    shortDescription:
+      "Cinco questões sobre perlita, Ruderalis/autoflower, pH, outdoor no Brasil e fenótipo — moedas por resposta no ato do clique.",
+    courseSlug: "cannabis-101",
+    lessonSlug: "c101-l07-preparacao-solo",
+    coords: "472,318,24",
+    shape: "circle",
+    type: "lesson",
+    status: "open",
+    target: { kind: "course", courseId: "cannabis-101" },
+    metadata: { imageMapAlt: "quiz-c101-intermediario-ii" },
+    lighting: { preset: "topic" }
+  },
+  {
     id: "curso-cultivo-101",
     title: "Cannabis 101",
     panelTitle: "Cannabis 101 · curso introdutório",
     shortDescription:
-      "Introdução à planta, ao corpo e ao contexto legal — método THCProce · onze aulas em português.",
+      "Introdução à planta, ao corpo e ao contexto legal — método THCProce · dezessete aulas em português.",
     ctaLabel: "Entrar",
     secondaryCtaLabel: "Ver aulas",
     courseSlug: "cannabis-101",

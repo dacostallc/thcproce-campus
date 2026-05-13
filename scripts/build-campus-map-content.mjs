@@ -1,5 +1,5 @@
 /**
- * Gera o corpus editorial em Markdown para os 31 pontos navegáveis do mapa
+ * Gera o corpus editorial em Markdown para os 33 pontos navegáveis do mapa
  * (exclui apenas "boas-vindas" e "entrada principal"), sob `src/content/campus/map-points/`.
  *
  * Uso: node scripts/build-campus-map-content.mjs
@@ -328,8 +328,46 @@ const BODY_BUILDERS = {
   }
 };
 
-/** Catálogo dos 31 pontos — IDs iguais ao `campusMapAreasCatalog.seed.ts` (exceto welcome + entrar). */
+/** Catálogo dos 33 pontos — IDs iguais ao `campusMapAreasCatalog.seed.ts` (exceto welcome + entrar). */
 const POINTS = [
+  {
+    id: "quiz-c101-intermediario-i",
+    title: "Quiz 101 · Intermediário I",
+    panelTitle: "Quiz THCProce — Cannabis 101 · Intermediário I",
+    linkedCourseId: "cannabis-101",
+    difficulty: "Intermediário",
+    category: "Fundamentos",
+    tags: ["quiz", "genetica", "fenotipo", "autoflower", "cannabis-101"],
+    focus: "consolidação do Cannabis 101 antes das trilhas de cultivo",
+    builder: "cannabis101_quiz_intermediate",
+    modules: ["Revisão aplicada"],
+    lessons: [
+      "Perfil químico versus rótulo indica/sativa",
+      "F2 e fenótipos",
+      "Clones",
+      "Guerra às drogas — impactos sociais",
+      "Autoflowering no contexto do curso"
+    ]
+  },
+  {
+    id: "quiz-c101-intermediario-ii",
+    title: "Quiz 101 · Intermediário II",
+    panelTitle: "Quiz THCProce — Solo, Genética e Ambientes de Cultivo",
+    linkedCourseId: "cannabis-101",
+    difficulty: "Intermediário",
+    category: "Fundamentos",
+    tags: ["quiz", "solo", "genetica", "outdoor", "fenotipo", "cannabis-101"],
+    focus: "substrato, pH, ruderalis, outdoor tropical e fenótipo observável",
+    builder: "cannabis101_quiz_intermediate",
+    modules: ["Solo e ambiente"],
+    lessons: [
+      "Perlita — drenagem e oxigenação",
+      "Ruderalis e autofloração",
+      "pH e lockout nutricional",
+      "Outdoor no Brasil — sol e clima",
+      "Fenótipo versus nome comercial"
+    ]
+  },
   {
     id: "curso-cultivo-101",
     title: "Cannabis 101",
@@ -875,7 +913,7 @@ const POINTS = [
     lessons: ["Fuso horário BR", "Check-in antes da live", "Perguntas objetivas", "Respeitar monitores", "Salvar links oficiais"]
   },
   {
-    id: "campus-cinema",
+    id: "campus-live-cinema",
     title: "Cinema THCProce",
     panelTitle: "Cinema THCProce",
     linkedCourseId: null,
@@ -1009,7 +1047,7 @@ function main() {
     locale: "pt-BR",
     mapPointCount: POINTS.length,
     note:
-      "31 pontos = todos os hotspots do campusMapAreasCatalog.seed.ts exceto bem-vindo e entrada principal.",
+      "33 pontos = todos os hotspots do campusMapAreasCatalog.seed.ts exceto bem-vindo e entrada principal.",
     points: POINTS.map((p) => ({
       id: p.id,
       title: p.title,

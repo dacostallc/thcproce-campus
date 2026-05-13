@@ -1,0 +1,66 @@
+{
+  "title": "Quiz THCProce — Nível Intermediário I",
+  "subtitle": "🎯 Cannabis 101 — Conhecimento em Evolução · 🪙 Ao responder: acerto +2 moedas · erro −2 moedas (ajuste ao mudar de opção). Recompensa extra do mapa ao concluir — ver quadro abaixo.",
+  "questions": [
+    {
+      "id": "c101-int1-q1",
+      "question": "Por que a ciência moderna considera limitada a antiga divisão \"Indica relaxa e Sativa estimula\"?",
+      "options": [
+        "Porque Indicas não existem mais",
+        "Porque o efeito depende principalmente do perfil químico da planta",
+        "Porque todas as cannabis possuem o mesmo efeito",
+        "Porque apenas a Ruderalis produz terpenos"
+      ],
+      "correctIndex": 1,
+      "explanation": "Hoje sabemos que canabinoides, terpenos e flavonoides influenciam mais os efeitos do que apenas a classificação morfológica da planta."
+    },
+    {
+      "id": "c101-int1-q2",
+      "question": "O que normalmente acontece na geração F2 de um cruzamento genético?",
+      "options": [
+        "As plantas ficam totalmente idênticas",
+        "Surge maior variabilidade genética e expressão de fenótipos",
+        "A planta perde totalmente o THC",
+        "Todas se tornam autoflower automaticamente"
+      ],
+      "correctIndex": 1,
+      "explanation": "Na geração F2 ocorre maior diversidade genética, permitindo que diferentes características se expressem nas plantas."
+    },
+    {
+      "id": "c101-int1-q3",
+      "question": "Qual é a principal vantagem de preservar um fenótipo através de clones?",
+      "options": [
+        "Aumentar automaticamente o THC",
+        "Fazer a planta crescer mais rápido",
+        "Manter exatamente as características da planta selecionada",
+        "Transformar a planta em autoflower"
+      ],
+      "correctIndex": 2,
+      "explanation": "Clones mantêm o mesmo patrimônio genético e, em condições semelhantes, a mesma expressão da planta-mãe."
+    },
+    {
+      "id": "c101-int1-q4",
+      "question": "Qual foi um dos impactos negativos históricos da \"guerra às drogas\"?",
+      "options": [
+        "Expansão científica imediata da cannabis",
+        "Redução de preconceitos sociais",
+        "Encarceramento e criminalização em massa",
+        "Legalização mundial da cannabis"
+      ],
+      "correctIndex": 2,
+      "explanation": "A guerra às drogas produziu impactos sociais profundos relacionados à criminalização e desigualdade."
+    },
+    {
+      "id": "c101-int1-q5",
+      "question": "Por que as variedades autoflowering ficaram tão populares?",
+      "options": [
+        "Porque exigem obrigatoriamente cultivo outdoor",
+        "Porque florescem rapidamente sem depender do fotoperíodo",
+        "Porque produzem apenas CBD",
+        "Porque nunca sofrem estresse ambiental"
+      ],
+      "correctIndex": 1,
+      "explanation": "Autoflowers florescem automaticamente pela idade da planta, facilitando o cultivo e reduzindo o tempo de ciclo."
+    }
+  ]
+}

@@ -1,9 +1,40 @@
 {
   "generatedAt": "2026-05-10T03:41:26.061Z",
   "locale": "pt-BR",
-  "mapPointCount": 31,
-  "note": "31 pontos = todos os hotspots do campusMapAreasCatalog.seed.ts exceto bem-vindo e entrada principal.",
+  "mapPointCount": 33,
+  "note": "33 pontos = todos os hotspots do campusMapAreasCatalog.seed.ts exceto bem-vindo e entrada principal.",
   "points": [
+    {
+      "id": "quiz-c101-intermediario-i",
+      "title": "Quiz 101 · Intermediário I",
+      "linkedCourseId": "cannabis-101",
+      "difficulty": "Intermediário",
+      "category": "Fundamentos",
+      "tags": [
+        "quiz",
+        "cannabis-101",
+        "genetica",
+        "fenotipo",
+        "autoflower"
+      ],
+      "path": "map-points/quiz-c101-intermediario-i/"
+    },
+    {
+      "id": "quiz-c101-intermediario-ii",
+      "title": "Quiz 101 · Intermediário II",
+      "linkedCourseId": "cannabis-101",
+      "difficulty": "Intermediário",
+      "category": "Fundamentos",
+      "tags": [
+        "quiz",
+        "cannabis-101",
+        "solo",
+        "genetica",
+        "outdoor",
+        "fenotipo"
+      ],
+      "path": "map-points/quiz-c101-intermediario-ii/"
+    },
     {
       "id": "curso-cultivo-101",
       "title": "Cannabis 101",
@@ -415,7 +446,7 @@
       "path": "map-points/programacao-do-dia/"
     },
     {
-      "id": "campus-cinema",
+      "id": "campus-live-cinema",
       "title": "Cinema THCProce",
       "linkedCourseId": null,
       "difficulty": "Iniciante",

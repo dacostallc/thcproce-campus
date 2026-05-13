@@ -1,0 +1,16 @@
+{
+  "xp": 40,
+  "greenCoins": 12,
+  "growerMasterProgress": 3,
+  "xpTiers": [
+    { "minCorrect": 5, "xp": 40, "greenCoins": 12 },
+    { "minCorrect": 4, "xp": 28, "greenCoins": 8 },
+    { "minCorrect": 3, "xp": 16, "greenCoins": 4 }
+  ],
+  "rarity": "épico",
+  "badge": {
+    "id": "selo-quiz-cannabis-101-intermediario-ii",
+    "name": "Quiz Cannabis 101 — Intermediário II",
+    "description": "Cinco questões: perlita no substrato, Ruderalis e autoflower, pH e lockout, outdoor no Brasil e fenótipo."
+  }
+}
