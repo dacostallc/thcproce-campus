@@ -30,7 +30,7 @@ export const CANNABIS101_MODULES: readonly Cannabis101Module[] = [
       },
       {
         id: "c101-l02-o-que-e-cannabis",
-        activityLabel: "Cannabis como planta mensurável (ponte para COA)"
+        activityLabel: "História e origens: da Ásia Central à ciência moderna"
       },
       {
         id: "c101-l03-canhamo-maconha-medicinal",
@@ -55,7 +55,8 @@ export const CANNABIS101_MODULES: readonly Cannabis101Module[] = [
     lessons: [
       {
         id: "c101-l06-sistema-endocanabinoide",
-        activityLabel: "ECS: consulta preparada, 48 h versus urgência"
+        activityLabel:
+          "Significado medicinal e recreativo: SEC, THC, CBD, entourage e uso consciente"
       },
       {
         id: "c101-l07-usos-e-reducao-de-danos",
@@ -73,7 +74,8 @@ export const CANNABIS101_MODULES: readonly Cannabis101Module[] = [
     lessons: [
       {
         id: "c101-l09-legalidade-br-eua",
-        activityLabel: "Legalidade BR/EUA: investigação guiada e fichas datadas"
+        activityLabel:
+          "Legalidade do cultivo: Brasil, HC medicinal, ANVISA (RDC 660) e panorama global"
       },
       {
         id: "c101-l10-seguranca-limites",

@@ -10,10 +10,22 @@ export type CampusMapPointQuizQuestion = {
   options: [string, string, string, string];
   /** Índice 0–3 da correta */
   correctIndex: number;
+  /** Texto opcional pós-resposta (mapa / painel hotspot). */
+  explanation?: string;
 };
 
 export type CampusMapPointQuiz = {
-  questions: [CampusMapPointQuizQuestion, CampusMapPointQuizQuestion];
+  /** Título editorial opcional (substitui “Quiz rápido” na UI). */
+  title?: string;
+  subtitle?: string;
+  questions: CampusMapPointQuizQuestion[];
+};
+
+/** Faixas de recompensa por número mínimo de respostas corretas (quiz com N questões). */
+export type CampusMapPointRewardXpTier = {
+  minCorrect: number;
+  xp: number;
+  greenCoins: number;
 };
 
 export type CampusMapPointMission = {
@@ -26,9 +38,15 @@ export type CampusMapPointMission = {
 export type CampusMapPointRewardRarity = "comum" | "raro" | "épico" | "lendário";
 
 export type CampusMapPointRewards = {
+  /** Valor único quando não há `xpTiers`, ou referência máxima na UI. */
   xp: number;
   greenCoins: number;
   growerMasterProgress: number;
+  /**
+   * Se presente, ao resgatar usa a melhor faixa com `minCorrect <= acertos`.
+   * Deve estar ordenado do maior `minCorrect` para o menor no JSON (opcional; o código ordena).
+   */
+  xpTiers?: readonly CampusMapPointRewardXpTier[];
   rarity?: CampusMapPointRewardRarity;
   badge: {
     id: string;

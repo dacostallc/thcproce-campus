@@ -1,26 +1,61 @@
 {
+  "title": "Quiz — Legalidade do Cultivo de Cannabis",
+  "subtitle": "🎯 Valendo XP + Moedas THCProce · 📚 Nível: Iniciante",
   "questions": [
     {
-      "id": "101-q1",
-      "question": "ECS no campus aparece principalmente como…",
+      "id": "c101-map-q1",
+      "question": "Qual é o principal objetivo do Sistema Endocanabinoide no corpo humano?",
       "options": [
-        "Modelo educativo de rede reguladora — não auto-diagnóstico",
-        "Lista de strains prescritas",
-        "Garantia de efeito",
-        "Substituto de receptores inventados"
+        "Produzir THC naturalmente",
+        "Controlar apenas o sono",
+        "Manter o equilíbrio interno do organismo",
+        "Produzir dopamina permanentemente"
       ],
-      "correctIndex": 0
+      "correctIndex": 2,
+      "explanation": "O Sistema Endocanabinoide ajuda o corpo a manter equilíbrio em funções como humor, dor, sono, apetite e imunidade."
     },
     {
-      "id": "101-q2",
-      "question": "Próximo passo saudável depois do 101?",
+      "id": "c101-map-q2",
+      "question": "O que diferencia principalmente o uso medicinal do uso recreativo da cannabis?",
       "options": [
-        "Escolher trilha técnica e manter registro simples",
-        "Comprar todo equipamento do marketplace num dia",
-        "Ignorar legalidade",
-        "Publicar tutorial sem contexto"
+        "O medicinal usa apenas sementes",
+        "O recreativo não possui THC",
+        "A intenção, dosagem e objetivo do uso",
+        "O medicinal é sempre fumado"
       ],
-      "correctIndex": 0
+      "correctIndex": 2,
+      "explanation": "O uso medicinal busca objetivos terapêuticos e normalmente envolve maior controle de dosagem e acompanhamento."
+    },
+    {
+      "id": "c101-map-q3",
+      "question": "O que é um Habeas Corpus para cultivo medicinal?",
+      "options": [
+        "Uma licença automática para vender cannabis",
+        "Um pedido judicial buscando proteção para cultivo medicinal",
+        "Um cadastro na ANVISA para importar sementes",
+        "Um documento internacional obrigatório"
+      ],
+      "correctIndex": 1,
+      "explanation": "O Habeas Corpus preventivo pode ser utilizado para buscar proteção judicial para pacientes que necessitam cultivar cannabis medicinalmente (efeitos variam conforme caso e tribunal)."
+    },
+    {
+      "id": "c101-map-q4",
+      "question": "Qual canabinoide é mais conhecido pelos efeitos psicoativos?",
+      "options": ["CBD", "CBN", "THC", "CBC"],
+      "correctIndex": 2,
+      "explanation": "O THC é o principal composto psicoativo da cannabis e atua principalmente nos receptores CB1 do cérebro."
+    },
+    {
+      "id": "c101-map-q5",
+      "question": "O que significa “efeito entourage” (efeito comitiva)?",
+      "options": [
+        "Quando apenas o THC funciona medicinalmente",
+        "Quando os compostos da cannabis atuam melhor juntos",
+        "Misturar cannabis com outras plantas",
+        "Um efeito causado apenas por flores secas"
+      ],
+      "correctIndex": 1,
+      "explanation": "O efeito entourage descreve a interação entre canabinoides, terpenos e flavonoides trabalhando em conjunto no organismo."
     }
   ]
 }

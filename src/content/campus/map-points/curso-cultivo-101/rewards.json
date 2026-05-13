@@ -1,11 +1,16 @@
 {
-  "xp": 45,
-  "greenCoins": 12,
-  "growerMasterProgress": 4,
+  "xp": 50,
+  "greenCoins": 15,
+  "growerMasterProgress": 8,
+  "xpTiers": [
+    { "minCorrect": 5, "xp": 50, "greenCoins": 15 },
+    { "minCorrect": 4, "xp": 35, "greenCoins": 10 },
+    { "minCorrect": 3, "xp": 20, "greenCoins": 5 }
+  ],
   "rarity": "lendário",
   "badge": {
-    "id": "selo-bussola-101",
-    "name": "Bússola 101",
-    "description": "Vocabulário parado antes do dimmer."
+    "id": "selo-quiz-cannabis-101-p1",
+    "name": "Quiz Cannabis 101 — Página 1",
+    "description": "Primeira página de questões: SEC, medicinal × recreativo, HC, THC e efeito entourage."
   }
 }

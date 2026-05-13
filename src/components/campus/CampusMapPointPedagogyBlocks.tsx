@@ -215,7 +215,7 @@ export function CampusMapPointPedagogyBlocks({
       {quiz ? (
         <div className={card}>
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <p className={labelCls}>Quiz rápido</p>
+            <p className={labelCls}>{quiz.title?.trim() || "Quiz rápido"}</p>
             {quizDone ? (
               <span
                 className={cn(
@@ -229,6 +229,39 @@ export function CampusMapPointPedagogyBlocks({
               </span>
             ) : null}
           </div>
+          {quiz.subtitle?.trim() ? (
+            <p
+              className={cn(
+                "mt-1.5 text-[12px] leading-snug",
+                isDay ? "text-slate-700/88" : "text-white/62"
+              )}
+            >
+              {quiz.subtitle.trim()}
+            </p>
+          ) : null}
+          {rewards?.xpTiers?.length ? (
+            <div
+              className={cn(
+                "mt-2 rounded-xl border px-2.5 py-2 text-[11px] leading-snug",
+                isDay ? "border-amber-400/35 bg-amber-50/75 text-amber-950/88" : "border-amber-400/22 bg-amber-950/22 text-amber-50/85"
+              )}
+            >
+              <p className={cn("font-bold uppercase tracking-wide", isDay ? "text-amber-900/85" : "text-amber-200/88")}>
+                Recompensa THCProce (por acertos)
+              </p>
+              <ul className="mt-1.5 list-none space-y-1 pl-0">
+                {[...rewards.xpTiers].sort((a, b) => b.minCorrect - a.minCorrect).map((t) => (
+                  <li key={`tier-${t.minCorrect}`}>
+                    ≥{t.minCorrect} corretas → +{t.xp} XP · +{t.greenCoins} moedas
+                  </li>
+                ))}
+              </ul>
+              <p className={cn("mt-1.5 text-[10px]", isDay ? "text-amber-900/70" : "text-amber-100/65")}>
+                Menos de {Math.min(...rewards.xpTiers.map((x) => x.minCorrect))} acertos: 0 XP e 0 moedas neste ponto. Selo
+                a partir de 3 corretas.
+              </p>
+            </div>
+          ) : null}
           <div className="mt-3 space-y-5">
             {quiz.questions.map((q, qIdx) => {
               const saved = progressSlug ? entry.quizByQuestionId?.[q.id] : undefined;
@@ -296,9 +329,9 @@ export function CampusMapPointPedagogyBlocks({
                     })}
                   </ul>
                   {selected !== undefined ? (
-                    <p
+                    <div
                       className={cn(
-                        "text-[12px] leading-snug",
+                        "space-y-1 text-[12px] leading-snug",
                         selected === correct
                           ? isDay
                             ? "font-medium text-emerald-900/85"
@@ -308,10 +341,17 @@ export function CampusMapPointPedagogyBlocks({
                             : "text-white/60"
                       )}
                     >
-                      {selected === correct
-                        ? "Certo — esta é a melhor opção para o contexto do campus."
-                        : `A resposta indicada pelo conteúdo é a alternativa ${String.fromCharCode(65 + correct)}.`}
-                    </p>
+                      <p>
+                        {selected === correct
+                          ? "Certo — esta é a melhor opção para o contexto do campus."
+                          : `A resposta indicada pelo conteúdo é a alternativa ${String.fromCharCode(65 + correct)}.`}
+                      </p>
+                      {q.explanation?.trim() ? (
+                        <p className={cn("italic", isDay ? "text-slate-700/85" : "text-white/55")}>
+                          💡 {q.explanation.trim()}
+                        </p>
+                      ) : null}
+                    </div>
                   ) : null}
                 </div>
               );

@@ -6,6 +6,7 @@ import type {
   CampusMapPointMission,
   CampusMapPointQuiz,
   CampusMapPointRewards,
+  CampusMapPointRewardXpTier,
   CampusMapPointSeasonal,
   CampusMapPointSeasonalScenario
 } from "@/lib/campus/campusMapPointBundle.types";
@@ -20,18 +21,40 @@ function readJson<T>(filePath: string): T | undefined {
   }
 }
 
+function isXpTierShape(v: unknown): v is CampusMapPointRewardXpTier {
+  if (!v || typeof v !== "object") return false;
+  const t = v as CampusMapPointRewardXpTier;
+  return (
+    typeof t.minCorrect === "number" &&
+    Number.isFinite(t.minCorrect) &&
+    t.minCorrect >= 0 &&
+    typeof t.xp === "number" &&
+    Number.isFinite(t.xp) &&
+    t.xp >= 0 &&
+    typeof t.greenCoins === "number" &&
+    Number.isFinite(t.greenCoins) &&
+    t.greenCoins >= 0
+  );
+}
+
 function isQuizShape(v: unknown): v is CampusMapPointQuiz {
   if (!v || typeof v !== "object") return false;
-  const q = (v as CampusMapPointQuiz).questions;
-  if (!Array.isArray(q) || q.length !== 2) return false;
+  const root = v as Record<string, unknown>;
+  if (root.title !== undefined && typeof root.title !== "string") return false;
+  if (root.subtitle !== undefined && typeof root.subtitle !== "string") return false;
+  const q = root.questions;
+  if (!Array.isArray(q) || q.length < 1 || q.length > 30) return false;
   for (const item of q) {
     if (!item || typeof item !== "object") return false;
-    const opt = (item as CampusMapPointQuiz["questions"][number]).options;
+    const row = item as CampusMapPointQuiz["questions"][number];
+    const opt = row.options;
     if (!Array.isArray(opt) || opt.length !== 4) return false;
-    const ci = (item as CampusMapPointQuiz["questions"][number]).correctIndex;
+    if (!opt.every((x) => typeof x === "string")) return false;
+    const ci = row.correctIndex;
     if (typeof ci !== "number" || ci < 0 || ci > 3) return false;
-    if (typeof (item as CampusMapPointQuiz["questions"][number]).question !== "string") return false;
-    if (typeof (item as CampusMapPointQuiz["questions"][number]).id !== "string") return false;
+    if (typeof row.question !== "string") return false;
+    if (typeof row.id !== "string") return false;
+    if (row.explanation !== undefined && typeof row.explanation !== "string") return false;
   }
   return true;
 }
@@ -51,6 +74,10 @@ function isRewardsShape(v: unknown): v is CampusMapPointRewards {
   const r = v as CampusMapPointRewards;
   if (typeof r.xp !== "number" || typeof r.greenCoins !== "number") return false;
   if (typeof r.growerMasterProgress !== "number") return false;
+  if (r.xpTiers !== undefined) {
+    if (!Array.isArray(r.xpTiers) || r.xpTiers.length < 1) return false;
+    if (!r.xpTiers.every(isXpTierShape)) return false;
+  }
   if (r.rarity !== undefined && typeof r.rarity === "string" && !REWARD_RARITIES.has(r.rarity)) return false;
   if (!r.badge || typeof r.badge !== "object") return false;
   const b = r.badge;

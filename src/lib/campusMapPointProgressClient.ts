@@ -75,6 +75,38 @@ export function persistMapPointQuizAnswer(
   });
 }
 
+function countMapPointQuizCorrect(
+  quiz: CampusMapPointQuiz | undefined,
+  entry: MapPointProgressEntry
+): number {
+  if (!quiz) return 0;
+  let n = 0;
+  for (const q of quiz.questions) {
+    if (entry.quizByQuestionId?.[q.id]?.correct) n += 1;
+  }
+  return n;
+}
+
+function resolveTieredXpCoins(
+  rewards: CampusMapPointRewards,
+  correctCount: number
+): { xp: number; greenCoins: number } {
+  const tiers = rewards.xpTiers;
+  if (!tiers?.length) {
+    return {
+      xp: Math.max(0, Math.floor(rewards.xp)),
+      greenCoins: Math.max(0, Math.floor(rewards.greenCoins))
+    };
+  }
+  const sorted = [...tiers].sort((a, b) => b.minCorrect - a.minCorrect);
+  for (const t of sorted) {
+    if (correctCount >= t.minCorrect) {
+      return { xp: Math.max(0, Math.floor(t.xp)), greenCoins: Math.max(0, Math.floor(t.greenCoins)) };
+    }
+  }
+  return { xp: 0, greenCoins: 0 };
+}
+
 /**
  * Aplica `rewards.json` uma vez por slug após missão+quiz estarem completos.
  * Idempotente via `rewardsClaimedAt`.
@@ -91,15 +123,22 @@ export function tryClaimMapPointBundleRewards(
   if (entry.rewardsClaimedAt) return { profile: cur, claimed: false };
   if (!isMapPointBundleComplete(mission, quiz, entry)) return { profile: cur, claimed: false };
 
-  const xpGain = Math.max(0, Math.floor(rewards.xp));
-  const coinGain = Math.max(0, Math.floor(rewards.greenCoins));
-  const gmGain = Math.max(0, Math.floor(rewards.growerMasterProgress));
+  const correctCount = countMapPointQuizCorrect(quiz, entry);
+  const tiered = Boolean(rewards.xpTiers?.length);
+  const { xp: xpGain, greenCoins: coinGain } = resolveTieredXpCoins(rewards, correctCount);
+  const totalQ = quiz?.questions.length ?? 1;
+  const gmGain = tiered
+    ? correctCount >= 3
+      ? Math.max(0, Math.round(rewards.growerMasterProgress * (correctCount / totalQ)))
+      : 0
+    : Math.max(0, Math.floor(rewards.growerMasterProgress));
   const xp = cur.xp + xpGain;
   const credits = cur.credits + coinGain;
   const growerMasterScore = cur.growerMasterScore + gmGain;
   const badgeId = rewards.badge.id.trim().slice(0, 120);
+  const shouldAddBadge = Boolean(badgeId) && (!tiered || correctCount >= 3);
   const badges =
-    badgeId && !cur.badges.includes(badgeId) ? [...cur.badges, badgeId] : cur.badges;
+    shouldAddBadge && badgeId && !cur.badges.includes(badgeId) ? [...cur.badges, badgeId] : cur.badges;
   const claimedAt = new Date().toISOString();
 
   let unlockedSouvenirs = cur.unlockedSouvenirs;
@@ -134,7 +173,12 @@ export function tryClaimMapPointBundleRewards(
   }
 
   void import("@/stores/liveCampusHudFeedStore").then(({ pushLiveCampusHudNotification }) => {
-    let msg = `Mapa: +${xpGain} XP · +${coinGain} cr · selo «${rewards.badge.name}»`;
+    let msg = `Mapa: +${xpGain} XP · +${coinGain} moedas`;
+    if (shouldAddBadge && badgeId) {
+      msg += ` · selo «${rewards.badge.name}»`;
+    } else if (tiered) {
+      msg += " · sem selo (mín. 3 corretas)";
+    }
     if (souvenirAdded) {
       msg += ` · souvenir «${SOUVENIR_CATALOG["pin-loja-campus"]?.title ?? "Pin"}»`;
     }
