@@ -26,7 +26,8 @@ type Props = {
 
 /**
  * Desenha polígonos sobre o palco do mapa (viewBox 0 0 100 100, mesmo sistema que hit-boxes simples).
- * Montagem no `/campus` é decidida por `CampusMap` (debug de zonas / env).
+ * Em produção o `CampusMap` só monta este componente em `/preview/campus` quando `debugZones` ou
+ * `NEXT_PUBLIC_CAMPUS_MAP_AREAS_DEBUG` estão activos — nunca no `/campus` público.
  */
 export function CampusMapAreasDebugOverlay({
   className,

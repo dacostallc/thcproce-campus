@@ -22,6 +22,7 @@ type Props = {
 export function CampusResumeChip({ lessonPanelOpen, onContinue, embed = false }: Props) {
   const [mounted, setMounted] = useState(false);
   const [, bump] = useState(0);
+
   useEffect(() => {
     setMounted(true);
   }, []);

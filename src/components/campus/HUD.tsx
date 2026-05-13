@@ -36,7 +36,6 @@ import { Button } from "@/components/ui/button";
 import { isCampusAdminEmail } from "@/lib/campusAdmin";
 import { CAMPUS_HOME_PATH } from "@/config/siteUrls";
 import { cannabis101HudNextLessonCue } from "@/content/courses";
-import { isCampusAdvancedMap } from "@/config/campusMapStability";
 import { CampusStudentGamificationHudChip } from "@/components/campus/CampusStudentGamificationHudChip";
 import { CampusLocalGamificationHudPill } from "@/components/campus/CampusLocalGamificationHudPill";
 import { CampusLocalProfileModalBody } from "@/components/campus/CampusLocalProfileModalBody";
@@ -315,7 +314,7 @@ export function HUD() {
     markMissionPanelOpened();
   }, [campusMissionsOpen]);
 
-  const campusAdvancedMap = isCampusAdvancedMap();
+  const campusAdvancedMap = useCampusStore((s) => s.effectiveAdvancedMap);
 
   const recenterMap = () => {
     useCampusStore.getState().setPlayer({ x: 42, y: 82 });

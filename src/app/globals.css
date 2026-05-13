@@ -1030,6 +1030,35 @@ html, body {
   }
 }
 
+/**
+ * `/campus` público: reforço CSS para hits totalmente invisíveis (sem hover stroke vindo de regras globais).
+ */
+.campus-map-interactive-overlay--cinematic .campus-interactive-shape__hit-face {
+  fill: transparent !important;
+  stroke: transparent !important;
+  filter: none !important;
+}
+
+.campus-map-interactive-overlay--cinematic
+  .campus-interactive-shape--hits:hover
+  .campus-interactive-shape__hit-face {
+  stroke: transparent !important;
+  filter: none !important;
+}
+
+.campus-map-interactive-overlay--cinematic .campus-interactive-shape__hit-face:focus-visible {
+  outline: none;
+  stroke: rgba(255, 255, 255, 0.28) !important;
+  stroke-width: 0.09;
+  filter: none !important;
+}
+
+.campus-map-interactive-overlay--cinematic
+  .campus-interactive-shape--hit-flash
+  .campus-interactive-shape__hit-face {
+  animation: none !important;
+}
+
 /** Debug / legacy: outlines preenchidos — reutiliza regra abaixo */
 .campus-interactive-shape--hits polygon.campus-interactive-shape__outline,
 .campus-interactive-shape--hits circle.campus-interactive-shape__outline {

@@ -8,7 +8,6 @@ import { clearCinemaSitTimer } from "@/lib/campusCinemaSitTimer";
 import { isAllowedCinemaReactionEmoji } from "@/lib/campusCinemaSeats";
 import { requestCampusRealtimeFlush } from "@/lib/campusRealtimeFlush";
 import { playCampusAdminBroadcastChime } from "@/lib/campusAdminBroadcastSound";
-import { isCampusAdvancedMap } from "@/config/campusMapStability";
 import { clampToWalkZone } from "@/lib/campusWalkable";
 import { maybePlayCampusWalkSound } from "@/lib/campusWalkSound";
 
@@ -54,6 +53,13 @@ type CampusState = {
 
   /** Fecha o drive-in e limpa estado de presença no cinema. */
   closeCineDriveIn: () => void;
+
+  /**
+   * Sincronizado por `CampusMap`: malha passeável / clamp só quando o mapa avançado está activo em `/preview`.
+   * No `/campus` público permanece sempre `false`.
+   */
+  effectiveAdvancedMap: boolean;
+  setEffectiveAdvancedMap: (v: boolean) => void;
 };
 
 /** Ponto de spawn: praça / chafariz (parte inferior central do mapa). */
@@ -66,9 +72,7 @@ function looseClampPct(p: PctPos): PctPos {
   };
 }
 
-const initialPlayer = isCampusAdvancedMap()
-  ? clampToWalkZone(RAW_SPAWN)
-  : looseClampPct(RAW_SPAWN);
+const initialPlayer = looseClampPct(RAW_SPAWN);
 
 const liveInitially =
   typeof process !== "undefined" &&
@@ -76,11 +80,12 @@ const liveInitially =
 
 export const useCampusStore = create<CampusState>((set) => ({
   player: initialPlayer,
+  effectiveAdvancedMap: false,
+  setEffectiveAdvancedMap: (v) => set({ effectiveAdvancedMap: v }),
+
   setPlayer: (p) =>
     set((state) => {
-      const next = isCampusAdvancedMap()
-        ? clampToWalkZone(p)
-        : looseClampPct(p);
+      const next = state.effectiveAdvancedMap ? clampToWalkZone(p) : looseClampPct(p);
       maybePlayCampusWalkSound(state.player, next);
       return { player: next };
     }),

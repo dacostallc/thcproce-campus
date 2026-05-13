@@ -180,7 +180,9 @@ export const CAMPUS_MAP_INTERACTIVE_AREAS: CampusMapInteractiveArea[] = [
     id: "curso-cultivo-greenhouse",
     title: "Cultivo em estufa",
     panelTitle: "Greenhouses & microclima",
-    coords: "510,81,340,187,208,119,406,11",
+    // Polígono reancorado ao brief espacial (≈10%,32% na arte 1536×1024 — cultivo-greenhouse a oeste).
+    // O conjunto anterior centrava o glow/tooltip no topo-centro (laboratório), não nas estufas.
+    coords: "75,270,225,255,235,395,70,405",
     shape: "poly",
     type: "course",
     status: "open",
@@ -367,25 +369,15 @@ export const CAMPUS_MAP_INTERACTIVE_AREAS: CampusMapInteractiveArea[] = [
     metadata: { imageMapAlt: "programacao-do-dia" }
   },
   {
-    id: "campus-cinema",
-    title: "Cinema THCProce",
-    label: "Cinema THCProce",
-    panelTitle: "Cinema THCProce",
-    shortDescription:
-      "Cinema e transmissões ao vivo no campus — instala-te, vê o estado da sala e entra quando quiseres.",
-    studentSummary:
-      "Espaço de cinema e live THCProce: abre o telão flutuante para acompanhar transmissões e estado «ao vivo» quando disponível.",
-    ctaLabel: "Entrar no cinema",
-    coords: "1040,795,1365,905,1195,1035,1015,985",
+    id: "campus-live-cinema",
+    title: "Cinema & ao vivo",
+    panelTitle: "Cinema & ao vivo",
+    coords: "1180,833,1310,899,1151,1006,1064,970",
     shape: "poly",
     type: "event",
     status: "open",
     target: { kind: "cinema_live_rail" },
-    metadata: {
-      imageMapAlt: "campus-cinema",
-      zoneId: "campus-cinema",
-      zoneKind: "cinema_live"
-    },
-    live: false
+    metadata: { imageMapAlt: "campus-live-cinema" },
+    live: true
   }
 ];

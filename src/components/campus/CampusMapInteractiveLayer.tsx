@@ -52,6 +52,11 @@ type Props = {
   onPersistInteractiveActivation?: (hit: CampusMapInteractiveArea) => void;
   /** Polígonos pretos / labels técnicos: só `?debugZones=1` em produção ou dev local. */
   zonesDebugChrome: boolean;
+  /**
+   * `live` = `/campus` público: hits invisíveis, sem glow, marcadores SVG nem `<title>` nativos.
+   * `preview` = `/preview/campus`: ferramenta de alinhamento (glow, pins, tooltips).
+   */
+  mapSurface: "live" | "preview";
   /** Pulso «live» na zona cinema (TRPC / env). */
   cinemaLiveActive?: boolean;
 };
@@ -217,6 +222,7 @@ export function CampusMapInteractiveLayer({
   hitZoneStates,
   onPersistInteractiveActivation,
   zonesDebugChrome,
+  mapSurface,
   cinemaLiveActive
 }: Props) {
   const router = useRouter();
@@ -226,6 +232,9 @@ export function CampusMapInteractiveLayer({
   const [dialog, setDialog] = useState<InteractiveTopicDialog>(null);
 
   const mapDebugChrome = zonesDebugChrome;
+  const cinematicSurface = mapSurface === "live";
+  /** Glow, halo, marcadores e classes «light» — só na superfície preview. */
+  const showAuthoringShapeDecor = !mapDebugChrome && !cinematicSurface;
   const showModalTechStripe = mapDebugChrome;
   const showSvgTargetStrip = mapDebugChrome && showModalTechStripe;
 
@@ -270,7 +279,7 @@ export function CampusMapInteractiveLayer({
   const prepared = useMemo(() => {
     return CAMPUS_MAP_INTERACTIVE_AREAS.map((a) => {
       const hit =
-        a.id === "campus-cinema"
+        a.id === "campus-live-cinema"
           ? { ...a, live: Boolean(cinemaLiveActive) }
           : a;
       return {
@@ -514,9 +523,11 @@ export function CampusMapInteractiveLayer({
         data-sky={sky}
         className={cn(
           "campus-map-interactive-overlay pointer-events-none absolute inset-0 touch-none outline-none [&_circle]:motion-reduce:transition-none [&_polygon]:motion-reduce:transition-none",
-          mapDebugChrome && "campus-map-interactive-overlay--debug"
+          mapDebugChrome && "campus-map-interactive-overlay--debug",
+          cinematicSurface && "campus-map-interactive-overlay--cinematic"
         )}
         data-debug={mapDebugChrome ? "true" : "false"}
+        data-map-surface={mapSurface}
       >
         <svg
           ref={svgRef}
@@ -549,7 +560,8 @@ export function CampusMapInteractiveLayer({
             const targetLabel = shortTarget(hit);
             const light = resolveCampusMapInteractiveLighting(hit.id, hit.lighting);
             const isPrimaryLight = light.preset === "primary";
-            const proximityNear = !mapDebugChrome && !isPrimaryLight && nearTopicId === hit.id;
+            const proximityNear =
+              showAuthoringShapeDecor && !isPrimaryLight && nearTopicId === hit.id;
             const isFlashing = flashAreaId === hit.id;
             const statusTone =
               hit.status === "locked"
@@ -566,6 +578,7 @@ export function CampusMapInteractiveLayer({
             } as CSSProperties;
 
             const hitFaceA11y = !mapDebugChrome && !mapInteractionsSuppressed;
+            const hitNativeTitle = hitFaceA11y && !cinematicSurface;
             const hitTooltipTitle = hotspotDisplayLabel(hit);
             /** Sala Cannabis 101: sem marcador SVG persistente — clique fica no polígono (visual cinematográfico). */
             const suppressFloatingSvgMarker =
@@ -585,13 +598,13 @@ export function CampusMapInteractiveLayer({
                   !mapInteractionsSuppressed && "campus-interactive-shape--hits",
                   statusTone,
                   hit.live && "campus-interactive-shape--live",
-                  !mapDebugChrome && isPrimaryLight && "campus-interactive-shape--light-primary",
-                  !mapDebugChrome && !isPrimaryLight && "campus-interactive-shape--light-topic",
-                  !mapDebugChrome && proximityNear && "campus-interactive-shape--proximity-near",
-                  !mapDebugChrome && isFlashing && "campus-interactive-shape--hit-flash"
+                  showAuthoringShapeDecor && isPrimaryLight && "campus-interactive-shape--light-primary",
+                  showAuthoringShapeDecor && !isPrimaryLight && "campus-interactive-shape--light-topic",
+                  showAuthoringShapeDecor && proximityNear && "campus-interactive-shape--proximity-near",
+                  showAuthoringShapeDecor && isFlashing && "campus-interactive-shape--hit-flash"
                 )}
               >
-                {!mapDebugChrome ? (
+                {showAuthoringShapeDecor ? (
                   <polygon
                     className="campus-interactive-shape__glass-fill"
                     points={primitiveArt.pointsPx}
@@ -611,9 +624,9 @@ export function CampusMapInteractiveLayer({
                   vectorEffect={mapDebugChrome ? "non-scaling-stroke" : undefined}
                   onKeyDown={hitFaceA11y ? handleHitFaceKeyDown(hit) : undefined}
                 >
-                  {hitFaceA11y ? <title>{hitTooltipTitle}</title> : null}
+                  {hitNativeTitle ? <title>{hitTooltipTitle}</title> : null}
                 </polygon>
-                {!mapDebugChrome && !suppressFloatingSvgMarker ? (
+                {showAuthoringShapeDecor && !suppressFloatingSvgMarker ? (
                   <CampusInteractiveHotspotMarker
                     cx={anchorArt.cx}
                     cy={Math.max(16, anchorArt.cy - 21)}
@@ -657,13 +670,13 @@ export function CampusMapInteractiveLayer({
                   !mapInteractionsSuppressed && "campus-interactive-shape--hits",
                   statusTone,
                   hit.live && "campus-interactive-shape--live",
-                  !mapDebugChrome && isPrimaryLight && "campus-interactive-shape--light-primary",
-                  !mapDebugChrome && !isPrimaryLight && "campus-interactive-shape--light-topic",
-                  !mapDebugChrome && proximityNear && "campus-interactive-shape--proximity-near",
-                  !mapDebugChrome && isFlashing && "campus-interactive-shape--hit-flash"
+                  showAuthoringShapeDecor && isPrimaryLight && "campus-interactive-shape--light-primary",
+                  showAuthoringShapeDecor && !isPrimaryLight && "campus-interactive-shape--light-topic",
+                  showAuthoringShapeDecor && proximityNear && "campus-interactive-shape--proximity-near",
+                  showAuthoringShapeDecor && isFlashing && "campus-interactive-shape--hit-flash"
                 )}
               >
-                {!mapDebugChrome ? (
+                {showAuthoringShapeDecor ? (
                   <circle
                     className="campus-interactive-shape__glass-fill"
                     cx={primitiveArt.cx}
@@ -687,9 +700,9 @@ export function CampusMapInteractiveLayer({
                   vectorEffect={mapDebugChrome ? "non-scaling-stroke" : undefined}
                   onKeyDown={hitFaceA11y ? handleHitFaceKeyDown(hit) : undefined}
                 >
-                  {hitFaceA11y ? <title>{hitTooltipTitle}</title> : null}
+                  {hitNativeTitle ? <title>{hitTooltipTitle}</title> : null}
                 </circle>
-                {!mapDebugChrome && !suppressFloatingSvgMarker ? (
+                {showAuthoringShapeDecor && !suppressFloatingSvgMarker ? (
                   <CampusInteractiveHotspotMarker
                     cx={primitiveArt.cx}
                     cy={Math.max(16, primitiveArt.cy - primitiveArt.r - 17)}

@@ -5,7 +5,7 @@
 
 /**
  * Mapa com polígonos (`mapZones`), fog-of-war, tooltips e malha passeável.
- * Por omissão `false` — modo simples (hit-boxes + imagem limpa).
+ * **Nota:** no `/campus` público o `CampusMap` ignora este flag; só `/preview/campus` pode activar o modo avançado.
  */
 export function isCampusAdvancedMap(): boolean {
   return process.env.NEXT_PUBLIC_CAMPUS_ADVANCED_MAP === "true";

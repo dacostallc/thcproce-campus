@@ -12,8 +12,6 @@ import type { Transition } from "framer-motion";
 
 import type { CampusUserRole } from "@/config/userRoles";
 
-import { isCampusAdvancedMap } from "@/config/campusMapStability";
-
 import { CampusAvatarIdTag } from "@/components/campus/CampusAvatarIdTag";
 
 import { CampusPlayerAvatar } from "@/components/campus/CampusPlayerAvatar";
@@ -68,9 +66,9 @@ export function CampusPlayer({
 
   const cinemaOpen = useCampusStore((s) => s.isCineOpen);
 
-  const sit = posture === "sit";
+  const advancedMap = useCampusStore((s) => s.effectiveAdvancedMap);
 
-  const advancedMap = isCampusAdvancedMap();
+  const sit = posture === "sit";
 
   const hydrated = useClientHydrated();
   /** Até hidratar: igual ao `useStudentGamification` inicial (`studentProfileHydrationSeed`). Evita mismatch visitor/student com LS/props. */

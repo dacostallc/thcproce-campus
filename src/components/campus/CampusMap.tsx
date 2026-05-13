@@ -300,10 +300,12 @@ export function CampusMap({
     useCampusStore.getState().setLiveActive(livePulse);
   }, [livePulse]);
 
+  const mapSurface = internalPreview ? "preview" : "live";
+
   const mapZonesPolygonDebug = useMemo(() => {
     const q = readCampusDebugZonesQuery(searchParams);
-    return shouldShowCampusMapZonesPolygonDebug(q);
-  }, [searchParams]);
+    return shouldShowCampusMapZonesPolygonDebug(q, mapSurface);
+  }, [searchParams, mapSurface]);
 
   const isCampusAdmin = useMemo(
     () => isCampusAdminEmail(session?.user?.email ?? null),
@@ -663,7 +665,18 @@ export function CampusMap({
     [unlockCtx]
   );
 
-  const advancedMap = isCampusAdvancedMap();
+  /**
+   * Névoa, biomas, malha passeável e overlays geométricos: exclusivo de `/preview/campus` com
+   * `NEXT_PUBLIC_CAMPUS_ADVANCED_MAP` — nunca no `/campus` público.
+   */
+  const advancedMap = internalPreview && isCampusAdvancedMap();
+
+  useEffect(() => {
+    useCampusStore.getState().setEffectiveAdvancedMap(advancedMap);
+    return () => {
+      useCampusStore.getState().setEffectiveAdvancedMap(false);
+    };
+  }, [advancedMap]);
 
   useLayoutEffect(() => {
     if (campusAvatarLsHydratedRef.current) return;
@@ -725,10 +738,11 @@ export function CampusMap({
     () =>
       !advancedMap ||
       internalPreview ||
-      mapZonesPolygonDebug ||
-      isCampusMapInteractiveDebugEnabled() ||
-      isCampusMapAreasPolygonOverlayEnabled(),
-    [advancedMap, internalPreview, mapZonesPolygonDebug]
+      (mapSurface === "preview" &&
+        (mapZonesPolygonDebug ||
+          isCampusMapInteractiveDebugEnabled() ||
+          isCampusMapAreasPolygonOverlayEnabled())),
+    [advancedMap, internalPreview, mapSurface, mapZonesPolygonDebug]
   );
 
   const useSimpleArtFrame = !advancedMap;
@@ -816,7 +830,8 @@ export function CampusMap({
             useSimpleArtFrame && "flex items-center justify-center",
             advancedMap && "shadow-xl shadow-black/35 ring-1 ring-amber-400/8",
             customCursor && "campus-map-native-cursor-hidden",
-            isCampusMapDebugOutline() &&
+            internalPreview &&
+              isCampusMapDebugOutline() &&
               "outline outline-[3px] outline-red-600 outline-offset-[-3px]"
           )}
         >
@@ -978,7 +993,8 @@ export function CampusMap({
               aria-hidden
             />
 
-            {mapZonesPolygonDebug || isCampusMapAreasPolygonOverlayEnabled() ? (
+            {internalPreview &&
+            (mapZonesPolygonDebug || isCampusMapAreasPolygonOverlayEnabled()) ? (
               <CampusMapAreasDebugOverlay
                 catalogMergeEnabled={
                   mapZonesPolygonDebug || isCampusMapAreasPolygonOverlayEnabled()
@@ -1047,6 +1063,7 @@ export function CampusMap({
                 hitZoneStates={campusWorld?.hitZoneStates}
                 onPersistInteractiveActivation={persistInteractiveActivation}
                 zonesDebugChrome={mapZonesPolygonDebug}
+                mapSurface={mapSurface}
                 cinemaLiveActive={livePulse}
                 onOpenCampusCourse={(courseId, legacyHitId) => {
                   const area = areas.find((a) => a.id === courseId);
@@ -1099,9 +1116,11 @@ export function CampusMap({
 
           <CampusCineHotspot />
 
-          <div className="pointer-events-none absolute inset-0 z-[10]">
-            <CampusMicroHotspotDecorLayer />
-          </div>
+          {internalPreview ? (
+            <div className="pointer-events-none absolute inset-0 z-[10]">
+              <CampusMicroHotspotDecorLayer />
+            </div>
+          ) : null}
 
           <div className="pointer-events-none absolute inset-0 z-[12]">
             <CampusPlayer
@@ -1155,7 +1174,10 @@ export function CampusMap({
       <HUD />
 
       {!advancedMap ? (
-        <CampusMapInteractiveMapPanels sky={phase} showHotspotTechStripe={mapZonesPolygonDebug} />
+        <CampusMapInteractiveMapPanels
+          sky={phase}
+          showHotspotTechStripe={internalPreview && mapZonesPolygonDebug}
+        />
       ) : null}
 
       {campusLesson == null ? (
