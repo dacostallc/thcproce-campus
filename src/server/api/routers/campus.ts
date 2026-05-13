@@ -22,6 +22,7 @@ import {
 } from "@/server/campusLiveSettings";
 import { areaUsesMoodleLessonSnippet } from "@/content/courses";
 import { resolveCampusLessonDbContent } from "@/lib/campus/resolveCampusLessonDbContent";
+import { loadStaticLessonForAreaLesson } from "@/lib/lessons/staticLessonLoader";
 import { getPublishedQuizWithAnswers } from "@/lib/quiz/playable";
 import { loadCampusMapPointReaderPayload } from "@/lib/campus/loadCampusMapPointContent";
 import { buildCampusWorldSnapshot } from "@/server/campus/buildCampusWorldSnapshot";
@@ -40,13 +41,24 @@ import {
   campusSocialSendGesture as recordCampusSocialGestureAction,
   campusSocialUpdatePrefs as persistCampusSocialPrefs
 } from "@/server/campus/campusSocialPresenceServer";
+import { recordCampusAction, syncCampusBadgeUnlocks } from "@/lib/campus/campusXpEngine";
+import { getUserProgression } from "@/lib/progression/progression";
 import {
+  awardSouvenirs,
   awardXp,
-  recordCampusAction,
-  syncCampusBadgeUnlocks
-} from "@/lib/campus/campusXpEngine";
+  PROGRESSION_SOUVENIR_REASON,
+  PROGRESSION_XP_REASON,
+} from "@/lib/progression/rewards";
+import { applyLessonMarkedBonuses } from "@/lib/progression/lessonProgressBonuses";
 import {
-  enrichMicroLessonBlueprint,
+  lessonOpenKey,
+  parseProgressionClaims,
+  tryAwardFirstCompletionOfDaySouvenirs,
+  utcDayString,
+} from "@/lib/progression/claims";
+import { XP_REWARD_COMPLETE_LESSON, XP_REWARD_DAILY_LOGIN, XP_REWARD_STREAK_7_DAY } from "@/lib/progression/xp";
+import { SOUVENIR_REWARD_LIVE_EVENT, SOUVENIR_REWARD_OPEN_LESSON } from "@/lib/progression/souvenirs";
+import {
   findMicroLessonBlueprintById,
   resolveCampusMapZoneLabel
 } from "@/data/campusMicroLessonContext";
@@ -92,27 +104,6 @@ function areaProgressZero(): { areas: Record<string, boolean> } {
   return { areas: map };
 }
 
-/** Suaviza títulos vindos do LMS só para exposição ao aluno — mantém etiquetas internas tipo Secção N no ingest. */
-function softenPublicSectionHeading(raw: string): string {
-  const s = raw.trim();
-  const stripNum = s.match(/^Sec(c|ç)[aã]o\s*(\d+)\s*[.:)\-–—]\s*(.+)$/iu);
-  if (stripNum?.[3]?.trim()) return stripNum[3].trim();
-
-  const onlySecPt = s.match(/^Sec(c|ç)[aã]o\s*(\d+)\s*$/iu);
-  if (onlySecPt?.[2] !== undefined && onlySecPt[2] !== "")
-    return `Parte ${Number(onlySecPt[2]) + 1}`;
-
-  const stripEn = s.match(/^Section\s*\d+\s*[.:)\-–—]\s*(.+)$/iu);
-  if (stripEn?.[1]?.trim()) return stripEn[1].trim();
-  const onlySectionEn = s.match(/^Section\s*(\d+)\s*$/iu);
-  if (onlySectionEn?.[1] !== undefined && onlySectionEn[1] !== "")
-    return `Parte ${Number(onlySectionEn[1]) + 1}`;
-
-  if (/^sec(c|ç)[aã]o$/iu.test(s) || /^section$/iu.test(s)) return "Panorama inicial";
-
-  return s.replace(/\bGeneral\b/i, "Abertura").replace(/^Topics?\s+/iu, "Bloco ").trim();
-}
-
 function parseLessonMap(raw: unknown): Record<string, number[]> {
   let v: unknown = raw;
   if (typeof v === "string") {
@@ -132,6 +123,10 @@ function parseLessonMap(raw: unknown): Record<string, number[]> {
   return out;
 }
 
+function utcDayStartMs(d: Date): number {
+  return Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
+}
+
 async function requireCampusProfile(session: {
   user?: { email?: string | null; name?: string | null } | null;
 } | null) {
@@ -143,7 +138,7 @@ async function requireCampusProfile(session: {
   let p = await prisma.profile.findUnique({ where: { email } });
   if (!p) {
     p = await prisma.profile.create({
-      data: { email, displayName }
+      data: { email, displayName, levelKey: "iniciante" },
     });
   }
   return p;
@@ -253,7 +248,7 @@ export const campusRouter = router({
         return {
           ok: true as const,
           courseId,
-          sectionTitle: softenPublicSectionHeading(mod.sectionTitle),
+          sectionTitle: mod.sectionTitle.trim(),
           moduleName: mod.moduleName,
           modname: mod.modname,
           summaryText: mod.summaryText,
@@ -311,26 +306,49 @@ export const campusRouter = router({
       let p = await prisma.profile.findUnique({ where: { email } });
       if (!p)
         p = await prisma.profile.create({
-          data: { email, displayName: name }
+          data: { email, displayName: name, levelKey: "iniciante" }
         });
 
-      const level = levelFromXp(p.xpTotal);
+      const prog = await getUserProgression(prisma, p.id);
       return {
-        xp: p.xpTotal,
-        levelKey: p.levelKey,
-        levelLabel: level.label,
+        xp: prog.xp,
+        levelKey: prog.levelKey,
+        levelLabel: prog.avatar.label,
         streak: p.streakDays,
-        nextLevel: LEVELS.find((x) => x.minXp > p.xpTotal) ?? null
+        nextLevel: prog.nextAvatarPreview,
+        souvenirCredits: prog.souvenirCredits,
+        progressToNext: prog.avatar.progressToNext,
+        progressPercent: prog.progressPercent,
+        avatar: {
+          key: prog.avatar.key,
+          label: prog.avatar.label,
+          imageSrc: prog.avatar.imageSrc,
+          minXp: prog.avatar.minXp,
+        },
+        nextTierLabel: prog.nextAvatarPreview?.label ?? null,
+        nextTierMinXp: prog.nextAvatarPreview?.minXp ?? null,
       };
     } catch (e) {
       console.warn("[campus] myProgress: fallback sem BD", e);
       const level = levelFromXp(0);
+      const next0 = LEVELS.find((x) => x.minXp > 0) ?? null;
       return {
         xp: 0,
         levelKey: level.key,
         levelLabel: level.label,
         streak: 0,
-        nextLevel: LEVELS.find((x) => x.minXp > 0) ?? null
+        nextLevel: next0,
+        souvenirCredits: 0,
+        progressToNext: 0,
+        progressPercent: 0,
+        avatar: {
+          key: level.key,
+          label: level.label,
+          imageSrc: "/avatar/iniciante.png",
+          minXp: level.minXp,
+        },
+        nextTierLabel: next0?.label ?? null,
+        nextTierMinXp: next0?.minXp ?? null,
       };
     }
   }),
@@ -568,30 +586,67 @@ export const campusRouter = router({
       arr.push(input.lessonIndex);
       lpMap[input.areaId] = [...new Set(arr)].sort((a, b) => a - b);
 
-      const oldXp = existing?.xpTotal ?? 0;
-      const newLevel = wasNew ? levelFromXp(oldXp + 8) : levelFromXp(oldXp);
-
-      await prisma.profile.upsert({
+      const pr = await prisma.profile.upsert({
         where: { email },
         create: {
           email,
           displayName,
-          xpTotal: wasNew ? 8 : 0,
-          levelKey: wasNew ? newLevel.key : "semente",
+          xpTotal: 0,
+          levelKey: "iniciante",
           lessonProgress: JSON.stringify(lpMap)
         },
         update: {
-          lessonProgress: JSON.stringify(lpMap),
-          ...(wasNew
-            ? {
-                xpTotal: { increment: 8 },
-                levelKey: newLevel.key
-              }
-            : {})
-        }
+          lessonProgress: JSON.stringify(lpMap)
+        },
+        select: { id: true }
       });
 
-      return { done: lpMap[input.areaId]!, awardedXp: wasNew ? 8 : 0 };
+      if (wasNew) {
+        await awardXp(prisma, pr.id, XP_REWARD_COMPLETE_LESSON, PROGRESSION_XP_REASON.COMPLETE_LESSON, {
+          areaId: input.areaId,
+          lessonIndex: input.lessonIndex
+        });
+        await applyLessonMarkedBonuses(prisma, pr.id, {
+          areaId: input.areaId,
+          lessonIndex: input.lessonIndex
+        });
+      }
+
+      return { done: lpMap[input.areaId]!, awardedXp: wasNew ? XP_REWARD_COMPLETE_LESSON : 0 };
+    }),
+
+  /** Primeira abertura de uma aula (painel) — créditos souvenir; idempotente por (área, índice). */
+  lessonFirstOpen: protectedProcedure
+    .input(
+      z.object({
+        areaId: z.string().min(2).max(64),
+        lessonIndex: z.number().int().min(0).max(199),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const p = await requireCampusProfile(ctx.session);
+      const row = await prisma.profile.findUnique({
+        where: { id: p.id },
+        select: { progressionClaims: true },
+      });
+      let c = parseProgressionClaims(row?.progressionClaims);
+      const key = lessonOpenKey(input.areaId, input.lessonIndex);
+      if (c.lessonOpenSouvenirKeys?.[key]) {
+        return { ok: true as const, awarded: 0 as const };
+      }
+      await awardSouvenirs(prisma, p.id, SOUVENIR_REWARD_OPEN_LESSON, PROGRESSION_SOUVENIR_REASON.OPEN_LESSON, {
+        areaId: input.areaId,
+        lessonIndex: input.lessonIndex,
+      });
+      c = {
+        ...c,
+        lessonOpenSouvenirKeys: { ...c.lessonOpenSouvenirKeys, [key]: true },
+      };
+      await prisma.profile.update({
+        where: { id: p.id },
+        data: { progressionClaims: c as object },
+      });
+      return { ok: true as const, awarded: SOUVENIR_REWARD_OPEN_LESSON };
     }),
 
   /** Estado persistente do mapa + microaulas (Fase A). */
@@ -676,6 +731,26 @@ export const campusRouter = router({
     .input(z.object({ event: z.enum(["OPEN_PROFILE", "OPEN_CINEMA"]) }))
     .mutation(async ({ ctx, input }) => {
       const p = await requireCampusProfile(ctx.session);
+
+      if (input.event === "OPEN_CINEMA") {
+        const row = await prisma.profile.findUnique({
+          where: { id: p.id },
+          select: { progressionClaims: true },
+        });
+        let c = parseProgressionClaims(row?.progressionClaims);
+        const d = utcDayString();
+        if (c.liveEventSouvenirDayUtc !== d) {
+          await awardSouvenirs(prisma, p.id, SOUVENIR_REWARD_LIVE_EVENT, PROGRESSION_SOUVENIR_REASON.LIVE_EVENT, {
+            dayUtc: d,
+          });
+          c = { ...c, liveEventSouvenirDayUtc: d };
+          await prisma.profile.update({
+            where: { id: p.id },
+            data: { progressionClaims: c as object },
+          });
+        }
+      }
+
       const ids = campusMissionIdsForGuidedEvent(input.event);
       for (const missionId of ids) {
         const existing = await prisma.campusMissionProgress.findUnique({
@@ -1001,7 +1076,6 @@ export const campusRouter = router({
       }
 
       const found = findMicroLessonBlueprintById(input.blueprintId);
-      const amount = found ? enrichMicroLessonBlueprint(found.blueprint).xpReward : 16;
       const zoneLabel = found?.zone ?? row?.zoneLabel ?? "fundamentos";
 
       await prisma.userMicroLessonProgress.upsert({
@@ -1014,24 +1088,24 @@ export const campusRouter = router({
           zoneLabel,
           startedAt: new Date(),
           completedAt: new Date(),
-          xpEarned: amount
+          xpEarned: XP_REWARD_COMPLETE_LESSON
         },
         update: {
           completedAt: new Date(),
-          xpEarned: amount,
+          xpEarned: XP_REWARD_COMPLETE_LESSON,
           zoneLabel
         }
       });
 
-      await awardXp(prisma, p.id, amount, "COMPLETE_MICRO_LESSON", {
-        blueprintId: input.blueprintId
+      await recordCampusAction(prisma, p.id, "COMPLETE_MICRO_LESSON", {
+        meta: { blueprintId: input.blueprintId }
       });
 
-      await syncCampusBadgeUnlocks(prisma, p.id);
+      await tryAwardFirstCompletionOfDaySouvenirs(prisma, p.id);
 
       await refreshCampusRecommendedZones(prisma, p.id);
       await syncCampusGuidedMissions(prisma, p.id);
-      return { ok: true as const, xpAwarded: amount, alreadyDone: false as const };
+      return { ok: true as const, xpAwarded: XP_REWARD_COMPLETE_LESSON, alreadyDone: false as const };
     }),
 
   campusCoursePanelOpened: protectedProcedure
@@ -1144,27 +1218,6 @@ export const campusRouter = router({
     )
     .query(async ({ input }) => {
       const r = await resolveCampusLessonDbContent(input.areaId, input.lessonIndex);
-      // #region agent log
-      void fetch("http://127.0.0.1:7921/ingest/fedeaed6-2db0-4def-b356-f5bb89b86d65", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "91f9aa" },
-        body: JSON.stringify({
-          sessionId: "91f9aa",
-          runId: "lesson-content-pre",
-          hypothesisId: "H3",
-          location: "campus.ts:lessonFromDb",
-          message: "campus lesson DB resolve",
-          data: {
-            areaId: input.areaId,
-            lessonIndex: input.lessonIndex,
-            mode: r.mode,
-            reason: r.mode === "legacy" ? r.reason : null,
-            blockCount: r.mode === "db" ? r.lesson.blocks.length : null
-          },
-          timestamp: Date.now()
-        })
-      }).catch(() => {});
-      // #endregion
       if (r.mode !== "db") return null;
       return {
         title: r.lesson.title,
@@ -1179,6 +1232,19 @@ export const campusRouter = router({
         })),
       };
     }),
+
+  /**
+   * Leitura estática em `content/courses/<areaId>/lessons/<lessonId>.md` (sem Prisma/Moodle).
+   * Hoje suportado para `cannabis-101`; outras áreas devolvem `found: false`.
+   */
+  staticLessonMarkdown: publicProcedure
+    .input(
+      z.object({
+        areaId: z.string().min(1),
+        lessonIndex: z.number().int().min(0),
+      }),
+    )
+    .query(({ input }) => loadStaticLessonForAreaLesson(input.areaId, input.lessonIndex)),
 
   /** Iframe Bunny assinada (só com token de visualização ativo na biblioteca). */
   bunnyEmbedUrl: protectedProcedure
@@ -1207,16 +1273,59 @@ export const campusRouter = router({
     }
     const email = session.user.email;
     const displayName = session.user.name ?? "Aluno";
+
+    const existing = await prisma.profile.findUnique({
+      where: { email },
+      select: { streakDays: true, lastActive: true, progressionClaims: true },
+    });
+
+    const todayStart = utcDayStartMs(new Date());
+    const lastStart = existing?.lastActive ? utcDayStartMs(existing.lastActive) : null;
+    if (lastStart === todayStart && existing) {
+      return { streakDays: existing.streakDays };
+    }
+
+    let nextStreak = 1;
+    if (existing && lastStart !== null) {
+      const yesterdayStart = todayStart - 86_400_000;
+      if (lastStart === yesterdayStart) {
+        nextStreak = existing.streakDays + 1;
+      }
+    }
+
     const p = await prisma.profile.upsert({
       where: { email },
-      create: { email, displayName, streakDays: 1 },
+      create: { email, displayName, streakDays: 1, lastActive: new Date() },
       update: {
-        streakDays: { increment: 1 },
-        lastActive: new Date()
-      }
+        streakDays: nextStreak,
+        lastActive: new Date(),
+      },
+      select: { id: true, streakDays: true, progressionClaims: true },
     });
+
+    let claims = parseProgressionClaims(p.progressionClaims);
+    const dayStr = utcDayString();
+
+    if (claims.lastDailyLoginXpDayUtc !== dayStr) {
+      await awardXp(prisma, p.id, XP_REWARD_DAILY_LOGIN, PROGRESSION_XP_REASON.DAILY_LOGIN, {
+        dayUtc: dayStr,
+      });
+      claims = { ...claims, lastDailyLoginXpDayUtc: dayStr };
+    }
+
+    if (p.streakDays > 0 && p.streakDays % 7 === 0) {
+      await awardXp(prisma, p.id, XP_REWARD_STREAK_7_DAY, PROGRESSION_XP_REASON.STREAK_7_DAY, {
+        streakDays: p.streakDays,
+      });
+    }
+
+    await prisma.profile.update({
+      where: { email },
+      data: { progressionClaims: claims as object },
+    });
+
     return { streakDays: p.streakDays };
-  })
+  }),
 });
 
 export type CampusRouter = typeof campusRouter;

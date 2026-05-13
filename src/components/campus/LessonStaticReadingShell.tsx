@@ -195,9 +195,6 @@ export function LessonStaticReadingShell({
                     <summary className="cursor-pointer list-none px-3 py-2.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#c9a962]/85 marker:content-none [&::-webkit-details-marker]:hidden">
                       <span className="flex items-center justify-between gap-2">
                         Painel da sala
-                        <span className="text-[9px] font-normal normal-case tracking-normal text-white/38">
-                          tocar para expandir
-                        </span>
                       </span>
                     </summary>
                     <LessonHud variant="drawer" {...hudPanelProps!} />

@@ -1,0 +1,8 @@
+{
+  "courseId": "cannabis-101",
+  "version": 1,
+  "title": "CANNABIS 101 – Cultivo Medicinal e Recreativo",
+  "contentRoot": "lessons",
+  "description": "Conteúdo oficial em Markdown estático; ordem das aulas alinhada a CANNABIS101_LESSON_NODES no código. Regenerar ficheiros: npx --yes tsx scripts/build-cannabis101-lesson-md.mts",
+  "lessonCount": 17
+}

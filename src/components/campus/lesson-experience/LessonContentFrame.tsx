@@ -8,6 +8,7 @@
 import type { ReactNode } from "react";
 import type { LessonQuizItem } from "@/data/lessonContent/types";
 import { LessonStaticMarkdown } from "@/components/campus/LessonStaticMarkdown";
+import { cn } from "@/lib/utils";
 import {
   StreamQuizQuestion,
   type LessonQuizAcademicContext
@@ -25,7 +26,7 @@ export type LessonContentFrameProps = {
 
 export function LessonContentFrame({
   frameTitle,
-  sessionKicker = "Sessão de estudo",
+  sessionKicker = "",
   markdown,
   markdownClassName,
   quiz,
@@ -36,9 +37,6 @@ export function LessonContentFrame({
 
   const checkpointsBlock = quizList.length > 0 && (
     <div className="mt-8 border-t border-[rgba(255,255,255,0.1)] pt-6">
-      <p className="mb-4 text-center text-[11px] font-semibold uppercase tracking-[0.18em] text-white/45">
-        Checkpoints rápidos
-      </p>
       <div className="space-y-6">
         {quizList.map((q, i) => (
           <StreamQuizQuestion
@@ -58,10 +56,17 @@ export function LessonContentFrame({
   return (
     <>
       <header className="shrink-0 border-b border-[#b8860b]/10 bg-gradient-to-b from-[#0c0c0c] via-[#070707] to-[#050505] px-4 py-4 sm:px-7 sm:py-5">
-        <p className="text-[9px] font-semibold uppercase tracking-[0.26em] text-[#a08b5c]/88">
-          {sessionKicker}
-        </p>
-        <h2 className="mt-2 text-pretty text-lg font-semibold leading-[1.25] tracking-tight text-[#f7f2e9] sm:text-xl">
+        {sessionKicker.trim() ? (
+          <p className="text-[9px] font-semibold uppercase tracking-[0.26em] text-[#a08b5c]/88">
+            {sessionKicker}
+          </p>
+        ) : null}
+        <h2
+          className={cn(
+            "text-pretty text-lg font-semibold leading-[1.25] tracking-tight text-[#f7f2e9] sm:text-xl",
+            sessionKicker.trim() ? "mt-2" : "mt-0"
+          )}
+        >
           {frameTitle}
         </h2>
       </header>

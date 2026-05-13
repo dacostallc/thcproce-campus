@@ -64,6 +64,8 @@ model Profile {
   levelKey     String   @default("semente")
   streakDays   Int      @default(0)
   lastActive   DateTime @default(now())
+  /// Idempotência de recompensas (XP/souvenirs, chaves por dia UTC, etc.) — ver `src/lib/progression/claims.ts`.
+  progressionClaims Json @default("{}")
   // Progresso de aulas ({ [slug]: number[] }) em JSON texto
   lessonProgress String @default("{}")
   // Hash bcrypt (credenciais). OAuth pode deixar vazio.

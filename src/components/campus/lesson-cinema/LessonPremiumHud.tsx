@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { ProgressionHudStrip } from "@/components/progression/ProgressionHudStrip";
 import { cn } from "@/lib/utils";
-import { Award, CheckCircle2, Clock3, Flame, Sparkles, Target } from "lucide-react";
+import { CheckCircle2, Clock3, Sparkles, Target } from "lucide-react";
 import { XP_REWARD_COMPLETE_LESSON } from "@/lib/progression/xp";
 import type { LessonProgressionSnapshot } from "./lessonCinematicTypes";
 
@@ -78,9 +78,6 @@ export function LessonPremiumHud({
         <p className="text-[9px] font-semibold uppercase tracking-[0.22em] text-[#a08b5c]/90">
           Painel da sala
         </p>
-        <p className="mt-1 text-[10px] leading-relaxed text-white/42">
-          Resumo da tua presença nesta sessão — sem alterar regras de XP ou de progresso.
-        </p>
       </div>
 
       <div className="min-h-0 flex-1 space-y-3 overflow-y-auto overscroll-y-contain px-3 py-3 lesson-cinema-scroll">
@@ -120,9 +117,7 @@ export function LessonPremiumHud({
               </div>
               <p className="mt-1.5 text-[10px] leading-snug text-white/48">{dwellRemainingLabel}</p>
             </>
-          ) : (
-            <p className="mt-2 text-[10px] text-emerald-400/80">Permanência mínima cumprida.</p>
-          )}
+          ) : null}
         </div>
 
         {/* Progressão conta */}
@@ -144,47 +139,7 @@ export function LessonPremiumHud({
                 nextTierMinXp={progression.nextTierMinXp}
               />
             </div>
-          ) : (
-            <p className="mt-2 text-[11px] leading-relaxed text-white/50">
-              Entra na conta para veres XP, patamar e créditos souvenir em tempo real.
-            </p>
-          )}
-        </div>
-
-        {/* Mini marcos (somente leitura, derivados do estado já existente) */}
-        <div className="rounded-xl border border-[#2a2418]/80 bg-[#0a0a0a]/90 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
-          <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-wider text-[#c9a962]/85">
-            <Award className="size-3.5" aria-hidden />
-            Marcos da sessão
-          </div>
-          <ul className="mt-2 space-y-2 text-[10px] text-white/55">
-            <li className="flex items-start gap-2">
-              {alreadyComplete ? (
-                <CheckCircle2 className="mt-0.5 size-3.5 shrink-0 text-emerald-400/90" aria-hidden />
-              ) : (
-                <span className="mt-0.5 size-3.5 shrink-0 rounded-full border border-white/15" aria-hidden />
-              )}
-              <span>Aula marcada neste dispositivo</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <Flame className="mt-0.5 size-3.5 shrink-0 text-orange-400/70" aria-hidden />
-              <span>
-                Sequência:{" "}
-                {isAuthenticated && progression ? (
-                  <span className="tabular-nums text-white/75">{progression.streak} dias</span>
-                ) : (
-                  "—"
-                )}
-              </span>
-            </li>
-            <li className="flex items-start gap-2">
-              <Target className="mt-0.5 size-3.5 shrink-0 text-[#c9a962]/65" aria-hidden />
-              <span>
-                Próximo checkpoint:{" "}
-                <span className="text-white/75">+{XP_REWARD_COMPLETE_LESSON} XP base</span> na 1.ª conclusão com conta
-              </span>
-            </li>
-          </ul>
+          ) : null}
         </div>
 
         {/* Concluir — mesma ação que o toolbar anterior */}
@@ -219,17 +174,6 @@ export function LessonPremiumHud({
               </>
             )}
           </Button>
-          {alreadyComplete ? (
-            <p className="mt-2 text-[10px] leading-relaxed text-white/45">
-              Primeira conclusão nesta aula contou XP de base na progressão quando a conta está ligada.
-            </p>
-          ) : completeBlocked ? (
-            <p className="mt-2 text-[10px] leading-relaxed text-amber-200/65">{dwellRemainingLabel}</p>
-          ) : (
-            <p className="mt-2 text-[10px] leading-relaxed text-white/45">
-              O teu tempo nesta aula acumula mesmo que saias e voltes — mesmas regras de sempre.
-            </p>
-          )}
         </div>
       </div>
     </aside>

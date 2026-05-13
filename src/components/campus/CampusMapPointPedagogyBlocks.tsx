@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils";
 import { useStudentGamification } from "@/hooks/useStudentGamification";
 import {
   alignMissionChecklist,
+  getMapPointQuizPerAnswerCoinRule,
   isMapPointBundleComplete,
   persistMapPointQuizAnswer,
   persistMissionCheckToggle,
@@ -81,6 +82,8 @@ export function CampusMapPointPedagogyBlocks({
     if (!progressSlug) return {};
     return profile.mapPointProgressBySlug[progressSlug] ?? {};
   }, [progressSlug, profile.mapPointProgressBySlug]);
+
+  const perAnswerCoinRule = progressSlug ? getMapPointQuizPerAnswerCoinRule(progressSlug) : null;
 
   const entrySyncKey = progressSlug ? JSON.stringify(entry) : "";
 
@@ -237,6 +240,18 @@ export function CampusMapPointPedagogyBlocks({
               )}
             >
               {quiz.subtitle.trim()}
+            </p>
+          ) : null}
+          {perAnswerCoinRule ? (
+            <p
+              className={cn(
+                "mt-2 rounded-lg border px-2 py-1.5 text-[11px] leading-snug",
+                isDay ? "border-sky-400/35 bg-sky-50/80 text-sky-950/85" : "border-sky-400/25 bg-sky-950/25 text-sky-50/88"
+              )}
+            >
+              🪙 Sistema por pergunta: acerto <strong>+{perAnswerCoinRule.gain}</strong> moedas · erro{" "}
+              <strong>−{perAnswerCoinRule.loss}</strong> moedas (ao mudar de opção, o saldo corrige o efeito
+              anterior da mesma pergunta).
             </p>
           ) : null}
           {rewards?.xpTiers?.length ? (

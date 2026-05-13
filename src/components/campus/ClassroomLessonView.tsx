@@ -16,7 +16,8 @@ import {
   type LessonQuizAcademicContext
 } from "@/components/campus/LessonRichTabs";
 import { LessonTextReaderControls } from "@/components/campus/LessonTextReaderControls";
-import { getLessonSlideSpeakableText } from "@/lib/lessonTextReader";
+import { LessonSlideMarkdown } from "@/components/campus/LessonSlideMarkdown";
+import { CAMPUS_LESSON_UNSYNCED_PLACEHOLDER } from "@/lib/campus/buildPanelLessonRichContent";
 
 type Props = {
   content: LessonRichContent;
@@ -72,8 +73,7 @@ export function ClassroomLessonView({
   const slide: ClassroomSlide | undefined = slides[safeIdx];
   const lastSlide = Math.max(0, slides.length - 1);
 
-  const emptySlideSpeech =
-    "Não há texto disponível para esta aula neste ambiente. Use o Moodle ou aguarde a sincronização do conteúdo.";
+  const emptySlideSpeech = CAMPUS_LESSON_UNSYNCED_PLACEHOLDER;
   const slideDeckFingerprint = useMemo(
     () => slides.map((s) => s.id).join("\0"),
     [slides],
@@ -95,11 +95,11 @@ export function ClassroomLessonView({
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
       <div
         className={cn(
-          "flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border bg-[#0a100e] shadow-[0_20px_60px_rgba(0,0,0,0.45)]",
+          "flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border bg-[#0a100e]/90 shadow-[0_24px_64px_rgba(0,0,0,0.5)] backdrop-blur-[2px]",
           accentBorder
         )}
       >
-        <div className="relative z-0 flex min-h-0 flex-1 flex-col overflow-hidden px-4 py-4 sm:px-8 sm:py-6">
+        <div className="relative z-0 flex min-h-0 flex-1 flex-col overflow-hidden px-3 py-4 sm:px-6 sm:py-6">
           <AnimatePresence mode="wait">
             {slide ? (
               <motion.div
@@ -110,27 +110,29 @@ export function ClassroomLessonView({
                 transition={slideMotion.transition}
                 className="pointer-events-none flex min-h-0 flex-1 flex-col"
               >
-                <p className="pointer-events-auto shrink-0 text-center text-[10px] font-semibold uppercase tracking-[0.2em] text-white/40">
-                  {slide.title}
-                </p>
-                <div className="pointer-events-none mt-4 flex min-h-0 flex-1 flex-col justify-start">
-                  <div className="mx-auto w-full max-w-[42rem] min-h-0 flex-1 overflow-y-auto scrollbar-thin pointer-events-auto">
-                    {slide.kind === "text" ? (
-                      <p className="whitespace-pre-line px-1 text-center text-[15px] leading-[1.75] text-white/[0.92] sm:text-[16px] sm:leading-[1.78] md:text-[17px] md:leading-[1.76]">
-                        {slide.body}
+                <div className="pointer-events-none mt-5 flex min-h-0 flex-1 flex-col sm:mt-6">
+                  <div className="mx-auto flex min-h-0 w-full max-w-[44rem] flex-1 flex-col overflow-hidden rounded-xl border border-white/[0.07] bg-white/[0.02] shadow-inner backdrop-blur-[1px] pointer-events-auto">
+                    <div className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-5 pb-8 pt-6 scrollbar-thin sm:px-8 sm:pb-10 sm:pt-7 md:max-h-[min(58svh,520px)]">
+                      <p className="text-center text-[10px] font-semibold uppercase tracking-[0.22em] text-white/43">
+                        {slide.title}
                       </p>
-                    ) : (
-                      <div className="w-full text-left sm:px-1">
-                        <StreamQuizQuestion
-                          q={slide.question}
-                          displayOrdinal={slide.questionIndex + 1}
-                          quizStorageIndex={slide.questionIndex}
-                          cinematicHints={lessonQuizCinematic}
-                          quizContext={quizContext}
-                          classroomMode
-                        />
-                      </div>
-                    )}
+                      {slide.kind === "text" ? (
+                        <div className="mt-5 text-left tracking-[-0.01em] md:text-[17px]">
+                          <LessonSlideMarkdown markdown={slide.body} />
+                        </div>
+                      ) : (
+                        <div className="mt-6 w-full text-left">
+                          <StreamQuizQuestion
+                            q={slide.question}
+                            displayOrdinal={slide.questionIndex + 1}
+                            quizStorageIndex={slide.questionIndex}
+                            cinematicHints={lessonQuizCinematic}
+                            quizContext={quizContext}
+                            classroomMode
+                          />
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               </motion.div>

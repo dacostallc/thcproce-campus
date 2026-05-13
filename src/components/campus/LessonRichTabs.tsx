@@ -706,7 +706,7 @@ export function LessonRichTabs({
                   <p className="mb-1 text-[10px] font-bold uppercase tracking-widest text-white/40">
                     {c ? CAN101_STREAM_SECTION.intro : "Introdução"}
                   </p>
-                  <p className="text-white/90">{content.intro}</p>
+                  <p className="whitespace-pre-line text-white/90">{content.intro}</p>
                 </div>
               ) : null}
               {bodyParagraphs.length ? (

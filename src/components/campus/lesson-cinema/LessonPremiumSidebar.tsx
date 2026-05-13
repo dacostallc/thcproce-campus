@@ -35,9 +35,6 @@ export function LessonPremiumSidebar({
           <PanelLeft className="size-4" aria-hidden />
         </span>
         <div className="min-w-0 leading-tight">
-          <p className="text-[9px] font-semibold uppercase tracking-[0.2em] text-[#a08b5c]/90">
-            Trilha
-          </p>
           <p className="text-[11px] tabular-nums text-white/40">
             {lessonOrdinal.current} / {lessonOrdinal.total || "—"}
           </p>

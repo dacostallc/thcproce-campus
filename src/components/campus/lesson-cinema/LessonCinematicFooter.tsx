@@ -56,10 +56,6 @@ export function LessonCinematicFooter({
               </span>
             ))}
           </span>
-          <span className="hidden text-white/25 sm:inline" aria-hidden>
-            ·
-          </span>
-          <span className="text-emerald-400/55">Progresso local guardado neste dispositivo</span>
         </div>
 
         <div className="flex min-w-0 flex-1 flex-col items-stretch gap-2 sm:max-w-md sm:flex-none">

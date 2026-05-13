@@ -319,7 +319,7 @@ export function LessonPanel({
   const moodleSnippetQ = trpc.campus.moodleLessonSnippet.useQuery(
     { areaId: area?.id ?? "", lessonIndex: clampedLesson, lessonTitle: moodleMatchTitle },
     {
-      enabled: open && Boolean(area) && moodleSnippetSupported,
+      enabled: open && Boolean(area) && moodleSnippetSupported && !isCannabis101Room,
       staleTime: 60_000,
     },
   );
@@ -653,13 +653,14 @@ export function LessonPanel({
             </div>
           ) : null,
         staticLoadingLine:
-          staticLessonLoadEnabled && staticLessonQ.isFetching ? (
+          staticLessonLoadEnabled &&
+          staticLessonQ.isFetching &&
+          !(isCannabis101Room && panelLesson) ? (
             <p className="mb-2 shrink-0 text-xs text-white/45">Preparando a leitura da aula…</p>
           ) : null,
         staticReadingShell:
           staticLessonLoadEnabled &&
           staticLessonPayload &&
-          !staticLessonQ.isFetching &&
           (isCannabis101Room || !dbLessonQ.isFetching) ? (
             <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
               <LessonStaticReadingShell
@@ -705,7 +706,7 @@ export function LessonPanel({
         classroomLessonView:
           (isCannabis101Room || !dbLessonQ.isFetching) &&
           !showDbBlockRenderer &&
-          !staticLessonQ.isFetching &&
+          (!staticLessonQ.isFetching || isCannabis101Room) &&
           !staticLessonPayload &&
           panelLesson ? (
             <div className="flex min-h-0 flex-1 flex-col overflow-hidden">

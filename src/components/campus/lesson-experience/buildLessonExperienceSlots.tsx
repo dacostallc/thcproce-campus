@@ -104,17 +104,9 @@ function buildLessonChromeHeader(p: LessonChromeParams): ReactNode {
             Aula {lessonOrdinalOneBased} de {totalLessons || "—"}
           </p>
           {isCannabis101Room ? (
-            <>
-              <span id="lesson-panel-title" className="sr-only">
-                {displayLessonTitle} — {area.name}
-              </span>
-              <p
-                className="mt-2 text-sm font-medium leading-snug text-white/80 sm:text-base"
-                aria-hidden
-              >
-                Janela do curso · leitura e vídeo
-              </p>
-            </>
+            <span id="lesson-panel-title" className="sr-only">
+              {displayLessonTitle} — {area.name}
+            </span>
           ) : (
             <h2
               id="lesson-panel-title"
