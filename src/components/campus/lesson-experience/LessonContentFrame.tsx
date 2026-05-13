@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * Coluna central da experiência cinematográfica: título da sessão, vídeo, markdown, checkpoints.
+ * Coluna central da experiência cinematográfica: título da sessão, markdown, checkpoints.
  * Não inclui sidebar, HUD nem footer — compostos pelo pai.
  */
 
@@ -16,7 +16,6 @@ import {
 export type LessonContentFrameProps = {
   frameTitle: string;
   sessionKicker?: string;
-  videoSlot?: ReactNode;
   markdown: string;
   markdownClassName?: string;
   quiz?: readonly LessonQuizItem[] | undefined;
@@ -27,7 +26,6 @@ export type LessonContentFrameProps = {
 export function LessonContentFrame({
   frameTitle,
   sessionKicker = "Sessão de estudo",
-  videoSlot,
   markdown,
   markdownClassName,
   quiz,
@@ -67,19 +65,6 @@ export function LessonContentFrame({
           {frameTitle}
         </h2>
       </header>
-
-      {videoSlot ? (
-        <div className="min-h-0 shrink border-b border-[#b8860b]/8 bg-gradient-to-b from-black/60 to-[#050505] px-4 py-5 sm:px-7">
-          <div className="lesson-cinema-video-stage mx-auto min-h-0 w-full max-w-4xl overflow-hidden rounded-xl ring-1 ring-[#8a7040]/28 shadow-[0_24px_70px_rgba(0,0,0,0.65),0_0_0_1px_rgba(0,0,0,0.4)]">
-            <div className="aspect-video w-full min-h-0 max-h-[min(46vh,460px)] [&_iframe]:h-full [&_iframe]:min-h-[200px] [&_iframe]:w-full">
-              {videoSlot}
-            </div>
-          </div>
-          <p className="mx-auto mt-3 max-w-4xl text-center text-[10px] text-white/30">
-            Transmissão da sala · recursos premium quando configurados no campus
-          </p>
-        </div>
-      ) : null}
 
       <div className="lesson-cinema-scroll min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-3 py-4 sm:px-5">
         <div className="lesson-cinematic-floating-inner lesson-static-surface lesson-static-course-frame-dark mx-auto max-w-[44rem] rounded-2xl border border-white/[0.06] px-5 py-6 shadow-[0_16px_56px_rgba(0,0,0,0.42)] sm:px-9 sm:py-9">

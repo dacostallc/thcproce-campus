@@ -47,7 +47,7 @@ type Props = {
 
 /**
  * Moldura de leitura: Markdown + quiz + vídeo + navegação.
- * Cannabis 101: layout em duas colunas (índice + conteúdo), hero de mídia no topo, tema escuro.
+ * Cannabis 101: layout em duas colunas (índice + conteúdo), leitura no centro, tema escuro.
  */
 export function LessonStaticReadingShell({
   markdown,
@@ -207,7 +207,6 @@ export function LessonStaticReadingShell({
 
               <LessonContentFrame
                 frameTitle={frameTitle}
-                videoSlot={supplement}
                 markdown={markdown}
                 markdownClassName="!max-w-none lesson-static-content--cinematic"
                 quiz={quizList}
