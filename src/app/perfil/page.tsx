@@ -172,6 +172,7 @@ export default async function PerfilPage() {
         <ProfileAvatarEditor
           avatarType={profileRow.avatarType}
           avatarColor={profileRow.avatarColor}
+          xpTotal={profileRow.xpTotal}
           hatGlyph={
             profileRow.activeHatItem?.active ? profileRow.activeHatItem.displayGlyph : null
           }
