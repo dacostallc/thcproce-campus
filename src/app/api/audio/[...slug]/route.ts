@@ -1,62 +1,50 @@
+import { NextRequest, NextResponse } from "next/server";
 import fs from "node:fs";
 import path from "node:path";
-import { NextRequest, NextResponse } from "next/server";
 
 /**
  * GET /api/audio/<courseId>/<lessonId>.mp3
  *
  * Serve arquivos MP3 de public/audio/lessons/ com suporte a Range Requests
  * (HTTP 206 Partial Content), necessário para o elemento <audio> nativo
- * funcionar corretamente em dev (o servidor estático do Next.js não suporta
- * Range requests, causando ERR_CONNECTION_RESET).
+ * funcionar corretamente em dev — o servidor estático do Next.js não suporta
+ * Range requests, causando ERR_CONNECTION_RESET ao tentar seek ou stream.
  *
- * Em produção, os arquivos são servidos pelo Supabase Storage (URL pública),
- * então esta rota só é usada quando o áudio está armazenado localmente.
+ * Em produção, áudios servidos pelo Supabase/CDN usam URL absoluta e ignoram
+ * esta rota.
  */
 
 export const dynamic = "force-dynamic";
 
-const AUDIO_ROOT = path.join(process.cwd(), "public", "audio", "lessons");
-const SAFE_SEGMENT = /^[a-z0-9][a-z0-9\-_.]*$/i;
-
-function isSafePath(segments: string[]): boolean {
-  return (
-    segments.length >= 1 &&
-    segments.every((s) => SAFE_SEGMENT.test(s) && !s.includes(".."))
-  );
-}
+const PUBLIC_ROOT = path.join(process.cwd(), "public");
 
 export async function GET(
-  req: NextRequest,
-  { params }: { params: { slug: string[] } },
+  request: NextRequest,
+  { params }: { params: Promise<{ slug: string[] }> },
 ) {
-  const slug = params.slug ?? [];
+  // Next.js 15: params é uma Promise — deve ser aguardada
+  const { slug } = await params;
 
-  if (!isSafePath(slug)) {
-    return NextResponse.json({ error: "Caminho inválido." }, { status: 400 });
+  const relativePath = path.join(...slug);
+  const fullPath = path.join(PUBLIC_ROOT, relativePath);
+
+  // Impede path traversal fora de public/
+  if (!fullPath.startsWith(PUBLIC_ROOT)) {
+    return new NextResponse("Acesso não autorizado.", { status: 403 });
   }
 
-  const filePath = path.join(AUDIO_ROOT, ...slug);
-
-  // Impede path traversal fora de AUDIO_ROOT
-  if (!filePath.startsWith(AUDIO_ROOT)) {
-    return NextResponse.json({ error: "Acesso negado." }, { status: 403 });
+  if (!fs.existsSync(fullPath)) {
+    return new NextResponse("Arquivo não encontrado.", { status: 404 });
   }
 
-  let stat: fs.Stats;
-  try {
-    stat = fs.statSync(filePath);
-  } catch {
-    return NextResponse.json({ error: "Arquivo não encontrado." }, { status: 404 });
-  }
-
+  const stat = fs.statSync(fullPath);
   const fileSize = stat.size;
-  const rangeHeader = req.headers.get("range");
+  const range = request.headers.get("range");
 
-  // ── Sem Range → resposta completa (200) ──────────────────────────────────
-  if (!rangeHeader) {
-    const stream = fs.createReadStream(filePath);
-    return new Response(stream as unknown as ReadableStream, {
+  // ── Sem Range → arquivo completo (200) ───────────────────────────────────
+  if (!range) {
+    const fileStream = fs.createReadStream(fullPath);
+    return new NextResponse(fileStream as unknown as ReadableStream, {
       status: 200,
       headers: {
         "Content-Type": "audio/mpeg",
@@ -67,34 +55,27 @@ export async function GET(
     });
   }
 
-  // ── Com Range → resposta parcial (206) ───────────────────────────────────
-  const match = /bytes=(\d*)-(\d*)/.exec(rangeHeader);
-  if (!match) {
-    return new Response(null, {
-      status: 416,
-      headers: { "Content-Range": `bytes */${fileSize}` },
-    });
-  }
+  // ── Com Range → conteúdo parcial (206) ───────────────────────────────────
+  const parts = range.replace(/bytes=/, "").split("-");
+  const start = parseInt(parts[0], 10);
+  const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
 
-  const start = match[1] ? parseInt(match[1], 10) : 0;
-  const end = match[2] ? parseInt(match[2], 10) : fileSize - 1;
-
-  if (start > end || end >= fileSize) {
-    return new Response(null, {
+  if (start >= fileSize || end >= fileSize || start > end) {
+    return new NextResponse("Range não satisfatório.", {
       status: 416,
       headers: { "Content-Range": `bytes */${fileSize}` },
     });
   }
 
   const chunkSize = end - start + 1;
-  const stream = fs.createReadStream(filePath, { start, end });
+  const fileStream = fs.createReadStream(fullPath, { start, end });
 
-  return new Response(stream as unknown as ReadableStream, {
+  return new NextResponse(fileStream as unknown as ReadableStream, {
     status: 206,
     headers: {
-      "Content-Type": "audio/mpeg",
       "Content-Range": `bytes ${start}-${end}/${fileSize}`,
       "Content-Length": String(chunkSize),
+      "Content-Type": "audio/mpeg",
       "Accept-Ranges": "bytes",
       "Cache-Control": "public, max-age=86400",
     },
