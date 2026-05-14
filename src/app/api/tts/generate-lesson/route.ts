@@ -78,8 +78,8 @@ async function saveAudioFile(courseId: string, lessonId: string, buffer: Buffer)
   }
 
   // Local filesystem (dev / Vercel com volume persistente)
-  // Usa /api/audio/ em vez de /audio/ para que o servidor suporte Range Requests (206)
-  const dir = path.join(process.cwd(), "public", "audio", "lessons", courseId);
+  // Salva em public/audio/<courseId>/ → servido por /api/audio/<courseId>/<lessonId>.mp3
+  const dir = path.join(process.cwd(), "public", "audio", courseId);
   fs.mkdirSync(dir, { recursive: true });
   const file = path.join(dir, `${lessonId}.mp3`);
   fs.writeFileSync(file, buffer);

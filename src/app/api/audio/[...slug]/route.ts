@@ -5,10 +5,14 @@ import path from "node:path";
 /**
  * GET /api/audio/<courseId>/<lessonId>.mp3
  *
- * Serve arquivos MP3 de public/audio/lessons/ com suporte a Range Requests
+ * Serve arquivos MP3 de public/audio/<courseId>/ com suporte a Range Requests
  * (HTTP 206 Partial Content), necessário para o elemento <audio> nativo
  * funcionar corretamente em dev — o servidor estático do Next.js não suporta
  * Range requests, causando ERR_CONNECTION_RESET ao tentar seek ou stream.
+ *
+ * Mapeamento:
+ *   URL  →  /api/audio/cannabis-101/c101-l01.mp3
+ *   Disco →  public/audio/cannabis-101/c101-l01.mp3
  *
  * Em produção, áudios servidos pelo Supabase/CDN usam URL absoluta e ignoram
  * esta rota.
@@ -16,7 +20,7 @@ import path from "node:path";
 
 export const dynamic = "force-dynamic";
 
-const PUBLIC_ROOT = path.join(process.cwd(), "public");
+const AUDIO_ROOT = path.join(process.cwd(), "public", "audio");
 
 export async function GET(
   request: NextRequest,
@@ -25,12 +29,10 @@ export async function GET(
   // Next.js 15: params é uma Promise — deve ser aguardada
   const { slug } = await params;
 
-  // Os arquivos ficam em public/audio/lessons/<courseId>/<lessonId>.mp3
-  // A URL exposta é /api/audio/<courseId>/<lessonId>.mp3 (sem redundância)
-  const fullPath = path.join(PUBLIC_ROOT, "audio", "lessons", ...slug);
+  const relativePath = path.join(...slug);
+  const fullPath = path.join(AUDIO_ROOT, relativePath);
 
-  // Impede path traversal fora de public/audio/lessons/
-  const AUDIO_ROOT = path.join(PUBLIC_ROOT, "audio", "lessons");
+  // Impede path traversal fora de public/audio/
   if (!fullPath.startsWith(AUDIO_ROOT)) {
     return new NextResponse("Acesso não autorizado.", { status: 403 });
   }
