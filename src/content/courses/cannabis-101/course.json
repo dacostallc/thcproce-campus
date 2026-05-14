@@ -4,7 +4,7 @@
   "title": "CANNABIS 101 – Cultivo Medicinal e Recreativo",
   "contentRoot": "lessons",
   "description": "Conteúdo oficial em Markdown estático; ordem das aulas alinhada a CANNABIS101_LESSON_NODES no código. Regenerar ficheiros: npx --yes tsx scripts/build-cannabis101-lesson-md.mts",
-  "lessonCount": 17,
+  "lessonCount": 18,
   "lessons": [
     "c101-l01-boas-vindas",
     "c101-l02-o-que-e-cannabis",
@@ -22,6 +22,7 @@
     "c101-l13-formas-consumo",
     "c101-l14-legalidade-br-eua",
     "c101-l15-seguranca-limites",
-    "c101-l16-proximas-trilhas"
+    "c101-l16-proximas-trilhas",
+    "c101-l18-exame-final"
   ]
 }

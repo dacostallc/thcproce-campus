@@ -1,89 +1,70 @@
 ---
-title: "Continuando a jornada · Matriz de trilhas: ids reais dos cursos no campus"
-description: "Escolha um id de curso da matriz, um manual oficial ou livro-texto para 30 dias e um lembrete na agenda — compromisso público consigo."
-lessonIndex: 16
+title: "Conclusão · Parabéns — você completou o Cannabis 101"
+description: "Você chegou até aqui. Isso significa que você investiu tempo real para entender a planta com seriedade, ciência e responsabilidade."
+lessonIndex: 15
 stableId: "c101-l16-proximas-trilhas"
 ---
 
-# Continuando a jornada · Matriz de trilhas: ids reais dos cursos no campus
+# Conclusão — Parabéns, você completou o Cannabis 101
 
-## Introdução
+Você chegou até aqui.
 
-Chegamos no fecho orientador: mapa não é decoração — é decisão de pra onde você vai sem se machucar.
-
-Você escolhe trilha avançada olhando lei, corpo e biossegurança, não só hype de nome bonito.
-
-Matriz abaixo usa ids reais do campus THCProce; guarda isso como índice de vida.
+Isso não é trivial. Significa que você dedicou tempo real para entender a cannabis com **seriedade, ciência e responsabilidade** — longe do sensacionalismo, longe da desinformação, longe dos extremos.
 
 ---
 
-## Objetivos de aprendizagem
+## O que você aprendeu
 
-- Selecionar trilha alinhada a objetivo declarado citando ao menos dois ids de curso do mapa.
-- Reconhecer riscos específicos de extração e cultivo sem formação complementar.
-- Planejar revisão periódica do Cannabis 101 como âncora ética.
+Ao longo dessas 16 aulas, você construiu uma base sólida:
 
----
+**Sobre a planta:**
+Você sabe o que é cannabis, a diferença entre Indica, Sativa, Ruderalis e híbridos, como os genótipos são formados e por que a genética importa tanto quanto o ambiente.
 
-## Conteúdo principal
+**Sobre a química:**
+Você entende como canabinoides (THC, CBD, CBG, CBN) e terpenos trabalham juntos — o efeito entourage não é mais um mistério. Você sabe por que um extrato full spectrum é diferente de um isolado.
 
-### OBJETIVO.
+**Sobre o corpo:**
+Você conhece o sistema endocanabinoide — receptores CB1, CB2, como a cannabis interage com ele e por que cada pessoa responde de forma diferente.
 
-Selecionar próximo módulo usando objetivo declarado, pré-requisitos e riscos típicos.
+**Sobre o uso:**
+Você sabe distinguir formas de consumo, entende redução de danos, e tem clareza sobre limites seguros — sem moralismo, mas com responsabilidade.
 
-### MATRIZ DECISÓRIA (IDS DE CURSO NO MAPA).
-
-- Cultivo coberto / estufa — cultivo-greenhouse.
-- Campo aberto — cultivo-outdoor.
-- Sala fechada LED — cultivo-indoor.
-- Pós-colheita — secagem-cura.
-- Hash ice/rosin — extracoes-solventless.
-- Óleos e solventes (ciência + ética + segurança) — extracao-oleo.
-- Bancada analítica — laboratorio.
-- Medicina aprofundada — medicina.
-- Cozinha infundida — culinaria.
-- Genética — genetica.
-- Direito e políticas — legislacao.
-- Cooperativas — cooperativismo.
-- Indústria e carreira — industria.
-
-### PREPARAÇÃO FÍSICA GENÉRICA.
-
-Área ventilada para aromas fortes; kit EPI básico (luvas nitrílicas, óculos, máscara PFF2 para poeiras se política permitir) antes mesmo de aulas teóricas de extração.
-
-### PASSO A PASSO — escolha de carreira.
-
-1. Declare objetivo: pesquisa agronômica licenciada, apoio a paciente, comunicação científica, extração industrial.
-2. Liste lacunas (matemática de solução nutritiva, bioestatística, ética).
-3. Escolha uma trilha principal e uma paralela leve para manter base.
-
-### RISCOS SEM FORMAÇÃO ADICIONAL.
-
-Solventes hidrocarbonetos — incêndio; comunicação de doses sem contexto — responsabilidade ética; consultoria sem atualizar portarias — multa a cliente.
-
-### REVISÃO.
-
-Antes de indoor/outdoor, releia checklist da aula da planta e quiz da aula de COA — coerência técnica.
-
-### SÍNTESE.
-
-Curiosidade madura evita acidente previsível; retorno periódico ao 101 mantém ética.
-
-> Nota institucional: vídeos completos, PDFs e provas com validade formal ficam na sala digital THCProce; neste painel mantemos texto denso para estudo rápido no campus.
+**Sobre a lei:**
+Você tem uma visão do cenário legal no Brasil e nos EUA — onde estamos, para onde caminhamos e o que isso significa para pacientes, cultivadores e profissionais.
 
 ---
 
-## Resumo final
+## O que vem depois
 
-Escolha um id de curso da matriz, um manual oficial ou livro-texto para 30 dias e um lembrete na agenda — compromisso público consigo.
+O Cannabis 101 foi sua porta de entrada. O campus THCProce tem trilhas específicas para onde você quiser aprofundar:
+
+| Interesse | Trilha recomendada |
+|---|---|
+| Quero cultivar em casa | **Cultivo Indoor** ou **Cultivo Outdoor** |
+| Quero fazer extrações | **Extrações 101** → **Extrações Solventless** |
+| Tenho interesse terapêutico | **Medicina Canabinoide** |
+| Quero entender a legislação | **Legislação Cannabis** |
+| Quero montar uma associação | **Cooperativismo** |
+| Quero trabalhar na área | **Indústria Cannabis** |
 
 ---
 
-> **Nota do professor THCProce**
-> Roadmap visual do campus; coordenadores das salas fazem pitch de 90 s cada.
+## Uma palavra do Professor Sergio
+
+A cannabis é uma planta que exige respeito — não reverência mística, mas respeito científico e ético.
+
+Você agora tem o vocabulário para conversas sérias, a base para continuar aprendendo com qualidade, e — mais importante — o entendimento de que **conhecimento responsável protege você e as pessoas ao seu redor**.
+
+Continue com curiosidade. Continue com critério.
 
 ---
 
-## Para refletir
+## Próximo passo: Exame Final
 
-> Antes de seguir para conteúdo avançado de extração com solvente industrial, o que esta aula exige em formação e ambiente seguro — em contraste com improvisação doméstica ou tutorial solto na internet?
+A próxima aula é o **Exame Final do Cannabis 101**.
+
+São **10 perguntas** cobrindo os temas que você estudou. Para obter o **Certificado de Conclusão THCProce**, você precisa atingir **70% de acertos (7 de 10 perguntas)**.
+
+Você pode refazer o exame quantas vezes quiser.
+
+Boa prova.

@@ -13,6 +13,7 @@ import { useSession } from "next-auth/react";
 import type { Area } from "@/data/courses";
 import { cn } from "@/lib/utils";
 import { BlockRenderer } from "@/components/campus/blocks/BlockRenderer";
+import { LessonExamPanel } from "@/components/campus/LessonExamPanel";
 import { CampusLessonVideo } from "./CampusLessonVideo";
 import { ClassroomLessonView } from "./ClassroomLessonView";
 import { getLessonTitlesForArea } from "@/data/lessonOutline";
@@ -674,7 +675,12 @@ export function LessonPanel({
                 key={`static-${area.id}-${clampedLesson}`}
                 markdown={staticLessonPayload.markdownContent}
                 accent={accent}
-                audioId={{ courseId: staticLessonPayload.courseId, lessonId: staticLessonPayload.lessonId }}
+                audioId={
+                  // Aula de exame não tem narração
+                  staticLessonPayload.metadata?.type === "exam"
+                    ? undefined
+                    : { courseId: staticLessonPayload.courseId, lessonId: staticLessonPayload.lessonId }
+                }
                 quiz={manualLessonStream?.quiz}
                 quizContext={{ areaId: area.id, lessonIndex: clampedLesson }}
                 lessonOrdinal={{ current: clampedLesson + 1, total: titles.length }}
@@ -699,14 +705,22 @@ export function LessonPanel({
                 }
                 cinematicHud={cinematicHud}
                 supplement={
-                  <CampusLessonVideo
-                    areaId={area.id}
-                    areaName={area.name}
-                    lessonTitle={displayLessonTitle}
-                    lessonVisual="compact"
-                    hideFallback
-                    whenNone={isCannabis101Room ? "large" : "compact"}
-                  />
+                  staticLessonPayload.metadata?.type === "exam" ? (
+                    <LessonExamPanel
+                      courseId={area.id}
+                      lessonId={null}
+                      timeLimitSecs={0}
+                    />
+                  ) : (
+                    <CampusLessonVideo
+                      areaId={area.id}
+                      areaName={area.name}
+                      lessonTitle={displayLessonTitle}
+                      lessonVisual="compact"
+                      hideFallback
+                      whenNone={isCannabis101Room ? "large" : "compact"}
+                    />
+                  )
                 }
               />
             </div>
