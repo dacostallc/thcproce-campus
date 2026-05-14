@@ -202,6 +202,7 @@
 }
 
 .lesson-static-content table {
+  /* Mobile: scroll horizontal para tabelas largas */
   display: block;
   width: 100%;
   max-width: 100%;
@@ -214,9 +215,12 @@
   -webkit-overflow-scrolling: touch;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 640px) {
+  /* Em telas médias/grandes: tabela ocupa 100% da largura do card */
   .lesson-static-content table {
     display: table;
+    table-layout: auto;
+    width: 100%;
   }
 }
 
@@ -224,13 +228,22 @@
   background: var(--lesson-static-accent-soft);
 }
 
-.lesson-static-content th,
+.lesson-static-content th {
+  padding: 0.6rem 0.85rem;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--lesson-static-border);
+  /* Evita quebra de texto nos títulos (ex.: "Feminizadas", "Indoor/Outdoor") */
+  white-space: nowrap;
+  font-weight: 650;
+}
+
 .lesson-static-content td {
   padding: 0.6rem 0.85rem;
   text-align: left;
   vertical-align: top;
   border-bottom: 1px solid var(--lesson-static-border);
-  min-width: 5.5rem;
+  min-width: 4rem;
 }
 
 .lesson-static-content tbody tr:last-child th,

@@ -6,7 +6,7 @@
  * ficheiro; senão repositório (`lessonContent`); senão Moodle (legado); senão placeholder de sincronização.
  */
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { CheckCircle2, HardHat } from "lucide-react";
 import { useSession } from "next-auth/react";
@@ -45,6 +45,7 @@ import { useRewardToastStore } from "@/stores/rewardToastStore";
 import { isCampusAreaConstruction } from "@/config/campusAreaRollout";
 import { isCampusAdminEmail } from "@/lib/campusAdmin";
 import { CANNABIS101_AREA_ID } from "@/content/courses/cannabis-101";
+import { isCinematicCourse } from "@/content/courses/coursesRegistry";
 import {
   persistLessonDwellAccumulatedMs,
   readLessonDwellAccumulatedMs,
@@ -61,6 +62,7 @@ import {
   resolveLessonExperienceKind
 } from "@/components/campus/lesson-experience/buildLessonExperienceSlots";
 import { LessonExperienceShell } from "@/components/campus/lesson-experience/LessonExperienceShell";
+import { LessonContentSkeleton } from "@/components/campus/lesson-experience/LessonContentSkeleton";
 import { XP_REWARD_COMPLETE_LESSON } from "@/lib/progression/xp";
 
 function formatDwellRemaining(ms: number): string {
@@ -174,7 +176,9 @@ export function LessonPanel({
   }, [area, serverDone, localDoneAll, localTick, status]);
 
   const clampedLesson = titles.length ? Math.min(Math.max(0, lessonIndex), titles.length - 1) : 0;
-  const isCannabis101Room = area?.id === CANNABIS101_AREA_ID;
+  // Layout cinematográfico: sidebar, HUD de XP, botão "Concluir Aula".
+  // Ativado via `usesCinematicLayout: true` em coursesRegistry.ts — qualquer curso pode usar.
+  const isCannabis101Room = area?.id === CANNABIS101_AREA_ID || isCinematicCourse(area?.id);
 
   const trailProgressPct =
     titles.length > 0 ? Math.min(100, Math.round((doneSet.size / titles.length) * 100)) : 0;
@@ -642,7 +646,7 @@ export function LessonPanel({
         ) : null,
         dbSyncLine:
           dbLessonQ.isFetching && !isCannabis101Room ? (
-            <p className="mb-2 shrink-0 text-xs text-white/45">A sincronizar conteúdo da aula…</p>
+            <LessonContentSkeleton variant="content" className="mb-2" />
           ) : null,
         dbBlockRenderer:
           !dbLessonQ.isFetching && showDbBlockRenderer ? (
@@ -656,7 +660,10 @@ export function LessonPanel({
           staticLessonLoadEnabled &&
           staticLessonQ.isFetching &&
           !(isCannabis101Room && panelLesson) ? (
-            <p className="mb-2 shrink-0 text-xs text-white/45">Preparando a leitura da aula…</p>
+            <LessonContentSkeleton
+              variant={isCannabis101Room ? "cinema" : "content"}
+              className="mb-2"
+            />
           ) : null,
         staticReadingShell:
           staticLessonLoadEnabled &&
@@ -667,6 +674,7 @@ export function LessonPanel({
                 key={`static-${area.id}-${clampedLesson}`}
                 markdown={staticLessonPayload.markdownContent}
                 accent={accent}
+                audioId={{ courseId: staticLessonPayload.courseId, lessonId: staticLessonPayload.lessonId }}
                 quiz={manualLessonStream?.quiz}
                 quizContext={{ areaId: area.id, lessonIndex: clampedLesson }}
                 lessonOrdinal={{ current: clampedLesson + 1, total: titles.length }}

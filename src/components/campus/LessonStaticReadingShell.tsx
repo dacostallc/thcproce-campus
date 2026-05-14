@@ -43,6 +43,8 @@ type Props = {
   lessonNav?: LessonStaticNavProps;
   /** HUD direita + footer cinematográfico (opcional; recomendado com Cannabis 101). */
   cinematicHud?: LessonCinematicHudModel;
+  /** Se fornecido, exibe o player de narração ElevenLabs logo abaixo do título. */
+  audioId?: { courseId: string; lessonId: string };
 };
 
 /**
@@ -64,7 +66,8 @@ export function LessonStaticReadingShell({
   isCannabis101Room,
   lessonFrameTitle,
   lessonNav,
-  cinematicHud
+  cinematicHud,
+  audioId,
 }: Props) {
   const accentBorder =
     accent === "amber"
@@ -80,16 +83,6 @@ export function LessonStaticReadingShell({
   const quizList = quiz ?? [];
   const useCourseFrame = Boolean(isCannabis101Room && lessonNav && lessonNav.titles.length > 0);
   const frameTitle = (lessonFrameTitle ?? "").trim() || `Aula ${lessonOrdinal.current}`;
-
-  const devSourceLabel =
-    process.env.NODE_ENV === "development" ? (
-      <p
-        className="mb-4 rounded-md border border-dashed border-amber-500/35 bg-amber-500/10 px-2.5 py-1 text-center text-[10px] font-medium uppercase tracking-[0.14em] text-amber-200/85"
-        data-testid="lesson-static-source-dev"
-      >
-        Fonte: Markdown estático
-      </p>
-    ) : null;
 
   const footerNav = (
     <div
@@ -208,7 +201,7 @@ export function LessonStaticReadingShell({
                 markdownClassName="!max-w-none lesson-static-content--cinematic"
                 quiz={quizList}
                 quizContext={quizContext}
-                devSourceLabel={devSourceLabel}
+                audioId={audioId}
               />
 
               {hud ? (
@@ -245,21 +238,13 @@ export function LessonStaticReadingShell({
         )}
       >
         <div className="relative z-0 flex min-h-0 flex-1 flex-col overflow-hidden px-3 py-4 sm:px-6 sm:py-6">
-          <div className="mx-auto flex min-h-0 w-full max-w-[48rem] flex-1 flex-col overflow-hidden">
+          <div className="mx-auto flex min-h-0 w-full max-w-[60rem] flex-1 flex-col overflow-hidden">
             <div
               className={cn(
-                "lesson-static-surface min-h-0 flex-1 overflow-y-auto overscroll-y-contain rounded-xl px-5 py-6 scrollbar-thin sm:px-8 sm:py-8",
+                "lesson-static-surface min-h-0 flex-1 overflow-y-auto overscroll-y-contain rounded-xl px-4 py-5 scrollbar-thin sm:px-7 sm:py-7",
                 "md:max-h-[min(58svh,560px)]"
               )}
             >
-              {process.env.NODE_ENV === "development" ? (
-                <p
-                  className="mb-4 rounded-md border border-dashed border-[#0d6e4d]/35 bg-[#0d6e4d]/08 px-2.5 py-1 text-center text-[10px] font-medium uppercase tracking-[0.14em] text-[#0d5a40]/90"
-                  data-testid="lesson-static-source-dev"
-                >
-                  Fonte: Markdown estático
-                </p>
-              ) : null}
               <LessonStaticMarkdown markdown={markdown} />
               {quizList.length > 0 ? (
                 <div className="mt-8 border-t border-[rgba(15,31,24,0.12)] pt-6">

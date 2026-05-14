@@ -58,6 +58,14 @@ export type RegisteredCourseCapabilities = {
   primaryMux?: () => string;
   gate?: CourseGateDelegates;
   media?: CourseMediaHandles;
+  /**
+   * `true` → ativa o layout cinematográfico completo: sidebar de aulas agrupadas
+   * por categoria, HUD de XP/progresso lateral, botão "Concluir Aula" e player de
+   * narração ElevenLabs. Idêntico ao Cannabis 101.
+   *
+   * Requer `course.json` + arquivos `.md` em `src/content/courses/<areaId>/`.
+   */
+  usesCinematicLayout?: boolean;
 };
 
 /** Entrada aceite por `registerCourse()` — obrigatório: `manifest` com `areaId` (= `Area.id` no mapa). */

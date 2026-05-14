@@ -323,6 +323,27 @@ const AREA_FALLBACK_ROWS: Area[] = [
     professor: "Prof THC",
     lessons: 10,
     hours: "8h"
+  },
+  {
+    id: "extracoes-101",
+    name: "Extrações 101",
+    mapLabel: "Extrações",
+    short: "Do rosin caseiro ao CO₂ profissional — fundamentos, segurança e qualidade",
+    category: "Extração",
+    level: "Iniciante",
+    color: "purple",
+    position: { x: 62, y: 58 },
+    description:
+      "Do vocabulário básico às técnicas sem e com solvente, leitura de COA, armazenamento e ética do extratista — 17 aulas em PT-BR, tom técnico, sem receitas ilegais.",
+    highlights: [
+      "Rosin, bubble hash, dry sift e hash artesanal — sem solvente, seguro em casa",
+      "QWET, QWISO e CO₂ — com solvente: riscos, ventilação e purga",
+      "Leitura de COA: potência, terpenos e contaminantes",
+      "Marco legal BR e ética profissional do extratista"
+    ],
+    professor: "Equipa THCProce",
+    lessons: 17,
+    hours: "≈6h"
   }
 ];
 

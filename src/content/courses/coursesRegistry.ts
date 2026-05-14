@@ -48,6 +48,7 @@ import { LABORATORIO_MANIFEST } from "./laboratorio/manifest";
 import { LEGISLACAO_MANIFEST } from "./legislacao/manifest";
 import { COOPERATIVISMO_MANIFEST } from "./cooperativismo/manifest";
 import { INDUSTRIA_MANIFEST } from "./industria/manifest";
+import { EXTRACOES_101_MANIFEST } from "./extracoes-101/manifest";
 import { getCourseLessonTheme } from "@/data/courseLessonThemes";
 import { tryGetManualLessonsForCourse } from "@/data/lessonContent";
 
@@ -120,7 +121,8 @@ registerCourse({
   },
   primaryMux: getCannabis101PrimaryMuxPlaybackId,
   gate: CANN_GATE,
-  media: CANN_MEDIA
+  media: CANN_MEDIA,
+  usesCinematicLayout: true,   // ← blueprint: sidebar + HUD + Concluir Aula
 });
 
 registerCourse({ manifest: CULINARY_MANIFEST });
@@ -136,6 +138,12 @@ registerCourse({ manifest: LABORATORIO_MANIFEST });
 registerCourse({ manifest: LEGISLACAO_MANIFEST });
 registerCourse({ manifest: COOPERATIVISMO_MANIFEST });
 registerCourse({ manifest: INDUSTRIA_MANIFEST });
+
+// ── Extrações 101 — layout Blueprint completo (sidebar + HUD + Concluir Aula + narração) ──
+registerCourse({
+  manifest: EXTRACOES_101_MANIFEST,
+  usesCinematicLayout: true,
+});
 
 function capabilityFor(areaId: string | undefined): RegisteredCourseCapabilities | undefined {
   if (!areaId) return undefined;
@@ -185,6 +193,19 @@ export function getCourseMedia(areaId: string | undefined) {
 
 export function getCourseGate(areaId: string | undefined) {
   return capabilityFor(areaId)?.gate;
+}
+
+// ——— Layout cinematográfico ———
+
+/**
+ * Retorna `true` se o curso deve usar o layout completo do blueprint Cannabis 101:
+ * sidebar agrupada, HUD de XP, botão "Concluir Aula" e player de narração.
+ *
+ * Para activar num novo curso: `registerCourse({ ..., usesCinematicLayout: true })`.
+ */
+export function isCinematicCourse(areaId: string | undefined): boolean {
+  if (!areaId) return false;
+  return Boolean(REGISTERED_CAPABILITIES[areaId]?.usesCinematicLayout);
 }
 
 // ——— Compat Cannabis 101 (UI continua igual) ———

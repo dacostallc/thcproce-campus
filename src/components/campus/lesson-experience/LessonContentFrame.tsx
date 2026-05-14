@@ -1,13 +1,13 @@
 "use client";
 
 /**
- * Coluna central da experiência cinematográfica: título da sessão, markdown, checkpoints.
- * Não inclui sidebar, HUD nem footer — compostos pelo pai.
+ * Coluna central da experiência cinematográfica: título da sessão, player de narração,
+ * markdown e checkpoints. Não inclui sidebar, HUD nem footer — compostos pelo pai.
  */
 
-import type { ReactNode } from "react";
 import type { LessonQuizItem } from "@/data/lessonContent/types";
 import { LessonStaticMarkdown } from "@/components/campus/LessonStaticMarkdown";
+import { LessonAudioPlayer } from "@/components/campus/LessonAudioPlayer";
 import { cn } from "@/lib/utils";
 import {
   StreamQuizQuestion,
@@ -21,7 +21,8 @@ export type LessonContentFrameProps = {
   markdownClassName?: string;
   quiz?: readonly LessonQuizItem[] | undefined;
   quizContext: LessonQuizAcademicContext | null;
-  devSourceLabel?: ReactNode;
+  /** Identificadores para o player ElevenLabs. Omitir para não exibir. */
+  audioId?: { courseId: string; lessonId: string };
 };
 
 export function LessonContentFrame({
@@ -31,7 +32,7 @@ export function LessonContentFrame({
   markdownClassName,
   quiz,
   quizContext,
-  devSourceLabel
+  audioId,
 }: LessonContentFrameProps) {
   const quizList = quiz ?? [];
 
@@ -71,9 +72,20 @@ export function LessonContentFrame({
         </h2>
       </header>
 
-      <div className="lesson-cinema-scroll min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-3 py-4 sm:px-5">
-        <div className="lesson-cinematic-floating-inner lesson-static-surface lesson-static-course-frame-dark mx-auto max-w-[44rem] rounded-2xl border border-white/[0.06] px-5 py-6 shadow-[0_16px_56px_rgba(0,0,0,0.42)] sm:px-9 sm:py-9">
-          {devSourceLabel}
+      <div className="lesson-cinema-scroll min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-2 py-3 sm:px-3">
+        <div className="lesson-cinematic-floating-inner lesson-static-surface lesson-static-course-frame-dark mx-auto w-full max-w-[62rem] rounded-2xl border border-white/[0.06] px-4 py-5 shadow-[0_16px_56px_rgba(0,0,0,0.42)] sm:px-7 sm:py-7">
+
+          {/* Player de narração — imediatamente após o título, antes do conteúdo */}
+          {audioId && (
+            <div className="mb-5">
+              <LessonAudioPlayer
+                courseId={audioId.courseId}
+                lessonId={audioId.lessonId}
+                lessonTitle={frameTitle}
+              />
+            </div>
+          )}
+
           <LessonStaticMarkdown markdown={markdown} className={markdownClassName} />
           {checkpointsBlock}
         </div>

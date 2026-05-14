@@ -156,6 +156,25 @@ export const COURSE_OUTLINES: Record<string, readonly string[]> = {
     "Escalonamento sem perder a missão",
     "Checklist cooperativismo medicinal responsável"
   ],
+  "extracoes-101": [
+    "Fundamentos · O que são extratos de cannabis?",
+    "Fundamentos · Canabinoides e terpenos — o que preservamos",
+    "Fundamentos · Vocabulário técnico: concentrado, extrato, full-spectrum",
+    "Fundamentos · Segurança no laboratório doméstico",
+    "Sem Solvente · Rosin: prensa manual e hidráulica",
+    "Sem Solvente · Bubble hash: água, gelo e agitação",
+    "Sem Solvente · Dry sift: peneiras, classificação e grading",
+    "Sem Solvente · Hash artesanal: charas, malha e cura",
+    "Com Solvente · Álcool: QWET, QWISO e purga",
+    "Com Solvente · CO₂: conceito e equipamentos profissionais",
+    "Com Solvente · Segurança: ventilação, EPI e descarte",
+    "Qualidade · Leitura de COA: potência, terpenos e contaminantes",
+    "Qualidade · Textura, cor e consistência dos extratos",
+    "Qualidade · Armazenamento: temperatura, luz e oxidação",
+    "Regulamentação · Marco legal no Brasil: uso medicinal e pesquisa",
+    "Regulamentação · Ética do extratista: limites e responsabilidade",
+    "Continuando a Jornada · Próximas trilhas no campus"
+  ],
   industria: [
     "Licenciamento: arcabouço conceitual (Brasil/LATAM)",
     "Marca, rótulo e claims permitidos",
