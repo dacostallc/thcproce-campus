@@ -90,6 +90,14 @@ const nextConfig = {
         "./content/courses/**",
       ],
     },
+    // Exclui MP3s gerados localmente do bundle serverless (>300MB no Vercel).
+    // Em produção o áudio é servido pelo Supabase Storage — esses arquivos
+    // existem apenas no filesystem de dev e não devem ser empacotados.
+    outputFileTracingExcludes: {
+      "*": [
+        "./public/audio/**",
+      ],
+    },
   },
   images: {
     formats: ["image/avif", "image/webp"],
