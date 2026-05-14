@@ -69,19 +69,19 @@ export function LessonStaticMarkdown({
   }
 
   /**
-   * Determina se um parágrafo está activo no momento de reprodução.
-   * O parágrafo com maior `startTime <= audioCurrentTime` é o activo.
+   * Determina se um parágrafo está activo dado o currentTime do áudio.
+   * Usa o próximo timestamp como endTime implícito — o parágrafo acende
+   * quando currentTime >= startTime e apaga quando currentTime >= próximo startTime.
    */
   function isActiveParagraph(startTime: number): boolean {
     if (audioCurrentTime === undefined || !paragraphTimestamps?.length) return false;
     if (startTime > audioCurrentTime) return false;
 
-    // Verifica se não há nenhum timestamp posterior que também já passou
-    const nextAfter = paragraphTimestamps
-      .map((pt) => pt.startTime)
-      .filter((t) => t > startTime && t <= audioCurrentTime);
+    const sorted = [...paragraphTimestamps].sort((a, b) => a.startTime - b.startTime);
+    const idx = sorted.findIndex((pt) => pt.startTime === startTime);
+    const endTime = sorted[idx + 1]?.startTime ?? Infinity;
 
-    return nextAfter.length === 0;
+    return audioCurrentTime >= startTime && audioCurrentTime < endTime;
   }
 
   const components: Components = {
@@ -139,14 +139,12 @@ export function LessonStaticMarkdown({
           onClick={clickable ? () => onParagraphClick?.(ts) : undefined}
           title={clickable ? `Ouvir este trecho (${ts.toFixed(1)}s)` : undefined}
           className={cn(
-            "rounded-sm px-1 transition-all duration-300",
-            // Highlighting sincronizado com o áudio
+            "rounded p-1 transition-all duration-300",
             active
-              ? "bg-lime-500/12 text-lime-100 shadow-[inset_2px_0_0_rgba(132,204,22,0.6)]"
-              : "text-inherit",
-            // Click-to-seek hover (só quando clicável)
-            clickable && !active && "cursor-pointer hover:bg-lime-500/8 hover:text-lime-200/90",
-            clickable && active && "cursor-pointer",
+              ? "scale-[1.01] bg-emerald-950/40 font-medium text-emerald-400"
+              : "text-neutral-300",
+            clickable && "cursor-pointer",
+            clickable && !active && "hover:bg-emerald-950/20 hover:text-emerald-300/70",
           )}
         >
           {children}
