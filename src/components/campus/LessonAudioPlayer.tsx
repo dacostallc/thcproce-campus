@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Loader2, Mic } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { trpc } from "@/lib/trpc/react";
@@ -12,70 +12,78 @@ type Props = {
   className?: string;
 };
 
+type PlayerState = "loading" | "ready" | "generate";
+
+const getAudioUrl = (courseId: string, lessonId: string) =>
+  `/api/audio/${courseId}/${lessonId}.mp3`;
+
 /**
- * Player de narração ElevenLabs.
+ * Player de narração — resolve a URL do áudio em três etapas sequenciais:
  *
- * Estratégia de resolução da URL (em ordem de prioridade):
- *  1. HEAD probe na URL local determinística /api/audio/<courseId>/<lessonId>.mp3
- *     → Se o arquivo existir em disco, usa imediatamente (sem depender do DB).
- *  2. Query ao DB via tRPC (fallback para URLs externas como Supabase/CDN).
- *  3. Se nenhuma URL encontrada → botão "Gerar narração" (chama ElevenLabs).
- *
- * Isso garante que após a primeira geração, recarregar a página sempre exibe
- * o player sem disparar nova requisição ao ElevenLabs.
+ *  1. HEAD probe na URL determinística /api/audio/<courseId>/<lessonId>.mp3
+ *     → instantâneo, sem DB, sem ElevenLabs.
+ *  2. Fallback: query ao DB via tRPC (URLs externas como Supabase/CDN).
+ *  3. Nada encontrado → estado "generate" (botão ElevenLabs aparece SÓ aqui).
  */
 export function LessonAudioPlayer({ courseId, lessonId, className }: Props) {
   const utils = trpc.useUtils();
 
-  // URL resolvida — local (HEAD probe) ou externa (DB)
-  const [resolvedUrl, setResolvedUrl] = useState<string | null>(null);
-
-  // 'probing' → fazendo HEAD | 'done' → probe concluído
-  const [probeState, setProbeState] = useState<"probing" | "done">("probing");
-
-  // Estado de geração
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [playerState, setPlayerState] = useState<PlayerState>("loading");
   const [generating, setGenerating] = useState(false);
   const [generateError, setGenerateError] = useState<string | null>(null);
 
-  const predictableUrl = `/api/audio/${courseId}/${lessonId}.mp3`;
-
-  // ── 1. HEAD probe na URL local ─────────────────────────────────────────────
+  // ── Resolução sequencial da URL ────────────────────────────────────────────
   useEffect(() => {
-    let cancelled = false;
-    void (async () => {
+    let isMounted = true;
+
+    async function resolveAudio() {
+      if (!courseId || !lessonId) return;
+      setPlayerState("loading");
+
+      // 1. HEAD probe — verifica o arquivo local sem baixá-lo
+      const targetUrl = getAudioUrl(courseId, lessonId);
       try {
-        const res = await fetch(predictableUrl, { method: "HEAD" });
-        if (!cancelled && res.ok) {
-          setResolvedUrl(predictableUrl);
+        const res = await fetch(targetUrl, { method: "HEAD" });
+        if (!isMounted) return;
+        if (res.ok) {
+          setAudioUrl(targetUrl);
+          setPlayerState("ready");
+          return;
         }
       } catch {
-        // arquivo não existe localmente — cai no fallback DB
-      } finally {
-        if (!cancelled) setProbeState("done");
+        // arquivo não existe localmente, continua para o fallback
       }
-    })();
-    return () => { cancelled = true; };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [predictableUrl]);
 
-  // ── 2. Fallback: query ao DB (apenas se probe não encontrou arquivo local) ──
-  const skipDbQuery = resolvedUrl !== null;
-  const { data: audioData, isLoading: dbLoading } = trpc.campus.lessonAudioUrl.useQuery(
-    { courseId, lessonId },
-    {
-      enabled: probeState === "done" && !skipDbQuery,
-      staleTime: 0,   // sempre busca fresco — o probe é quem faz cache natural
-      retry: false,
-    },
-  );
+      if (!isMounted) return;
 
-  useEffect(() => {
-    if (audioData?.url && !resolvedUrl) {
-      setResolvedUrl(audioData.url);
+      // 2. Fallback DB — busca URL externa (Supabase/CDN) via tRPC imperativo
+      try {
+        const data = await utils.campus.lessonAudioUrl.fetch(
+          { courseId, lessonId },
+          { staleTime: 0 },
+        );
+        if (!isMounted) return;
+        if (data?.url) {
+          setAudioUrl(data.url);
+          setPlayerState("ready");
+          return;
+        }
+      } catch {
+        // DB inacessível — cai para geração
+      }
+
+      if (!isMounted) return;
+
+      // 3. Nada encontrado → exibe botão de geração
+      setPlayerState("generate");
     }
-  }, [audioData?.url, resolvedUrl]);
 
-  // ── 3. Geração via ElevenLabs ──────────────────────────────────────────────
+    void resolveAudio();
+    return () => { isMounted = false; };
+  }, [courseId, lessonId, utils.campus.lessonAudioUrl]);
+
+  // ── Geração via ElevenLabs ─────────────────────────────────────────────────
   async function handleGenerate() {
     setGenerating(true);
     setGenerateError(null);
@@ -89,7 +97,8 @@ export function LessonAudioPlayer({ courseId, lessonId, className }: Props) {
       if (!res.ok || !json.audioUrl) {
         throw new Error(json.error ?? `Erro ${res.status}`);
       }
-      setResolvedUrl(json.audioUrl);
+      setAudioUrl(json.audioUrl);
+      setPlayerState("ready");
       void utils.campus.lessonAudioUrl.invalidate({ courseId, lessonId });
     } catch (e) {
       setGenerateError(e instanceof Error ? e.message : "Falha ao gerar narração.");
@@ -100,9 +109,7 @@ export function LessonAudioPlayer({ courseId, lessonId, className }: Props) {
 
   // ── Renderização ───────────────────────────────────────────────────────────
 
-  // ① Aguardando probe + DB
-  const isResolving = probeState === "probing" || (probeState === "done" && !skipDbQuery && dbLoading);
-  if (isResolving && !resolvedUrl) {
+  if (playerState === "loading") {
     return (
       <div className={cn("flex items-center gap-2 text-[11px] text-white/30", className)}>
         <Loader2 className="size-3.5 animate-spin" />
@@ -111,8 +118,7 @@ export function LessonAudioPlayer({ courseId, lessonId, className }: Props) {
     );
   }
 
-  // ② URL resolvida → player nativo
-  if (resolvedUrl) {
+  if (playerState === "ready" && audioUrl) {
     return (
       <div
         className={cn("my-1 rounded-xl border border-lime-500/30 bg-slate-900 p-4", className)}
@@ -124,22 +130,19 @@ export function LessonAudioPlayer({ courseId, lessonId, className }: Props) {
         </p>
         {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
         <audio
-          key={resolvedUrl}
+          key={audioUrl}
           controls
-          src={resolvedUrl}
+          src={audioUrl}
           preload="metadata"
           className="h-10 w-full accent-lime-500"
           aria-label="Narração da aula"
-          onError={() => {
-            // Arquivo sumiu do disco ou URL expirou → volta para geração
-            setResolvedUrl(null);
-          }}
+          onError={() => setPlayerState("generate")}
         />
       </div>
     );
   }
 
-  // ③ Sem URL → botão "Gerar narração"
+  // playerState === "generate" — SÓ aqui o ElevenLabs pode ser acionado
   return (
     <div className={cn("flex flex-wrap items-center gap-2", className)}>
       <button
