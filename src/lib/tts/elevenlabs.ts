@@ -84,59 +84,64 @@ export interface ParagraphTimestamp {
 }
 
 /**
- * Gera narração com alinhamento caractere-a-caractere.
- * Deriva timestamps de parágrafo a partir dos dados de alinhamento retornados
- * pela API ElevenLabs e retorna junto com o buffer MP3.
- *
- * @param text      Texto puro completo da aula.
- * @param paragraphs Lista dos parágrafos originais (para mapear offsets).
+ * Gera narração via streaming e retorna o Buffer completo.
+ * Usa `client.generate()` que entrega chunks conforme chegam — evita
+ * esperar o MP3 inteiro em memória antes de retornar (o que causava timeout
+ * com `convertWithTimestamps` para textos longos).
  */
 export async function generateVoiceoverWithTimestamps(
   text: string,
   paragraphs: string[],
 ): Promise<{ buffer: Buffer; paragraphTimestamps: ParagraphTimestamp[] }> {
-  const client = getClient();
-  const voiceId = resolveVoiceId();
-  const modelId = resolveModelId();
+  // Fase 1: streaming do áudio completo (rápido, não bufferiza tudo de uma vez)
+  const buffer = await generateVoiceover(text);
 
-  const result = await client.textToSpeech.convertWithTimestamps(voiceId, {
-    text,
-    model_id: modelId,
-    voice_settings: { ...THCPROCE_VOICE_SETTINGS },
-    output_format: "mp3_44100_128",
-  });
+  // Fase 2: timestamps — chamada separada apenas para o primeiro trecho
+  // (max 2 000 chars) para não ultrapassar o tempo de gateway.
+  // Se falhar por qualquer motivo, retorna timestamps vazios graciosamente.
+  const TIMESTAMP_MAX_CHARS = 2_000;
+  const shortText = text.slice(0, TIMESTAMP_MAX_CHARS);
+  const shortParagraphs = paragraphs.filter((p) =>
+    shortText.includes(p.trim().slice(0, 40)),
+  );
 
-  // Decodifica o base64 retornado pela API para Buffer
-  const buffer = Buffer.from(result.audio_base64 ?? "", "base64");
+  let paragraphTimestamps: ParagraphTimestamp[] = [];
 
-  // Alinhamento caractere → segundo
-  const chars: string[]  = result.alignment?.characters ?? [];
-  const starts: number[] = result.alignment?.character_start_times_seconds ?? [];
+  if (shortParagraphs.length > 0) {
+    try {
+      const client = getClient();
+      const voiceId = resolveVoiceId();
+      const modelId = resolveModelId();
 
-  // Para cada parágrafo, encontra o offset do primeiro caractere no texto
-  // completo e busca o tempo inicial correspondente no array de alinhamento
-  const paragraphTimestamps: ParagraphTimestamp[] = [];
-  let searchFrom = 0;
+      const result = await client.textToSpeech.convertWithTimestamps(voiceId, {
+        text: shortText,
+        model_id: modelId,
+        voice_settings: { ...THCPROCE_VOICE_SETTINGS },
+        output_format: "mp3_44100_128",
+      });
 
-  for (const para of paragraphs) {
-    const trimmed = para.trim();
-    if (!trimmed) continue;
+      const chars: string[]  = result.alignment?.characters ?? [];
+      const starts: number[] = result.alignment?.character_start_times_seconds ?? [];
+      let searchFrom = 0;
 
-    // Procura o parágrafo no texto a partir de where última busca terminou
-    const idx = text.indexOf(trimmed, searchFrom);
-    if (idx === -1) continue;
-
-    // Conta quantos chars o ElevenLabs mapeou até esse offset
-    // (o alinhamento pode ter menos chars que o texto por normalização)
-    const charIdx = Math.min(idx, chars.length - 1);
-    const startTime = starts[charIdx] ?? 0;
-
-    paragraphTimestamps.push({
-      text: trimmed.slice(0, 80),
-      startTime: Math.round(startTime * 10) / 10, // arredonda para 0.1s
-    });
-
-    searchFrom = idx + trimmed.length;
+      for (const para of shortParagraphs) {
+        const trimmed = para.trim();
+        if (!trimmed) continue;
+        const idx = shortText.indexOf(trimmed, searchFrom);
+        if (idx === -1) continue;
+        const charIdx = Math.min(idx, chars.length - 1);
+        const startTime = starts[charIdx] ?? 0;
+        paragraphTimestamps.push({
+          text: trimmed.slice(0, 80),
+          startTime: Math.round(startTime * 10) / 10,
+        });
+        searchFrom = idx + trimmed.length;
+      }
+    } catch (e) {
+      // Timestamps são opcionais — o áudio principal já foi gerado
+      console.warn("[ElevenLabs] Timestamps skipped:", e instanceof Error ? e.message : e);
+      paragraphTimestamps = [];
+    }
   }
 
   return { buffer, paragraphTimestamps };

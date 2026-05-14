@@ -6,6 +6,7 @@ import { generateVoiceoverWithTimestamps, isTtsConfigured, type ParagraphTimesta
 
 // Aulas longas podem levar até ~60s para sintetizar no ElevenLabs
 export const maxDuration = 60;
+export const dynamic = "force-dynamic";
 
 /**
  * POST /api/tts/generate-lesson
