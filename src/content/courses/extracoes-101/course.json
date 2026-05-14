@@ -1,0 +1,25 @@
+{
+  "courseId": "extracoes-101",
+  "version": 1,
+  "title": "Extrações 101 — Do Rosin ao CO₂",
+  "lessonCount": 17,
+  "lessons": [
+    "ext-l01-o-que-sao-extratos",
+    "ext-l02-canabinoides-terpenos-extratos",
+    "ext-l03-vocabulario-tecnico",
+    "ext-l04-seguranca-laboratorio",
+    "ext-l05-rosin-prensa",
+    "ext-l06-bubble-hash",
+    "ext-l07-dry-sift",
+    "ext-l08-hash-artesanal",
+    "ext-l09-alcool-qwet-qwiso",
+    "ext-l10-co2-conceito",
+    "ext-l11-limpeza-solvente-riscos",
+    "ext-l12-leitura-coa-extratos",
+    "ext-l13-textura-cor-consistencia",
+    "ext-l14-armazenamento-conservacao",
+    "ext-l15-marco-legal-brasil",
+    "ext-l16-etica-extratista",
+    "ext-l17-proximas-trilhas"
+  ]
+}
