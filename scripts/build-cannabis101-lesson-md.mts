@@ -26,7 +26,15 @@ const { CANNABIS101_LESSON_NODES } = lessonsMod as {
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname, "..");
-const outDir = path.join(root, "content", "courses", "cannabis-101", "lessons");
+/**
+ * Destino canónico: `src/content/courses/cannabis-101/` — co-localizado com os
+ * TypeScript sources do curso (manifest, lessonBodies, etc.) e incluído no bundle
+ * do Vercel via `outputFileTracingIncludes` em `next.config.mjs`.
+ *
+ * Caminho legado `content/courses/cannabis-101/lessons/` ainda funciona via
+ * fallback em `staticLessonLoader.ts`, mas novos builds escrevem aqui.
+ */
+const outDir = path.join(root, "src", "content", "courses", "cannabis-101");
 
 /**
  * «Para refletir» em pergunta fechada na prosa. O primeiro item do quiz às vezes é só o enunciado

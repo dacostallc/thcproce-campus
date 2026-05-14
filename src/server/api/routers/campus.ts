@@ -551,6 +551,11 @@ export const campusRouter = router({
     return { badges, streakDays: p?.streakDays ?? 0 };
   }),
 
+  /**
+   * Progresso de aulas por área.
+   * Leitura dual: UserCourseProgress (relacional, novo) + Profile.lessonProgress (JSON legado).
+   * UserCourseProgress tem precedência por slug quando ambos existem; os índices são mesclados.
+   */
   lessonProgressMine: protectedProcedure.query(async ({ ctx }) => {
     const session = ctx.session;
     if (!session?.user?.email) {
@@ -558,11 +563,40 @@ export const campusRouter = router({
     }
     const p = await prisma.profile.findUnique({
       where: { email: session.user.email },
-      select: { lessonProgress: true }
+      select: {
+        id: true,
+        lessonProgress: true,
+        courseProgresses: {
+          select: { courseSlug: true, completedLessonIndices: true },
+        },
+      },
     });
-    return { byArea: parseLessonMap(p?.lessonProgress) };
+
+    // Base: JSON legado { [areaId]: number[] }
+    const byArea: Record<string, number[]> = parseLessonMap(p?.lessonProgress);
+
+    // Merge com fonte relacional (UserCourseProgress tem precedência por slug)
+    for (const row of p?.courseProgresses ?? []) {
+      const relational = Array.isArray(row.completedLessonIndices)
+        ? (row.completedLessonIndices as unknown[]).filter(
+            (x): x is number => typeof x === "number" && Number.isInteger(x),
+          )
+        : [];
+      const legacy = byArea[row.courseSlug] ?? [];
+      // União dos dois conjuntos, ordenada — preserva dados que só existem em um dos lados
+      byArea[row.courseSlug] = [...new Set([...legacy, ...relational])].sort(
+        (a, b) => a - b,
+      );
+    }
+
+    return { byArea };
   }),
 
+  /**
+   * Marca uma aula como vista/concluída.
+   * Usa $transaction para evitar race condition quando múltiplas aulas são marcadas
+   * simultaneamente (cada uma lia {} e sobrescrevia o resultado da anterior).
+   */
   lessonMarkSeen: protectedProcedure
     .input(
       z.object({
@@ -578,27 +612,41 @@ export const campusRouter = router({
       const email = session.user.email;
       const displayName = session.user.name ?? "Aluno";
 
-      const existing = await prisma.profile.findUnique({ where: { email } });
-      const lpMap = parseLessonMap(existing?.lessonProgress);
+      // $transaction com SELECT … FOR UPDATE (serializable) elimina a race condition:
+      // leitura e escrita do lessonProgress acontecem atomicamente.
+      const { pr, lpMap, wasNew } = await prisma.$transaction(async (tx) => {
+        const existing = await tx.profile.findUnique({ where: { email } });
+        const lpMap = parseLessonMap(existing?.lessonProgress);
+        const arr = [...(lpMap[input.areaId] ?? [])];
+        const wasNew = !arr.includes(input.lessonIndex);
+        arr.push(input.lessonIndex);
+        lpMap[input.areaId] = [...new Set(arr)].sort((a, b) => a - b);
+        const pr = await tx.profile.upsert({
+          where: { email },
+          create: { email, displayName, xpTotal: 0, levelKey: "iniciante", lessonProgress: JSON.stringify(lpMap) },
+          update: { lessonProgress: JSON.stringify(lpMap) },
+          select: { id: true }
+        });
+        return { pr, lpMap, wasNew };
+      });
 
-      const arr = [...(lpMap[input.areaId] ?? [])];
-      const wasNew = !arr.includes(input.lessonIndex);
-      arr.push(input.lessonIndex);
-      lpMap[input.areaId] = [...new Set(arr)].sort((a, b) => a - b);
-
-      const pr = await prisma.profile.upsert({
-        where: { email },
+      const completedArr = lpMap[input.areaId] ?? [];
+      await prisma.userCourseProgress.upsert({
+        where: {
+          profileId_courseSlug: { profileId: pr.id, courseSlug: input.areaId },
+        },
         create: {
-          email,
-          displayName,
-          xpTotal: 0,
-          levelKey: "iniciante",
-          lessonProgress: JSON.stringify(lpMap)
+          profileId: pr.id,
+          courseSlug: input.areaId,
+          completedLessonIndices: completedArr,
+          lastLessonIndex: input.lessonIndex,
         },
         update: {
-          lessonProgress: JSON.stringify(lpMap)
+          completedLessonIndices: completedArr,
+          lastLessonIndex: input.lessonIndex,
+          // lastAccessAt é @updatedAt — atualizado automaticamente pelo Prisma
+          // completedAt: preenchido externamente quando 100 % confirmado
         },
-        select: { id: true }
       });
 
       if (wasNew) {
@@ -613,6 +661,52 @@ export const campusRouter = router({
       }
 
       return { done: lpMap[input.areaId]!, awardedXp: wasNew ? XP_REWARD_COMPLETE_LESSON : 0 };
+    }),
+
+  /**
+   * Sincronização em lote localStorage→DB.
+   * Chamada uma vez quando o usuário loga: passa TODOS os índices de uma área
+   * que estão no localStorage mas não no DB. Operação atômica via $transaction.
+   */
+  lessonProgressSync: protectedProcedure
+    .input(
+      z.object({
+        areaId: z.string().min(2).max(64),
+        indices: z.array(z.number().int().min(0).max(199)).min(1).max(200),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const session = ctx.session;
+      if (!session?.user?.email) {
+        throw new TRPCError({ code: "UNAUTHORIZED", message: "Sem e-mail na sessão." });
+      }
+      const email = session.user.email;
+      const displayName = session.user.name ?? "Aluno";
+
+      const { pr, merged, newCount } = await prisma.$transaction(async (tx) => {
+        const existing = await tx.profile.findUnique({ where: { email } });
+        const lpMap = parseLessonMap(existing?.lessonProgress);
+        const current = lpMap[input.areaId] ?? [];
+        const merged = [...new Set([...current, ...input.indices])].sort((a, b) => a - b);
+        const newCount = merged.length - current.length;
+        lpMap[input.areaId] = merged;
+        const pr = await tx.profile.upsert({
+          where: { email },
+          create: { email, displayName, xpTotal: 0, levelKey: "iniciante", lessonProgress: JSON.stringify(lpMap) },
+          update: { lessonProgress: JSON.stringify(lpMap) },
+          select: { id: true }
+        });
+        return { pr, merged, newCount };
+      });
+
+      await prisma.userCourseProgress.upsert({
+        where: { profileId_courseSlug: { profileId: pr.id, courseSlug: input.areaId } },
+        create: { profileId: pr.id, courseSlug: input.areaId, completedLessonIndices: merged, lastLessonIndex: merged[merged.length - 1] ?? null },
+        update: { completedLessonIndices: merged, lastLessonIndex: merged[merged.length - 1] ?? null },
+      });
+
+      console.info("[lessonProgressSync]", { email: email.replace(/@.*/, "@***"), areaId: input.areaId, total: merged.length, new: newCount });
+      return { synced: merged.length, newCount };
     }),
 
   /** Primeira abertura de uma aula (painel) — créditos souvenir; idempotente por (área, índice). */
@@ -1326,6 +1420,38 @@ export const campusRouter = router({
 
     return { streakDays: p.streakDays };
   }),
+
+  /**
+   * URL do áudio narrado de uma aula.
+   * Retorna `null` quando ainda não foi gerado (script `generate-lesson-audio.mts`).
+   * staleTime alto no cliente — a URL não muda após gerada.
+   */
+  lessonAudioUrl: publicProcedure
+    .input(
+      z.object({
+        courseId: z.string().min(1).max(64),
+        lessonId: z.string().min(1).max(160),
+      }),
+    )
+    .query(async ({ input }) => {
+      try {
+        const row = await prisma.lessonAudio.findUnique({
+          where: {
+            courseId_lessonId: {
+              courseId: input.courseId,
+              lessonId: input.lessonId,
+            },
+          },
+          select: { audioUrl: true, durationSec: true },
+        });
+        return {
+          url: row?.audioUrl ?? null,
+          durationSec: row?.durationSec ?? null,
+        };
+      } catch {
+        return { url: null, durationSec: null };
+      }
+    }),
 });
 
 export type CampusRouter = typeof campusRouter;
