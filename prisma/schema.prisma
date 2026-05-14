@@ -123,6 +123,10 @@ model Profile {
   campusBadges            UserBadge[]
   campusMissionProgress   CampusMissionProgress[]
   campusSocialPresence    CampusSocialPresence?
+  /// Progresso relacional por curso/área — fonte canónica para novas áreas; complementa lessonProgress JSON.
+  courseProgresses        UserCourseProgress[]
+  examAttempts            UserExamAttempt[]
+  certificates            Certificate[]
 }
 
 /// Sessão de presença social leve no campus (polling; renovada por heartbeat).
@@ -247,6 +251,119 @@ model UserBadge {
   unlockedAt DateTime @default(now())
 
   @@unique([profileId, badgeCode])
+  @@index([profileId])
+}
+
+/// Progresso do aluno por curso/área — uma linha por (perfil, slug do curso).
+/// Estratégia de migração:
+///  - Profile.lessonProgress (JSON legado) é mantido para retrocompatibilidade.
+///  - Novas escritas (lessonMarkSeen) gravam em AMBOS; leituras fazem merge,
+///    com UserCourseProgress tendo precedência por slug.
+///  - Quando um novo curso é criado (ex.: "extracoes-101"), o progresso nasce aqui,
+///    independente do JSON legado.
+model UserCourseProgress {
+  id        String  @id @default(cuid())
+  profileId String
+  profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  /// Slug canónico da área/curso no campus (ex.: "cannabis-101", "extracoes-101").
+  /// Corresponde a `Area.id` em `src/data/courses.ts` e ao slug do `Course` no CMS.
+  courseSlug String
+
+  /// Índices 0-based das aulas marcadas como concluídas — JSON array de inteiros.
+  /// Ex.: [0, 1, 3] = aulas 1, 2 e 4 concluídas.
+  completedLessonIndices Json @default("[]")
+
+  /// Última aula acedida (0-based). Usado para retomar onde parou.
+  lastLessonIndex Int?
+
+  startedAt    DateTime  @default(now())
+  /// Actualizado automaticamente a cada upsert de lessonMarkSeen.
+  lastAccessAt DateTime  @updatedAt
+  /// Preenchido quando todos os índices publicados estão concluídos.
+  completedAt  DateTime?
+
+  @@unique([profileId, courseSlug])
+  @@index([profileId])
+  @@index([courseSlug])
+}
+
+/// Áudio narrado de uma aula — gerado via ElevenLabs e armazenado externamente (Supabase Storage / CDN).
+/// Uma linha por (courseId, lessonId); o script `generate-lesson-audio.mts` preenche os registos.
+/// Se `audioUrl` estiver vazio, o player não aparece para o aluno.
+model LessonAudio {
+  id          String   @id @default(cuid())
+  /// Slug do curso (ex.: "cannabis-101"). Igual ao courseId em course.json.
+  courseId    String
+  /// Id estável da aula (ex.: "c101-l05-escolha-local-cultivo"). Igual ao nome do .md sem extensão.
+  lessonId    String
+  /// URL pública do MP3 (Supabase Storage, Vercel Blob, CDN ou /audio/lessons/…).
+  audioUrl    String
+  /// Duração em segundos (preenchida pelo script após gerar o áudio).
+  durationSec Int?
+  /// Tamanho do ficheiro em bytes.
+  sizeBytes   Int?
+  generatedAt DateTime @default(now())
+
+  @@unique([courseId, lessonId])
+  @@index([courseId])
+}
+
+// ─── Sistema de Provas e Certificados ────────────────────────────────────────
+
+/// Prova de um curso ou aula específica — perguntas em JSON.
+/// lessonId null = prova final do curso completo.
+model Exam {
+  id        String   @id @default(cuid())
+  /// Slug do curso (ex.: "extracoes-101", "cannabis-101").
+  courseId  String
+  /// Id estável da aula (opcional — null = prova final do curso).
+  lessonId  String?
+  title     String
+  /// Array de { question: string, options: string[], correct: number (índice 0-based) }
+  questions Json
+  /// Nota mínima para aprovação (0–10). Padrão: 7.
+  passingScore Float   @default(7.0)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  attempts  UserExamAttempt[]
+
+  @@unique([courseId, lessonId])
+  @@index([courseId])
+}
+
+/// Tentativa de prova — uma linha por (aluno, prova, tentativa).
+model UserExamAttempt {
+  id         String   @id @default(cuid())
+  profileId  String
+  profile    Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  examId     String
+  exam       Exam     @relation(fields: [examId], references: [id], onDelete: Cascade)
+  /// Nota de 0 a 10.
+  score      Float
+  /// Respostas do aluno — array de índices (ex.: [0, 2, 1]).
+  answers    Json
+  /// Calculado na app: score >= exam.passingScore.
+  isApproved Boolean
+  createdAt  DateTime @default(now())
+
+  @@index([profileId, examId])
+}
+
+/// Certificado emitido automaticamente quando o aluno é aprovado.
+/// verifyHash é o token público de verificação (URL /certificado/<hash>).
+model Certificate {
+  id          String   @id @default(cuid())
+  profileId   String
+  profile     Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  /// Slug do curso certificado.
+  courseId    String
+  /// Hash público único para verificação externa.
+  verifyHash  String   @unique @default(cuid())
+  issuedAt    DateTime @default(now())
+
+  @@unique([profileId, courseId])
   @@index([profileId])
 }
 
