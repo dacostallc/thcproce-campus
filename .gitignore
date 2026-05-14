@@ -61,3 +61,6 @@ test-results/
 
 # Dump WS Moodle (opcional; pode conter conteúdo interno)
 docs/moodle-export/*.json
+
+# Áudio gerado por TTS (serve do Supabase Storage / CDN)
+public/audio/lessons/

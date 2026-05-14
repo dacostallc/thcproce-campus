@@ -18,7 +18,27 @@ const trpcDebugLogs =
   process.env.NEXT_PUBLIC_TRPC_DEBUG === "true";
 
 export function Providers({ children }: { children: React.ReactNode }) {
-  const [qc] = useState(() => new QueryClient());
+  const [qc] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            /**
+             * 60 s: dados considerados frescos por 1 minuto após o fetch.
+             * Evita round-trips redundantes ao re-montar painéis ou trocar de aba.
+             * Per-query overrides (ex.: myBadges com 120 000) continuam válidos.
+             */
+            staleTime: 60_000,
+            /** 5 min em memória antes do garbage-collector limpar dados não usados. */
+            gcTime: 5 * 60_000,
+            /** Sem refetch automático ao recuperar foco da janela/aba. */
+            refetchOnWindowFocus: false,
+            /** Uma única tentativa de retry — falhas aparecem rapidamente. */
+            retry: 1,
+          },
+        },
+      }),
+  );
   const [client] = useState(() =>
     trpc.createClient({
       links: [

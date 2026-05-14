@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+
   /**
    * Windows: o watcher por vezes tenta `lstat` ficheiros na raiz de C:\ (pagefile.sys, etc.)
    * e regista EINVAL — ignoramos esses caminhos para reduzir ruído e falhas do watcher.
@@ -73,7 +74,22 @@ const nextConfig = {
       "@prisma/instrumentation",
       "@opentelemetry/api",
       "@opentelemetry/instrumentation"
-    ]
+    ],
+    /**
+     * Garante que os arquivos Markdown de aulas sejam incluídos no bundle
+     * do Vercel (serverless). `fs.readFileSync` com paths dinâmicos não é
+     * detectado pelo tracing automático do Next.js.
+     *
+     * Cobre:
+     *  - src/content/courses/**  ← Blueprint canónico
+     *  - content/courses/**      ← legado (fallback até migração completa)
+     */
+    outputFileTracingIncludes: {
+      "/api/trpc/[trpc]": [
+        "./src/content/courses/**",
+        "./content/courses/**",
+      ],
+    },
   },
   images: {
     formats: ["image/avif", "image/webp"],

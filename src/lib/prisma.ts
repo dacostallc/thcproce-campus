@@ -48,6 +48,19 @@ assertValidPostgresEnvUrl("DIRECT_URL", process.env.DIRECT_URL);
 
 const globalForPrisma = globalThis as unknown as { prisma: PrismaClient | undefined };
 
+/**
+ * Em ambiente serverless (Vercel) cada cold-start cria uma nova função Node.
+ * O padrão de singleton via `globalForPrisma` reutiliza o cliente dentro da
+ * mesma instância quente, mas não entre invocações frias.
+ *
+ * Para o Neon, a URL de DATABASE_URL já aponta para o pooler interno
+ * (ep-round-band-*-pooler.*), que gere o pool de conexões via PgBouncer.
+ * Não definimos `connection_limit` aqui — o pooler do Neon aceita múltiplas
+ * conexões lógicas e as multiplexa para o servidor Postgres real.
+ *
+ * Se houver erros "too many connections" no Neon Console, acrescente ao
+ * DATABASE_URL: `&connection_limit=5` (ajuste conforme o plano Neon).
+ */
 export const prisma =
   globalForPrisma.prisma ??
   new PrismaClient({
