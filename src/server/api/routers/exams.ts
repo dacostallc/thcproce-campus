@@ -13,6 +13,8 @@ import { router, publicProcedure, protectedProcedure } from "@/server/api/trpc";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { prisma } from "@/server/db";
+import { awardXp, PROGRESSION_XP_REASON } from "@/lib/progression/rewards";
+import { XP_REWARD_EXAM_PASS } from "@/lib/progression/xp";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -132,6 +134,20 @@ export const examsRouter = router({
         },
         select: { id: true },
       });
+
+      // Concede XP ao passar no exame (apenas na primeira aprovação)
+      if (isApproved) {
+        const alreadyPassed = await prisma.userExamAttempt.count({
+          where: { profileId, examId: input.examId, isApproved: true },
+        });
+        if (alreadyPassed <= 1) {
+          // <= 1 porque a tentativa atual já foi criada acima
+          await awardXp(prisma, profileId, XP_REWARD_EXAM_PASS, PROGRESSION_XP_REASON.COMPLETE_COURSE, {
+            examId: input.examId,
+            courseId: exam.courseId,
+          });
+        }
+      }
 
       // Emite certificado automaticamente (idempotente — unique constraint)
       let certificate: { verifyHash: string } | null = null;

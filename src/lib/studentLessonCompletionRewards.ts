@@ -11,6 +11,7 @@ import {
 import { awardXp, grantBadge } from "@/lib/studentGamificationStorage";
 import { bumpMissionLessonMarkedOnce } from "@/lib/studentMissionsTelemetry";
 
+// Igual ao XP_REWARD_COMPLETE_LESSON server-side — mantém HUD e perfil sincronizados
 export const LESSON_COMPLETION_OFFLINE_XP = 25 as const;
 
 export type LessonCompletionRewardSnapshot = {

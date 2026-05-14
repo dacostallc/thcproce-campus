@@ -6,14 +6,15 @@
  * microaulas (`campusMicroLessonComplete`).
  */
 
-export const XP_REWARD_DAILY_LOGIN = 1;
-export const XP_REWARD_COMPLETE_LESSON = 3;
-export const XP_REWARD_COMPLETE_MODULE = 10;
-export const XP_REWARD_COMPLETE_COURSE = 40;
-export const XP_REWARD_STREAK_7_DAY = 15;
-export const XP_REWARD_HIGH_QUIZ_BONUS = 5;
+export const XP_REWARD_DAILY_LOGIN      = 5;
+export const XP_REWARD_COMPLETE_LESSON  = 25;   // alinhado com o offline (localStorage)
+export const XP_REWARD_COMPLETE_MODULE  = 50;
+export const XP_REWARD_COMPLETE_COURSE  = 150;
+export const XP_REWARD_STREAK_7_DAY     = 30;
+export const XP_REWARD_HIGH_QUIZ_BONUS  = 20;
+export const XP_REWARD_EXAM_PASS        = 100;  // exame final do curso
 
-/** Baseline XP for approved quiz attempt (`applyQuizPassGamification`) — equals high-quiz bonus. */
+/** Baseline XP for approved quiz attempt (`applyQuizPassGamification`). */
 export const XP_REWARD_QUIZ_PASS = XP_REWARD_HIGH_QUIZ_BONUS;
 
 export function xpAmountDailyLogin(): number {
