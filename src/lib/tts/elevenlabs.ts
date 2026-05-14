@@ -102,55 +102,34 @@ function splitIntoChunks(text: string): string[] {
 }
 
 /**
- * Gera narração e escreve os chunks diretamente no arquivo de destino.
- * Divide textos longos em pedaços de ~3000 chars para evitar timeout.
- * Cada chunk é gerado separadamente e concatenado no arquivo final.
- * Retorna o tamanho total em bytes.
+ * Gera narração dividindo o texto em chunks de ~3000 chars e concatena os
+ * Buffers MP3 resultantes num único arquivo no disco.
+ *
+ * Evita o padrão "void async IIFE + WriteStream" que causava rejeições não
+ * tratadas e derrubava o servidor Next.js em dev.
+ * Retorna o tamanho total do arquivo em bytes.
  */
 export async function streamVoiceoverToFile(
   text: string,
   outputPath: string,
 ): Promise<number> {
-  const { createWriteStream, mkdirSync, statSync } = await import("node:fs");
-  const { dirname } = await import("node:path");
+  const nodefs = await import("node:fs");
+  const nodepath = await import("node:path");
 
-  mkdirSync(dirname(outputPath), { recursive: true });
+  nodefs.mkdirSync(nodepath.dirname(outputPath), { recursive: true });
 
-  const client = getClient();
-  const voiceId = resolveVoiceId();
-  const modelId = resolveModelId();
   const chunks = splitIntoChunks(text);
+  const buffers: Buffer[] = [];
 
-  await new Promise<void>((resolve, reject) => {
-    const writer = createWriteStream(outputPath);
-    writer.on("error", reject);
-    writer.on("finish", resolve);
+  for (const chunk of chunks) {
+    // generateVoiceover já usa client.generate() com streaming interno
+    const buf = await generateVoiceover(chunk);
+    buffers.push(buf);
+  }
 
-    void (async () => {
-      try {
-        for (const chunk of chunks) {
-          const audioStream = await client.generate({
-            voice: voiceId,
-            text: chunk,
-            model_id: modelId,
-            voice_settings: THCPROCE_VOICE_SETTINGS,
-          });
-          for await (const piece of audioStream) {
-            const buf = Buffer.isBuffer(piece) ? piece : Buffer.from(piece);
-            if (!writer.write(buf)) {
-              await new Promise<void>((r) => writer.once("drain", r));
-            }
-          }
-        }
-        writer.end();
-      } catch (e) {
-        writer.destroy(e instanceof Error ? e : new Error(String(e)));
-        reject(e);
-      }
-    })();
-  });
-
-  return statSync(outputPath).size;
+  const final = Buffer.concat(buffers);
+  nodefs.writeFileSync(outputPath, final);
+  return final.length;
 }
 
 // ─── Timestamps ───────────────────────────────────────────────────────────────
