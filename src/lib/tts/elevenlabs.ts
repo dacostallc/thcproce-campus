@@ -74,9 +74,37 @@ export async function generateVoiceover(text: string): Promise<Buffer> {
   return Buffer.concat(chunks);
 }
 
+// ─── Chunk size para evitar timeout no gateway ───────────────────────────────
+// ElevenLabs leva ~5-8s por 1000 chars. Com 3000 chars cada chunk ficamos
+// bem abaixo dos 60s mesmo com latência de rede.
+const CHUNK_CHARS = 3_000;
+
+/**
+ * Divide `text` em parágrafos e agrupa em chunks de até `CHUNK_CHARS` chars,
+ * respeitando fronteiras de parágrafo para não cortar frases ao meio.
+ */
+function splitIntoChunks(text: string): string[] {
+  const paras = text.split(/\n{2,}/).map((p) => p.trim()).filter(Boolean);
+  const chunks: string[] = [];
+  let current = "";
+
+  for (const para of paras) {
+    const candidate = current ? `${current}\n\n${para}` : para;
+    if (candidate.length > CHUNK_CHARS && current) {
+      chunks.push(current);
+      current = para;
+    } else {
+      current = candidate;
+    }
+  }
+  if (current) chunks.push(current);
+  return chunks;
+}
+
 /**
  * Gera narração e escreve os chunks diretamente no arquivo de destino.
- * Evita acumular o MP3 inteiro na memória — ideal para textos longos em dev.
+ * Divide textos longos em pedaços de ~3000 chars para evitar timeout.
+ * Cada chunk é gerado separadamente e concatenado no arquivo final.
  * Retorna o tamanho total em bytes.
  */
 export async function streamVoiceoverToFile(
@@ -91,13 +119,7 @@ export async function streamVoiceoverToFile(
   const client = getClient();
   const voiceId = resolveVoiceId();
   const modelId = resolveModelId();
-
-  const audioStream = await client.generate({
-    voice: voiceId,
-    text,
-    model_id: modelId,
-    voice_settings: THCPROCE_VOICE_SETTINGS,
-  });
+  const chunks = splitIntoChunks(text);
 
   await new Promise<void>((resolve, reject) => {
     const writer = createWriteStream(outputPath);
@@ -106,11 +128,18 @@ export async function streamVoiceoverToFile(
 
     void (async () => {
       try {
-        for await (const chunk of audioStream) {
-          const buf = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
-          if (!writer.write(buf)) {
-            // backpressure: espera drain antes de continuar
-            await new Promise<void>((r) => writer.once("drain", r));
+        for (const chunk of chunks) {
+          const audioStream = await client.generate({
+            voice: voiceId,
+            text: chunk,
+            model_id: modelId,
+            voice_settings: THCPROCE_VOICE_SETTINGS,
+          });
+          for await (const piece of audioStream) {
+            const buf = Buffer.isBuffer(piece) ? piece : Buffer.from(piece);
+            if (!writer.write(buf)) {
+              await new Promise<void>((r) => writer.once("drain", r));
+            }
           }
         }
         writer.end();
