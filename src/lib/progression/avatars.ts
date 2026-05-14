@@ -8,12 +8,12 @@ export const FALLBACK_IMAGE = "/avatar/iniciante.png" as const;
 export const XP_AVATAR_FALLBACK_SRC = FALLBACK_IMAGE;
 
 export const AVATAR_TIERS = [
-  { key: "iniciante", label: "Iniciante", minXp: 0, imageSrc: "/avatar/iniciante.png" },
-  { key: "aprendiz", label: "Aprendiz", minXp: 50, imageSrc: "/avatar/aprendiz.png" },
-  { key: "cultivador", label: "Cultivador", minXp: 140, imageSrc: "/avatar/cultivador.png" },
-  { key: "hashmaker", label: "Hashmaker", minXp: 320, imageSrc: "/avatar/hashmaker.png" },
-  { key: "medicinal", label: "Medicinal", minXp: 700, imageSrc: "/avatar/medicinal.png" },
-  { key: "master", label: "Master", minXp: 1500, imageSrc: "/avatar/master.png" },
+  { key: "iniciante",  label: "Iniciante",  minXp: 0,    imageSrc: "/avatar/iniciante.png" },
+  { key: "aprendiz",  label: "Aprendiz",   minXp: 150,  imageSrc: "/avatar/aprendiz.png" },
+  { key: "cultivador", label: "Cultivador", minXp: 300,  imageSrc: "/avatar/cultivador.png" },
+  { key: "hashmaker",  label: "Hashmaker",  minXp: 450,  imageSrc: "/avatar/hashmaker.png" },
+  { key: "medicinal",  label: "Medicinal",  minXp: 900,  imageSrc: "/avatar/medicinal.png" },
+  { key: "master",     label: "Master",     minXp: 1800, imageSrc: "/avatar/master.png" },
 ] as const;
 
 /** @deprecated Prefer AVATAR_TIERS */
