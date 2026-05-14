@@ -221,20 +221,14 @@ export async function POST(req: Request) {
 
   // 5. Registra no DB
   try {
+    const tsJson = paragraphTimestamps.length > 0
+      ? (paragraphTimestamps as unknown as import("@prisma/client").Prisma.InputJsonValue)
+      : undefined;
+
     await prisma.lessonAudio.upsert({
       where: { courseId_lessonId: { courseId, lessonId } },
-      create: {
-        courseId,
-        lessonId,
-        audioUrl,
-        sizeBytes,
-        paragraphTimestamps: paragraphTimestamps.length > 0 ? paragraphTimestamps : undefined,
-      },
-      update: {
-        audioUrl,
-        sizeBytes,
-        paragraphTimestamps: paragraphTimestamps.length > 0 ? paragraphTimestamps : undefined,
-      },
+      create: { courseId, lessonId, audioUrl, sizeBytes, paragraphTimestamps: tsJson },
+      update: { audioUrl, sizeBytes, paragraphTimestamps: tsJson },
     });
   } catch (e) {
     console.error("[generate-lesson] DB upsert error:", e);
