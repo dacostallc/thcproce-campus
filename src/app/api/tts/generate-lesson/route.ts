@@ -2,7 +2,12 @@ import { NextResponse } from "next/server";
 import fs from "node:fs";
 import path from "node:path";
 import { prisma } from "@/server/db";
-import { generateVoiceoverWithTimestamps, isTtsConfigured, type ParagraphTimestamp } from "@/lib/tts/elevenlabs";
+import {
+  generateVoiceoverWithTimestamps,
+  streamVoiceoverToFile,
+  isTtsConfigured,
+  type ParagraphTimestamp,
+} from "@/lib/tts/elevenlabs";
 
 // Aulas longas podem levar até ~60s para sintetizar no ElevenLabs
 export const maxDuration = 60;
@@ -79,12 +84,20 @@ function extractParagraphs(markdown: string): string[] {
 }
 
 
-async function saveAudioFile(courseId: string, lessonId: string, buffer: Buffer): Promise<string> {
+/** Retorna `{ url, sizeBytes }` após salvar o áudio. Usa streaming em dev para evitar timeout. */
+async function saveAudioFile(
+  courseId: string,
+  lessonId: string,
+  text: string,
+): Promise<{ url: string; sizeBytes: number }> {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
   const serviceKey = process.env.SUPABASE_SERVICE_KEY?.trim();
 
-  // Supabase Storage (produção com credenciais configuradas)
+  // ── Supabase Storage (produção) ────────────────────────────────────────────
   if (supabaseUrl && serviceKey) {
+    // Em produção ainda bufferizamos — Supabase upload precisa do Buffer inteiro
+    const { generateVoiceover } = await import("@/lib/tts/elevenlabs");
+    const buffer = await generateVoiceover(text);
     const { createClient } = await import("@supabase/supabase-js");
     const sb = createClient(supabaseUrl, serviceKey);
     const objectPath = `${courseId}/${lessonId}.mp3`;
@@ -92,16 +105,15 @@ async function saveAudioFile(courseId: string, lessonId: string, buffer: Buffer)
       .from("lesson-audio")
       .upload(objectPath, buffer, { contentType: "audio/mpeg", upsert: true });
     if (error) throw new Error(`Supabase upload: ${error.message}`);
-    return sb.storage.from("lesson-audio").getPublicUrl(objectPath).data.publicUrl;
+    const url = sb.storage.from("lesson-audio").getPublicUrl(objectPath).data.publicUrl;
+    return { url, sizeBytes: buffer.length };
   }
 
-  // Local filesystem (dev / Vercel com volume persistente)
-  // Salva em public/audio/<courseId>/ → servido por /api/audio/<courseId>/<lessonId>.mp3
-  const dir = path.join(process.cwd(), "public", "audio", courseId);
-  fs.mkdirSync(dir, { recursive: true });
-  const file = path.join(dir, `${lessonId}.mp3`);
-  fs.writeFileSync(file, buffer);
-  return `/api/audio/${courseId}/${lessonId}.mp3`;
+  // ── Local filesystem (dev) — streaming direto para disco ──────────────────
+  // Escreve cada chunk conforme chega, sem acumular o MP3 inteiro na memória.
+  const filePath = path.join(process.cwd(), "public", "audio", courseId, `${lessonId}.mp3`);
+  const sizeBytes = await streamVoiceoverToFile(text, filePath);
+  return { url: `/api/audio/${courseId}/${lessonId}.mp3`, sizeBytes };
 }
 
 // ─── Handler ──────────────────────────────────────────────────────────────────
@@ -162,34 +174,33 @@ export async function POST(req: Request) {
   // Parágrafos para derivar timestamps (usando o texto original, não truncado)
   const paragraphs = extractParagraphs(rawMd);
 
-  // 3. Sintetiza com timestamps de parágrafo via SDK ElevenLabs
-  let audioBuffer: Buffer;
+  // 3. Salva arquivo via streaming + tenta timestamps (opcional)
+  let audioUrl: string;
+  let sizeBytes = 0;
   let paragraphTimestamps: ParagraphTimestamp[] = [];
+
   try {
-    const result = await generateVoiceoverWithTimestamps(truncatedText, paragraphs);
-    audioBuffer = result.buffer;
-    paragraphTimestamps = result.paragraphTimestamps;
+    const saved = await saveAudioFile(courseId, lessonId, truncatedText);
+    audioUrl = saved.url;
+    sizeBytes = saved.sizeBytes;
   } catch (e) {
-    console.error("[generate-lesson] ElevenLabs error:", e);
+    const msg = e instanceof Error ? e.message : String(e);
+    console.error("[generate-lesson] save/stream error:", msg);
     return NextResponse.json(
-      { error: e instanceof Error ? e.message : "Falha na síntese ElevenLabs." },
+      { error: `Falha ao gerar áudio: ${msg}` },
       { status: 502 },
     );
   }
 
-  // 4. Salva arquivo
-  let audioUrl: string;
+  // 4. Timestamps opcionais — não bloqueia a resposta se falhar
   try {
-    audioUrl = await saveAudioFile(courseId, lessonId, audioBuffer);
-  } catch (e) {
-    console.error("[generate-lesson] save error:", e);
-    return NextResponse.json(
-      { error: e instanceof Error ? e.message : "Falha ao salvar o áudio." },
-      { status: 500 },
-    );
+    const ts = await generateVoiceoverWithTimestamps(truncatedText, paragraphs);
+    paragraphTimestamps = ts.paragraphTimestamps;
+  } catch {
+    // Áudio já foi salvo; timestamps são bonus
   }
 
-  // 5. Registra no DB com timestamps
+  // 5. Registra no DB
   try {
     await prisma.lessonAudio.upsert({
       where: { courseId_lessonId: { courseId, lessonId } },
@@ -197,12 +208,12 @@ export async function POST(req: Request) {
         courseId,
         lessonId,
         audioUrl,
-        sizeBytes: audioBuffer.length,
+        sizeBytes,
         paragraphTimestamps: paragraphTimestamps.length > 0 ? paragraphTimestamps : undefined,
       },
       update: {
         audioUrl,
-        sizeBytes: audioBuffer.length,
+        sizeBytes,
         paragraphTimestamps: paragraphTimestamps.length > 0 ? paragraphTimestamps : undefined,
       },
     });

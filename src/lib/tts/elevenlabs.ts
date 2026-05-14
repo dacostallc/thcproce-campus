@@ -74,6 +74,56 @@ export async function generateVoiceover(text: string): Promise<Buffer> {
   return Buffer.concat(chunks);
 }
 
+/**
+ * Gera narração e escreve os chunks diretamente no arquivo de destino.
+ * Evita acumular o MP3 inteiro na memória — ideal para textos longos em dev.
+ * Retorna o tamanho total em bytes.
+ */
+export async function streamVoiceoverToFile(
+  text: string,
+  outputPath: string,
+): Promise<number> {
+  const { createWriteStream, mkdirSync, statSync } = await import("node:fs");
+  const { dirname } = await import("node:path");
+
+  mkdirSync(dirname(outputPath), { recursive: true });
+
+  const client = getClient();
+  const voiceId = resolveVoiceId();
+  const modelId = resolveModelId();
+
+  const audioStream = await client.generate({
+    voice: voiceId,
+    text,
+    model_id: modelId,
+    voice_settings: THCPROCE_VOICE_SETTINGS,
+  });
+
+  await new Promise<void>((resolve, reject) => {
+    const writer = createWriteStream(outputPath);
+    writer.on("error", reject);
+    writer.on("finish", resolve);
+
+    void (async () => {
+      try {
+        for await (const chunk of audioStream) {
+          const buf = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
+          if (!writer.write(buf)) {
+            // backpressure: espera drain antes de continuar
+            await new Promise<void>((r) => writer.once("drain", r));
+          }
+        }
+        writer.end();
+      } catch (e) {
+        writer.destroy(e instanceof Error ? e : new Error(String(e)));
+        reject(e);
+      }
+    })();
+  });
+
+  return statSync(outputPath).size;
+}
+
 // ─── Timestamps ───────────────────────────────────────────────────────────────
 
 export interface ParagraphTimestamp {
