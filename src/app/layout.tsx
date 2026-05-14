@@ -15,7 +15,10 @@ export const metadata: Metadata = {
     type: "website"
   },
   manifest: "/manifest.webmanifest",
-  appleWebApp: { capable: true, title: "THCProce", statusBarStyle: "black-translucent" }
+  // "capable: true" faz o Next.js emitir o tag deprecated apple-mobile-web-app-capable.
+  // Declaramos mobile-web-app-capable manualmente via "other" (padrão moderno).
+  appleWebApp: { title: "THCProce", statusBarStyle: "black-translucent" },
+  other: { "mobile-web-app-capable": "yes" }
 };
 
 export const viewport: Viewport = {
