@@ -25,11 +25,13 @@ export async function GET(
   // Next.js 15: params é uma Promise — deve ser aguardada
   const { slug } = await params;
 
-  const relativePath = path.join(...slug);
-  const fullPath = path.join(PUBLIC_ROOT, relativePath);
+  // Os arquivos ficam em public/audio/lessons/<courseId>/<lessonId>.mp3
+  // A URL exposta é /api/audio/<courseId>/<lessonId>.mp3 (sem redundância)
+  const fullPath = path.join(PUBLIC_ROOT, "audio", "lessons", ...slug);
 
-  // Impede path traversal fora de public/
-  if (!fullPath.startsWith(PUBLIC_ROOT)) {
+  // Impede path traversal fora de public/audio/lessons/
+  const AUDIO_ROOT = path.join(PUBLIC_ROOT, "audio", "lessons");
+  if (!fullPath.startsWith(AUDIO_ROOT)) {
     return new NextResponse("Acesso não autorizado.", { status: 403 });
   }
 
