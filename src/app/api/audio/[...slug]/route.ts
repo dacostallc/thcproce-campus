@@ -22,18 +22,33 @@ export const dynamic = "force-dynamic";
 
 const AUDIO_ROOT = path.join(process.cwd(), "public", "audio");
 
+type RouteParams = { params: Promise<{ slug: string[] }> };
+
+async function resolveFilePath(params: Promise<{ slug: string[] }>): Promise<{ fullPath: string; safe: boolean }> {
+  const { slug } = await params;
+  const fullPath = path.join(AUDIO_ROOT, ...slug);
+  return { fullPath, safe: fullPath.startsWith(AUDIO_ROOT) };
+}
+
+// HEAD — usado pelo LessonAudioPlayer para verificar se o arquivo existe
+// sem baixar o conteúdo. Next.js exige handler explícito (senão retorna 405).
+export async function HEAD(_req: NextRequest, { params }: RouteParams) {
+  const { fullPath, safe } = await resolveFilePath(params);
+  if (!safe) return new Response(null, { status: 403 });
+  if (!fs.existsSync(fullPath)) return new Response(null, { status: 404 });
+  return new Response(null, {
+    status: 200,
+    headers: { "Content-Type": "audio/mpeg", "Accept-Ranges": "bytes" },
+  });
+}
+
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ slug: string[] }> },
+  { params }: RouteParams,
 ) {
-  // Next.js 15: params é uma Promise — deve ser aguardada
-  const { slug } = await params;
+  const { fullPath, safe } = await resolveFilePath(params);
 
-  const relativePath = path.join(...slug);
-  const fullPath = path.join(AUDIO_ROOT, relativePath);
-
-  // Impede path traversal fora de public/audio/
-  if (!fullPath.startsWith(AUDIO_ROOT)) {
+  if (!safe) {
     return new NextResponse("Acesso não autorizado.", { status: 403 });
   }
 
