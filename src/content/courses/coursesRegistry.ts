@@ -35,26 +35,25 @@ import type {
   CourseLessonPanelUi,
   RegisteredCourseCapabilities
 } from "./types";
-// Cursos com manifests gerados pelo setup-all-courses.mjs (camelCase)
-import { Culinary_MANIFEST } from "./culinary/manifest";
-import { Medicine_MANIFEST } from "./medicine/manifest";
-import { Extraction_MANIFEST } from "./extraction/manifest";
-import { CultivoGreenhouse_MANIFEST } from "./cultivo-greenhouse/manifest";
-import { CultivoOutdoor_MANIFEST } from "./cultivo-outdoor/manifest";
-import { CultivoIndoor_MANIFEST } from "./cultivo-indoor/manifest";
-import { Genetica_MANIFEST } from "./genetica/manifest";
-import { SecagemCura_MANIFEST } from "./secagem-cura/manifest";
+// Todos os cursos com IDs canônicos do mapa
+import { Culinary_MANIFEST }            from "./culinaria/manifest";
+import { Medicine_MANIFEST }            from "./medicina/manifest";
+import { Extraction_MANIFEST }          from "./extracao-oleo/manifest";
+import { CultivoGreenhouse_MANIFEST }   from "./cultivo-greenhouse/manifest";
+import { CultivoOutdoor_MANIFEST }      from "./cultivo-outdoor/manifest";
+import { CultivoIndoor_MANIFEST }       from "./cultivo-indoor/manifest";
+import { Genetica_MANIFEST }            from "./genetica/manifest";
+import { SecagemCura_MANIFEST }         from "./secagem-cura/manifest";
 import { ExtracoesSolventless_MANIFEST } from "./extracoes-solventless/manifest";
-import { LABORATORIO_MANIFEST } from "./laboratorio/manifest";
-import { Legislacao_MANIFEST } from "./legislacao/manifest";
-import { Cooperativismo_MANIFEST } from "./cooperativismo/manifest";
-import { Industria_MANIFEST } from "./industria/manifest";
-import { EXTRACOES_101_MANIFEST } from "./extracoes-101/manifest";
-import { HashMaker_MANIFEST } from "./hash-maker/manifest";
-// Novos cursos importados do Moodle
-import { CultivoFloracao_MANIFEST } from "./cultivo-floracao/manifest";
-import { NutricaoCannabis_MANIFEST } from "./nutricao-cannabis/manifest";
-import { CultivoSolo_MANIFEST } from "./cultivo-solo/manifest";
+import { LABORATORIO_MANIFEST }         from "./laboratorio/manifest";
+import { Legislacao_MANIFEST }          from "./legislacao/manifest";
+import { Cooperativismo_MANIFEST }      from "./cooperativismo/manifest";
+import { Industria_MANIFEST }           from "./industria/manifest";
+import { EXTRACOES_101_MANIFEST }       from "./extracoes-101/manifest";
+import { HashMaker_MANIFEST }           from "./hash-maker/manifest";
+import { CultivoFloracao_MANIFEST }     from "./cultivo-floracao/manifest";
+import { NutricaoCannabis_MANIFEST }    from "./nutricao-cannabis/manifest";
+import { CultivoSolo_MANIFEST }         from "./cultivo-solo/manifest";
 import { getCourseLessonTheme } from "@/data/courseLessonThemes";
 import { tryGetManualLessonsForCourse } from "@/data/lessonContent";
 

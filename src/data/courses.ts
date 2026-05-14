@@ -178,7 +178,7 @@ const AREA_FALLBACK_ROWS: Area[] = [
     hours: "12h"
   },
   {
-    id: "extraction",
+    id: "extracao-oleo",
     name: "Extração de Óleo",
     mapLabel: "Extração óleo",
     short: "Óleo medicinal e tinturas",
@@ -199,7 +199,7 @@ const AREA_FALLBACK_ROWS: Area[] = [
     hours: "11h"
   },
   {
-    id: "medicine",
+    id: "medicina",
     name: "Medicina Canabinoide",
     mapLabel: "Instituto medicinal",
     short: "Aplicações terapêuticas",
@@ -220,7 +220,7 @@ const AREA_FALLBACK_ROWS: Area[] = [
     hours: "14h"
   },
   {
-    id: "culinary",
+    id: "culinaria",
     name: "Culinária com Cannabis",
     mapLabel: "Escola de culinária",
     short: "Edibles, manteiga e óleos",

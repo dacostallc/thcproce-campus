@@ -1,0 +1,18 @@
+{
+  "courseId": "culinaria",
+  "version": 1,
+  "title": "Culinária com Cannabis: Da Decarboxilação às Receitas",
+  "lessonCount": 10,
+  "lessons": [
+    "cul-l01-introducao-culinaria-cannabis",
+    "cul-l02-decarboxilacao-culinaria",
+    "cul-l03-gorduras-infusao",
+    "cul-l04-manteiga-cannabutter",
+    "cul-l05-oleo-infundido",
+    "cul-l06-calculo-dosagem-receitas",
+    "cul-l07-receitas-doces",
+    "cul-l08-receitas-salgadas",
+    "cul-l09-bebidas-infusoes",
+    "cul-l10-seguranca-armazenamento-edibles"
+  ]
+}
