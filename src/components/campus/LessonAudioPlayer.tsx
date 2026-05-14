@@ -11,12 +11,10 @@ type Props = {
   lessonId: string;
   lessonTitle?: string;
   className?: string;
-  /**
-   * Chamado assim que o player de áudio está pronto.
-   * Recebe a função `seekTo(seconds)` que o pai pode armazenar e chamar
-   * quando o utilizador clicar num parágrafo com timestamp.
-   */
+  /** Chamado quando o player fica pronto — recebe a função `seekTo(seconds)`. */
   onSeekReady?: (seekTo: (seconds: number) => void) => void;
+  /** Chamado a cada tick de reprodução com o `currentTime` em segundos. */
+  onTimeUpdate?: (currentTime: number) => void;
 };
 
 type PlayerState = "loading" | "ready" | "generate";
@@ -32,7 +30,7 @@ const getAudioUrl = (courseId: string, lessonId: string) =>
  *  2. Fallback: query ao DB via tRPC (URLs externas como Supabase/CDN).
  *  3. Nada encontrado → estado "generate" (botão ElevenLabs aparece SÓ aqui).
  */
-export function LessonAudioPlayer({ courseId, lessonId, className, onSeekReady }: Props) {
+export function LessonAudioPlayer({ courseId, lessonId, className, onSeekReady, onTimeUpdate }: Props) {
   const utils = trpc.useUtils();
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -160,6 +158,7 @@ export function LessonAudioPlayer({ courseId, lessonId, className, onSeekReady }
           className="h-10 w-full accent-lime-500"
           aria-label="Narração da aula"
           onError={() => setPlayerState("generate")}
+          onTimeUpdate={(e) => onTimeUpdate?.((e.currentTarget as HTMLAudioElement).currentTime)}
         />
       </div>
     );

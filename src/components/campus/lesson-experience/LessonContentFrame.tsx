@@ -47,6 +47,10 @@ export function LessonContentFrame({
     seekFnRef.current?.(startTime);
   }, []);
 
+  // currentTime do áudio — atualizado a cada tick do player
+  const [audioCurrentTime, setAudioCurrentTime] = useState(0);
+  const handleTimeUpdate = useCallback((t: number) => setAudioCurrentTime(t), []);
+
   // Busca timestamps do DB (só quando audioId está disponível)
   const { data: audioData } = trpc.campus.lessonAudioUrl.useQuery(
     { courseId: audioId?.courseId ?? "", lessonId: audioId?.lessonId ?? "" },
@@ -101,6 +105,7 @@ export function LessonContentFrame({
                 lessonId={audioId.lessonId}
                 lessonTitle={frameTitle}
                 onSeekReady={handleSeekReady}
+                onTimeUpdate={handleTimeUpdate}
               />
             </div>
           )}
@@ -110,6 +115,7 @@ export function LessonContentFrame({
             className={markdownClassName}
             paragraphTimestamps={paragraphTimestamps}
             onParagraphClick={paragraphTimestamps ? handleParagraphClick : undefined}
+            audioCurrentTime={paragraphTimestamps ? audioCurrentTime : undefined}
           />
           {checkpointsBlock}
         </div>
