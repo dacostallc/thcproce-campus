@@ -1,50 +1,71 @@
 import { NextResponse } from "next/server";
+import { generateVoiceover, isTtsConfigured, THCPROCE_VOICE_SETTINGS } from "@/lib/tts/elevenlabs";
+
+export const maxDuration = 60;
 
 /**
- * TTS server-side para aulas — chaves só em variáveis de ambiente (nunca `NEXT_PUBLIC_*`).
+ * GET  /api/tts/lesson  → status de configuração
+ * POST /api/tts/lesson  → sintetiza texto em tempo real (preview)
  *
- * Configurar no `.env` / painel do deploy:
- * - `TTS_API_KEY` ou `ELEVENLABS_API_KEY`
- * - `TTS_PROVIDER` (ex.: elevenlabs, openai, …)
- * - `TTS_VOICE_ID` (id da voz no provedor)
- *
- * Estado actual: síntese na sala usa Web Speech no browser; este endpoint expõe readiness e
- * reserva `POST` para quando a integração estiver pronta.
+ * Para geração em lote com cache no DB use:
+ *   npx tsx scripts/generate-lesson-audio.mts <courseId> all
  */
-function resolveTtsKey(): string | undefined {
-  return process.env.TTS_API_KEY?.trim() || process.env.ELEVENLABS_API_KEY?.trim();
-}
+
+const MAX_CHARS = 5000;
 
 export async function GET() {
-  const key = resolveTtsKey();
-  const provider = process.env.TTS_PROVIDER?.trim() || "";
-  const voiceId = process.env.TTS_VOICE_ID?.trim();
-  const configured = Boolean(key && provider.length > 0);
-
+  const configured = isTtsConfigured();
   return NextResponse.json({
     configured,
-    provider: configured ? provider : "none",
-    voiceConfigured: Boolean(voiceId),
+    provider: configured ? "elevenlabs" : "none",
+    model: process.env.ELEVENLABS_MODEL_ID?.trim() || "eleven_multilingual_v2",
+    voiceSettings: configured ? THCPROCE_VOICE_SETTINGS : null,
   });
 }
 
 export async function POST(req: Request) {
-  const key = resolveTtsKey();
-  const provider = process.env.TTS_PROVIDER?.trim();
-
-  if (!key || !provider) {
+  if (!isTtsConfigured()) {
     return NextResponse.json(
-      { error: "TTS não configurado no servidor (defina TTS_PROVIDER e TTS_API_KEY ou ELEVENLABS_API_KEY)." },
+      { error: "ELEVENLABS_API_KEY e ELEVENLABS_VOICE_ID são obrigatórios no servidor." },
       { status: 503 },
     );
   }
 
-  void req;
-  // Futuro: validar JSON `{ text: string }`, chamar API do provedor com TTS_VOICE_ID, devolver áudio.
-  return NextResponse.json(
-    {
-      error: "Síntese TTS server-side ainda não implementada. O cliente usa Web Speech API.",
-    },
-    { status: 501 },
-  );
+  let body: unknown;
+  try { body = await req.json(); } catch {
+    return NextResponse.json({ error: "JSON inválido." }, { status: 400 });
+  }
+
+  const text =
+    body && typeof body === "object" && "text" in body
+      ? String((body as Record<string, unknown>).text ?? "").trim()
+      : "";
+
+  if (!text) {
+    return NextResponse.json({ error: "Campo 'text' obrigatório." }, { status: 400 });
+  }
+  if (text.length > MAX_CHARS) {
+    return NextResponse.json(
+      { error: `Texto excede ${MAX_CHARS} caracteres. Use o script de geração em lote para aulas completas.` },
+      { status: 413 },
+    );
+  }
+
+  try {
+    const audioBuffer = await generateVoiceover(text);
+    return new Response(audioBuffer.buffer as ArrayBuffer, {
+      status: 200,
+      headers: {
+        "Content-Type": "audio/mpeg",
+        "Content-Length": String(audioBuffer.byteLength),
+        "Cache-Control": "no-store",
+      },
+    });
+  } catch (e) {
+    console.error("[tts/lesson]", e);
+    return NextResponse.json(
+      { error: e instanceof Error ? e.message : "Falha na síntese ElevenLabs." },
+      { status: 502 },
+    );
+  }
 }
