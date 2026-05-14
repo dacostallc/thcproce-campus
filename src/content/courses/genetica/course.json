@@ -1,0 +1,30 @@
+{
+  "courseId": "genetica",
+  "version": 1,
+  "title": "Produção de Sementes de Cannabis Feminizadas",
+  "lessonCount": 20,
+  "lessons": [
+    "gene-l01-conceitos-basicos-de-cannabis",
+    "gene-l02-por-que-produzir-sementes-feminizadas",
+    "gene-l03-entendendo-a-genetica-da-cannabis",
+    "gene-l04-processo-de-reproducao-da-cannabis",
+    "gene-l05-diferencas-entre-plantas-masculinas-e-femininas",
+    "gene-l06-metodos-para-produzir-plantas-feminizadas",
+    "gene-l07-importancia-do-tempo-e-do-cuidado-na-feminizacao",
+    "gene-l08-processo-de-polinizacao",
+    "gene-l09-coleta-de-sementes",
+    "gene-l10-armazenamento-de-sementes",
+    "gene-l11-teste-de-germinacao",
+    "gene-l12-identificacao-de-doencas-e-pragas",
+    "gene-l13-tratamento-de-sementes",
+    "gene-l14-leis-e-regulamentos-sobre-producao-de-cannabis",
+    "gene-l15-consideracoes-eticas-na-producao-de-sementes",
+    "gene-l16-avancos-tecnologicos-na-producao-de-sementes",
+    "gene-l17-impacto-da-pesquisa-e-desenvolvimento",
+    "gene-l18-futuro-da-producao-de-sementes-de-cannabis",
+    "gene-l19-recapitulacao-do-curso",
+    "gene-l20-discussao-final"
+  ],
+  "moodleId": 24,
+  "importedAt": "2026-05-14T16:40:07.829Z"
+}

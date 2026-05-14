@@ -1,0 +1,18 @@
+{
+  "courseId": "extracoes-solventless",
+  "version": 1,
+  "title": "Extrações Solventless – Dry Sift, Bubble Hash e Rosin",
+  "lessonCount": 10,
+  "lessons": [
+    "es-l01-introducao-solventless",
+    "es-l02-tricomas-maturacao",
+    "es-l03-dry-sift-basico",
+    "es-l04-dry-sift-avancado",
+    "es-l05-bubble-hash-processo",
+    "es-l06-bubble-hash-qualidade",
+    "es-l07-rosin-flor",
+    "es-l08-rosin-hash-live",
+    "es-l09-piatella-cura",
+    "es-l10-avaliacao-qualidade-concentrados"
+  ]
+}

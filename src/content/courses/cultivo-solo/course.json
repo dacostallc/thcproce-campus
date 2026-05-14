@@ -1,0 +1,29 @@
+{
+  "courseId": "cultivo-solo",
+  "version": 1,
+  "title": "Preparação de Solo para Cultivo Orgânico e Mineral",
+  "lessonCount": 19,
+  "lessons": [
+    "cult-l01-objetivos-do-curso",
+    "cult-l02-importancia-da-preparacao-de-solo",
+    "cult-l03-tipos-de-solo-e-suas-caracteristicas",
+    "cult-l04-estrutura-e-textura-do-solo",
+    "cult-l05-ph-do-solo-e-sua-importancia",
+    "cult-l06-compostagem-e-adubacao-verde",
+    "cult-l07-tecnicas-de-rotacao-de-culturas",
+    "cult-l08-controle-de-pragas-e-doencas-de-forma-natural",
+    "cult-l09-uso-de-fertilizantes-minerais",
+    "cult-l10-correcao-de-deficiencias-nutricionais",
+    "cult-l11-tecnicas-de-irrigacao-e-drenagem",
+    "cult-l12-ferramentas-manuais",
+    "cult-l13-equipamentos-mecanicos",
+    "cult-l14-tecnologias-modernas",
+    "cult-l15-conservacao-da-estrutura-do-solo",
+    "cult-l16-uso-eficiente-de-recursos-hidricos",
+    "cult-l17-reducao-do-impacto-ambiental",
+    "cult-l18-exemplos-de-sucesso-em-agricultura-organica",
+    "cult-l19-analise-comparativa"
+  ],
+  "moodleId": 21,
+  "importedAt": "2026-05-14T16:40:03.715Z"
+}

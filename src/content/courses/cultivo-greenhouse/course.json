@@ -1,0 +1,18 @@
+{
+  "courseId": "cultivo-greenhouse",
+  "version": 1,
+  "title": "Cultivo Greenhouse — Estufa: o Melhor dos Dois Mundos",
+  "lessonCount": 10,
+  "lessons": [
+    "cg-l01-introducao-greenhouse",
+    "cg-l02-estrutura-estufa",
+    "cg-l03-cobertura-materiais",
+    "cg-l04-ventilacao-estufa",
+    "cg-l05-luz-solar-suplementar",
+    "cg-l06-controle-fotoperiodo-estufa",
+    "cg-l07-nutricao-estufa",
+    "cg-l08-pragas-estufa",
+    "cg-l09-escalonamento-producao",
+    "cg-l10-comparativo-indoor-outdoor"
+  ]
+}

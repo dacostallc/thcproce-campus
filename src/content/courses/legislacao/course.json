@@ -1,0 +1,20 @@
+{
+  "courseId": "legislacao",
+  "title": "Legislação da Cannabis no Brasil e no Mundo",
+  "description": "Compreenda o cenário legal da cannabis no Brasil e em diferentes países, desde as regulamentações da ANVISA até as tendências de legalização global. Conteúdo informativo para fins educacionais — sempre consulte um advogado especializado.",
+  "level": "Iniciante",
+  "category": "Direito e Regulação",
+  "tags": ["legislação", "ANVISA", "RDC 660", "STF", "direito", "regulação", "cannabis medicinal"],
+  "lessons": [
+    { "order": 1, "lessonId": "leg-l01-panorama-legal-cannabis-brasil", "title": "Panorama Legal da Cannabis no Brasil" },
+    { "order": 2, "lessonId": "leg-l02-rdc-660-anvisa", "title": "RDC 660 ANVISA: Autorização para Cultivo Científico" },
+    { "order": 3, "lessonId": "leg-l03-habeas-corpus-cultivo", "title": "Habeas Corpus Preventivo e Decisões do STF" },
+    { "order": 4, "lessonId": "leg-l04-importacao-produtos-canabinoides", "title": "Importação de CBD e Produtos Canabinoide" },
+    { "order": 5, "lessonId": "leg-l05-associacoes-e-clubes", "title": "Associações, Clubes Sociais e Empresas: Diferenças Jurídicas" },
+    { "order": 6, "lessonId": "leg-l06-legislacao-eua-estados", "title": "Legislação nos Estados Unidos: Estados Legalizados" },
+    { "order": 7, "lessonId": "leg-l07-legislacao-portugal-europa", "title": "Portugal, Descriminalização e Legislação Europeia" },
+    { "order": 8, "lessonId": "leg-l08-legislacao-uruguai-canada", "title": "Uruguai e Canadá: Modelos de Referência Global" },
+    { "order": 9, "lessonId": "leg-l09-direitos-pacientes-cuidadores", "title": "Direitos de Pacientes e Cuidadores com Prescrição" },
+    { "order": 10, "lessonId": "leg-l10-perspectivas-legalizacao-br", "title": "Perspectivas de Legalização no Brasil 2024–2025" }
+  ]
+}

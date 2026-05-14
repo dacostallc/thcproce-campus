@@ -1,0 +1,30 @@
+{
+  "courseId": "cultivo-floracao",
+  "version": 1,
+  "title": "A transição e Floração da Cannabis",
+  "lessonCount": 20,
+  "lessons": [
+    "cult-l01-definicao-da-fase-de-transicao",
+    "cult-l02-definicao-da-fase-de-floracao",
+    "cult-l03-importancia-da-fase-de-transicao",
+    "cult-l04-identificacao-dos-sinais-de-transicao",
+    "cult-l05-duracao-esperada-da-fase-de-transicao",
+    "cult-l06-regulacao-da-luz-na-fase-de-transicao",
+    "cult-l07-nutricao-adequada-durante-a-fase-de-transicao",
+    "cult-l08-problemas-comuns-na-fase-de-transicao-e-como-resolve-los",
+    "cult-l09-importancia-da-fase-de-floracao",
+    "cult-l10-identificacao-dos-sinais-de-floracao",
+    "cult-l11-duracao-esperada-da-fase-de-floracao",
+    "cult-l12-regulacao-da-luz-na-fase-de-floracao",
+    "cult-l13-nutricao-adequada-durante-a-fase-de-floracao",
+    "cult-l14-problemas-comuns-na-fase-de-floracao-e-como-resolve-los",
+    "cult-l15-melhores-praticas-para-a-fase-de-transicao",
+    "cult-l16-melhores-praticas-para-a-fase-de-floracao",
+    "cult-l17-dicas-para-maximizar-a-producao-de-cannabis",
+    "cult-l18-recapitulacao-dos-pontos-principais",
+    "cult-l19-importancia-do-manejo-adequado-durante-as-fases-de-transicao",
+    "cult-l20-encorajamento-para-continuar-aprendendo-e-aprimorando-habili"
+  ],
+  "moodleId": 17,
+  "importedAt": "2026-05-14T16:39:58.714Z"
+}

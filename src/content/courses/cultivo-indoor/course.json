@@ -1,0 +1,29 @@
+{
+  "courseId": "cultivo-indoor",
+  "version": 1,
+  "title": "A Fase da Vegetação",
+  "lessonCount": 19,
+  "lessons": [
+    "cult-l01-breve-historico-da-cannabis",
+    "cult-l02-importancia-da-fase-de-vegetacao",
+    "cult-l03-anatomia-da-planta-de-cannabis",
+    "cult-l04-ciclo-de-vida-da-cannabis-de-semente-a-colheita",
+    "cult-l05-escolha-das-sementes",
+    "cult-l06-germinacao-das-sementes",
+    "cult-l07-preparacao-do-solo-e-condicoes-de-crescimento",
+    "cult-l08-iluminacao-adequada",
+    "cult-l09-rega-e-nutricao",
+    "cult-l10-podas-e-treinamento-de-plantas",
+    "cult-l11-prevencao-de-pragas",
+    "cult-l12-identificacao-de-pragas-comuns",
+    "cult-l13-tratamentos-e-solucoes-organicas-para-controle-de-pragas",
+    "cult-l14-observacao-de-sinais-de-crescimento-saudavel",
+    "cult-l15-identificacao-de-problemas-comuns-de-crescimento-e-solucoes",
+    "cult-l16-quando-e-como-fazer-a-transicao",
+    "cult-l17-cuidados-e-consideracoes-durante-a-transicao",
+    "cult-l18-importancia-da-paciencia-e-atencao-aos-detalhes-no-cultivo-d",
+    "cult-l19-beneficios-potenciais-e-usos-de-plantas-de-cannabis-cultivad"
+  ],
+  "moodleId": 15,
+  "importedAt": "2026-05-14T16:39:57.563Z"
+}

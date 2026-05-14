@@ -1,0 +1,18 @@
+{
+  "courseId": "cultivo-outdoor",
+  "version": 1,
+  "title": "Cultivo Outdoor — Cultivo a Céu Aberto no Brasil",
+  "lessonCount": 10,
+  "lessons": [
+    "co-l01-introducao-outdoor",
+    "co-l02-clima-solo-brasil",
+    "co-l03-preparacao-terreno",
+    "co-l04-geneticas-outdoor",
+    "co-l05-calendario-plantio-br",
+    "co-l06-irrigacao-outdoor",
+    "co-l07-nutricao-organica",
+    "co-l08-pragas-doencas-outdoor",
+    "co-l09-protecao-clima",
+    "co-l10-colheita-outdoor"
+  ]
+}
