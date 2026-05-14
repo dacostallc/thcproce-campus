@@ -24,9 +24,23 @@ const AUDIO_ROOT = path.join(process.cwd(), "public", "audio");
 
 type RouteParams = { params: Promise<{ slug: string[] }> };
 
-async function resolveFilePath(params: Promise<{ slug: string[] }>): Promise<{ fullPath: string; safe: boolean }> {
+/**
+ * Resolve o caminho físico do arquivo de áudio.
+ * Suporta dois layouts de pastas (migração progressiva):
+ *   Novo:  public/audio/<courseId>/<lessonId>.mp3
+ *   Legado: public/audio/lessons/<courseId>/<lessonId>.mp3
+ */
+async function resolveFilePath(
+  params: Promise<{ slug: string[] }>,
+): Promise<{ fullPath: string; safe: boolean }> {
   const { slug } = await params;
-  const fullPath = path.join(AUDIO_ROOT, ...slug);
+
+  const primary = path.join(AUDIO_ROOT, ...slug);
+  const legacy  = path.join(AUDIO_ROOT, "lessons", ...slug);
+
+  // Prefere o caminho novo; cai para legado se o arquivo já estiver lá
+  const fullPath = fs.existsSync(primary) ? primary : legacy;
+
   return { fullPath, safe: fullPath.startsWith(AUDIO_ROOT) };
 }
 
