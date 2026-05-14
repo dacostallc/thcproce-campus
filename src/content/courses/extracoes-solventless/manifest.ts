@@ -1,34 +1,24 @@
 import type { CourseManifest } from "@/content/courses/types";
-import {
-  courseFirstLessonTitle,
-  courseOutlineLessonCount,
-  coursePreviewLessonTitles
-} from "@/data/courseOutlines";
 
-export const EXTRACOES_SOLVENTLESS_AREA_ID = "extracoes-solventless" as const;
-
-export const EXTRACOES_SOLVENTLESS_MANIFEST: CourseManifest = {
-  areaId: EXTRACOES_SOLVENTLESS_AREA_ID,
+export const ExtracoesSolventless_MANIFEST: CourseManifest = {
+  areaId: "extracoes-solventless",
   displayName: "Extrações Solventless",
+  hud: {
+    nextLessonFallbackLabel: "Solventless · Bubble Hash, Rosin e Piatella",
+  },
+  previewLessonTitles: [],
+  stats: {
+    lessonCount: 10,
+    hoursLabel: "≈4h leitura guiada",
+  },
   marketing: {
-    short: "Bubble Hash, Rosin, Piatella",
+    short: "Bubble Hash, Rosin e Piatella — qualidade premium sem solvente",
     category: "Extrações",
     level: "Avançado",
     color: "amber",
-    description:
-      "Bubble Hash com malhas, Rosin sob pressão, Piatella curado: extração sem solventes voláteis, com foco em segurança de bancada e fluxo reprodutível.",
-    highlights: [
-      "Bubble Hash em 6 telas",
-      "Rosin: pressão, temperatura e papel",
-      "Piatella: cura e fermentação do hash",
-      "Limpeza e armazenamento"
-    ] as const,
-    professor: "Prof THC"
+    mapPosition: { x: 24, y: 46 },
+    description: "Extrações artesanais de alto nível: bubble hash em 6 telas, rosin prensado a frio, piatella curada, avaliação star system e armazenamento de concentrados.",
+    highlights: [],
+    professor: "Equipa THCProce",
   },
-  hud: { nextLessonFallbackLabel: courseFirstLessonTitle(EXTRACOES_SOLVENTLESS_AREA_ID) },
-  previewLessonTitles: coursePreviewLessonTitles(EXTRACOES_SOLVENTLESS_AREA_ID),
-  stats: {
-    lessonCount: courseOutlineLessonCount(EXTRACOES_SOLVENTLESS_AREA_ID),
-    hoursLabel: "12h"
-  }
 };

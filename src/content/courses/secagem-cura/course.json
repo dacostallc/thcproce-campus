@@ -4,17 +4,66 @@
   "description": "Domine o processo completo de pós-colheita da cannabis — desde o momento certo de colher até o armazenamento de longo prazo. Conteúdo técnico sobre ambiente, umidade, terpenos e qualidade final do produto.",
   "level": "Iniciante",
   "category": "Cultivo e Pós-Colheita",
-  "tags": ["secagem", "cura", "pós-colheita", "terpenos", "umidade", "armazenamento", "qualidade"],
+  "tags": [
+    "secagem",
+    "cura",
+    "pós-colheita",
+    "terpenos",
+    "umidade",
+    "armazenamento",
+    "qualidade"
+  ],
   "lessons": [
-    { "order": 1, "lessonId": "sc-l01-importancia-secagem-cura", "title": "A Importância da Secagem e da Cura" },
-    { "order": 2, "lessonId": "sc-l02-momento-colheita", "title": "Identificando o Momento Certo de Colher" },
-    { "order": 3, "lessonId": "sc-l03-preparacao-pos-colheita", "title": "Preparação e Pós-Colheita: Wet Trim vs Dry Trim" },
-    { "order": 4, "lessonId": "sc-l04-ambiente-secagem-ideal", "title": "Ambiente Ideal para Secagem" },
-    { "order": 5, "lessonId": "sc-l05-tecnicas-secagem", "title": "Técnicas de Secagem: Pendurada vs Rack" },
-    { "order": 6, "lessonId": "sc-l06-avaliacao-ponto-seco", "title": "Avaliando o Ponto Seco Corretamente" },
-    { "order": 7, "lessonId": "sc-l07-cura-em-vidro", "title": "Cura em Vidro: O Processo Completo" },
-    { "order": 8, "lessonId": "sc-l08-boveda-controle-umidade", "title": "Boveda e Controle de Umidade na Cura" },
-    { "order": 9, "lessonId": "sc-l09-erros-comuns-secagem", "title": "Erros Comuns na Secagem e Como Evitá-los" },
-    { "order": 10, "lessonId": "sc-l10-armazenamento-longo-prazo", "title": "Armazenamento de Longo Prazo: Vácuo e Nitrogênio" }
-  ]
+    {
+      "order": 1,
+      "lessonId": "sc-l01-importancia-secagem-cura",
+      "title": "A Importância da Secagem e da Cura"
+    },
+    {
+      "order": 2,
+      "lessonId": "sc-l02-momento-colheita",
+      "title": "Identificando o Momento Certo de Colher"
+    },
+    {
+      "order": 3,
+      "lessonId": "sc-l03-preparacao-pos-colheita",
+      "title": "Preparação e Pós-Colheita: Wet Trim vs Dry Trim"
+    },
+    {
+      "order": 4,
+      "lessonId": "sc-l04-ambiente-secagem-ideal",
+      "title": "Ambiente Ideal para Secagem"
+    },
+    {
+      "order": 5,
+      "lessonId": "sc-l05-tecnicas-secagem",
+      "title": "Técnicas de Secagem: Pendurada vs Rack"
+    },
+    {
+      "order": 6,
+      "lessonId": "sc-l06-avaliacao-ponto-seco",
+      "title": "Avaliando o Ponto Seco Corretamente"
+    },
+    {
+      "order": 7,
+      "lessonId": "sc-l07-cura-em-vidro",
+      "title": "Cura em Vidro: O Processo Completo"
+    },
+    {
+      "order": 8,
+      "lessonId": "sc-l08-boveda-controle-umidade",
+      "title": "Boveda e Controle de Umidade na Cura"
+    },
+    {
+      "order": 9,
+      "lessonId": "sc-l09-erros-comuns-secagem",
+      "title": "Erros Comuns na Secagem e Como Evitá-los"
+    },
+    {
+      "order": 10,
+      "lessonId": "sc-l10-armazenamento-longo-prazo",
+      "title": "Armazenamento de Longo Prazo: Vácuo e Nitrogênio"
+    }
+  ],
+  "lessonCount": 0
 }

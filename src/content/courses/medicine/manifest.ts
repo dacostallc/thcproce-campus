@@ -1,34 +1,24 @@
 import type { CourseManifest } from "@/content/courses/types";
-import {
-  courseFirstLessonTitle,
-  courseOutlineLessonCount,
-  coursePreviewLessonTitles
-} from "@/data/courseOutlines";
 
-export const MEDICINE_AREA_ID = "medicina" as const;
-
-export const MEDICINE_MANIFEST: CourseManifest = {
-  areaId: MEDICINE_AREA_ID,
+export const Medicine_MANIFEST: CourseManifest = {
+  areaId: "medicine",
   displayName: "Medicina Canabinoide",
+  hud: {
+    nextLessonFallbackLabel: "Medicina · Protocolos e posologia",
+  },
+  previewLessonTitles: [],
+  stats: {
+    lessonCount: 32,
+    hoursLabel: "≈12.8h leitura guiada",
+  },
   marketing: {
-    short: "Aplicações terapêuticas",
+    short: "Aplicações terapêuticas, protocolos por condição e titulação responsável",
     category: "Saúde",
     level: "Todos os níveis",
     color: "cyan",
-    description:
-      "Uso medicinal da cannabis: dor crônica, ansiedade, epilepsia, oncologia, autismo. Indicações, contra-indicações, interações medicamentosas e protocolos.",
-    highlights: [
-      "Sistema endocanabinoide aplicado",
-      "Protocolos por condição",
-      "Titulação e ajuste de dose",
-      "Interações com outros medicamentos"
-    ] as const,
-    professor: "Prof THC"
+    mapPosition: { x: 87, y: 26 },
+    description: "Cannabis medicinal com base científica: sistema endocanabinoide aprofundado, protocolos por condição (dor, ansiedade, epilepsia, oncologia), titulação 'start low go slow' e interações medicamentosas.",
+    highlights: [],
+    professor: "Equipa THCProce",
   },
-  hud: { nextLessonFallbackLabel: courseFirstLessonTitle(MEDICINE_AREA_ID) },
-  previewLessonTitles: coursePreviewLessonTitles(MEDICINE_AREA_ID),
-  stats: {
-    lessonCount: courseOutlineLessonCount(MEDICINE_AREA_ID),
-    hoursLabel: "14h"
-  }
 };

@@ -35,21 +35,26 @@ import type {
   CourseLessonPanelUi,
   RegisteredCourseCapabilities
 } from "./types";
-import { CULINARY_MANIFEST } from "./culinary/manifest";
-import { MEDICINE_MANIFEST } from "./medicine/manifest";
-import { EXTRACTION_MANIFEST } from "./extraction/manifest";
-import { CULTIVO_GREENHOUSE_MANIFEST } from "./cultivo-greenhouse/manifest";
-import { CULTIVO_OUTDOOR_MANIFEST } from "./cultivo-outdoor/manifest";
-import { CULTIVO_INDOOR_MANIFEST } from "./cultivo-indoor/manifest";
-import { GENETICA_MANIFEST } from "./genetica/manifest";
-import { SECAGEM_CURA_MANIFEST } from "./secagem-cura/manifest";
-import { EXTRACOES_SOLVENTLESS_MANIFEST } from "./extracoes-solventless/manifest";
+// Cursos com manifests gerados pelo setup-all-courses.mjs (camelCase)
+import { Culinary_MANIFEST } from "./culinary/manifest";
+import { Medicine_MANIFEST } from "./medicine/manifest";
+import { Extraction_MANIFEST } from "./extraction/manifest";
+import { CultivoGreenhouse_MANIFEST } from "./cultivo-greenhouse/manifest";
+import { CultivoOutdoor_MANIFEST } from "./cultivo-outdoor/manifest";
+import { CultivoIndoor_MANIFEST } from "./cultivo-indoor/manifest";
+import { Genetica_MANIFEST } from "./genetica/manifest";
+import { SecagemCura_MANIFEST } from "./secagem-cura/manifest";
+import { ExtracoesSolventless_MANIFEST } from "./extracoes-solventless/manifest";
 import { LABORATORIO_MANIFEST } from "./laboratorio/manifest";
-import { LEGISLACAO_MANIFEST } from "./legislacao/manifest";
-import { COOPERATIVISMO_MANIFEST } from "./cooperativismo/manifest";
-import { INDUSTRIA_MANIFEST } from "./industria/manifest";
+import { Legislacao_MANIFEST } from "./legislacao/manifest";
+import { Cooperativismo_MANIFEST } from "./cooperativismo/manifest";
+import { Industria_MANIFEST } from "./industria/manifest";
 import { EXTRACOES_101_MANIFEST } from "./extracoes-101/manifest";
-import { HASH_MAKER_MANIFEST } from "./hash-maker/manifest";
+import { HashMaker_MANIFEST } from "./hash-maker/manifest";
+// Novos cursos importados do Moodle
+import { CultivoFloracao_MANIFEST } from "./cultivo-floracao/manifest";
+import { NutricaoCannabis_MANIFEST } from "./nutricao-cannabis/manifest";
+import { CultivoSolo_MANIFEST } from "./cultivo-solo/manifest";
 import { getCourseLessonTheme } from "@/data/courseLessonThemes";
 import { tryGetManualLessonsForCourse } from "@/data/lessonContent";
 
@@ -126,29 +131,34 @@ registerCourse({
   usesCinematicLayout: true,   // ← blueprint: sidebar + HUD + Concluir Aula
 });
 
-registerCourse({ manifest: CULINARY_MANIFEST });
-registerCourse({ manifest: MEDICINE_MANIFEST });
-registerCourse({ manifest: EXTRACTION_MANIFEST });
-registerCourse({ manifest: CULTIVO_GREENHOUSE_MANIFEST });
-registerCourse({ manifest: CULTIVO_OUTDOOR_MANIFEST });
-registerCourse({ manifest: CULTIVO_INDOOR_MANIFEST });
-registerCourse({ manifest: GENETICA_MANIFEST });
-registerCourse({ manifest: SECAGEM_CURA_MANIFEST });
-registerCourse({ manifest: EXTRACOES_SOLVENTLESS_MANIFEST });
-registerCourse({ manifest: LABORATORIO_MANIFEST });
-registerCourse({ manifest: LEGISLACAO_MANIFEST });
-registerCourse({ manifest: COOPERATIVISMO_MANIFEST });
-registerCourse({ manifest: INDUSTRIA_MANIFEST });
+// ── Todos os cursos — layout Blueprint completo (sidebar + HUD + narração) ──
+registerCourse({ manifest: Culinary_MANIFEST,              usesCinematicLayout: true });
+registerCourse({ manifest: Medicine_MANIFEST,              usesCinematicLayout: true });
+registerCourse({ manifest: Extraction_MANIFEST,            usesCinematicLayout: true });
+registerCourse({ manifest: CultivoGreenhouse_MANIFEST,     usesCinematicLayout: true });
+registerCourse({ manifest: CultivoOutdoor_MANIFEST,        usesCinematicLayout: true });
+registerCourse({ manifest: CultivoIndoor_MANIFEST,         usesCinematicLayout: true });
+registerCourse({ manifest: Genetica_MANIFEST,              usesCinematicLayout: true });
+registerCourse({ manifest: SecagemCura_MANIFEST,           usesCinematicLayout: true });
+registerCourse({ manifest: ExtracoesSolventless_MANIFEST,  usesCinematicLayout: true });
+registerCourse({ manifest: LABORATORIO_MANIFEST,           usesCinematicLayout: true });
+registerCourse({ manifest: Legislacao_MANIFEST,            usesCinematicLayout: true });
+registerCourse({ manifest: Cooperativismo_MANIFEST,        usesCinematicLayout: true });
+registerCourse({ manifest: Industria_MANIFEST,             usesCinematicLayout: true });
+// Novos cursos importados do Moodle
+registerCourse({ manifest: CultivoFloracao_MANIFEST,       usesCinematicLayout: true });
+registerCourse({ manifest: NutricaoCannabis_MANIFEST,      usesCinematicLayout: true });
+registerCourse({ manifest: CultivoSolo_MANIFEST,           usesCinematicLayout: true });
 
-// ── Extrações 101 — layout Blueprint completo (sidebar + HUD + Concluir Aula + narração) ──
+// ── Extrações 101 — layout Blueprint completo ──
 registerCourse({
   manifest: EXTRACOES_101_MANIFEST,
   usesCinematicLayout: true,
 });
 
-// ── Hash Maker — layout Blueprint (sidebar + HUD + narração) ──
+// ── Hash Maker — layout Blueprint ──
 registerCourse({
-  manifest: HASH_MAKER_MANIFEST,
+  manifest: HashMaker_MANIFEST,
   usesCinematicLayout: true,
 });
 

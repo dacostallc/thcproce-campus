@@ -1,35 +1,24 @@
 import type { CourseManifest } from "@/content/courses/types";
-import {
-  courseFirstLessonTitle,
-  courseOutlineLessonCount,
-  coursePreviewLessonTitles
-} from "@/data/courseOutlines";
 
-/** Sala «Extração de Óleo» no mapa. */
-export const EXTRACTION_AREA_ID = "extracao-oleo" as const;
-
-export const EXTRACTION_MANIFEST: CourseManifest = {
-  areaId: EXTRACTION_AREA_ID,
+export const Extraction_MANIFEST: CourseManifest = {
+  areaId: "extraction",
   displayName: "Extração de Óleo",
+  hud: {
+    nextLessonFallbackLabel: "Óleos · RSO, FECO e tinturas medicinais",
+  },
+  previewLessonTitles: [],
+  stats: {
+    lessonCount: 26,
+    hoursLabel: "≈10.4h leitura guiada",
+  },
   marketing: {
-    short: "Óleo medicinal e tinturas",
+    short: "RSO, FECO, tinturas alcoólicas e cálculo de dosagem medicinal",
     category: "Extrações",
     level: "Avançado",
     color: "canna",
-    description:
-      "RSO, FECO, tinturas alcoólicas, óleo full spectrum. Extrações com solvente para uso terapêutico, com foco em segurança, dosagem e padronização.",
-    highlights: [
-      "Decarboxilação correta",
-      "RSO e FECO passo-a-passo",
-      "Cálculo de dosagem (mg/ml)",
-      "Filtragem, winterização e clareamento"
-    ] as const,
-    professor: "Prof THC"
+    mapPosition: { x: 82, y: 22 },
+    description: "Extração com solvente para fins medicinais: decarboxilação, RSO e FECO passo a passo, winterização, filtragem, cálculo de mg/ml por porção e armazenamento seguro.",
+    highlights: [],
+    professor: "Equipa THCProce",
   },
-  hud: { nextLessonFallbackLabel: courseFirstLessonTitle(EXTRACTION_AREA_ID) },
-  previewLessonTitles: coursePreviewLessonTitles(EXTRACTION_AREA_ID),
-  stats: {
-    lessonCount: courseOutlineLessonCount(EXTRACTION_AREA_ID),
-    hoursLabel: "11h"
-  }
 };

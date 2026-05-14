@@ -1,34 +1,24 @@
 import type { CourseManifest } from "@/content/courses/types";
-import {
-  courseFirstLessonTitle,
-  courseOutlineLessonCount,
-  coursePreviewLessonTitles
-} from "@/data/courseOutlines";
 
-export const CULTIVO_GREENHOUSE_AREA_ID = "cultivo-greenhouse" as const;
-
-export const CULTIVO_GREENHOUSE_MANIFEST: CourseManifest = {
-  areaId: CULTIVO_GREENHOUSE_AREA_ID,
+export const CultivoGreenhouse_MANIFEST: CourseManifest = {
+  areaId: "cultivo-greenhouse",
   displayName: "Cultivo Greenhouse",
+  hud: {
+    nextLessonFallbackLabel: "Estufa · Sol + controle climático",
+  },
+  previewLessonTitles: [],
+  stats: {
+    lessonCount: 10,
+    hoursLabel: "≈4h leitura guiada",
+  },
   marketing: {
-    short: "Estufa: o equilíbrio entre indoor e outdoor",
+    short: "O melhor do indoor e outdoor combinados — produção em estufa controlada",
     category: "Cultivo",
     level: "Intermediário",
     color: "canna",
-    description:
-      "Cultivo em estufa controlada: aproveita o sol, mas com proteção e suplementação. Controle climático, ventilação, suplementação de luz e produção em escala.",
-    highlights: [
-      "Estruturas e tipos de greenhouse",
-      "Controle de temperatura e umidade",
-      "Suplementação de CO₂ e LED",
-      "Manejo integrado de pragas"
-    ] as const,
-    professor: "Prof THC"
+    mapPosition: { x: 10, y: 32 },
+    description: "Cultivo em estufa: estruturas, coberturas, ventilação, controle de fotoperíodo com blackout, suplementação de luz e produção escalonada com custo reduzido vs indoor puro.",
+    highlights: [],
+    professor: "Equipa THCProce",
   },
-  hud: { nextLessonFallbackLabel: courseFirstLessonTitle(CULTIVO_GREENHOUSE_AREA_ID) },
-  previewLessonTitles: coursePreviewLessonTitles(CULTIVO_GREENHOUSE_AREA_ID),
-  stats: {
-    lessonCount: courseOutlineLessonCount(CULTIVO_GREENHOUSE_AREA_ID),
-    hoursLabel: "16h"
-  }
 };

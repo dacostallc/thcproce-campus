@@ -1,34 +1,24 @@
 import type { CourseManifest } from "@/content/courses/types";
-import {
-  courseFirstLessonTitle,
-  courseOutlineLessonCount,
-  coursePreviewLessonTitles
-} from "@/data/courseOutlines";
 
-export const GENETICA_AREA_ID = "genetica" as const;
-
-export const GENETICA_MANIFEST: CourseManifest = {
-  areaId: GENETICA_AREA_ID,
+export const Genetica_MANIFEST: CourseManifest = {
+  areaId: "genetica",
   displayName: "Genética & Sementes",
+  hud: {
+    nextLessonFallbackLabel: "Genética · Seleção, cruzamentos e bancos",
+  },
+  previewLessonTitles: [],
+  stats: {
+    lessonCount: 20,
+    hoursLabel: "≈8h leitura guiada",
+  },
   marketing: {
-    short: "Sementes feminizadas e cruzamentos",
+    short: "Sementes feminizadas, cruzamentos e seleção de mães com técnica e precisão",
     category: "Pesquisa",
     level: "Avançado",
     color: "canna",
-    description:
-      "Produção de sementes feminizadas, cruzamentos, estabilização de fenótipos e seleção de mães. Técnicas educativas com referência a STS e boas práticas.",
-    highlights: [
-      "Polinização controlada",
-      "Sementes feminizadas com STS",
-      "Seleção de fenótipos",
-      "Banco de mães e clones"
-    ] as const,
-    professor: "Prof THC"
+    mapPosition: { x: 41, y: 50 },
+    description: "Genética aplicada à cannabis: herança mendeliana, seleção de fenótipos, polinização controlada, produção de sementes feminizadas com STS, cruzamentos F1/F2, retrocruzamentos e estabilização de linhagens.",
+    highlights: [],
+    professor: "Equipa THCProce",
   },
-  hud: { nextLessonFallbackLabel: courseFirstLessonTitle(GENETICA_AREA_ID) },
-  previewLessonTitles: coursePreviewLessonTitles(GENETICA_AREA_ID),
-  stats: {
-    lessonCount: courseOutlineLessonCount(GENETICA_AREA_ID),
-    hoursLabel: "10h"
-  }
 };

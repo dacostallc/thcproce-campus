@@ -4,17 +4,65 @@
   "description": "Entenda os modelos jurídicos e de governança para associações e cooperativas voltadas à cannabis medicinal no Brasil. Casos reais, estrutura estatutária, finanças transparentes e relação com autoridades.",
   "level": "Intermediário",
   "category": "Gestão e Direito",
-  "tags": ["cooperativismo", "associação civil", "governança", "estatuto", "habeas corpus coletivo", "cannabis medicinal"],
+  "tags": [
+    "cooperativismo",
+    "associação civil",
+    "governança",
+    "estatuto",
+    "habeas corpus coletivo",
+    "cannabis medicinal"
+  ],
   "lessons": [
-    { "order": 1, "lessonId": "coop-l01-introducao-cooperativismo-cannabis", "title": "Introdução ao Cooperativismo na Cannabis" },
-    { "order": 2, "lessonId": "coop-l02-modelos-juridicos-associacao", "title": "Modelos Jurídicos: Associação, Cooperativa e Empresa" },
-    { "order": 3, "lessonId": "coop-l03-estatuto-regulamento-interno", "title": "Estatuto Social e Regulamento Interno" },
-    { "order": 4, "lessonId": "coop-l04-governanca-transparencia", "title": "Governança Democrática e Transparência" },
-    { "order": 5, "lessonId": "coop-l05-habeas-corpus-coletivo", "title": "Habeas Corpus Coletivo para Associações" },
-    { "order": 6, "lessonId": "coop-l06-modelo-producao-distribuicao", "title": "Modelos de Produção e Distribuição" },
-    { "order": 7, "lessonId": "coop-l07-financas-associacao", "title": "Gestão Financeira de Associações sem Fins Lucrativos" },
-    { "order": 8, "lessonId": "coop-l08-comunicacao-compliance", "title": "Comunicação Responsável e Compliance" },
-    { "order": 9, "lessonId": "coop-l09-relacao-com-autoridades", "title": "Relação com Autoridades e Órgãos Reguladores" },
-    { "order": 10, "lessonId": "coop-l10-casos-reais-associacoes-br", "title": "Casos Reais de Associações Medicinais Brasileiras" }
-  ]
+    {
+      "order": 1,
+      "lessonId": "coop-l01-introducao-cooperativismo-cannabis",
+      "title": "Introdução ao Cooperativismo na Cannabis"
+    },
+    {
+      "order": 2,
+      "lessonId": "coop-l02-modelos-juridicos-associacao",
+      "title": "Modelos Jurídicos: Associação, Cooperativa e Empresa"
+    },
+    {
+      "order": 3,
+      "lessonId": "coop-l03-estatuto-regulamento-interno",
+      "title": "Estatuto Social e Regulamento Interno"
+    },
+    {
+      "order": 4,
+      "lessonId": "coop-l04-governanca-transparencia",
+      "title": "Governança Democrática e Transparência"
+    },
+    {
+      "order": 5,
+      "lessonId": "coop-l05-habeas-corpus-coletivo",
+      "title": "Habeas Corpus Coletivo para Associações"
+    },
+    {
+      "order": 6,
+      "lessonId": "coop-l06-modelo-producao-distribuicao",
+      "title": "Modelos de Produção e Distribuição"
+    },
+    {
+      "order": 7,
+      "lessonId": "coop-l07-financas-associacao",
+      "title": "Gestão Financeira de Associações sem Fins Lucrativos"
+    },
+    {
+      "order": 8,
+      "lessonId": "coop-l08-comunicacao-compliance",
+      "title": "Comunicação Responsável e Compliance"
+    },
+    {
+      "order": 9,
+      "lessonId": "coop-l09-relacao-com-autoridades",
+      "title": "Relação com Autoridades e Órgãos Reguladores"
+    },
+    {
+      "order": 10,
+      "lessonId": "coop-l10-casos-reais-associacoes-br",
+      "title": "Casos Reais de Associações Medicinais Brasileiras"
+    }
+  ],
+  "lessonCount": 0
 }

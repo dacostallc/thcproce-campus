@@ -1,34 +1,24 @@
 import type { CourseManifest } from "@/content/courses/types";
-import {
-  courseFirstLessonTitle,
-  courseOutlineLessonCount,
-  coursePreviewLessonTitles
-} from "@/data/courseOutlines";
 
-export const INDUSTRIA_AREA_ID = "industria" as const;
-
-export const INDUSTRIA_MANIFEST: CourseManifest = {
-  areaId: INDUSTRIA_AREA_ID,
+export const Industria_MANIFEST: CourseManifest = {
+  areaId: "industria",
   displayName: "Indústria Cannabis",
+  hud: {
+    nextLessonFallbackLabel: "Indústria · Mercado, carreiras e negócios",
+  },
+  previewLessonTitles: [],
+  stats: {
+    lessonCount: 0,
+    hoursLabel: "≈0h leitura guiada",
+  },
   marketing: {
-    short: "Mercado, marcas e produção em escala",
+    short: "Mercado global, branding, cadeia de suprimentos e carreiras",
     category: "Negócio",
     level: "Avançado",
     color: "rose",
-    description:
-      "Mercado regulado, branding, claims permitidos, cadeia de suprimentos e carreiras — quadro conceitual; decisões de licenciamento exigem assessoria especializada.",
-    highlights: [
-      "Mercado BR vs LATAM vs EUA/EU",
-      "Branding e produto",
-      "Cadeia de suprimentos",
-      "Carreiras e oportunidades"
-    ] as const,
-    professor: "Prof THC"
+    mapPosition: { x: 79, y: 74 },
+    description: "Indústria da cannabis: mercado global e brasileiro, segmentos de produtos, cadeia de suprimentos, branding responsável, boas práticas de fabricação (BPF/GMP) e carreiras em demanda.",
+    highlights: [],
+    professor: "Equipa THCProce",
   },
-  hud: { nextLessonFallbackLabel: courseFirstLessonTitle(INDUSTRIA_AREA_ID) },
-  previewLessonTitles: coursePreviewLessonTitles(INDUSTRIA_AREA_ID),
-  stats: {
-    lessonCount: courseOutlineLessonCount(INDUSTRIA_AREA_ID),
-    hoursLabel: "8h"
-  }
 };

@@ -1,34 +1,24 @@
 import type { CourseManifest } from "@/content/courses/types";
-import {
-  courseFirstLessonTitle,
-  courseOutlineLessonCount,
-  coursePreviewLessonTitles
-} from "@/data/courseOutlines";
 
-export const COOPERATIVISMO_AREA_ID = "cooperativismo" as const;
-
-export const COOPERATIVISMO_MANIFEST: CourseManifest = {
-  areaId: COOPERATIVISMO_AREA_ID,
+export const Cooperativismo_MANIFEST: CourseManifest = {
+  areaId: "cooperativismo",
   displayName: "Cooperativismo",
+  hud: {
+    nextLessonFallbackLabel: "Cooperativismo · Como montar sua associação",
+  },
+  previewLessonTitles: [],
+  stats: {
+    lessonCount: 0,
+    hoursLabel: "≈0h leitura guiada",
+  },
   marketing: {
-    short: "Como montar uma associação medicinal",
+    short: "Como montar e gerir uma associação medicinal com segurança jurídica",
     category: "Negócio",
     level: "Avançado",
     color: "purple",
-    description:
-      "Modelos associativos: estatuto, assembleia, transparência, distribuição e relação com prescritores — sempre com orientação jurídica profissional para operações reais.",
-    highlights: [
-      "Estatuto e regulamento interno",
-      "Governança e transparência",
-      "Habeas corpus coletivo",
-      "Modelo de produção e distribuição"
-    ] as const,
-    professor: "Prof THC"
+    mapPosition: { x: 54, y: 64 },
+    description: "Cooperativismo e associações: estatuto social, governança democrática, habeas corpus coletivo, modelos de produção e distribuição, finanças sem fins lucrativos e compliance.",
+    highlights: [],
+    professor: "Equipa THCProce",
   },
-  hud: { nextLessonFallbackLabel: courseFirstLessonTitle(COOPERATIVISMO_AREA_ID) },
-  previewLessonTitles: coursePreviewLessonTitles(COOPERATIVISMO_AREA_ID),
-  stats: {
-    lessonCount: courseOutlineLessonCount(COOPERATIVISMO_AREA_ID),
-    hoursLabel: "6h"
-  }
 };

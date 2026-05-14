@@ -1,34 +1,24 @@
 import type { CourseManifest } from "@/content/courses/types";
-import {
-  courseFirstLessonTitle,
-  courseOutlineLessonCount,
-  coursePreviewLessonTitles
-} from "@/data/courseOutlines";
 
-export const SECAGEM_CURA_AREA_ID = "secagem-cura" as const;
-
-export const SECAGEM_CURA_MANIFEST: CourseManifest = {
-  areaId: SECAGEM_CURA_AREA_ID,
+export const SecagemCura_MANIFEST: CourseManifest = {
+  areaId: "secagem-cura",
   displayName: "Secagem & Cura",
+  hud: {
+    nextLessonFallbackLabel: "Secagem · Terpenos preservados, aroma garantido",
+  },
+  previewLessonTitles: [],
+  stats: {
+    lessonCount: 0,
+    hoursLabel: "≈0h leitura guiada",
+  },
   marketing: {
-    short: "Onde o aroma e a potência se preservam",
+    short: "Onde o aroma e a potência se preservam — técnica e paciência",
     category: "Pós-colheita",
     level: "Intermediário",
     color: "amber",
-    description:
-      "Secagem e cura: umidade, temperatura, escuridão e tempo. Diferença entre flor mediana e flor premium — protocolos THCProce sem prometer resultados mágicos.",
-    highlights: [
-      "Curva de secagem ideal",
-      "Cura em vidro com Boveda",
-      "Erros que destroem terpenos",
-      "Armazenamento de longo prazo"
-    ] as const,
-    professor: "Prof THC"
+    mapPosition: { x: 93, y: 44 },
+    description: "A diferença entre uma flor mediana e uma premium está na secagem e cura. Ambiente ideal, wet trim vs dry trim, cura em vidro, Boveda 62% e armazenamento de longo prazo.",
+    highlights: [],
+    professor: "Equipa THCProce",
   },
-  hud: { nextLessonFallbackLabel: courseFirstLessonTitle(SECAGEM_CURA_AREA_ID) },
-  previewLessonTitles: coursePreviewLessonTitles(SECAGEM_CURA_AREA_ID),
-  stats: {
-    lessonCount: courseOutlineLessonCount(SECAGEM_CURA_AREA_ID),
-    hoursLabel: "5h"
-  }
 };

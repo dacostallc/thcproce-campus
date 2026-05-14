@@ -1,34 +1,24 @@
 import type { CourseManifest } from "@/content/courses/types";
-import {
-  courseFirstLessonTitle,
-  courseOutlineLessonCount,
-  coursePreviewLessonTitles
-} from "@/data/courseOutlines";
 
-export const LEGISLACAO_AREA_ID = "legislacao" as const;
-
-export const LEGISLACAO_MANIFEST: CourseManifest = {
-  areaId: LEGISLACAO_AREA_ID,
+export const Legislacao_MANIFEST: CourseManifest = {
+  areaId: "legislacao",
   displayName: "Legislação Cannabis",
+  hud: {
+    nextLessonFallbackLabel: "Legislação · RDC 660, habeas corpus e direitos",
+  },
+  previewLessonTitles: [],
+  stats: {
+    lessonCount: 7,
+    hoursLabel: "≈2.8h leitura guiada",
+  },
   marketing: {
-    short: "Habeas corpus, RDC 660 e Anvisa",
+    short: "RDC 660, habeas corpus, importação e direitos de pacientes",
     category: "Direito",
     level: "Todos os níveis",
     color: "rose",
-    description:
-      "Panorama regulatório no Brasil: canais legais, importação, associações e direitos de pacientes — educação jurídica básica; parecer concreto fica com advogado habilitado.",
-    highlights: [
-      "Habeas corpus passo-a-passo",
-      "RDC 660 e RDC 327",
-      "Importação de produtos via Anvisa",
-      "Direito de pacientes e cuidadores"
-    ] as const,
-    professor: "Prof THC"
+    mapPosition: { x: 16, y: 84 },
+    description: "Legislação cannabis no Brasil: RDC 660 e RDC 327 da ANVISA, habeas corpus preventivo e decisões do STF, importação de produtos, associações medicinais e direitos de pacientes.",
+    highlights: [],
+    professor: "Equipa THCProce",
   },
-  hud: { nextLessonFallbackLabel: courseFirstLessonTitle(LEGISLACAO_AREA_ID) },
-  previewLessonTitles: coursePreviewLessonTitles(LEGISLACAO_AREA_ID),
-  stats: {
-    lessonCount: courseOutlineLessonCount(LEGISLACAO_AREA_ID),
-    hoursLabel: "6h"
-  }
 };

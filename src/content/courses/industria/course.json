@@ -4,17 +4,67 @@
   "description": "Uma visão completa sobre o mercado global e brasileiro da cannabis legal, incluindo segmentos de produtos, cadeia de suprimentos, branding responsável, regulação empresarial, BPF e oportunidades de carreira e investimento.",
   "level": "Intermediário",
   "category": "Negócios e Mercado",
-  "tags": ["mercado", "indústria", "cannabis medicinal", "ANVISA", "BPF", "carreiras", "investimento", "branding"],
+  "tags": [
+    "mercado",
+    "indústria",
+    "cannabis medicinal",
+    "ANVISA",
+    "BPF",
+    "carreiras",
+    "investimento",
+    "branding"
+  ],
   "lessons": [
-    { "order": 1, "lessonId": "ind-l01-mercado-cannabis-global", "title": "O Mercado Global da Cannabis Legal" },
-    { "order": 2, "lessonId": "ind-l02-mercado-brasil-latam", "title": "Mercado Brasileiro e Latino-Americano" },
-    { "order": 3, "lessonId": "ind-l03-segmentos-produtos", "title": "Segmentos e Tipos de Produtos" },
-    { "order": 4, "lessonId": "ind-l04-cadeia-suprimentos", "title": "Cadeia de Suprimentos: Do Campo à Prateleira" },
-    { "order": 5, "lessonId": "ind-l05-branding-cannabis", "title": "Branding Responsável no Setor de Cannabis" },
-    { "order": 6, "lessonId": "ind-l06-regulatorio-empresarial", "title": "Regulatório Empresarial: Autorizações ANVISA" },
-    { "order": 7, "lessonId": "ind-l07-boas-praticas-fabricacao", "title": "Boas Práticas de Fabricação (BPF)" },
-    { "order": 8, "lessonId": "ind-l08-exportacao-importacao", "title": "Exportação, Importação e Acordos Internacionais" },
-    { "order": 9, "lessonId": "ind-l09-carreiras-cannabis", "title": "Carreiras em Demanda na Indústria da Cannabis" },
-    { "order": 10, "lessonId": "ind-l10-investimentos-tendencias", "title": "Investimentos, Venture Capital e Tendências" }
-  ]
+    {
+      "order": 1,
+      "lessonId": "ind-l01-mercado-cannabis-global",
+      "title": "O Mercado Global da Cannabis Legal"
+    },
+    {
+      "order": 2,
+      "lessonId": "ind-l02-mercado-brasil-latam",
+      "title": "Mercado Brasileiro e Latino-Americano"
+    },
+    {
+      "order": 3,
+      "lessonId": "ind-l03-segmentos-produtos",
+      "title": "Segmentos e Tipos de Produtos"
+    },
+    {
+      "order": 4,
+      "lessonId": "ind-l04-cadeia-suprimentos",
+      "title": "Cadeia de Suprimentos: Do Campo à Prateleira"
+    },
+    {
+      "order": 5,
+      "lessonId": "ind-l05-branding-cannabis",
+      "title": "Branding Responsável no Setor de Cannabis"
+    },
+    {
+      "order": 6,
+      "lessonId": "ind-l06-regulatorio-empresarial",
+      "title": "Regulatório Empresarial: Autorizações ANVISA"
+    },
+    {
+      "order": 7,
+      "lessonId": "ind-l07-boas-praticas-fabricacao",
+      "title": "Boas Práticas de Fabricação (BPF)"
+    },
+    {
+      "order": 8,
+      "lessonId": "ind-l08-exportacao-importacao",
+      "title": "Exportação, Importação e Acordos Internacionais"
+    },
+    {
+      "order": 9,
+      "lessonId": "ind-l09-carreiras-cannabis",
+      "title": "Carreiras em Demanda na Indústria da Cannabis"
+    },
+    {
+      "order": 10,
+      "lessonId": "ind-l10-investimentos-tendencias",
+      "title": "Investimentos, Venture Capital e Tendências"
+    }
+  ],
+  "lessonCount": 0
 }
