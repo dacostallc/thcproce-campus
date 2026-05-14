@@ -5,10 +5,12 @@
  * markdown e checkpoints. Não inclui sidebar, HUD nem footer — compostos pelo pai.
  */
 
+import { useCallback, useRef, useState } from "react";
 import type { LessonQuizItem } from "@/data/lessonContent/types";
-import { LessonStaticMarkdown } from "@/components/campus/LessonStaticMarkdown";
+import { LessonStaticMarkdown, type ParagraphTimestamp } from "@/components/campus/LessonStaticMarkdown";
 import { LessonAudioPlayer } from "@/components/campus/LessonAudioPlayer";
 import { cn } from "@/lib/utils";
+import { trpc } from "@/lib/trpc/react";
 import {
   StreamQuizQuestion,
   type LessonQuizAcademicContext
@@ -35,6 +37,22 @@ export function LessonContentFrame({
   audioId,
 }: LessonContentFrameProps) {
   const quizList = quiz ?? [];
+
+  // seekFn é preenchida pelo LessonAudioPlayer quando ele fica pronto
+  const seekFnRef = useRef<((seconds: number) => void) | null>(null);
+  const handleSeekReady = useCallback((fn: (seconds: number) => void) => {
+    seekFnRef.current = fn;
+  }, []);
+  const handleParagraphClick = useCallback((startTime: number) => {
+    seekFnRef.current?.(startTime);
+  }, []);
+
+  // Busca timestamps do DB (só quando audioId está disponível)
+  const { data: audioData } = trpc.campus.lessonAudioUrl.useQuery(
+    { courseId: audioId?.courseId ?? "", lessonId: audioId?.lessonId ?? "" },
+    { enabled: Boolean(audioId), staleTime: Infinity },
+  );
+  const paragraphTimestamps = (audioData?.paragraphTimestamps ?? null) as ParagraphTimestamp[] | null;
 
   const checkpointsBlock = quizList.length > 0 && (
     <div className="mt-8 border-t border-[rgba(255,255,255,0.1)] pt-6">
@@ -82,11 +100,17 @@ export function LessonContentFrame({
                 courseId={audioId.courseId}
                 lessonId={audioId.lessonId}
                 lessonTitle={frameTitle}
+                onSeekReady={handleSeekReady}
               />
             </div>
           )}
 
-          <LessonStaticMarkdown markdown={markdown} className={markdownClassName} />
+          <LessonStaticMarkdown
+            markdown={markdown}
+            className={markdownClassName}
+            paragraphTimestamps={paragraphTimestamps}
+            onParagraphClick={paragraphTimestamps ? handleParagraphClick : undefined}
+          />
           {checkpointsBlock}
         </div>
       </div>

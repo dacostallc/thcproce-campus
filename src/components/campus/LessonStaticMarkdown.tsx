@@ -23,17 +23,49 @@ function safeMarkdownHref(href: unknown): string | null {
 const linkClass =
   "font-medium text-[#0b7a56] underline underline-offset-[3px] decoration-[#0b7a56]/35 transition-colors hover:text-[#065d42] hover:decoration-[#065d42]/55";
 
+export interface ParagraphTimestamp {
+  text: string;
+  startTime: number;
+}
+
 type Props = {
   markdown: string;
   className?: string;
+  /** Timestamps de parágrafo para click-to-seek. Omitir para desabilitar. */
+  paragraphTimestamps?: ParagraphTimestamp[] | null;
+  /** Chamado quando o utilizador clica num parágrafo com timestamp. */
+  onParagraphClick?: (startTime: number) => void;
 };
 
 /**
  * Markdown para leitura em camada estática (sem HUD/XP no corpo).
  * GFM, links seguros, imagens responsivas.
+ * Suporta parágrafos clicáveis com seek de áudio via `paragraphTimestamps`.
  */
-export function LessonStaticMarkdown({ markdown, className }: Props) {
+export function LessonStaticMarkdown({
+  markdown,
+  className,
+  paragraphTimestamps,
+  onParagraphClick,
+}: Props) {
   const md = normalizeLessonMarkdown(markdown);
+
+  const hasTimestamps = Boolean(
+    paragraphTimestamps?.length && onParagraphClick,
+  );
+
+  /** Encontra o timestamp mais próximo para um texto de parágrafo. */
+  function findTimestamp(text: string): number | null {
+    if (!paragraphTimestamps?.length) return null;
+    const plain = text.trim().slice(0, 80).toLowerCase();
+    for (const pt of paragraphTimestamps) {
+      if (pt.text.toLowerCase().startsWith(plain.slice(0, 40)) ||
+          plain.startsWith(pt.text.toLowerCase().slice(0, 40))) {
+        return pt.startTime;
+      }
+    }
+    return null;
+  }
 
   const components: Components = {
     a: ({ href, children }) => {
@@ -68,6 +100,25 @@ export function LessonStaticMarkdown({ markdown, className }: Props) {
         <Link href={safe} className={linkClass}>
           {children}
         </Link>
+      );
+    },
+    p: ({ children }) => {
+      if (!hasTimestamps) return <p>{children}</p>;
+      const raw = typeof children === "string"
+        ? children
+        : Array.isArray(children)
+          ? children.map((c) => (typeof c === "string" ? c : "")).join("")
+          : "";
+      const ts = findTimestamp(raw);
+      if (ts === null) return <p>{children}</p>;
+      return (
+        <p
+          onClick={() => onParagraphClick?.(ts)}
+          title={`Ouvir este trecho (${ts}s)`}
+          className="cursor-pointer rounded px-1 transition-colors hover:bg-lime-500/10 hover:text-lime-200 [&:hover]:outline [&:hover]:outline-1 [&:hover]:outline-lime-500/30"
+        >
+          {children}
+        </p>
       );
     },
     img: ({ src, alt }) => {

@@ -300,10 +300,13 @@ model LessonAudio {
   /// URL pública do MP3 (Supabase Storage, Vercel Blob, CDN ou /audio/lessons/…).
   audioUrl    String
   /// Duração em segundos (preenchida pelo script após gerar o áudio).
-  durationSec Int?
+  durationSec          Int?
   /// Tamanho do ficheiro em bytes.
-  sizeBytes   Int?
-  generatedAt DateTime @default(now())
+  sizeBytes            Int?
+  /// Array JSON com timestamps de parágrafo: [{ text: string, startTime: number }]
+  /// Gerado automaticamente via ElevenLabs convertWithTimestamps.
+  paragraphTimestamps  Json?
+  generatedAt          DateTime @default(now())
 
   @@unique([courseId, lessonId])
   @@index([courseId])

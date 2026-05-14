@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useCallback } from "react";
+import { useState } from "react";
 import { Loader2, Mic } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { trpc } from "@/lib/trpc/react";
@@ -10,6 +11,12 @@ type Props = {
   lessonId: string;
   lessonTitle?: string;
   className?: string;
+  /**
+   * Chamado assim que o player de áudio está pronto.
+   * Recebe a função `seekTo(seconds)` que o pai pode armazenar e chamar
+   * quando o utilizador clicar num parágrafo com timestamp.
+   */
+  onSeekReady?: (seekTo: (seconds: number) => void) => void;
 };
 
 type PlayerState = "loading" | "ready" | "generate";
@@ -25,8 +32,9 @@ const getAudioUrl = (courseId: string, lessonId: string) =>
  *  2. Fallback: query ao DB via tRPC (URLs externas como Supabase/CDN).
  *  3. Nada encontrado → estado "generate" (botão ElevenLabs aparece SÓ aqui).
  */
-export function LessonAudioPlayer({ courseId, lessonId, className }: Props) {
+export function LessonAudioPlayer({ courseId, lessonId, className, onSeekReady }: Props) {
   const utils = trpc.useUtils();
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [playerState, setPlayerState] = useState<PlayerState>("loading");
@@ -83,6 +91,20 @@ export function LessonAudioPlayer({ courseId, lessonId, className }: Props) {
     return () => { isMounted = false; };
   }, [courseId, lessonId, utils.campus.lessonAudioUrl]);
 
+  // Expõe seekTo ao pai quando o player está pronto
+  const seekTo = useCallback((seconds: number) => {
+    const el = audioRef.current;
+    if (!el) return;
+    el.currentTime = seconds;
+    void el.play().catch(() => undefined);
+  }, []);
+
+  useEffect(() => {
+    if (playerState === "ready" && onSeekReady) {
+      onSeekReady(seekTo);
+    }
+  }, [playerState, onSeekReady, seekTo]);
+
   // ── Geração via ElevenLabs ─────────────────────────────────────────────────
   async function handleGenerate() {
     setGenerating(true);
@@ -130,6 +152,7 @@ export function LessonAudioPlayer({ courseId, lessonId, className }: Props) {
         </p>
         {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
         <audio
+          ref={audioRef}
           key={audioUrl}
           controls
           src={audioUrl}

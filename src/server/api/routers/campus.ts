@@ -1442,14 +1442,17 @@ export const campusRouter = router({
               lessonId: input.lessonId,
             },
           },
-          select: { audioUrl: true, durationSec: true },
+          select: { audioUrl: true, durationSec: true, paragraphTimestamps: true },
         });
         return {
           url: row?.audioUrl ?? null,
           durationSec: row?.durationSec ?? null,
+          paragraphTimestamps: (row?.paragraphTimestamps ?? null) as
+            | Array<{ text: string; startTime: number }>
+            | null,
         };
       } catch {
-        return { url: null, durationSec: null };
+        return { url: null, durationSec: null, paragraphTimestamps: null };
       }
     }),
 });

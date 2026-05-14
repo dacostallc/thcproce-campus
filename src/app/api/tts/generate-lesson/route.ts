@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import fs from "node:fs";
 import path from "node:path";
 import { prisma } from "@/server/db";
-import { generateVoiceover, isTtsConfigured } from "@/lib/tts/elevenlabs";
+import { generateVoiceoverWithTimestamps, isTtsConfigured, type ParagraphTimestamp } from "@/lib/tts/elevenlabs";
 
 // Aulas longas podem levar até ~60s para sintetizar no ElevenLabs
 export const maxDuration = 60;
@@ -41,23 +41,40 @@ function findMarkdownFile(courseId: string, lessonId: string): string | null {
   return candidates.find((p) => fs.existsSync(p)) ?? null;
 }
 
-function extractPlainText(markdown: string): string {
-  return markdown
-    .replace(/^---[\s\S]*?---\n?/, "")
+function stripMarkdownLine(line: string): string {
+  return line
     .replace(/```[\s\S]*?```/g, "")
     .replace(/`[^`]+`/g, "")
     .replace(/<[^>]+>/g, "")
     .replace(/!\[.*?\]\(.*?\)/g, "")
     .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
-    .replace(/^#{1,6}\s+/gm, "")
+    .replace(/^#{1,6}\s+/, "")
     .replace(/\*{1,3}([^*]+)\*{1,3}/g, "$1")
     .replace(/_{1,3}([^_]+)_{1,3}/g, "$1")
-    .replace(/^\|.*\|$/gm, "")
-    .replace(/^[-|: ]+$/gm, "")
-    .replace(/^>\s?/gm, "")
-    .replace(/^---+$/gm, "")
+    .replace(/^\|.*\|$/, "")
+    .replace(/^[-|: ]+$/, "")
+    .replace(/^>\s?/, "")
+    .replace(/^---+$/, "")
+    .trim();
+}
+
+function extractPlainText(markdown: string): string {
+  return markdown
+    .replace(/^---[\s\S]*?---\n?/, "")
+    .split("\n")
+    .map(stripMarkdownLine)
+    .join("\n")
     .replace(/\n{3,}/g, "\n\n")
     .trim();
+}
+
+/** Extrai parágrafos como textos puros (preserva separação por \n\n). */
+function extractParagraphs(markdown: string): string[] {
+  const plain = extractPlainText(markdown);
+  return plain
+    .split(/\n{2,}/)
+    .map((p) => p.trim())
+    .filter((p) => p.length > 0);
 }
 
 
@@ -135,17 +152,22 @@ export async function POST(req: Request) {
   if (text.length < 50) {
     return NextResponse.json({ error: "Texto muito curto para síntese." }, { status: 422 });
   }
+
+  const truncatedText = text.length > MAX_CHARS ? text.slice(0, MAX_CHARS) : text;
   if (text.length > MAX_CHARS) {
-    // Trunca para não exceder limite de créditos por acidente
     console.warn(`[generate-lesson] Texto truncado de ${text.length} para ${MAX_CHARS} chars`);
   }
 
-  // 3. Sintetiza via SDK oficial (voz clonada THCProce)
+  // Parágrafos para derivar timestamps (usando o texto original, não truncado)
+  const paragraphs = extractParagraphs(rawMd);
+
+  // 3. Sintetiza com timestamps de parágrafo via SDK ElevenLabs
   let audioBuffer: Buffer;
+  let paragraphTimestamps: ParagraphTimestamp[] = [];
   try {
-    audioBuffer = await generateVoiceover(
-      text.length > MAX_CHARS ? text.slice(0, MAX_CHARS) : text,
-    );
+    const result = await generateVoiceoverWithTimestamps(truncatedText, paragraphs);
+    audioBuffer = result.buffer;
+    paragraphTimestamps = result.paragraphTimestamps;
   } catch (e) {
     console.error("[generate-lesson] ElevenLabs error:", e);
     return NextResponse.json(
@@ -166,17 +188,27 @@ export async function POST(req: Request) {
     );
   }
 
-  // 5. Registra no DB
+  // 5. Registra no DB com timestamps
   try {
     await prisma.lessonAudio.upsert({
       where: { courseId_lessonId: { courseId, lessonId } },
-      create: { courseId, lessonId, audioUrl, sizeBytes: audioBuffer.length },
-      update: { audioUrl, sizeBytes: audioBuffer.length },
+      create: {
+        courseId,
+        lessonId,
+        audioUrl,
+        sizeBytes: audioBuffer.length,
+        paragraphTimestamps: paragraphTimestamps.length > 0 ? paragraphTimestamps : undefined,
+      },
+      update: {
+        audioUrl,
+        sizeBytes: audioBuffer.length,
+        paragraphTimestamps: paragraphTimestamps.length > 0 ? paragraphTimestamps : undefined,
+      },
     });
   } catch (e) {
     console.error("[generate-lesson] DB upsert error:", e);
     // Não falha a request — o áudio foi gerado e salvo, só o DB falhou
   }
 
-  return NextResponse.json({ audioUrl, cached: false });
+  return NextResponse.json({ audioUrl, cached: false, paragraphTimestamps });
 }

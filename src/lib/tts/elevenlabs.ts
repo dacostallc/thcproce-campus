@@ -54,8 +54,6 @@ function resolveModelId(): string {
 /**
  * Gera narração de áudio para um texto usando a voz oficial THCProce.
  * Retorna um `Buffer` com o MP3 completo.
- *
- * @param text Texto puro (sem markdown). Máx ~5000 chars por chamada.
  */
 export async function generateVoiceover(text: string): Promise<Buffer> {
   const client = getClient();
@@ -69,12 +67,79 @@ export async function generateVoiceover(text: string): Promise<Buffer> {
     voice_settings: THCPROCE_VOICE_SETTINGS,
   });
 
-  // Coleta o stream em um Buffer único
   const chunks: Buffer[] = [];
   for await (const chunk of audioStream) {
     chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
   }
   return Buffer.concat(chunks);
+}
+
+// ─── Timestamps ───────────────────────────────────────────────────────────────
+
+export interface ParagraphTimestamp {
+  /** Primeiros 80 chars do parágrafo (usado para matching no frontend). */
+  text: string;
+  /** Tempo de início em segundos no áudio gerado. */
+  startTime: number;
+}
+
+/**
+ * Gera narração com alinhamento caractere-a-caractere.
+ * Deriva timestamps de parágrafo a partir dos dados de alinhamento retornados
+ * pela API ElevenLabs e retorna junto com o buffer MP3.
+ *
+ * @param text      Texto puro completo da aula.
+ * @param paragraphs Lista dos parágrafos originais (para mapear offsets).
+ */
+export async function generateVoiceoverWithTimestamps(
+  text: string,
+  paragraphs: string[],
+): Promise<{ buffer: Buffer; paragraphTimestamps: ParagraphTimestamp[] }> {
+  const client = getClient();
+  const voiceId = resolveVoiceId();
+  const modelId = resolveModelId();
+
+  const result = await client.textToSpeech.convertWithTimestamps(voiceId, {
+    text,
+    model_id: modelId,
+    voice_settings: { ...THCPROCE_VOICE_SETTINGS },
+    output_format: "mp3_44100_128",
+  });
+
+  // Decodifica o base64 retornado pela API para Buffer
+  const buffer = Buffer.from(result.audio_base64 ?? "", "base64");
+
+  // Alinhamento caractere → segundo
+  const chars: string[]  = result.alignment?.characters ?? [];
+  const starts: number[] = result.alignment?.character_start_times_seconds ?? [];
+
+  // Para cada parágrafo, encontra o offset do primeiro caractere no texto
+  // completo e busca o tempo inicial correspondente no array de alinhamento
+  const paragraphTimestamps: ParagraphTimestamp[] = [];
+  let searchFrom = 0;
+
+  for (const para of paragraphs) {
+    const trimmed = para.trim();
+    if (!trimmed) continue;
+
+    // Procura o parágrafo no texto a partir de where última busca terminou
+    const idx = text.indexOf(trimmed, searchFrom);
+    if (idx === -1) continue;
+
+    // Conta quantos chars o ElevenLabs mapeou até esse offset
+    // (o alinhamento pode ter menos chars que o texto por normalização)
+    const charIdx = Math.min(idx, chars.length - 1);
+    const startTime = starts[charIdx] ?? 0;
+
+    paragraphTimestamps.push({
+      text: trimmed.slice(0, 80),
+      startTime: Math.round(startTime * 10) / 10, // arredonda para 0.1s
+    });
+
+    searchFrom = idx + trimmed.length;
+  }
+
+  return { buffer, paragraphTimestamps };
 }
 
 /**
