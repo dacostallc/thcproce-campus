@@ -1,0 +1,18 @@
+{
+  "courseId": "meu-curso",
+  "version": 1,
+  "title": "Nome Completo do Curso",
+  "lessonCount": 10,
+  "lessons": [
+    "mc-l01-titulo-aula-1",
+    "mc-l02-titulo-aula-2",
+    "mc-l03-titulo-aula-3",
+    "mc-l04-titulo-aula-4",
+    "mc-l05-titulo-aula-5",
+    "mc-l06-titulo-aula-6",
+    "mc-l07-titulo-aula-7",
+    "mc-l08-titulo-aula-8",
+    "mc-l09-titulo-aula-9",
+    "mc-l10-titulo-aula-10"
+  ]
+}

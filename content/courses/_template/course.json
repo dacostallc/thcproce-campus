@@ -1,0 +1,12 @@
+{
+  "courseId": "meu-curso-101",
+  "version": 1,
+  "title": "Meu Curso 101 – Título Completo",
+  "contentRoot": "lessons",
+  "description": "Descreva o curso aqui. Esta pasta é um template — copie-a, renomeie e ajuste.",
+  "lessonCount": 2,
+  "lessons": [
+    "mc-l01-introducao",
+    "mc-l02-proximos-passos"
+  ]
+}
