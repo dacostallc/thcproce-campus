@@ -44,12 +44,31 @@ async function resolveFilePath(
   return { fullPath, safe: fullPath.startsWith(AUDIO_ROOT) };
 }
 
+/**
+ * Verifica se o arquivo existe E tem tamanho > 0.
+ * Se existir mas estiver vazio (geração falhou a meio), apaga e retorna false
+ * para que o front-end receba 404 e mostre o botão de geração novamente.
+ */
+function checkAudioFile(fullPath: string): "ok" | "not_found" | "deleted_empty" {
+  if (!fs.existsSync(fullPath)) return "not_found";
+  try {
+    const { size } = fs.statSync(fullPath);
+    if (size > 0) return "ok";
+    fs.unlinkSync(fullPath);
+    console.warn(`[audio] Arquivo vazio apagado: ${fullPath}`);
+    return "deleted_empty";
+  } catch {
+    return "not_found";
+  }
+}
+
 // HEAD — usado pelo LessonAudioPlayer para verificar se o arquivo existe
 // sem baixar o conteúdo. Next.js exige handler explícito (senão retorna 405).
 export async function HEAD(_req: NextRequest, { params }: RouteParams) {
   const { fullPath, safe } = await resolveFilePath(params);
   if (!safe) return new Response(null, { status: 403 });
-  if (!fs.existsSync(fullPath)) return new Response(null, { status: 404 });
+  const check = checkAudioFile(fullPath);
+  if (check !== "ok") return new Response(null, { status: 404 });
   return new Response(null, {
     status: 200,
     headers: { "Content-Type": "audio/mpeg", "Accept-Ranges": "bytes" },
@@ -66,7 +85,8 @@ export async function GET(
     return new NextResponse("Acesso não autorizado.", { status: 403 });
   }
 
-  if (!fs.existsSync(fullPath)) {
+  const check = checkAudioFile(fullPath);
+  if (check !== "ok") {
     return new NextResponse("Arquivo não encontrado.", { status: 404 });
   }
 

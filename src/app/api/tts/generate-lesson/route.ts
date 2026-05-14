@@ -139,13 +139,32 @@ export async function POST(req: Request) {
   }
 
   // 1. Verifica se já existe → retorna imediatamente (gratuito)
+  // Mas ignora entradas cujo arquivo local está vazio ou ausente no disco.
   try {
     const existing = await prisma.lessonAudio.findUnique({
       where: { courseId_lessonId: { courseId, lessonId } },
       select: { audioUrl: true },
     });
     if (existing?.audioUrl) {
-      return NextResponse.json({ audioUrl: existing.audioUrl, cached: true });
+      const isLocal = existing.audioUrl.startsWith("/api/audio/");
+      if (!isLocal) {
+        // URL externa (Supabase/CDN) — confia sem checar disco
+        return NextResponse.json({ audioUrl: existing.audioUrl, cached: true });
+      }
+      // URL local — verifica se o arquivo físico existe e tem bytes
+      const slug = existing.audioUrl.replace("/api/audio/", "").split("/");
+      const primary = path.join(process.cwd(), "public", "audio", ...slug);
+      const legacy  = path.join(process.cwd(), "public", "audio", "lessons", ...slug);
+      const filePath = fs.existsSync(primary) ? primary : legacy;
+      const validOnDisk = fs.existsSync(filePath) && fs.statSync(filePath).size > 0;
+      if (validOnDisk) {
+        return NextResponse.json({ audioUrl: existing.audioUrl, cached: true });
+      }
+      // Arquivo ausente ou vazio — apaga o registro e regenera
+      console.warn(`[generate-lesson] Arquivo inválido no disco, regenerando: ${filePath}`);
+      await prisma.lessonAudio.delete({
+        where: { courseId_lessonId: { courseId, lessonId } },
+      }).catch(() => undefined);
     }
   } catch (e) {
     console.error("[generate-lesson] DB check error:", e);
