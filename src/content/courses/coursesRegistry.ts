@@ -49,6 +49,7 @@ import { LEGISLACAO_MANIFEST } from "./legislacao/manifest";
 import { COOPERATIVISMO_MANIFEST } from "./cooperativismo/manifest";
 import { INDUSTRIA_MANIFEST } from "./industria/manifest";
 import { EXTRACOES_101_MANIFEST } from "./extracoes-101/manifest";
+import { HASH_MAKER_MANIFEST } from "./hash-maker/manifest";
 import { getCourseLessonTheme } from "@/data/courseLessonThemes";
 import { tryGetManualLessonsForCourse } from "@/data/lessonContent";
 
@@ -142,6 +143,12 @@ registerCourse({ manifest: INDUSTRIA_MANIFEST });
 // ── Extrações 101 — layout Blueprint completo (sidebar + HUD + Concluir Aula + narração) ──
 registerCourse({
   manifest: EXTRACOES_101_MANIFEST,
+  usesCinematicLayout: true,
+});
+
+// ── Hash Maker — layout Blueprint (sidebar + HUD + narração) ──
+registerCourse({
+  manifest: HASH_MAKER_MANIFEST,
   usesCinematicLayout: true,
 });
 

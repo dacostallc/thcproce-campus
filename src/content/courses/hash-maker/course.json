@@ -1,0 +1,9 @@
+{
+  "courseId": "hash-maker",
+  "version": 1,
+  "title": "Hash Maker: Técnicas de Extração Sem Solventes",
+  "lessonCount": 1,
+  "lessons": [
+    "hm-l01-o-que-e-hash"
+  ]
+}

@@ -325,6 +325,27 @@ const AREA_FALLBACK_ROWS: Area[] = [
     hours: "8h"
   },
   {
+    id: "hash-maker",
+    name: "Hash Maker",
+    mapLabel: "Hash Maker",
+    short: "Do charas artesanal ao full-melt premium — técnicas de extração sem solventes",
+    category: "Extrações",
+    level: "Intermediário",
+    color: "amber",
+    position: { x: 30, y: 60 },
+    description:
+      "**Hash Maker** mergulha nas técnicas de produção de hash sem solventes: história milenar do concentrado, técnicas tradicionais (charas, pollinators), modernas (dry sift, bubble hash full-melt) e a arte da cura e avaliação de qualidade.",
+    highlights: [
+      "História e cultura do hash — do Afeganistão à Espanha canábica",
+      "Charas, pollinators, dry sift e bubble hash — técnicas sem solvente",
+      "Avaliação de qualidade: cor, textura, aroma e ponto de fusão (full-melt)",
+      "Armazenamento, cura e apresentação profissional do produto final",
+    ],
+    professor: "Equipa THCProce",
+    lessons: 1,
+    hours: "em construção",
+  },
+  {
     id: "extracoes-101",
     name: "Extrações 101",
     mapLabel: "Extrações",
