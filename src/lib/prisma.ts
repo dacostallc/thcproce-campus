@@ -1,9 +1,5 @@
 import { PrismaClient } from "@prisma/client";
 
-/**
- * Vercel Postgres (Storage) injeta `POSTGRES_PRISMA_URL` / `POSTGRES_URL_NON_POOLING` / `POSTGRES_URL`,
- * mas `schema.prisma` lê `DATABASE_URL` e `DIRECT_URL`. Sincroniza só quando estes últimos estão vazios.
- */
 function syncDatabaseEnvFromVercelPostgres(): void {
   const pooled =
     process.env.POSTGRES_PRISMA_URL?.trim() || process.env.POSTGRES_URL?.trim();
@@ -16,18 +12,11 @@ function syncDatabaseEnvFromVercelPostgres(): void {
   if (!process.env.DIRECT_URL?.trim() && direct) {
     process.env.DIRECT_URL = direct;
   }
-  /** Sem URL dedicada ao migrator: Prisma exige `directUrl`; usar o mesmo URL evita crash. */
   if (!process.env.DIRECT_URL?.trim() && process.env.DATABASE_URL?.trim()) {
     process.env.DIRECT_URL = process.env.DATABASE_URL;
   }
 }
 
-syncDatabaseEnvFromVercelPostgres();
-
-/**
- * Falha cedo com mensagem legível — evita o erro genérico do motor Prisma quando
- * `DATABASE_URL` / `DIRECT_URL` na Vercel estão vazios ou sem esquema `postgresql://`.
- */
 function assertValidPostgresEnvUrl(envName: string, raw: string | undefined): void {
   const v = raw?.trim();
   if (!v) {
@@ -43,28 +32,40 @@ function assertValidPostgresEnvUrl(envName: string, raw: string | undefined): vo
   }
 }
 
-assertValidPostgresEnvUrl("DATABASE_URL", process.env.DATABASE_URL);
-assertValidPostgresEnvUrl("DIRECT_URL", process.env.DIRECT_URL);
-
 const globalForPrisma = globalThis as unknown as { prisma: PrismaClient | undefined };
 
-/**
- * Em ambiente serverless (Vercel) cada cold-start cria uma nova função Node.
- * O padrão de singleton via `globalForPrisma` reutiliza o cliente dentro da
- * mesma instância quente, mas não entre invocações frias.
- *
- * Para o Neon, a URL de DATABASE_URL já aponta para o pooler interno
- * (ep-round-band-*-pooler.*), que gere o pool de conexões via PgBouncer.
- * Não definimos `connection_limit` aqui — o pooler do Neon aceita múltiplas
- * conexões lógicas e as multiplexa para o servidor Postgres real.
- *
- * Se houver erros "too many connections" no Neon Console, acrescente ao
- * DATABASE_URL: `&connection_limit=5` (ajuste conforme o plano Neon).
- */
-export const prisma =
-  globalForPrisma.prisma ??
-  new PrismaClient({
+// Module-level cache so initPrismaClient() is O(1) after first call.
+let _prismaInstance: PrismaClient | undefined;
+
+function initPrismaClient(): PrismaClient {
+  if (_prismaInstance) return _prismaInstance;
+  if (globalForPrisma.prisma) {
+    _prismaInstance = globalForPrisma.prisma;
+    return _prismaInstance;
+  }
+
+  syncDatabaseEnvFromVercelPostgres();
+  assertValidPostgresEnvUrl("DATABASE_URL", process.env.DATABASE_URL);
+  assertValidPostgresEnvUrl("DIRECT_URL", process.env.DIRECT_URL);
+
+  _prismaInstance = new PrismaClient({
     log: process.env.NODE_ENV === "development" ? ["warn", "error"] : ["error"],
   });
 
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+  // In development, cache on globalThis so hot-reload reuses the same connection pool.
+  if (process.env.NODE_ENV !== "production") {
+    globalForPrisma.prisma = _prismaInstance;
+  }
+
+  return _prismaInstance;
+}
+
+// Lazy proxy: PrismaClient is initialized only on first property access (at request
+// time), never during Next.js build-time static analysis or page-data collection.
+export const prisma = new Proxy({} as PrismaClient, {
+  get(_target, prop) {
+    const client = initPrismaClient();
+    const value = (client as unknown as Record<string | symbol, unknown>)[prop];
+    return typeof value === "function" ? (value as Function).bind(client) : value;
+  },
+});
