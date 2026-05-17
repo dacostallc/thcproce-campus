@@ -5,11 +5,12 @@ export const dynamic = "force-dynamic";
 
 export default function StatusPage() {
   const commit =
+    process.env.COMMIT_REF ??
     process.env.VERCEL_GIT_COMMIT_SHA ??
     process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA ??
     null;
-  const deploymentId = process.env.VERCEL_DEPLOYMENT_ID ?? null;
-  const envName = process.env.VERCEL_ENV ?? process.env.NODE_ENV ?? "unknown";
+  const deploymentId = process.env.DEPLOY_ID ?? process.env.VERCEL_DEPLOYMENT_ID ?? null;
+  const envName = process.env.CONTEXT ?? process.env.VERCEL_ENV ?? process.env.NODE_ENV ?? "unknown";
 
   const authConfigured = Boolean(process.env.NEXTAUTH_SECRET && process.env.NEXTAUTH_SECRET !== "");
 

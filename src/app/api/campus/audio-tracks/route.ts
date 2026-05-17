@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { NextResponse } from "next/server";
+import { CAMPUS_AUDIO_MANIFEST } from "@/data/campusAudioManifest";
 
 export const dynamic = "force-dynamic";
 
@@ -38,6 +39,19 @@ function dedupeTracks(tracks: CampusAudioTrackDto[]): CampusAudioTrackDto[] {
   return out;
 }
 
+function manifestTrackUrl(segments: string[], filename: string): string {
+  const baseUrl = segments.length === 0 ? "/audio" : `/audio/${segments.join("/")}`;
+  return `${baseUrl}/${encodeURIComponent(filename)}`;
+}
+
+function manifestTracks(): CampusAudioTrackDto[] {
+  return CAMPUS_AUDIO_MANIFEST.map((entry) => ({
+    category: entry.category,
+    filename: entry.filename,
+    url: manifestTrackUrl(entry.segments, entry.filename)
+  }));
+}
+
 /**
  * Lista áudio em `public/audio/ambience`, `radio`, `cinema`, `mp3` (legado) **e**
  * ficheiros soltos directamente em `public/audio/` (muitos autor colocam MP3 na raiz).
@@ -67,8 +81,10 @@ export async function GET() {
   /** Raiz `public/audio/` — aparece como ambiente no HUD (URLs `/audio/ficheiro.mp3`). */
   scan("ambience", []);
 
+  const resolvedTracks = tracks.length > 0 ? tracks : manifestTracks();
+
   return NextResponse.json(
-    { tracks: dedupeTracks(tracks) },
+    { tracks: dedupeTracks(resolvedTracks) },
     {
       headers: {
         "Cache-Control": "private, no-store, no-cache, must-revalidate, max-age=0",
