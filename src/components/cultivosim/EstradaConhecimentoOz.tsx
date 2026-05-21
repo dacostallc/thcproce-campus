@@ -32,7 +32,7 @@ type CasaEstrada = {
   y: number;
   nome?: string;
   raio: number;
-  temSemente: boolean;
+  temSeedCoin: boolean;
 };
 
 type StatusCasa = "correto" | "errado" | "neutro";
@@ -416,7 +416,7 @@ function gerarEstradaOz(pontos: AncoraCurva[]): CasaEstrada[] {
     y: ponto.y,
     raio: ponto.raio,
     nome: ponto.nome,
-    temSemente: (index + 1) % 7 === 0
+    temSeedCoin: (index + 1) % 7 === 0
   }));
 }
 
@@ -465,7 +465,7 @@ export function EstradaConhecimentoOz({
   const [passoAtual, setPassoAtual] = useState(1);
   const [historicoCasas, setHistoricoCasas] = useState<Record<number, StatusCasa>>({});
   const [cursosLiberados, setCursosLiberados] = useState<string[]>([]);
-  const [sementesColetadas, setSementesColetadas] = useState<number[]>([]);
+  const [seedCoinsColetadas, setSeedCoinsColetadas] = useState<number[]>([]);
   const [quizAberto, setQuizAberto] = useState(false);
   const [ordemPerguntasTrilha, setOrdemPerguntasTrilha] = useState(() => embaralharPerguntas());
   const [indicePerguntaTrilha, setIndicePerguntaTrilha] = useState(0);
@@ -519,9 +519,9 @@ export function EstradaConhecimentoOz({
     return () => window.clearTimeout(timer);
   }, [cursoAtivo, cursoConcluido, feedbackCurso, tempoCurso]);
 
-  const coletarSementeSeHouver = (casa: CasaEstrada) => {
-    if (!casa.temSemente) return;
-    setSementesColetadas((prev) => (prev.includes(casa.id) ? prev : [...prev, casa.id]));
+  const coletarSeedCoinSeHouver = (casa: CasaEstrada) => {
+    if (!casa.temSeedCoin) return;
+    setSeedCoinsColetadas((prev) => (prev.includes(casa.id) ? prev : [...prev, casa.id]));
   };
 
   const liberarCursosDaCasa = (casaId: number) => {
@@ -539,7 +539,7 @@ export function EstradaConhecimentoOz({
     const acertou = opcaoEscolhida === perguntaAtual.correta;
     setFeedback(acertou ? "correto" : "errado");
     setHistoricoCasas((prev) => ({ ...prev, [passoAtual]: acertou ? "correto" : "errado" }));
-    coletarSementeSeHouver(casaAtual);
+    coletarSeedCoinSeHouver(casaAtual);
     window.setTimeout(() => {
       setQuizAberto(false);
       setFeedback(null);
@@ -558,7 +558,7 @@ export function EstradaConhecimentoOz({
     setPassoAtual(1);
     setHistoricoCasas({});
     setCursosLiberados([]);
-    setSementesColetadas([]);
+    setSeedCoinsColetadas([]);
     setOrdemPerguntasTrilha(embaralharPerguntas());
     setIndicePerguntaTrilha(0);
     setQuizAberto(false);
@@ -598,7 +598,7 @@ export function EstradaConhecimentoOz({
     if (casaCursoAtiva === null) return;
     const casaFinalizada = listaQuadradinhos[casaCursoAtiva - 1];
     setHistoricoCasas((prev) => ({ ...prev, [casaCursoAtiva]: status }));
-    coletarSementeSeHouver(casaFinalizada);
+    coletarSeedCoinSeHouver(casaFinalizada);
     liberarCursosDaCasa(casaCursoAtiva);
     setPassoAtual((prev) => Math.min(listaQuadradinhos.length, prev + 1));
     fecharQuizCurso();
@@ -655,7 +655,7 @@ export function EstradaConhecimentoOz({
               Progresso {passoAtual} / {TOTAL_CASAS}
             </span>
             <span className="inline-flex items-center gap-1 rounded-md border border-yellow-700/70 bg-yellow-950/40 px-3 py-2 text-yellow-100">
-              <Sprout size={15} aria-hidden /> {sementesColetadas.length}
+              <Sprout size={15} aria-hidden /> SeedCoin {seedCoinsColetadas.length}
             </span>
             <button
               type="button"
@@ -732,7 +732,7 @@ export function EstradaConhecimentoOz({
             {listaQuadradinhos.map((casa) => {
               const ehCasaAtual = casa.id === passoAtual;
               const statusDaCasa = historicoCasas[casa.id] || "neutro";
-              const sementeColetada = sementesColetadas.includes(casa.id);
+              const seedCoinColetada = seedCoinsColetadas.includes(casa.id);
 
               return (
                 <button
@@ -761,7 +761,7 @@ export function EstradaConhecimentoOz({
                     height: `${casa.raio * 2}%`
                   }}
                 >
-                  {casa.temSemente && !sementeColetada ? (
+                  {casa.temSeedCoin && !seedCoinColetada ? (
                     <span className="absolute -top-2 h-1.5 w-1.5 rounded-full bg-yellow-200 shadow-[0_0_7px_rgba(254,240,138,.9)]" />
                   ) : null}
 
