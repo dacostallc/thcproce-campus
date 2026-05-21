@@ -646,7 +646,7 @@ export function EstradaConhecimentoOz({
             </span>
             <div>
               <h1 className="text-lg font-black tracking-normal text-emerald-50">Estrada do Conhecimento Cannabico</h1>
-              <p className="text-xs text-emerald-100/70">Cada casa pergunta sobre o curso de destino. Na chegada, entra o desafio contra o relogio.</p>
+              <p className="text-xs text-emerald-100/70">Clique apenas na casa brilhante, responda e avance pela trilha.</p>
             </div>
           </div>
 
@@ -745,20 +745,20 @@ export function EstradaConhecimentoOz({
                     if (ehCasaAtual) abrirQuizDaCasaAtual();
                   }}
                   className={cn(
-                    "absolute grid place-items-center rounded-full border transition duration-200",
+                    "absolute z-[18] grid place-items-center rounded-md border px-1 text-[9px] font-black leading-none transition duration-200",
                     "[-webkit-transform:translate(-50%,-50%)] [transform:translate(-50%,-50%)]",
-                    statusDaCasa === "neutro" && "border-yellow-300/20 bg-yellow-300/0 opacity-75 shadow-[0_0_10px_rgba(250,204,21,.18)]",
-                    statusDaCasa === "correto" && "border-blue-200/80 bg-blue-400/5 opacity-100 shadow-[0_0_26px_9px_rgba(59,130,246,.95)]",
-                    statusDaCasa === "errado" && "border-red-200/80 bg-red-500/5 opacity-100 shadow-[0_0_26px_9px_rgba(220,38,38,.95)]",
+                    statusDaCasa === "neutro" && "border-white/10 bg-zinc-950/78 text-white/90 opacity-100 shadow-[0_2px_8px_rgba(0,0,0,.65)]",
+                    statusDaCasa === "correto" && "border-blue-100 bg-blue-500/75 text-white opacity-100 shadow-[0_0_22px_7px_rgba(59,130,246,.85)]",
+                    statusDaCasa === "errado" && "border-red-100 bg-red-500/75 text-white opacity-100 shadow-[0_0_22px_7px_rgba(220,38,38,.85)]",
                     ehCasaAtual &&
-                      "z-20 scale-110 cursor-pointer border-white bg-yellow-300/10 opacity-100 shadow-[0_0_30px_10px_rgba(250,204,21,.98)] animate-pulse",
+                      "z-[30] scale-125 cursor-pointer border-white bg-emerald-400 text-emerald-950 opacity-100 shadow-[0_0_30px_10px_rgba(16,185,129,.95)] animate-pulse",
                     !ehCasaAtual && "cursor-not-allowed"
                   )}
                   style={{
                     left: `${casa.x}%`,
                     top: `${casa.y}%`,
-                    width: `${casa.raio * 2}%`,
-                    height: `${casa.raio * 2}%`
+                    width: "1.55rem",
+                    height: "1.12rem"
                   }}
                 >
                   {casa.temSeedCoin && !seedCoinColetada ? (
@@ -770,6 +770,8 @@ export function EstradaConhecimentoOz({
                       EU
                     </span>
                   ) : null}
+
+                  <span className="pointer-events-none">{ehCasaAtual ? "EU" : casa.nome ?? casa.id}</span>
 
                 </button>
               );
